@@ -1,0 +1,45 @@
+@import '../../styles/tokens.less';
+@import '../../styles/mixins.less';
+
+.primary-button {
+  .touch-target();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 @space-4;
+  border-radius: @radius-pill;
+  font-size: @font-size-body;
+  font-weight: 600;
+  line-height: @touch-target-min;
+  white-space: nowrap;
+}
+
+.primary-button.is-block {
+  display: flex;
+  width: 100%;
+}
+
+.primary-button--primary {
+  background: @color-brand;
+  color: #FFFFFF;
+}
+
+.primary-button--secondary {
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.primary-button--quiet {
+  background: transparent;
+  border: 1rpx solid @color-border;
+  color: @color-text-secondary;
+}
+
+.primary-button--active {
+  opacity: 0.82;
+}
+
+.primary-button.is-disabled {
+  background: #D9D4CE;
+  color: #FFFFFF;
+}

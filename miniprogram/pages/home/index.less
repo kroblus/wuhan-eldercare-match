@@ -1,0 +1,134 @@
+@import '../../styles/tokens.less';
+@import '../../styles/mixins.less';
+@import '../../styles/base.less';
+
+.home-page {
+  padding-top: @space-4;
+}
+
+.home-hero {
+  padding: @space-4 0 @space-5;
+}
+
+.home-hero__title {
+  display: block;
+  margin-top: @space-4;
+  color: @color-text-primary;
+  font-size: @font-size-display;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.home-hero__description {
+  display: block;
+  margin: @space-3 0 @space-5;
+  color: @color-text-secondary;
+  font-size: @font-size-body-large;
+  line-height: @line-height-body;
+}
+
+.home-secondary-button {
+  .touch-target();
+  width: 100%;
+  margin-top: @space-2;
+  padding: 0 @space-4;
+  background: transparent;
+  color: @color-brand-dark;
+  font-size: @font-size-body;
+  line-height: @touch-target-min;
+}
+
+.home-section {
+  margin-top: @space-4;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: @space-2;
+  margin-bottom: @space-3;
+}
+
+.section-heading__title,
+.guide-title {
+  display: block;
+  color: @color-text-primary;
+  font-size: @font-size-body-large;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.section-heading__note {
+  display: block;
+  margin-top: @space-1;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.institution-preview {
+  display: flex;
+  align-items: center;
+  min-height: 160rpx;
+  padding: @space-3 0;
+  border-top: 1rpx solid @color-border;
+}
+
+.institution-preview__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 128rpx;
+  flex-shrink: 0;
+  border-radius: @radius-sm;
+  background: #F1EFEB;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+}
+
+.institution-preview__body {
+  min-width: 0;
+  margin-left: @space-3;
+}
+
+.institution-preview__title-row {
+  display: flex;
+  align-items: center;
+  gap: @space-2;
+}
+
+.institution-preview__title {
+  overflow: hidden;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  font-weight: 600;
+  line-height: @line-height-tight;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.institution-preview__meta {
+  display: block;
+  margin-top: @space-1;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.home-section--guide {
+  margin-bottom: @space-5;
+}
+
+.guide-description {
+  display: block;
+  margin: @space-2 0 @space-3;
+  color: @color-text-secondary;
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.guide-description + .primary-button {
+  margin-top: @space-2;
+}

@@ -1,11 +1,50 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/logs/logs"
+    "pages/home/index",
+    "pages/assessment/intro",
+    "pages/assessment/basic",
+    "pages/assessment/health",
+    "pages/assessment/adl",
+    "pages/assessment/cognitive",
+    "pages/assessment/preference",
+    "pages/assessment/budget",
+    "pages/assessment/profile",
+    "pages/recommendation/result",
+    "pages/institution/index",
+    "pages/institution/detail",
+    "pages/institution/vr",
+    "pages/consultant/index",
+    "pages/appointment/create",
+    "pages/appointment/success",
+    "pages/mine/index",
+    "pages/elder/index",
+    "pages/elder/detail",
+    "pages/assessment/history",
+    "pages/appointment/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#6D737B",
+    "selectedColor": "#B86B45",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/consultant/index",
+        "text": "养老顾问"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
   },
   "style": "v2",
   "rendererOptions": {

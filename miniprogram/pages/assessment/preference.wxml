@@ -1,0 +1,17 @@
+<navigation-bar title="养老需求与偏好" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="Bootstrap 骨架" tone="development"></tag>
+      <text class="route-card-title">把“在意什么”说清楚</text>
+      <text class="route-card-message">后续会限制最多选择 3 项重点，并让每个选项用家属听得懂的方式呈现。</text>
+      <state-panel state="development" title="偏好选项待后续实现" message="当前不生成推荐排序或机构结论。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

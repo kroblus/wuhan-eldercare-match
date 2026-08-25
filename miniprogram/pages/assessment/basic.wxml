@@ -1,0 +1,17 @@
+<navigation-bar title="老人基本情况" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="Bootstrap 骨架" tone="development"></tag>
+      <text class="route-card-title">老人信息入口已预留</text>
+      <text class="route-card-message">未来在此填写关系、性别、年龄、居住状态和主要照护者；返回时应保留已填草稿。</text>
+      <state-panel state="development" title="表单字段待后续实现" message="当前仅确认页面路由，不生成业务答案。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

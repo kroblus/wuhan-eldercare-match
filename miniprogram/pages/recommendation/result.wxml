@@ -1,0 +1,17 @@
+<navigation-bar title="评估结果与机构推荐" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="Bootstrap 骨架" tone="development"></tag>
+      <text class="route-card-title">推荐要回答“为什么适合”</text>
+      <text class="route-card-message">后续推荐卡展示可解释理由，不把百分比作为核心表达；没有完全匹配时也要明确差异。</text>
+      <state-panel state="empty" title="尚未生成推荐结果" message="完成问卷并确认画像后，这里才会展示与当次 Assessment 绑定的结果。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

@@ -1,0 +1,3 @@
+<view class="page-container {{extraClass}}">
+  <slot></slot>
+</view>

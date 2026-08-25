@@ -1,0 +1,46 @@
+<navigation-bar title="武汉养老机构精准匹配" back="{{false}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+
+<page-container extraClass="home-page">
+  <view class="home-hero">
+    <tag text="武汉本地 · 精选机构池" tone="brand"></tag>
+    <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构</text>
+    <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
+    <primary-button text="开始养老需求评估" bindtap="startAssessment"></primary-button>
+    <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
+  </view>
+
+  <section-card extraClass="home-section">
+    <view class="section-heading">
+      <view>
+        <text class="section-heading__title">当前开发中的机构结构示例</text>
+        <text class="section-heading__note">真实合作机构资料接入前，仅用于页面联调</text>
+      </view>
+      <tag text="开发 Mock" tone="development"></tag>
+    </view>
+
+    <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取示例结构" message="仅加载本地开发 Mock 数据"></state-panel>
+    <state-panel wx:elif="{{loadError}}" state="error" title="示例数据暂时不可用" message="这是开发期本地数据，不影响匿名浏览。" actionText="重新加载" bind:action="retryLoad"></state-panel>
+    <block wx:else>
+      <view wx:for="{{institutions}}" wx:key="id" class="institution-preview" data-institution-id="{{item.id}}" bindtap="openInstitution">
+        <view class="institution-preview__media">
+          <text>暂无真实图片</text>
+        </view>
+        <view class="institution-preview__body">
+          <view class="institution-preview__title-row">
+            <text class="institution-preview__title">{{item.name}}</text>
+            <tag text="Mock" tone="development"></tag>
+          </view>
+          <text class="institution-preview__meta">地址、类型、费用与护理能力：需咨询</text>
+          <text class="institution-preview__meta">VR：暂无真实地址</text>
+        </view>
+      </view>
+    </block>
+  </section-card>
+
+  <section-card extraClass="home-section home-section--guide">
+    <text class="guide-title">不知道该怎么选？</text>
+    <text class="guide-description">完成几步简短评估，先了解老人更需要哪类照护，再看机构。</text>
+    <primary-button text="3～5 分钟完成评估" variant="secondary" bindtap="startAssessment"></primary-button>
+    <primary-button text="咨询养老顾问" variant="quiet" bindtap="openConsultant"></primary-button>
+  </section-card>
+</page-container>

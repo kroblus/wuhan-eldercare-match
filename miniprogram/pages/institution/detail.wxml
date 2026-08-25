@@ -1,0 +1,18 @@
+<navigation-bar title="机构详情" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="开发 Mock 结构" tone="development"></tag>
+      <tag text="VR 入口模块已预留" tone="brand"></tag>
+      <text class="route-card-title">真实内容优先，缺失内容不编造</text>
+      <text class="route-card-message">详情页未来按基础信息、为什么推荐、VR、图集、护理、医疗康复、房型、收费和资质展开。</text>
+      <state-panel state="development" title="机构详情资料待接入" message="当前不展示虚构机构、费用、床位、护理能力、资质或评价。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

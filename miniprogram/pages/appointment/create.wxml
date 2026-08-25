@@ -1,0 +1,16 @@
+<navigation-bar title="预约看院" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="真实提交待接入" tone="development"></tag>
+      <text class="route-card-title">先把预约事实和授权边界留清楚</text>
+      <text class="route-card-message">未来提交前会说明隐私用途，并以后端返回的状态为准；当前不展示表单，也不创建预约记录。</text>
+      <state-panel state="development" title="预约提交契约待冻结" message="本页不会无条件跳转到“预约成功”，也不会索取手机号。"></state-panel>
+    </section-card>
+  </view>
+</page-container>

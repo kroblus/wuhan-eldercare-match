@@ -1,0 +1,28 @@
+@import './tokens.less';
+
+.text-body() {
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.text-caption() {
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+  color: @color-text-muted;
+}
+
+.card-surface() {
+  background: @color-surface;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  box-shadow: @shadow-card;
+}
+
+.touch-target() {
+  min-width: @touch-target-min;
+  min-height: @touch-target-min;
+}
+
+.safe-bottom() {
+  padding-bottom: calc(@space-6 + env(safe-area-inset-bottom));
+}

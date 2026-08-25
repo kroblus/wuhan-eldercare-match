@@ -1,0 +1,17 @@
+<navigation-bar title="我的评估" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="Bootstrap 骨架" tone="development"></tag>
+      <text class="route-card-title">历史评估空态已预留</text>
+      <text class="route-card-message">匿名用户可以先浏览和填写评估；保存历史记录的登录入口将在后续授权契约冻结后接入。</text>
+      <state-panel state="empty" title="还没有养老需求评估" message="完成第一次评估后，这里会展示对应的老人和评估时间。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

@@ -1,0 +1,15 @@
+<navigation-bar title="我的预约" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="预约状态空态" tone="development"></tag>
+      <state-panel state="empty" title="暂时没有看院预约" message="完成真实预约申请后，这里会展示日期、时间、老人、顾问和业务状态。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>

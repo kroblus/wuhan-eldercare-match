@@ -1,0 +1,15 @@
+<navigation-bar title="老人档案" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="page-title">{{pageTitle}}</text>
+      <text class="page-description">{{description}}</text>
+    </view>
+    <section-card>
+      <tag text="档案列表骨架" tone="development"></tag>
+      <state-panel state="empty" title="还没有建立老人档案" message="完成一次养老需求评估后，未来会自动生成老人档案；当前不创建虚拟老人。"></state-panel>
+    </section-card>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+  </view>
+</page-container>
