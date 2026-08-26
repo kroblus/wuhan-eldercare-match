@@ -10,22 +10,27 @@
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
     <section-card extraClass="assessment-form-card">
-      <question-section title="老人与您的关系" required="{{true}}">
-        <single-choice options="{{relationshipOptions}}" value="{{relationship}}" bindchange="onRelationshipChange"></single-choice>
-      </question-section>
+      <view id="{{relationshipAnchorId}}" class="question-anchor">
+        <question-section title="老人与您的关系" required="{{true}}" error="{{relationshipError}}">
+          <single-choice options="{{relationshipOptions}}" value="{{relationship}}" bindchange="onRelationshipChange"></single-choice>
+        </question-section>
+      </view>
 
       <question-section title="老人姓名" hint="选填，仅用于家庭档案识别">
         <input class="text-input" value="{{elderName}}" maxlength="20" placeholder="例如：王奶奶" bindinput="onNameInput" />
       </question-section>
 
-      <question-section title="性别" required="{{true}}">
-        <single-choice options="{{genderOptions}}" value="{{gender}}" bindchange="onGenderChange"></single-choice>
-      </question-section>
+      <view id="{{genderAnchorId}}" class="question-anchor">
+        <question-section title="性别" required="{{true}}" error="{{genderError}}">
+          <single-choice options="{{genderOptions}}" value="{{gender}}" bindchange="onGenderChange"></single-choice>
+        </question-section>
+      </view>
 
-      <question-section title="年龄" required="{{true}}" hint="请输入 50–110 岁的整数">
-        <input class="text-input age-input" type="number" value="{{ageInput}}" maxlength="3" placeholder="例如：78" bindinput="onAgeInput" />
-        <text wx:if="{{ageError}}" class="field-error">{{ageError}}</text>
-      </question-section>
+      <view id="{{ageAnchorId}}" class="question-anchor">
+        <question-section title="年龄" required="{{true}}" hint="请输入 50–110 岁的整数" error="{{ageError}}">
+          <input class="text-input age-input" type="number" value="{{ageInput}}" maxlength="3" placeholder="例如：78" bindinput="onAgeInput" />
+        </question-section>
+      </view>
 
       <question-section title="目前居住状态" hint="选填，帮助顾问理解当前生活环境">
         <single-choice options="{{livingStatusOptions}}" value="{{livingStatus}}" bindchange="onLivingStatusChange"></single-choice>

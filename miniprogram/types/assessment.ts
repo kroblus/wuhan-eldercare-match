@@ -238,6 +238,19 @@ export interface AssessmentAnswerValueMap {
 
 export type AssessmentDraftAnswers = Partial<AssessmentAnswerValueMap>
 
+/** 一步评估的轻量校验结果；错误仍按稳定 question ID 归属。 */
+export interface AssessmentStepValidationResult<Q extends AssessmentQuestionId> {
+  valid: boolean
+  errors: Partial<Record<Q, string>>
+  firstErrorQuestionId?: Q
+}
+
+/** 按页面声明的题目顺序返回首个错误，避免把校验顺序写进 UI。 */
+export const getFirstAssessmentErrorQuestionId = <Q extends AssessmentQuestionId>(
+  errors: Partial<Record<Q, string>>,
+  questionOrder: readonly Q[],
+): Q | undefined => questionOrder.find((questionId) => Boolean(errors[questionId]))
+
 /** 已完成评估必须包含全部 required 题；选填/条件题只在用户作答时进入快照。 */
 export type RequiredAssessmentQuestionId =
   | 'basic.relationship'
@@ -436,10 +449,13 @@ export const applyAssessmentConditionalRules = (answers: AssessmentDraftAnswers)
 
 export type BasicRequiredQuestionId = 'basic.relationship' | 'basic.gender' | 'basic.age'
 
-export interface BasicValidationResult {
-  valid: boolean
-  errors: Partial<Record<BasicRequiredQuestionId, string>>
-}
+export type BasicValidationResult = AssessmentStepValidationResult<BasicRequiredQuestionId>
+
+const BASIC_REQUIRED_QUESTION_ORDER: readonly BasicRequiredQuestionId[] = [
+  'basic.relationship',
+  'basic.gender',
+  'basic.age',
+]
 
 export const validateBasicAnswers = (answers: AssessmentDraftAnswers): BasicValidationResult => {
   const errors: Partial<Record<BasicRequiredQuestionId, string>> = {}
@@ -453,7 +469,42 @@ export const validateBasicAnswers = (answers: AssessmentDraftAnswers): BasicVali
   if (typeof age !== 'number' || !Number.isInteger(age) || age < 50 || age > 110) {
     errors['basic.age'] = '请输入 50–110 岁的整数年龄'
   }
-  return { valid: Object.keys(errors).length === 0, errors }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, BASIC_REQUIRED_QUESTION_ORDER),
+  }
+}
+
+export type HealthRequiredQuestionId =
+  | 'health.conditions'
+  | 'health.recentEvents'
+  | 'health.rehabilitationNeed'
+
+export type HealthValidationResult = AssessmentStepValidationResult<HealthRequiredQuestionId>
+
+const HEALTH_REQUIRED_QUESTION_ORDER: readonly HealthRequiredQuestionId[] = [
+  'health.conditions',
+  'health.recentEvents',
+  'health.rehabilitationNeed',
+]
+
+export const validateHealthAnswers = (answers: AssessmentDraftAnswers): HealthValidationResult => {
+  const errors: Partial<Record<HealthRequiredQuestionId, string>> = {}
+  if (!isValidAnswerForQuestion('health.conditions', answers['health.conditions'])) {
+    errors['health.conditions'] = '请选择至少一项疾病情况，或选择“暂无明显慢性疾病/暂不清楚”'
+  }
+  if (!isValidAnswerForQuestion('health.recentEvents', answers['health.recentEvents'])) {
+    errors['health.recentEvents'] = '请选择至少一项近期情况，或选择“以上均无/暂不清楚”'
+  }
+  if (!isValidAnswerForQuestion('health.rehabilitationNeed', answers['health.rehabilitationNeed'])) {
+    errors['health.rehabilitationNeed'] = '请选择是否有康复需求'
+  }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, HEALTH_REQUIRED_QUESTION_ORDER),
+  }
 }
 
 export type AssessmentEvidenceKind =

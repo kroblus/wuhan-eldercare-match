@@ -1,3 +1,20 @@
+interface MultiChoiceOption {
+  value: string
+  label: string
+}
+
+interface RenderedMultiChoiceOption extends MultiChoiceOption {
+  selected: boolean
+}
+
+const buildRenderedOptions = (
+  options: readonly MultiChoiceOption[],
+  values: readonly string[],
+): RenderedMultiChoiceOption[] => options.map((option) => ({
+  ...option,
+  selected: values.indexOf(option.value) >= 0,
+}))
+
 Component({
   properties: {
     options: {
@@ -11,6 +28,19 @@ Component({
     max: {
       type: Number,
       value: 0,
+    },
+  },
+  data: {
+    renderedOptions: [] as RenderedMultiChoiceOption[],
+  },
+  observers: {
+    'options, values'(options: MultiChoiceOption[], values: string[]) {
+      this.setData({
+        renderedOptions: buildRenderedOptions(
+          Array.isArray(options) ? options : [],
+          Array.isArray(values) ? values : [],
+        ),
+      })
     },
   },
   methods: {

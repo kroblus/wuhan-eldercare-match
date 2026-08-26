@@ -8,6 +8,7 @@ import {
   type BasicRelationship,
 } from '../../types/assessment'
 import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 
 type ChoiceOption = { value: string; label: string }
 
@@ -27,6 +28,11 @@ interface AssessmentBasicData {
   caregiverOptions: ChoiceOption[]
   experienceOptions: ChoiceOption[]
   exitReasonOptions: ChoiceOption[]
+  relationshipAnchorId: string
+  genderAnchorId: string
+  ageAnchorId: string
+  relationshipError: string
+  genderError: string
   formError: string
   ageError: string
   saveStatus: string
@@ -86,6 +92,10 @@ const exitReasonOptions: ChoiceOption[] = [
   { value: 'other', label: '其他' },
 ]
 
+const relationshipAnchorId = getAssessmentQuestionAnchorId('basic.relationship')
+const genderAnchorId = getAssessmentQuestionAnchorId('basic.gender')
+const ageAnchorId = getAssessmentQuestionAnchorId('basic.age')
+
 Page({
   data: {
     backEnabled: true,
@@ -103,6 +113,11 @@ Page({
     caregiverOptions,
     experienceOptions,
     exitReasonOptions,
+    relationshipAnchorId,
+    genderAnchorId,
+    ageAnchorId,
+    relationshipError: '',
+    genderError: '',
     formError: '',
     ageError: '',
     saveStatus: '填写后会尝试保存到本机开发态草稿',
@@ -123,6 +138,8 @@ Page({
       primaryCaregiver: answers['basic.primaryCaregiver'] || '',
       hasInstitutionExperience: answers['basic.hasInstitutionExperience'] || '',
       institutionExitReasons: answers['basic.institutionExitReasons'] || [],
+      relationshipError: '',
+      genderError: '',
       ageError: '',
       formError: '',
       saveStatus: Object.keys(answers).length > 0
@@ -142,7 +159,7 @@ Page({
   onRelationshipChange(event: WechatMiniprogram.CustomEvent) {
     const value = (event.detail as { value: BasicRelationship }).value
     const result = assessmentDraftStore.setAnswer('basic.relationship', value)
-    this.setData({ relationship: value, formError: '' })
+    this.setData({ relationship: value, relationshipError: '', formError: '' })
     this.applyPersistenceResult(result)
   },
 
@@ -158,7 +175,7 @@ Page({
   onGenderChange(event: WechatMiniprogram.CustomEvent) {
     const value = (event.detail as { value: BasicGender }).value
     const result = assessmentDraftStore.setAnswer('basic.gender', value)
-    this.setData({ gender: value, formError: '' })
+    this.setData({ gender: value, genderError: '', formError: '' })
     this.applyPersistenceResult(result)
   },
 
@@ -173,7 +190,7 @@ Page({
       this.applyPersistenceResult(result)
     } else {
       const result = assessmentDraftStore.clearAnswer('basic.age')
-      this.setData({ ageInput: value, ageError: value ? '请输入 50–110 岁的整数' : '' })
+      this.setData({ ageInput: value, ageError: value ? '请输入 50–110 岁的整数' : '', formError: '' })
       this.applyPersistenceResult(result)
     }
   },
@@ -218,12 +235,18 @@ Page({
 
   onNext() {
     const validation = validateBasicAnswers(assessmentDraftStore.getDraft().answers)
+    const firstErrorQuestionId = validation.firstErrorQuestionId
+    this.setData({
+      relationshipError: validation.errors['basic.relationship'] || '',
+      genderError: validation.errors['basic.gender'] || '',
+      ageError: validation.errors['basic.age'] || '',
+      formError: '',
+    }, () => {
+      if (!validation.valid && firstErrorQuestionId) {
+        scrollToAssessmentQuestion(firstErrorQuestionId)
+      }
+    })
     if (!validation.valid) {
-      const firstError = validation.errors['basic.relationship']
-        || validation.errors['basic.gender']
-        || validation.errors['basic.age']
-        || '请先补充必填信息'
-      this.setData({ formError: firstError, ageError: validation.errors['basic.age'] || '' })
       return
     }
     const result = assessmentDraftStore.setCurrentStep('health')

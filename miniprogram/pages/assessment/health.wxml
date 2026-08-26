@@ -1,17 +1,50 @@
 <navigation-bar title="健康情况" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<page-container extraClass="assessment-page">
   <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+    <progress-header current="2" total="6" label="评估 · 第 2 步"></progress-header>
+    <view class="page-head assessment-head">
+      <text class="page-title">再看看老人的健康情况</text>
+      <text class="page-description">请选择最接近老人目前情况的选项，不确定时可以选择“暂不清楚”。</text>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">健康信息入口已预留</text>
-      <text class="route-card-message">未来只采集推荐所需的最小信息，并明确说明健康与照护数据的使用范围。</text>
-      <state-panel state="development" title="健康选项待后续实现" message="不在本批次生成疾病或风险答案。"></state-panel>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <section-card extraClass="assessment-form-card">
+      <view id="{{conditionsAnchorId}}" class="question-anchor">
+        <question-section
+          title="目前是否存在以下疾病"
+          hint="可多选；如果没有或不清楚，请选择对应选项"
+          required="{{true}}"
+          error="{{conditionsError}}"
+        >
+          <multi-choice options="{{conditionsOptions}}" values="{{conditions}}" bindchange="onConditionsChange"></multi-choice>
+        </question-section>
+      </view>
+
+      <view id="{{recentEventsAnchorId}}" class="question-anchor">
+        <question-section
+          title="近期是否发生以下情况"
+          hint="可多选；如果没有或不清楚，请选择对应选项"
+          required="{{true}}"
+          error="{{recentEventsError}}"
+        >
+          <multi-choice options="{{recentEventOptions}}" values="{{recentEvents}}" bindchange="onRecentEventsChange"></multi-choice>
+        </question-section>
+      </view>
+
+      <view id="{{rehabilitationNeedAnchorId}}" class="question-anchor">
+        <question-section
+          title="是否有康复需求"
+          hint="如果还不能确定，可以选择“不确定”"
+          required="{{true}}"
+          error="{{rehabilitationNeedError}}"
+        >
+          <single-choice options="{{rehabilitationOptions}}" value="{{rehabilitationNeed}}" bindchange="onRehabilitationNeedChange"></single-choice>
+        </question-section>
+      </view>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

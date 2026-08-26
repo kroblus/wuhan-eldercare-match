@@ -2,9 +2,11 @@
   "usingComponents": {
     "navigation-bar": "/components/navigation-bar/navigation-bar",
     "page-container": "/components/page-container/page-container",
+    "progress-header": "/components/progress-header/progress-header",
     "section-card": "/components/section-card/section-card",
-    "primary-button": "/components/primary-button/primary-button",
-    "tag": "/components/tag/tag",
-    "state-panel": "/components/state-panel/state-panel"
+    "question-section": "/components/question-section/question-section",
+    "multi-choice": "/components/multi-choice/multi-choice",
+    "single-choice": "/components/single-choice/single-choice",
+    "assessment-footer": "/components/assessment-footer/assessment-footer"
   }
 }

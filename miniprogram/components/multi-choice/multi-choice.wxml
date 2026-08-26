@@ -1,14 +1,14 @@
 <view class="multi-choice">
   <view
-    wx:for="{{options}}"
+    wx:for="{{renderedOptions}}"
     wx:key="value"
-    class="multi-choice__item {{values.indexOf(item.value) >= 0 ? 'is-selected' : ''}}"
+    class="multi-choice__item {{item.selected ? 'is-selected' : ''}}"
     data-value="{{item.value}}"
     bindtap="onSelect"
   >
     <text class="multi-choice__label">{{item.label}}</text>
     <view class="multi-choice__mark" aria-hidden="true">
-      <text wx:if="{{values.indexOf(item.value) >= 0}}" class="multi-choice__check">✓</text>
+      <text wx:if="{{item.selected}}" class="multi-choice__check">✓</text>
     </view>
   </view>
 </view>

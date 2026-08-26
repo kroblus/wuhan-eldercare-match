@@ -12,5 +12,9 @@ Component({
       type: Boolean,
       value: false,
     },
+    error: {
+      type: String,
+      value: '',
+    },
   },
 })
