@@ -1,1 +1,60 @@
 @import '../../styles/base.less';
+@import '../../styles/tokens.less';
+
+.assessment-head {
+  padding-top: 0;
+}
+
+.assessment-form-card {
+  margin-top: @space-2;
+  padding-top: @space-2;
+}
+
+.text-input {
+  width: 100%;
+  min-height: @touch-target-min;
+  margin-top: @space-3;
+  padding: 0 @space-3;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  background: @color-surface;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  line-height: @touch-target-min;
+}
+
+.text-input:focus {
+  border-color: @color-brand;
+}
+
+.age-input {
+  width: 280rpx;
+}
+
+.field-error,
+.form-error {
+  color: @color-error;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.field-error {
+  display: block;
+  margin-top: @space-1;
+}
+
+.form-error {
+  margin: 0 @space-2 @space-2;
+  padding: @space-2 @space-3;
+  border-radius: @radius-sm;
+  background: #FBE9E7;
+}
+
+.save-status {
+  display: block;
+  margin: @space-3 @space-2 0;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+  text-align: center;
+}

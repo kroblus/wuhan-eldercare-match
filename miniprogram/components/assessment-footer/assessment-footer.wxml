@@ -1,0 +1,4 @@
+<view class="assessment-footer">
+  <button class="assessment-footer__back" bindtap="onBack">{{backText}}</button>
+  <button class="assessment-footer__next {{nextDisabled ? 'is-disabled' : ''}}" disabled="{{nextDisabled}}" bindtap="onNext">{{nextText}}</button>
+</view>

@@ -1,0 +1,53 @@
+@import '../../styles/tokens.less';
+
+.single-choice {
+  margin-top: @space-3;
+}
+
+.single-choice__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: @touch-target-min;
+  margin-bottom: @space-2;
+  padding: 0 @space-3;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  background: @color-surface;
+  color: @color-text-primary;
+}
+
+.single-choice__item.is-selected {
+  border-color: @color-brand;
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.single-choice__label {
+  flex: 1;
+  padding: @space-2 0;
+  font-size: @font-size-body;
+  line-height: @line-height-tight;
+}
+
+.single-choice__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+  margin-left: @space-2;
+  border: 2rpx solid @color-border;
+  border-radius: 50%;
+}
+
+.is-selected .single-choice__mark {
+  border-color: @color-brand;
+}
+
+.single-choice__dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: @color-brand;
+}

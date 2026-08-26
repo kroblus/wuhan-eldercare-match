@@ -1,0 +1,39 @@
+@import '../../styles/tokens.less';
+
+.progress-header {
+  padding: @space-2 0 @space-4;
+}
+
+.progress-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48rpx;
+}
+
+.progress-header__label,
+.progress-header__count {
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  line-height: @line-height-tight;
+}
+
+.progress-header__label {
+  color: @color-brand-dark;
+  font-weight: 600;
+}
+
+.progress-header__track {
+  height: 12rpx;
+  margin-top: @space-2;
+  overflow: hidden;
+  border-radius: @radius-pill;
+  background: @color-border;
+}
+
+.progress-header__value {
+  height: 100%;
+  border-radius: @radius-pill;
+  background: @color-brand;
+  transition: width 160ms ease-out;
+}

@@ -1,0 +1,9 @@
+<view class="progress-header">
+  <view class="progress-header__row">
+    <text class="progress-header__label">{{label}}</text>
+    <text class="progress-header__count">{{current}} / {{total}}</text>
+  </view>
+  <view class="progress-header__track">
+    <view class="progress-header__value" style="width: {{current / total * 100}}%;"></view>
+  </view>
+</view>

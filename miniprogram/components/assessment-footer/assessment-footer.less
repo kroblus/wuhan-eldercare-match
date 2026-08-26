@@ -1,0 +1,38 @@
+@import '../../styles/tokens.less';
+
+.assessment-footer {
+  display: flex;
+  align-items: center;
+  gap: @space-2;
+  margin-top: @space-6;
+  padding-bottom: calc(@space-5 + env(safe-area-inset-bottom));
+}
+
+.assessment-footer__back,
+.assessment-footer__next {
+  flex: 1;
+  min-height: @touch-target-min;
+  margin: 0;
+  padding: 0 @space-2;
+  border-radius: @radius-pill;
+  font-size: @font-size-body;
+  line-height: @touch-target-min;
+  white-space: nowrap;
+}
+
+.assessment-footer__back {
+  border: 1rpx solid @color-border;
+  background: @color-surface;
+  color: @color-text-secondary;
+}
+
+.assessment-footer__next {
+  background: @color-brand;
+  color: @color-surface;
+  font-weight: 600;
+}
+
+.assessment-footer__next.is-disabled {
+  background: #D9D4CE;
+  color: @color-surface;
+}

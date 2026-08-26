@@ -1,8 +1,21 @@
 import type { DataProvenance, MissingData } from './provenance'
+import type { BasicGender, BasicRelationship, CompletedAssessment } from './assessment'
+export type {
+  AssessmentAnswerSnapshot,
+  AssessmentAnswerValueMap,
+  AssessmentDraft,
+  AssessmentDraftAnswers,
+  AssessmentEvidenceKind,
+  AssessmentQuestionId,
+  OptionalAssessmentQuestionId,
+  RequiredAssessmentQuestionId,
+  AssessmentStepId,
+  CompletedAssessment,
+  PreferenceRegionAnswer,
+} from './assessment'
 
 export type Identifier = string
 export type Nullable<T> = T | MissingData
-export type AnswerValue = string | number | boolean | string[] | null
 
 export interface User {
   id: Identifier
@@ -13,39 +26,16 @@ export interface Elder {
   id: Identifier
   userId: Nullable<Identifier>
   name: Nullable<string>
-  relation: Nullable<string>
-  gender: Nullable<'男' | '女'>
+  relation: Nullable<BasicRelationship>
+  gender: Nullable<BasicGender>
   age: Nullable<number>
   createdAt: Nullable<string>
   updatedAt: Nullable<string>
   dataProvenance: DataProvenance
 }
 
-export interface AssessmentAnswer {
-  questionKey: string
-  value: AnswerValue
-  isUncertain?: boolean
-}
-
-export interface AssessmentDraft {
-  id: Nullable<Identifier>
-  elderId: Nullable<Identifier>
-  status: 'draft'
-  answers: AssessmentAnswer[]
-  updatedAt: string
-  dataProvenance: 'USER_PROVIDED'
-}
-
-export interface Assessment {
-  id: Identifier
-  elderId: Identifier
-  status: 'draft' | 'submitted' | 'completed'
-  answers: AssessmentAnswer[]
-  profileId: Nullable<Identifier>
-  createdAt: string
-  updatedAt: string
-  dataProvenance: DataProvenance
-}
+/** 兼容旧领域引用；它严格等价于未来服务器返回的已完成历史评估。 */
+export type Assessment = CompletedAssessment
 
 export interface ElderProfile {
   id: Identifier

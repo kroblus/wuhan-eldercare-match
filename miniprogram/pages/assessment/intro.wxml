@@ -1,17 +1,56 @@
 <navigation-bar title="评估说明" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<page-container extraClass="assessment-page">
   <view class="page-shell">
     <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+      <text class="eyebrow">评估 · 开始前</text>
+      <text class="page-title">全面了解老人情况，推荐才更准确</text>
+      <text class="page-description">我们会用几分钟了解老人的身体、生活、照护需求和家庭偏好，帮助您更有把握地看机构。</text>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">先建立清楚的评估入口</text>
-      <text class="route-card-message">后续会按基本情况、健康、自理能力、认知照护、偏好和预算逐步引导填写。</text>
-      <state-panel state="development" title="问卷字段待后续实现" message="不在本批次暴露内部 ADL 评分或完整业务表单。"></state-panel>
+
+    <section-card extraClass="assessment-intro-card">
+      <view class="intro-time-row">
+        <tag text="预计 3–5 分钟" tone="brand"></tag>
+        <text class="intro-time-note">可以分次完成</text>
+      </view>
+      <text class="route-card-title">接下来会了解 5 组内容</text>
+      <view class="overview-list">
+        <view wx:for="{{overviewItems}}" wx:key="index" class="overview-item">
+          <text class="overview-index">{{item.index}}</text>
+          <view class="overview-copy">
+            <text class="overview-title">{{item.title}}</text>
+            <text class="overview-description">{{item.description}}</text>
+          </view>
+        </view>
+      </view>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+
+    <section-card extraClass="assessment-note-card">
+      <view class="note-line">
+        <text class="note-icon">?</text>
+        <view class="note-copy">
+          <text class="note-title">不清楚的问题可以选“暂不确定”</text>
+          <text class="note-message">它代表您暂时无法判断，不会被当成“没有问题”。</text>
+        </view>
+      </view>
+      <view class="note-line">
+        <text class="note-icon">i</text>
+        <view class="note-copy">
+          <text class="note-title">信息用途</text>
+          <text class="note-message">老人健康与照护信息仅用于养老需求评估、机构匹配与服务对接。</text>
+        </view>
+      </view>
+    </section-card>
+
+    <view wx:if="{{hasDraft}}" class="draft-banner">
+      <view class="draft-copy">
+        <text class="draft-title">发现一份未完成的评估</text>
+        <text class="draft-message">{{savedAtLabel}}</text>
+      </view>
+      <button class="draft-continue" bindtap="startAssessment">继续填写</button>
+    </view>
+
+    <primary-button wx:if="{{!hasDraft}}" text="开始评估" bindtap="startAssessment"></primary-button>
+    <button wx:if="{{hasDraft}}" class="restart-button" bindtap="restartAssessment">重新开始</button>
+    <view wx:if="{{restartError}}" class="restart-error">{{restartError}}</view>
   </view>
 </page-container>

@@ -1,17 +1,50 @@
 <navigation-bar title="老人基本情况" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<page-container extraClass="assessment-page">
   <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+    <progress-header current="1" total="6" label="评估 · 第 1 步"></progress-header>
+    <view class="page-head assessment-head">
+      <text class="page-title">先从老人现在的生活情况说起</text>
+      <text class="page-description">不需要一次想全，已填内容会自动保存在本机，之后回来可以继续。</text>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">老人信息入口已预留</text>
-      <text class="route-card-message">未来在此填写关系、性别、年龄、居住状态和主要照护者；返回时应保留已填草稿。</text>
-      <state-panel state="development" title="表单字段待后续实现" message="当前仅确认页面路由，不生成业务答案。"></state-panel>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <section-card extraClass="assessment-form-card">
+      <question-section title="老人与您的关系" required="{{true}}">
+        <single-choice options="{{relationshipOptions}}" value="{{relationship}}" bindchange="onRelationshipChange"></single-choice>
+      </question-section>
+
+      <question-section title="老人姓名" hint="选填，仅用于家庭档案识别">
+        <input class="text-input" value="{{elderName}}" maxlength="20" placeholder="例如：王奶奶" bindinput="onNameInput" />
+      </question-section>
+
+      <question-section title="性别" required="{{true}}">
+        <single-choice options="{{genderOptions}}" value="{{gender}}" bindchange="onGenderChange"></single-choice>
+      </question-section>
+
+      <question-section title="年龄" required="{{true}}" hint="请输入 50–110 岁的整数">
+        <input class="text-input age-input" type="number" value="{{ageInput}}" maxlength="3" placeholder="例如：78" bindinput="onAgeInput" />
+        <text wx:if="{{ageError}}" class="field-error">{{ageError}}</text>
+      </question-section>
+
+      <question-section title="目前居住状态" hint="选填，帮助顾问理解当前生活环境">
+        <single-choice options="{{livingStatusOptions}}" value="{{livingStatus}}" bindchange="onLivingStatusChange"></single-choice>
+      </question-section>
+
+      <question-section title="主要照护者" hint="选填，可以先跳过">
+        <single-choice options="{{caregiverOptions}}" value="{{primaryCaregiver}}" bindchange="onCaregiverChange"></single-choice>
+      </question-section>
+
+      <question-section title="是否有养老机构入住经历" hint="选填，帮助了解过去的照护体验">
+        <single-choice options="{{experienceOptions}}" value="{{hasInstitutionExperience}}" bindchange="onExperienceChange"></single-choice>
+      </question-section>
+
+      <question-section wx:if="{{hasInstitutionExperience === 'true'}}" title="离开上一家机构的主要原因" hint="可多选，选择您认为重要的原因">
+        <multi-choice options="{{exitReasonOptions}}" values="{{institutionExitReasons}}" bindchange="onExitReasonChange"></multi-choice>
+      </question-section>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

@@ -1,0 +1,14 @@
+<view class="single-choice">
+  <view
+    wx:for="{{options}}"
+    wx:key="value"
+    class="single-choice__item {{value === item.value ? 'is-selected' : ''}}"
+    data-value="{{item.value}}"
+    bindtap="onSelect"
+  >
+    <text class="single-choice__label">{{item.label}}</text>
+    <view class="single-choice__mark" aria-hidden="true">
+      <view wx:if="{{value === item.value}}" class="single-choice__dot"></view>
+    </view>
+  </view>
+</view>
