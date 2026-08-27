@@ -12,6 +12,6 @@
       <text class="route-card-message">后续筛选和排序只能使用真实机构数据；当前 Mock 机构不代表任何合作方。</text>
       <state-panel state="development" title="机构资料待接入" message="地址、类型、费用、护理能力、图片和 VR 均显示为暂无数据或需咨询。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

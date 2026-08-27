@@ -1,4 +1,5 @@
 import { assessmentDraftStore } from '../../store/assessment-draft'
+import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 interface AssessmentIntroData {
   backEnabled: boolean
@@ -29,6 +30,7 @@ Page({
   } as AssessmentIntroData,
 
   onShow() {
+    resetNavigationGuard(this)
     this.refreshDraftState()
   },
 
@@ -47,7 +49,7 @@ Page({
   },
 
   startAssessment() {
-    wx.navigateTo({ url: '/pages/assessment/basic' })
+    navigateToWithGuard(this, 'intro.startAssessment', '/pages/assessment/basic')
   },
 
   restartAssessment() {
@@ -64,7 +66,7 @@ Page({
             return
           }
           this.refreshDraftState()
-          wx.navigateTo({ url: '/pages/assessment/basic' })
+          navigateToWithGuard(this, 'intro.restartAssessment', '/pages/assessment/basic')
         }
       },
     })

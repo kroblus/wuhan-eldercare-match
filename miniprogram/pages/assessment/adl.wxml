@@ -12,6 +12,6 @@
       <text class="route-card-message">后续会避免直接展示“失能等级”等内部术语，让家属只需描述老人日常情况。</text>
       <state-panel state="development" title="ADL 场景待后续实现" message="当前不展示内部评分、等级或推荐判断。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

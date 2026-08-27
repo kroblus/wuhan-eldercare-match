@@ -1,8 +1,8 @@
 <button
-  class="primary-button primary-button--{{variant}} {{block ? 'is-block' : ''}} {{disabled ? 'is-disabled' : ''}}"
+  class="primary-button primary-button--{{variant}} {{block ? 'is-block' : ''}} {{disabled || loading ? 'is-disabled' : ''}}"
   loading="{{loading}}"
-  disabled="{{disabled}}"
-  bindtap="onTap"
+  disabled="{{disabled || loading}}"
+  catch:tap="handleAction"
   hover-class="primary-button--active"
 >
   {{text}}

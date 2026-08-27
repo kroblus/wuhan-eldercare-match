@@ -12,6 +12,6 @@
       <text class="route-card-message">未来按基本信息、健康、生活照护、特殊护理、偏好和预算分组展示，并允许返回对应题目修改。</text>
       <state-panel state="development" title="画像转换待后续实现" message="当前不生成任何画像结论或推荐分数。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

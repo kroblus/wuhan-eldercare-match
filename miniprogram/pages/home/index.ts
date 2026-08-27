@@ -1,5 +1,6 @@
 import { institutionService } from '../../services/institution.service'
 import type { Institution } from '../../types/domain'
+import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 Component({
   data: {
@@ -10,6 +11,11 @@ Component({
   lifetimes: {
     attached() {
       this.loadInstitutions()
+    },
+  },
+  pageLifetimes: {
+    show() {
+      resetNavigationGuard(this)
     },
   },
   methods: {
@@ -25,10 +31,10 @@ Component({
         })
     },
     startAssessment() {
-      wx.navigateTo({ url: '/pages/assessment/intro' })
+      navigateToWithGuard(this, 'home.startAssessment', '/pages/assessment/intro')
     },
     openInstitutions() {
-      wx.navigateTo({ url: '/pages/institution/index' })
+      navigateToWithGuard(this, 'home.openInstitutions', '/pages/institution/index')
     },
     openConsultant() {
       wx.switchTab({ url: '/pages/consultant/index' })
@@ -36,7 +42,7 @@ Component({
     openInstitution(event: WechatMiniprogram.TouchEvent) {
       const institutionId = event.currentTarget.dataset.institutionId as string
       if (institutionId) {
-        wx.navigateTo({ url: `/pages/institution/detail?id=${institutionId}` })
+        navigateToWithGuard(this, 'home.openInstitution', `/pages/institution/detail?id=${institutionId}`)
       }
     },
     retryLoad() {

@@ -1,0 +1,16 @@
+# 可选文件：默认不要安装。
+# 推荐方案是“主会话直接使用 GPT-5.6 Sol MAX”，因此通常不需要再把 Sol 配成一个子 Agent。
+# 只有你明确希望从另一个主会话里再次 spawn 一个 Sol 总控时才使用。
+
+name = "chief_orchestrator"
+description = "可选的 SOL 总控子 Agent；默认架构中主会话本身就是 SOL，因此通常不启用。"
+model = "gpt-5.6-sol"
+model_reasoning_effort = "max"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+你是项目总工程师。优先负责架构、任务拆分、依赖管理、冲突解决、集成与最终验收，而不是亲自编写全部代码。
+读取 AGENTS.md 后再工作。
+只在需要专业执行时调用对应 Luna；不要机械启动全部 Agent。
+有意义的实现必须经过独立 QA 再验收。
+"""

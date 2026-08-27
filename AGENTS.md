@@ -283,3 +283,83 @@ QA 默认不直接大规模重写业务代码。
 建议主 SOL 下一步做什么。
 
 禁止只回复“完成了”。
+
+## 12. 微信真机 JavaScript 与事件兼容性
+
+微信真机可运行是最终兼容标准。TypeScript 编译通过和微信开发者工具模拟器通过，均不能替代真机兼容性检查。
+
+### 12.1 禁止 class property initializer
+
+禁止：
+
+```ts
+class Example {
+  private value = 1
+  private readonly items = new Set<string>()
+}
+```
+
+必须声明字段，并在构造器内初始化：
+
+```ts
+class Example {
+  private value: number
+  private readonly items: Set<string>
+
+  constructor() {
+    this.value = 1
+    this.items = new Set<string>()
+  }
+}
+```
+
+禁止机械地把 arrow-function property 改成普通方法。修改前必须确认并保留原有 `this` 绑定语义。
+
+任何新增或修改 class 的任务结束前必须：
+
+1. 审计源码中的 class property initializer。
+2. 在微信开发者工具完成一次最新编译。
+3. 运行 `npm run check:wechat-js-compat` 检查实际生成的微信 JavaScript。
+4. 确认产物中不存在 `class Xxx { something = ... }` 或无初始化 class field。
+
+检测器缺失产物、找不到当前项目产物或发现产物早于相关 class 源码时，均不得判定 PASS。
+
+本项目已发生真实事故：
+
+- `store/assessment-draft.js` 曾生成 `draft = readInitialDraft()`。
+- `utils/navigation-guard.js` 曾生成 `lockedActions = new Set()`。
+
+### 12.2 公共组件只允许一个业务 Action 通道
+
+公共组件不得同时依赖原生 `tap` 冒泡与同名 `triggerEvent('tap')` 执行同一业务操作。
+
+跨组件业务事件必须使用语义明确的自定义事件名，例如 `action`、`next`、`back`，并显式设置 `bubbles` 与 `composed`。推荐模式：
+
+```ts
+this.triggerEvent('action', {}, { bubbles: false, composed: false })
+```
+
+```xml
+<primary-button bind:action="handleAction" />
+```
+
+禁止同时在同一个自定义组件上使用 `bindtap` 触发同一业务 handler。多层转发时，每层只能发出一次业务事件，例如：
+
+`PrimaryButton → Footer action → Page handler`
+
+页面 wrapper 不得再用原生 `tap` 冒泡重复执行同一操作。确需冒泡时，必须在组件契约中说明原因和边界。
+
+导航 guard 只能作为事件根因修复后的第二层防御，不能用 debounce 或 guard 掩盖双事件通道。
+
+### 12.3 QA Gate
+
+涉及 `miniprogram/**` 的 class、公共交互组件或导航修改时，QA 至少检查：
+
+1. 源码 class 初始化方式。
+2. `npm run check:wechat-js-compat` 的最新产物 PASS。
+3. 公共组件单一 Action 通道及明确的事件传播选项。
+4. 导航 guard 返回页面后可再次使用。
+5. 微信开发者工具编译结果。
+6. 可获得时的真实设备证据，并明确区分项目负责人手工复测、ADB 验证与自动化测试。
+
+如果无法检查实际生成的 JavaScript，QA 最多只能给出 `PASS_WITH_RISKS`，不得给出 `PASS`。

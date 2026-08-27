@@ -12,6 +12,6 @@
       <text class="route-card-message">后续允许选择“暂不确定”，顾问联系方式只在用户明确发起联系或预约时按需获取。</text>
       <state-panel state="development" title="预算字段待后续实现" message="当前不显示任何机构价格或可入住承诺。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

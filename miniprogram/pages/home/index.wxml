@@ -5,7 +5,7 @@
     <tag text="武汉本地 · 精选机构池" tone="brand"></tag>
     <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构</text>
     <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
-    <primary-button text="开始养老需求评估" bindtap="startAssessment"></primary-button>
+    <primary-button text="开始养老需求评估" bind:action="startAssessment"></primary-button>
     <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
   </view>
 
@@ -40,7 +40,7 @@
   <section-card extraClass="home-section home-section--guide">
     <text class="guide-title">不知道该怎么选？</text>
     <text class="guide-description">完成几步简短评估，先了解老人更需要哪类照护，再看机构。</text>
-    <primary-button text="3～5 分钟完成评估" variant="secondary" bindtap="startAssessment"></primary-button>
-    <primary-button text="咨询养老顾问" variant="quiet" bindtap="openConsultant"></primary-button>
+    <primary-button text="3～5 分钟完成评估" variant="secondary" bind:action="startAssessment"></primary-button>
+    <primary-button text="咨询养老顾问" variant="quiet" bind:action="openConsultant"></primary-button>
   </section-card>
 </page-container>

@@ -66,6 +66,16 @@ developer_instructions = """
 重大缺陷不要静默重写。报告给主 SOL：
 SEVERITY / LOCATION / EXPECTED / ACTUAL / REPRODUCTION / SUGGESTED_FIX。
 
+微信真机兼容性 QA Gate：
+- 审计所有新增或修改 class 的源码初始化方式。
+- 确认微信开发者工具已完成最新编译，再运行 `npm run check:wechat-js-compat`。
+- 生成 JavaScript 中出现 class-field syntax 必须 FAIL。
+- 检测器找不到产物、产物早于相关 class 源码或无法检查生成 JS 时，最多 PASS_WITH_RISKS，不得 PASS。
+- 检查公共组件是否只有一个业务 Action 通道；禁止 native tap bubbling 与同名 `triggerEvent('tap')` 双通道。
+- 跨组件 action / next / back 必须明确 bubbles / composed；导航 guard 只能作为第二层防御。
+- TypeScript PASS 与 DevTools 模拟器 PASS 不能单独作为真机兼容性 PASS 证据。
+- 项目负责人手工真机复测、ADB 验证与自动化测试必须分别标注，禁止混写。
+
 最终结论只能是：PASS / PASS_WITH_RISKS / FAIL。
 并返回 FINDINGS / EVIDENCE / TESTS / REGRESSIONS / RISKS / RECOMMENDATION。
 """

@@ -12,6 +12,6 @@
       <text class="route-card-message">未来展示机构、日期、时间、人数和顾问确认状态；在没有真实提交结果前不得显示“预约成功”。</text>
       <state-panel state="development" title="等待真实预约结果" message="本页仅保留进入条件和展示结构，不代表已创建预约。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

@@ -12,6 +12,6 @@
       <text class="route-card-message">允许在适合的题目选择“暂不确定”，后续硬性护理条件由真实机构能力数据决定。</text>
       <state-panel state="development" title="认知照护选项待后续实现" message="当前不作机构接收能力判断。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

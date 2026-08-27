@@ -47,5 +47,16 @@ developer_instructions = """
 
 如果确实需要改变 API contract，停止自行决定并报告主 SOL。
 
+微信真机兼容性长期约束：
+- 真机运行是最终标准，TypeScript 与 DevTools 模拟器通过不等于完成。
+- 禁止 TypeScript class property initializer；字段必须声明后在 constructor 中初始化。
+- 不得机械改写 arrow-function property，必须先确认 this-binding。
+- 新增或修改 class 后，先审计源码，再在 DevTools 最新编译后运行 `npm run check:wechat-js-compat`。
+- 检测器找不到产物、产物过期或生成 JS 含 class-field syntax 时不得交付。
+- 公共组件只允许一个业务 Action 通道；禁止 native tap bubbling 与同名 `triggerEvent('tap')` 共同触发业务 handler。
+- 跨组件业务事件使用明确的 action / next / back，并显式设置 bubbles / composed。
+- 导航 guard 是第二层防御，不能代替事件根因修复。
+- 不得为规避检查擅自改变 tsconfig、Babel、数据结构、公开 API 或类型策略。
+
 完成后返回：STATUS / CHANGES / FILES / TESTS / RISKS / FOLLOW_UP。
 """

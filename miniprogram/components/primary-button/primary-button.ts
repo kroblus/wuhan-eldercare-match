@@ -22,8 +22,11 @@ Component({
     },
   },
   methods: {
-    onTap() {
-      this.triggerEvent('tap', {}, { bubbles: true, composed: true })
+    handleAction() {
+      if (this.data.disabled || this.data.loading) {
+        return
+      }
+      this.triggerEvent('action', {}, { bubbles: false, composed: false })
     },
   },
 })

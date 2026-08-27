@@ -49,7 +49,7 @@
       <button class="draft-continue" bindtap="startAssessment">继续填写</button>
     </view>
 
-    <primary-button wx:if="{{!hasDraft}}" text="开始评估" bindtap="startAssessment"></primary-button>
+    <primary-button wx:if="{{!hasDraft}}" text="开始评估" bind:action="startAssessment"></primary-button>
     <button wx:if="{{hasDraft}}" class="restart-button" bindtap="restartAssessment">重新开始</button>
     <view wx:if="{{restartError}}" class="restart-error">{{restartError}}</view>
   </view>

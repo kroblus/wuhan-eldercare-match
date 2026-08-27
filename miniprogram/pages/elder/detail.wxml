@@ -12,6 +12,6 @@
       <text class="route-card-message">后续会展示基本情况、健康、自理、认知照护、偏好、预算和最近评估时间。</text>
       <state-panel state="empty" title="暂时没有可展示的老人档案" message="完成一次真实评估并保存后，这里才会显示档案详情。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

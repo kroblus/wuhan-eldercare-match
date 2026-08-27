@@ -12,6 +12,6 @@
       <text class="route-card-message">后续会限制最多选择 3 项重点，并让每个选项用家属听得懂的方式呈现。</text>
       <state-panel state="development" title="偏好选项待后续实现" message="当前不生成推荐排序或机构结论。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

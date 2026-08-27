@@ -10,6 +10,6 @@
       <tag text="档案列表骨架" tone="development"></tag>
       <state-panel state="empty" title="还没有建立老人档案" message="完成一次养老需求评估后，未来会自动生成老人档案；当前不创建虚拟老人。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

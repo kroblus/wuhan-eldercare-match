@@ -15,13 +15,13 @@ Component({
   },
   methods: {
     onBack() {
-      this.triggerEvent('back', {}, { bubbles: true, composed: true })
+      this.triggerEvent('back', {}, { bubbles: false, composed: false })
     },
     onNext() {
       if (this.data.nextDisabled) {
         return
       }
-      this.triggerEvent('next', {}, { bubbles: true, composed: true })
+      this.triggerEvent('next', {}, { bubbles: false, composed: false })
     },
   },
 })

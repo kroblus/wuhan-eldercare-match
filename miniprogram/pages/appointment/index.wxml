@@ -10,6 +10,6 @@
       <tag text="预约状态空态" tone="development"></tag>
       <state-panel state="empty" title="暂时没有看院预约" message="完成真实预约申请后，这里会展示日期、时间、老人、顾问和业务状态。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

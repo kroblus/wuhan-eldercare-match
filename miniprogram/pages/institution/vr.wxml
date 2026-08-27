@@ -12,6 +12,6 @@
       <text class="route-card-title">足不出户，先在线逛一遍</text>
       <state-panel state="empty" title="暂无真实 VR 内容" message="当前没有可访问的真实 VR 地址或场景，暂不展示虚构 Viewer。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>

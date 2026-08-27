@@ -9,6 +9,7 @@ import {
 } from '../../types/assessment'
 import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
+import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 type ChoiceOption = { value: string; label: string }
 
@@ -124,6 +125,7 @@ Page({
   } as AssessmentBasicData,
 
   onShow() {
+    resetNavigationGuard(this)
     this.syncFromDraft()
   },
 
@@ -257,6 +259,6 @@ Page({
       })
       return
     }
-    wx.navigateTo({ url: '/pages/assessment/health' })
+    navigateToWithGuard(this, 'basic.next', '/pages/assessment/health')
   },
 })

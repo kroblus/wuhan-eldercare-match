@@ -127,9 +127,15 @@ export interface AssessmentDraftMutationResult {
 export type AssessmentDraftListener = (draft: AssessmentDraft) => void
 
 export class AssessmentDraftStore {
-  private draft: AssessmentDraft = readInitialDraft()
-  private listeners: AssessmentDraftListener[] = []
-  private lastPersistenceResult: AssessmentDraftPersistenceResult = { ok: true, status: 'saved' }
+  private draft: AssessmentDraft
+  private listeners: AssessmentDraftListener[]
+  private lastPersistenceResult: AssessmentDraftPersistenceResult
+
+  constructor() {
+    this.draft = readInitialDraft()
+    this.listeners = []
+    this.lastPersistenceResult = { ok: true, status: 'saved' }
+  }
 
   getDraft(): AssessmentDraft {
     return cloneDraft(this.draft)

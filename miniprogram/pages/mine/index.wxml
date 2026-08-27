@@ -12,6 +12,6 @@
       <text class="route-card-message">当前不展示头像昵称授权按钮，不主动调用微信登录或手机号授权。</text>
       <state-panel state="empty" title="还没有老人档案" message="完成一次养老需求评估后，未来可以在这里管理档案。"></state-panel>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bindtap="navigateNext"></primary-button>
+    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
   </view>
 </page-container>
