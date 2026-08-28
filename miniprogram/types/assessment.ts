@@ -366,7 +366,10 @@ const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
 const isPreferenceRegionAnswer = (value: unknown): value is PreferenceRegionAnswer => {
-  if (!isPlainRecord(value) || typeof value.kind !== 'string' || typeof value.catalogVersion !== 'string') {
+  if (!isPlainRecord(value)
+    || typeof value.kind !== 'string'
+    || typeof value.catalogVersion !== 'string'
+    || value.catalogVersion.trim().length === 0) {
     return false
   }
   if (value.kind === 'no_preference') {
@@ -374,9 +377,10 @@ const isPreferenceRegionAnswer = (value: unknown): value is PreferenceRegionAnsw
   }
   return value.kind === 'institution_region'
     && typeof value.regionCode === 'string'
-    && value.regionCode.length > 0
+    && value.regionCode.trim().length > 0
+    && value.regionCode.trim() !== 'no_preference'
     && typeof value.regionLabelSnapshot === 'string'
-    && value.regionLabelSnapshot.length > 0
+    && value.regionLabelSnapshot.trim().length > 0
 }
 
 const isAllowedString = (definition: AssessmentQuestionDefinition, value: string): boolean =>
@@ -579,6 +583,66 @@ export const validateCognitiveAnswers = (answers: AssessmentDraftAnswers): Cogni
     valid: Object.keys(errors).length === 0,
     errors,
     firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, COGNITIVE_REQUIRED_QUESTION_ORDER),
+  }
+}
+
+export type PreferenceRequiredQuestionId = 'preference.careType' | 'preference.priorities'
+
+export type PreferenceValidationResult = AssessmentStepValidationResult<PreferenceRequiredQuestionId>
+
+const PREFERENCE_REQUIRED_QUESTION_ORDER: readonly PreferenceRequiredQuestionId[] = [
+  'preference.careType',
+  'preference.priorities',
+]
+
+export const validatePreferenceAnswers = (answers: AssessmentDraftAnswers): PreferenceValidationResult => {
+  const errors: Partial<Record<PreferenceRequiredQuestionId, string>> = {}
+  if (!isValidAnswerForQuestion('preference.careType', answers['preference.careType'])) {
+    errors['preference.careType'] = '请选择更倾向的养老方式，或选择“不确定”'
+  }
+  if (!isValidAnswerForQuestion('preference.priorities', answers['preference.priorities'])) {
+    errors['preference.priorities'] = '请选择 1–3 项最关注的内容'
+  }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, PREFERENCE_REQUIRED_QUESTION_ORDER),
+  }
+}
+
+export type BudgetRequiredQuestionId =
+  | 'budget.monthlyRange'
+  | 'budget.upfrontCostAcceptance'
+  | 'budget.moveInTiming'
+  | 'budget.consultantSupport'
+
+export type BudgetValidationResult = AssessmentStepValidationResult<BudgetRequiredQuestionId>
+
+const BUDGET_REQUIRED_QUESTION_ORDER: readonly BudgetRequiredQuestionId[] = [
+  'budget.monthlyRange',
+  'budget.upfrontCostAcceptance',
+  'budget.moveInTiming',
+  'budget.consultantSupport',
+]
+
+export const validateBudgetAnswers = (answers: AssessmentDraftAnswers): BudgetValidationResult => {
+  const errors: Partial<Record<BudgetRequiredQuestionId, string>> = {}
+  if (!isValidAnswerForQuestion('budget.monthlyRange', answers['budget.monthlyRange'])) {
+    errors['budget.monthlyRange'] = '请选择可接受的月度费用范围，或选择“暂不确定”'
+  }
+  if (!isValidAnswerForQuestion('budget.upfrontCostAcceptance', answers['budget.upfrontCostAcceptance'])) {
+    errors['budget.upfrontCostAcceptance'] = '请选择对押金或一次性费用的接受程度'
+  }
+  if (!isValidAnswerForQuestion('budget.moveInTiming', answers['budget.moveInTiming'])) {
+    errors['budget.moveInTiming'] = '请选择预计入住时间'
+  }
+  if (!isValidAnswerForQuestion('budget.consultantSupport', answers['budget.consultantSupport'])) {
+    errors['budget.consultantSupport'] = '请选择是否希望顾问协助'
+  }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, BUDGET_REQUIRED_QUESTION_ORDER),
   }
 }
 

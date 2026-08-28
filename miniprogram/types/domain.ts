@@ -80,7 +80,8 @@ export interface InstitutionPrice {
 export interface Institution {
   id: Identifier
   name: string
-  region: Nullable<string>
+  regionCode: Nullable<string>
+  regionDisplayName: Nullable<string>
   address: Nullable<string>
   institutionType: Nullable<string>
   coverImageUrl: Nullable<string>

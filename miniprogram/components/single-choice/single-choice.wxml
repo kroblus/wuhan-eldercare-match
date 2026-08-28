@@ -6,7 +6,10 @@
     data-value="{{item.value}}"
     bindtap="onSelect"
   >
-    <text class="single-choice__label">{{item.label}}</text>
+    <view class="single-choice__copy">
+      <text class="single-choice__label">{{item.label}}</text>
+      <text wx:if="{{item.description}}" class="single-choice__description">{{item.description}}</text>
+    </view>
     <view class="single-choice__mark" aria-hidden="true">
       <view wx:if="{{value === item.value}}" class="single-choice__dot"></view>
     </view>

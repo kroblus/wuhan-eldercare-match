@@ -1,17 +1,62 @@
 <navigation-bar title="预算与入住计划" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<page-container extraClass="assessment-page">
   <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+    <progress-header current="6" total="6" label="评估 · 第 6 步"></progress-header>
+    <view class="page-head assessment-head">
+      <text class="page-title">最后了解预算和入住计划</text>
+      <text class="page-description">这些信息只用于匹配参考，不代表任何机构的价格承诺。月费或一次性费用还不确定时，可以选择相应的“不确定”选项。</text>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">预算和时间只用于匹配参考</text>
-      <text class="route-card-message">后续允许选择“暂不确定”，顾问联系方式只在用户明确发起联系或预约时按需获取。</text>
-      <state-panel state="development" title="预算字段待后续实现" message="当前不显示任何机构价格或可入住承诺。"></state-panel>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <section-card extraClass="assessment-form-card">
+      <view id="{{monthlyRangeAnchorId}}" class="question-anchor">
+        <question-section
+          title="预计每月可以接受的费用"
+          hint="请选择家庭目前可以接受的月度范围"
+          required="{{true}}"
+          error="{{monthlyRangeError}}"
+        >
+          <single-choice options="{{monthlyRangeOptions}}" value="{{monthlyRange}}" bindchange="onMonthlyRangeChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{upfrontCostAnchorId}}" class="question-anchor">
+        <question-section
+          title="对押金或一次性费用的接受程度"
+          hint="实际费用以后续核验机构信息为准"
+          required="{{true}}"
+          error="{{upfrontCostError}}"
+        >
+          <single-choice options="{{upfrontCostOptions}}" value="{{upfrontCostAcceptance}}" bindchange="onUpfrontCostChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{moveInTimingAnchorId}}" class="question-anchor">
+        <question-section
+          title="预计入住时间"
+          hint="按家里目前的计划选择即可"
+          required="{{true}}"
+          error="{{moveInTimingError}}"
+        >
+          <single-choice options="{{moveInTimingOptions}}" value="{{moveInTiming}}" bindchange="onMoveInTimingChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{consultantSupportAnchorId}}" class="question-anchor">
+        <question-section
+          title="是否希望养老顾问后续协助"
+          hint="这里仅记录你的选择，不会立即登录、获取手机号或创建联系请求"
+          required="{{true}}"
+          error="{{consultantSupportError}}"
+        >
+          <single-choice options="{{consultantSupportOptions}}" value="{{consultantSupport}}" bindchange="onConsultantSupportChange"></single-choice>
+        </question-section>
+      </view>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+
+    <text class="privacy-note">如果之后明确预约看院或希望顾问联系，再按对应流程处理联系方式。</text>
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer backText="上一步" nextText="查看老人需求画像" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

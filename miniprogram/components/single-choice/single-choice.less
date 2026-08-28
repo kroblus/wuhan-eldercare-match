@@ -24,10 +24,23 @@
 }
 
 .single-choice__label {
-  flex: 1;
+  display: block;
   padding: @space-2 0;
   font-size: @font-size-body;
   line-height: @line-height-tight;
+}
+
+.single-choice__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.single-choice__description {
+  display: block;
+  padding: 0 0 @space-2;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
 }
 
 .single-choice__mark {

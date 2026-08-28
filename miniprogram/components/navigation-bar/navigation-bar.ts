@@ -99,7 +99,7 @@ Component({
           delta: data.delta
         })
       }
-      this.triggerEvent('back', { delta: data.delta }, {})
+      this.triggerEvent('back', { delta: data.delta }, { bubbles: false, composed: false })
     }
   },
 })
