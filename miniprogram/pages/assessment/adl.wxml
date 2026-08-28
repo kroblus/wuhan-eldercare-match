@@ -1,17 +1,94 @@
 <navigation-bar title="日常生活能力" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<page-container extraClass="assessment-page">
   <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+    <progress-header current="3" total="6" label="评估 · 第 3 步"></progress-header>
+    <view class="page-head assessment-head">
+      <text class="page-title">说说老人平时的生活能力</text>
+      <text class="page-description">不用理解专业分级，只要选择最接近老人目前实际情况的描述。不确定时可以选择“暂不确定”。</text>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">用生活场景引导回答</text>
-      <text class="route-card-message">后续会避免直接展示“失能等级”等内部术语，让家属只需描述老人日常情况。</text>
-      <state-panel state="development" title="ADL 场景待后续实现" message="当前不展示内部评分、等级或推荐判断。"></state-panel>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <section-card extraClass="assessment-form-card">
+      <view id="{{eatingAnchorId}}" class="question-anchor">
+        <question-section
+          title="进食能力"
+          hint="老人平时吃饭时通常需要多少帮助？"
+          required="{{true}}"
+          error="{{eatingError}}"
+        >
+          <single-choice options="{{eatingOptions}}" value="{{eating}}" bindchange="onEatingChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{mobilityAnchorId}}" class="question-anchor">
+        <question-section
+          title="行走能力"
+          hint="请选择老人平时最常见的移动方式"
+          required="{{true}}"
+          error="{{mobilityError}}"
+        >
+          <single-choice options="{{mobilityOptions}}" value="{{mobility}}" bindchange="onMobilityChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{toiletingAnchorId}}" class="question-anchor">
+        <question-section
+          title="如厕能力"
+          hint="包括如厕过程中的协助、失禁或导尿情况"
+          required="{{true}}"
+          error="{{toiletingError}}"
+        >
+          <single-choice options="{{toiletingOptions}}" value="{{toileting}}" bindchange="onToiletingChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{bathingAnchorId}}" class="question-anchor">
+        <question-section
+          title="洗澡能力"
+          hint="请选择老人洗澡时通常需要的帮助"
+          required="{{true}}"
+          error="{{bathingError}}"
+        >
+          <single-choice options="{{bathingOptions}}" value="{{bathing}}" bindchange="onBathingChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{dressingAnchorId}}" class="question-anchor">
+        <question-section
+          title="穿衣能力"
+          hint="请选择老人穿衣时通常需要的帮助"
+          required="{{true}}"
+          error="{{dressingError}}"
+        >
+          <single-choice options="{{dressingOptions}}" value="{{dressing}}" bindchange="onDressingChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{transferAnchorId}}" class="question-anchor">
+        <question-section
+          title="起床与床椅转移"
+          hint="包括从床上起身、坐下和床椅之间移动"
+          required="{{true}}"
+          error="{{transferError}}"
+        >
+          <single-choice options="{{transferOptions}}" value="{{transfer}}" bindchange="onTransferChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{stairsAnchorId}}" class="question-anchor">
+        <question-section
+          title="上下楼能力"
+          hint="如果当前生活环境没有楼梯，请选择对应选项"
+          required="{{true}}"
+          error="{{stairsError}}"
+        >
+          <single-choice options="{{stairsOptions}}" value="{{stairs}}" bindchange="onStairsChange"></single-choice>
+        </question-section>
+      </view>
     </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

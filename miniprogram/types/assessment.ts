@@ -507,6 +507,81 @@ export const validateHealthAnswers = (answers: AssessmentDraftAnswers): HealthVa
   }
 }
 
+export type AdlRequiredQuestionId =
+  | 'adl.eating'
+  | 'adl.mobility'
+  | 'adl.toileting'
+  | 'adl.bathing'
+  | 'adl.dressing'
+  | 'adl.transfer'
+  | 'adl.stairs'
+
+export type AdlValidationResult = AssessmentStepValidationResult<AdlRequiredQuestionId>
+
+const ADL_REQUIRED_QUESTION_ORDER: readonly AdlRequiredQuestionId[] = [
+  'adl.eating',
+  'adl.mobility',
+  'adl.toileting',
+  'adl.bathing',
+  'adl.dressing',
+  'adl.transfer',
+  'adl.stairs',
+]
+
+export const validateAdlAnswers = (answers: AssessmentDraftAnswers): AdlValidationResult => {
+  const errors: Partial<Record<AdlRequiredQuestionId, string>> = {}
+  if (!isValidAnswerForQuestion('adl.eating', answers['adl.eating'])) {
+    errors['adl.eating'] = '请选择老人目前的进食方式'
+  }
+  if (!isValidAnswerForQuestion('adl.mobility', answers['adl.mobility'])) {
+    errors['adl.mobility'] = '请选择老人目前的行走方式'
+  }
+  if (!isValidAnswerForQuestion('adl.toileting', answers['adl.toileting'])) {
+    errors['adl.toileting'] = '请选择老人目前的如厕情况'
+  }
+  if (!isValidAnswerForQuestion('adl.bathing', answers['adl.bathing'])) {
+    errors['adl.bathing'] = '请选择老人目前的洗澡情况'
+  }
+  if (!isValidAnswerForQuestion('adl.dressing', answers['adl.dressing'])) {
+    errors['adl.dressing'] = '请选择老人目前的穿衣情况'
+  }
+  if (!isValidAnswerForQuestion('adl.transfer', answers['adl.transfer'])) {
+    errors['adl.transfer'] = '请选择老人目前的起床与床椅转移情况'
+  }
+  if (!isValidAnswerForQuestion('adl.stairs', answers['adl.stairs'])) {
+    errors['adl.stairs'] = '请选择老人目前的上下楼情况'
+  }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, ADL_REQUIRED_QUESTION_ORDER),
+  }
+}
+
+export type CognitiveRequiredQuestionId = 'cognitive.symptoms' | 'cognitive.specialCareNeeds'
+
+export type CognitiveValidationResult = AssessmentStepValidationResult<CognitiveRequiredQuestionId>
+
+const COGNITIVE_REQUIRED_QUESTION_ORDER: readonly CognitiveRequiredQuestionId[] = [
+  'cognitive.symptoms',
+  'cognitive.specialCareNeeds',
+]
+
+export const validateCognitiveAnswers = (answers: AssessmentDraftAnswers): CognitiveValidationResult => {
+  const errors: Partial<Record<CognitiveRequiredQuestionId, string>> = {}
+  if (!isValidAnswerForQuestion('cognitive.symptoms', answers['cognitive.symptoms'])) {
+    errors['cognitive.symptoms'] = '请选择最符合老人目前情况的认知与精神状态'
+  }
+  if (!isValidAnswerForQuestion('cognitive.specialCareNeeds', answers['cognitive.specialCareNeeds'])) {
+    errors['cognitive.specialCareNeeds'] = '请选择老人目前的特殊护理需求'
+  }
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+    firstErrorQuestionId: getFirstAssessmentErrorQuestionId(errors, COGNITIVE_REQUIRED_QUESTION_ORDER),
+  }
+}
+
 export type AssessmentEvidenceKind =
   | 'direct_requirement'
   | 'direct_observation'
