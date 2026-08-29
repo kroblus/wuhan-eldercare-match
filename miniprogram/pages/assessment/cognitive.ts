@@ -6,6 +6,7 @@ import {
 } from '../../types/assessment'
 import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
+import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 type ChoiceOption = { value: string; label: string }
@@ -146,7 +147,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack()
+    navigateBackFromAssessment('cognitive')
   },
 
   onNext() {

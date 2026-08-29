@@ -50,6 +50,11 @@ Component({
       type: Number,
       value: 1
     },
+    // 当前页面是根栈时的明确业务回退路径；为空时保留原有无导航行为。
+    fallbackUrl: {
+      type: String,
+      value: ''
+    },
   },
   /**
    * 组件的初始数据
@@ -94,9 +99,14 @@ Component({
     },
     back() {
       const data = this.data
-      if (data.delta) {
+      const pages = getCurrentPages()
+      if (pages.length > 1 && data.delta) {
         wx.navigateBack({
           delta: data.delta
+        })
+      } else if (pages.length <= 1 && data.fallbackUrl) {
+        wx.redirectTo({
+          url: data.fallbackUrl
         })
       }
       this.triggerEvent('back', { delta: data.delta }, { bubbles: false, composed: false })

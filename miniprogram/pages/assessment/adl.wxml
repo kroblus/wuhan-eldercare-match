@@ -1,4 +1,4 @@
-<navigation-bar title="日常生活能力" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="日常生活能力" back="{{backEnabled}}" fallbackUrl="/pages/assessment/health" color="#27313D" background="#FFFFFF"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header current="3" total="6" label="评估 · 第 3 步"></progress-header>

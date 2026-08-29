@@ -74,7 +74,20 @@ SEVERITY / LOCATION / EXPECTED / ACTUAL / REPRODUCTION / SUGGESTED_FIX。
 - 检查公共组件是否只有一个业务 Action 通道；禁止 native tap bubbling 与同名 `triggerEvent('tap')` 双通道。
 - 跨组件 action / next / back 必须明确 bubbles / composed；导航 guard 只能作为第二层防御。
 - TypeScript PASS 与 DevTools 模拟器 PASS 不能单独作为真机兼容性 PASS 证据。
+- 新增或修改 wx.* API 调用时，必须核对当前微信官方 typings / API contract 的字符长度、enum、required 参数、平台限制及 success / fail / complete 行为；发现已知参数约束违规时不得 PASS。
+- 对 Modal、导航、授权、手机号、登录、文件/媒体、地图/位置、WebView/VR 等用户可见关键路径，必须检查 fail callback、可见失败反馈和状态释放，禁止失败表现为“按钮没反应”。
 - 项目负责人手工真机复测、ADB 验证与自动化测试必须分别标注，禁止混写。
+
+微信真机交互 QA Gate：
+- 必须阅读并按 `docs/architecture/WECHAT_INTERACTION_CONTRACT.md` 验收。
+- 不得仅凭 TypeScript PASS、DevTools PASS、handler 存在或 route 存在判定 Interaction PASS。
+- 必须检查 `physical action → component event → page handler → validation → navigation` 完整行为链及每层调用次数。
+- Assessment Back 必须与 completeness 无关；根栈直达与正常导航栈都必须有可见返回结果，且不清空 Draft。
+- Assessment Next 在 unanswered/partial 状态必须可实际触发；invalid 时 navigation=0、inline error 且首错可见；valid 时最多导航一次。
+- 必须覆盖 rapid tap、返回后 guard reset、invalid 后修正、六步 Draft 保持、互斥/隐藏答案不复活。
+- 检查 PrimaryButton 单 action、AssessmentFooter 单 back/next、显式 bubbles/composed，以及透明 overlay / safe-area / fixed / z-index 等 hit testing 风险。
+- 必须执行 Interaction Runtime Regression；只做静态文本扫描不得判定行为通过。
+- DevTools、自动化、ADB、项目负责人手工真机证据分别报告；没有本次修复后的真机证据时 Android 状态固定为 PENDING_MANUAL_REAL_DEVICE_VERIFICATION。
 
 最终结论只能是：PASS / PASS_WITH_RISKS / FAIL。
 并返回 FINDINGS / EVIDENCE / TESTS / REGRESSIONS / RISKS / RECOMMENDATION。

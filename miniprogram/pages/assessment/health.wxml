@@ -1,4 +1,4 @@
-<navigation-bar title="健康情况" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="健康情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/basic" color="#27313D" background="#FFFFFF"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header current="2" total="6" label="评估 · 第 2 步"></progress-header>

@@ -275,6 +275,31 @@ export type RequiredAssessmentQuestionId =
   | 'budget.moveInTiming'
   | 'budget.consultantSupport'
 
+/** 六步完成态校验的唯一必填顺序；同时用于稳定定位第一个缺失输入。 */
+export const REQUIRED_ASSESSMENT_QUESTION_ORDER: readonly RequiredAssessmentQuestionId[] = [
+  'basic.relationship',
+  'basic.gender',
+  'basic.age',
+  'health.conditions',
+  'health.recentEvents',
+  'health.rehabilitationNeed',
+  'adl.eating',
+  'adl.mobility',
+  'adl.toileting',
+  'adl.bathing',
+  'adl.dressing',
+  'adl.transfer',
+  'adl.stairs',
+  'cognitive.symptoms',
+  'cognitive.specialCareNeeds',
+  'preference.careType',
+  'preference.priorities',
+  'budget.monthlyRange',
+  'budget.upfrontCostAcceptance',
+  'budget.moveInTiming',
+  'budget.consultantSupport',
+]
+
 export type OptionalAssessmentQuestionId = Exclude<AssessmentQuestionId, RequiredAssessmentQuestionId>
 export type RequiredAssessmentAnswerSnapshot = {
   [K in RequiredAssessmentQuestionId]: AssessmentAnswerValueMap[K]
@@ -400,7 +425,7 @@ export const isValidAnswerForQuestion = <K extends AssessmentQuestionId>(
 ): value is AssessmentAnswerValueMap[K] => {
   const definition = ASSESSMENT_QUESTION_DEFINITIONS[questionId]
   if (definition.type === 'text') {
-    return typeof value === 'string'
+    return typeof value === 'string' && value.trim().length > 0
   }
   if (definition.type === 'integer') {
     return typeof value === 'number'
@@ -423,6 +448,29 @@ export const isValidAnswerForQuestion = <K extends AssessmentQuestionId>(
     return false
   }
   return value.every((item) => typeof item === 'string' && isAllowedString(definition, item))
+}
+
+export interface AssessmentCompletionValidationResult {
+  valid: boolean
+  invalidQuestionIds: RequiredAssessmentQuestionId[]
+  firstInvalidQuestionId?: RequiredAssessmentQuestionId
+}
+
+/**
+ * 只证明六步原始答案已满足冻结契约；不创建 CompletedAssessment，
+ * 也不生成 ADL、ElderProfile 或推荐派生结果。
+ */
+export const validateAssessmentDraftForCompletion = (
+  answers: AssessmentDraftAnswers,
+): AssessmentCompletionValidationResult => {
+  const invalidQuestionIds = REQUIRED_ASSESSMENT_QUESTION_ORDER.filter((questionId) =>
+    !isValidAnswerForQuestion(questionId, answers[questionId]),
+  )
+  return {
+    valid: invalidQuestionIds.length === 0,
+    invalidQuestionIds,
+    firstInvalidQuestionId: invalidQuestionIds[0],
+  }
 }
 
 /** 将多选值按集合保存，并执行契约中的 none/unknown 互斥规则。 */
@@ -657,10 +705,11 @@ export interface AssessmentEvidenceMetadata {
   kind: AssessmentEvidenceKind
   description: string
   sourceQuestionIds: readonly AssessmentQuestionId[]
+  /** 代表性语义锚点，不是完整 code 映射；后续 derivation 必须直接读取 typed answers。 */
   sourceCodes: readonly string[]
 }
 
-/** 仅冻结证据类别与来源，不执行过滤、计分或推荐。 */
+/** 仅冻结证据类别、来源问题与代表性 code，不执行过滤、计分或推荐。 */
 export const ASSESSMENT_EVIDENCE_METADATA: readonly AssessmentEvidenceMetadata[] = [
   {
     kind: 'direct_requirement',

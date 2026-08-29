@@ -10,7 +10,8 @@ export const MOCK_INSTITUTIONS: Institution[] = [
   {
     id: 'mock-institution-001',
     name: '武汉养老机构示例 A（Mock）',
-    region: null,
+    regionCode: null,
+    regionDisplayName: null,
     address: null,
     institutionType: null,
     coverImageUrl: null,
@@ -34,7 +35,8 @@ export const MOCK_INSTITUTIONS: Institution[] = [
   {
     id: 'mock-institution-002',
     name: '武汉养老机构示例 B（Mock）',
-    region: null,
+    regionCode: null,
+    regionDisplayName: null,
     address: null,
     institutionType: null,
     coverImageUrl: null,

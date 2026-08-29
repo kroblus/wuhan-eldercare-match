@@ -12,12 +12,19 @@ Component({
       type: Boolean,
       value: false,
     },
+    backDisabled: {
+      type: Boolean,
+      value: false,
+    },
   },
   methods: {
-    onBack() {
+    onBackAction() {
+      if (this.data.backDisabled) {
+        return
+      }
       this.triggerEvent('back', {}, { bubbles: false, composed: false })
     },
-    onNext() {
+    onNextAction() {
       if (this.data.nextDisabled) {
         return
       }

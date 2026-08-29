@@ -1,10 +1,12 @@
 # Assessment 前端领域契约
 
-状态：`FROZEN_PHASE_2A`
+状态：`FROZEN_PHASE_2D`
+
+冻结标志：`ASSESSMENT_INPUT_SYSTEM_FROZEN = TRUE`
 
 版本：`assessment-schema-v1`
 
-适用范围：Phase 2A 冻结六步评估的数据结构；Phase 2B 只实现评估说明和第 1 步老人基本情况。本文不实现 ElderProfile 推导、ADL 分级或推荐算法。
+适用范围：Phase 2D 冻结六步评估输入系统及本地 `AssessmentDraft` 完成态校验。画像页仍为 Skeleton；本文不实现 ElderProfile 推导、ADL 分级、推荐算法或历史 Assessment 落库。
 
 ## 1. 依据与边界
 
@@ -31,14 +33,14 @@
 
 ## 3. 步骤与进度
 
-| stepId | 页面 | 进度 | 本轮实现 |
+| stepId | 页面 | 进度 | 当前实现 |
 |---|---|---:|---|
 | `basic` | `pages/assessment/basic` | 1 / 6 | 完整实现 |
-| `health` | `pages/assessment/health` | 2 / 6 | 仅保留骨架 |
-| `adl` | `pages/assessment/adl` | 3 / 6 | 仅保留骨架 |
-| `cognitive` | `pages/assessment/cognitive` | 4 / 6 | 仅保留骨架 |
-| `preference` | `pages/assessment/preference` | 5 / 6 | 仅保留骨架 |
-| `budget` | `pages/assessment/budget` | 6 / 6 | 仅保留骨架 |
+| `health` | `pages/assessment/health` | 2 / 6 | 完整实现 |
+| `adl` | `pages/assessment/adl` | 3 / 6 | 完整实现 |
+| `cognitive` | `pages/assessment/cognitive` | 4 / 6 | 完整实现 |
+| `preference` | `pages/assessment/preference` | 5 / 6 | 完整实现 |
+| `budget` | `pages/assessment/budget` | 6 / 6 | 完整实现 |
 
 评估说明页展示 PRD 的五组内容概览，但实际数据模型仍为六步；“身体与生活能力”在说明文案中合并展示，进入问卷后拆为 `health` 和 `adl` 两步。
 
@@ -48,7 +50,7 @@
 |---|---|---|
 | `single_choice` | 字符串字面量 union | 单选稳定 code |
 | `multi_choice` | 字符串字面量数组 | 去重集合；应用互斥和数量规则 |
-| `text` | `string` | 保存用户原文；展示前进行 trim |
+| `text` | `string` | 非空时保存用户原文；空或全空白按 UNANSWERED 清除 key |
 | `integer` | `number` | 必须是十进制整数；范围由问题定义 |
 | `dynamic_single_choice` | discriminated union | 选项来自已核验的合作机构数据 |
 
@@ -60,7 +62,7 @@ question ID 值为 unknown = UNKNOWN（用户明确不确定）
 question ID 有普通值     = ANSWERED（用户明确回答）
 ```
 
-只有问题定义允许时才能使用 `unknown`。Phase 2B 的基本情况页不新增“暂不确定”选项；其必填项严格按照 PRD 校验。
+只有问题定义允许时才能使用 `unknown`。基本情况页不新增“暂不确定”选项；其必填项严格按照 PRD 校验。
 
 ## 5. 第 1 步：老人基本情况
 
@@ -385,6 +387,8 @@ answers: Partial<Record<AssessmentQuestionId, typed value>>
 startedAt / updatedAt: ISO 时间
 ```
 
+`currentStep` 表示“最近一次已通过本步骤校验并成功持久化的步骤”，不是当前可见页面、恢复路由或匹配事实。返回上一页不会回退该字段；评估说明页继续填写仍从 Basic 进入，由各页从同一 Draft 恢复答案。
+
 ### 12.2 已完成历史评估
 
 `Assessment` 是未来后端生成的不可覆盖历史事实：
@@ -427,7 +431,7 @@ completedAt: ISO 时间
 
 验证失败、返回评估说明、进入下一页、关闭小程序或网络失败都不得清理草稿。
 
-### 12.6 本轮 TypeScript 落地要求
+### 12.6 Phase 2D TypeScript 落地要求
 
 `miniprogram/types/assessment.ts` 必须与本文同版本实现：
 
@@ -437,7 +441,9 @@ completedAt: ISO 时间
 - 独立的 `AssessmentDraft` 与 `CompletedAssessment` discriminated type；
 - `PreferenceRegionAnswer` 对象 union，包含稳定 code 和历史快照；
 - 不再使用任意 `questionKey: string`、宽泛 `AnswerValue` 或 `isUncertain`；
-- 最小问题规则 registry/validator，至少机器校验年龄整数和 50–110 边界、Phase 2B 必填、互斥 code、条件题清理和 schemaVersion。
+- 最小问题规则 registry/validator，至少机器校验年龄整数和 50–110 边界、全部 21 个必填问题、互斥 code、条件题清理和 schemaVersion；
+- `validateAssessmentDraftForCompletion` 在 Budget 进入 Profile Skeleton 前聚合校验六步必填原始答案；它只返回校验结果，不创建 `CompletedAssessment`，不生成任何画像或推荐结果；
+- 选填文本为空或全空白时必须清除对应 key，不得把空字符串保存成“已回答”。
 
 这是一层数据契约与校验，不是大型表单框架，也不得包含 ADL 计分、硬过滤或推荐权重。
 
@@ -488,17 +494,38 @@ Assessment 输入已足以支持后续判断，但以下内容不属于本轮：
 
 这些必须在实现推荐算法前通过独立 `RECOMMENDATION_CONTRACT` 冻结。本轮不得用自由文本或临时对象假装完成。
 
-## 15. Phase 2B 验收边界
+## 15. Phase 2D Assessment 输入冻结边界
 
-本轮只实现：
+冻结链路：
 
 ```text
 assessment/intro
   → assessment/basic
-  → 本地 AssessmentDraft 保存与恢复
-  → assessment/health（现有骨架）
+  → assessment/health
+  → assessment/adl
+  → assessment/cognitive
+  → assessment/preference
+  → assessment/budget
+  → assessment/profile（仅 Skeleton）
 ```
 
-第 1 步下一步校验只要求 PRD 明确的三个必填项：关系、性别、年龄；年龄必须为 50–110 的整数。所有已经输入或选择的有效草稿字段都必须在返回或重新进入页面后恢复。
+冻结条件：
 
-本轮禁止实现健康、ADL、认知、偏好、预算的完整 UI，禁止生成 ElderProfile、ADL 标签、推荐结果或服务器 Assessment。
+1. Contract、TypeScript、页面选项和 `AssessmentDraft` 对 27 个稳定 question ID、stable code 与状态规则保持一致；
+2. Draft 可本地保存、退出、恢复、前后导航、修改并再次保存，且已清理答案不会复活；
+3. 进入 Profile Skeleton 前，21 个 required question 均通过统一完成态校验；选填/条件题继续以 key 缺失表示未回答；
+4. `preference.region` 只允许页面从当前已核验机构区域目录生成；当前无 `VERIFIED` 区域时只能不作答或保存 `no_preference`，不得写入 Mock 行政区；
+5. Profile Skeleton 不读取原始答案生成画像结论，不创建 Completed Assessment，不触发推荐、登录、手机号或 API；
+6. 微信开发者工具实际生成六步相关 JavaScript，并通过真机兼容自动检查。
+
+本契约冻结的是原始 Assessment 输入，不是 ElderProfile derivation、ADL classification、Recommendation Contract、Institution Matching 或 Backend。上述下游能力必须在后续阶段分别冻结规则后才能实现。
+
+## 16. Assessment Input Freeze 证据（2026-08-29）
+
+证据必须按来源分层记录，禁止互相替代：
+
+- `AUTOMATED`：正式 `check:assessment-runtime` 直接加载当前 TypeScript 源码，验证 27 个 question ID、21 个 required question、stable code、互斥/条件清理、Draft 恢复、Preference max 3、区域语义和六步完成 Gate；Interaction Runtime Regression 验证六步页面真实 handler、Draft、校验及导航行为。
+- `DEVTOOLS`：微信开发者工具 Stable v2.01.2510290 实际执行编译，Errors 0、Warnings 0；TypeScript、WXML、Less、JSON 均由当前项目配置处理。
+- `MANUAL_ANDROID_REAL_DEVICE_VERIFICATION`：项目负责人在 Android 17 微信真机确认未完成 Next 可物理触发校验且不导航、Invalid 反馈可见、Valid Next 正常导航、完整六步可以进入 Profile Skeleton，并且正向与反向导航栈正常。该证据不是 ADB，也不是自动化测试。
+
+Freeze 仍只覆盖 Assessment 原始输入与本地开发态 Draft。上述证据不证明 ElderProfile、ADL classification、Recommendation、Institution matching 或 Backend 已实现。

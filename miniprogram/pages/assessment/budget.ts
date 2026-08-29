@@ -1,6 +1,9 @@
 import {
+  ASSESSMENT_QUESTION_DEFINITIONS,
+  validateAssessmentDraftForCompletion,
   validateBudgetAnswers,
   type AssessmentAnswerValueMap,
+  type AssessmentStepId,
   type ConsultantSupport,
   type MonthlyRange,
   type MoveInTiming,
@@ -8,6 +11,7 @@ import {
 } from '../../types/assessment'
 import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
+import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 type ChoiceOption = { value: string; label: string }
@@ -70,6 +74,15 @@ const consultantSupportOptions: ChoiceOption[] = [
   { value: 'request_contact', label: '希望顾问联系我' },
   { value: 'recommendation_first', label: '先看推荐结果' },
 ]
+
+const assessmentStepLabels: Record<AssessmentStepId, string> = {
+  basic: '老人基本情况',
+  health: '健康情况',
+  adl: '日常生活能力',
+  cognitive: '认知与特殊护理',
+  preference: '养老需求与偏好',
+  budget: '预算与入住计划',
+}
 
 const monthlyRangeAnchorId = getAssessmentQuestionAnchorId('budget.monthlyRange')
 const upfrontCostAnchorId = getAssessmentQuestionAnchorId('budget.upfrontCostAcceptance')
@@ -201,7 +214,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack()
+    navigateBackFromAssessment('budget')
   },
 
   onNext() {
@@ -226,6 +239,19 @@ Page({
       this.setData({
         formError: '本机保存失败，暂时无法进入下一步，请重新选择并保存后再试',
         saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+      })
+      return
+    }
+
+    const completionValidation = validateAssessmentDraftForCompletion(
+      assessmentDraftStore.getDraft().answers,
+    )
+    if (!completionValidation.valid && completionValidation.firstInvalidQuestionId) {
+      const incompleteStep = ASSESSMENT_QUESTION_DEFINITIONS[
+        completionValidation.firstInvalidQuestionId
+      ].step
+      this.setData({
+        formError: `${assessmentStepLabels[incompleteStep]}仍有未完成或无效的必填项，请返回补充后再继续`,
       })
       return
     }

@@ -1,4 +1,4 @@
-<navigation-bar title="养老需求与偏好" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="养老需求与偏好" back="{{backEnabled}}" fallbackUrl="/pages/assessment/cognitive" color="#27313D" background="#FFFFFF"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header current="5" total="6" label="评估 · 第 5 步"></progress-header>

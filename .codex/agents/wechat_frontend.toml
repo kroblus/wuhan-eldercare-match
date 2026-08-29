@@ -56,7 +56,20 @@ developer_instructions = """
 - 公共组件只允许一个业务 Action 通道；禁止 native tap bubbling 与同名 `triggerEvent('tap')` 共同触发业务 handler。
 - 跨组件业务事件使用明确的 action / next / back，并显式设置 bubbles / composed。
 - 导航 guard 是第二层防御，不能代替事件根因修复。
+- 新增或修改任何 wx.* API 调用时，必须主动核对当前微信官方 typings / API contract 的字符长度、enum、required 参数、平台限制及 success / fail / complete 行为；TypeScript 能编译不代表参数可在真机使用。
+- 对 Modal、导航、授权、手机号、登录、文件/媒体、地图/位置、WebView/VR 等用户可见关键路径，API 提供 fail callback 时必须评估可见失败反馈和状态释放，禁止失败后表现为“按钮没反应”。
 - 不得为规避检查擅自改变 tsconfig、Babel、数据结构、公开 API 或类型策略。
+
+微信真机交互长期约束：
+- 开始实现任何新增或修改的用户交互页面前，必须阅读 `docs/architecture/WECHAT_INTERACTION_CONTRACT.md` 并先定义 INTERACTION_MATRIX。
+- Matrix 至少写明 Action、初始状态、物理可点击性、校验、副作用、导航、loading/disabled、快速点击、Back 与错误行为。
+- Assessment 的 Back 默认始终可物理点击且不依赖 completeness；Next 默认可物理点击，Action 产生后才校验。
+- 禁止 `disabled = !formComplete` 代替 Assessment validation；Back 与 Next 的真实 disabled 状态必须分开。
+- Invalid Next 必须不导航、保留 Draft、显示 inline error 并让首错可见；Valid Next 保存后最多导航一次。
+- PrimaryButton 只发 action；AssessmentFooter 只转发一次 back / next；事件显式 bubbles=false、composed=false。
+- NavigationGuard 只能作为快速重复调用的第二层防御，不能掩盖双 Action 根因。
+- 实现后必须运行轻量 Interaction Runtime Regression，覆盖 unanswered、partial、valid、rapid、return、invalid 后修正与 Draft 保持；不得只做静态 handler/route 检查。
+- DevTools 与自动化不能替代 Android 真机，证据必须按项目负责人手工、ADB、自动化分别标注。
 
 完成后返回：STATUS / CHANGES / FILES / TESTS / RISKS / FOLLOW_UP。
 """

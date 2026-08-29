@@ -1,4 +1,4 @@
-<navigation-bar title="预算与入住计划" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="预算与入住计划" back="{{backEnabled}}" fallbackUrl="/pages/assessment/preference" color="#27313D" background="#FFFFFF"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header current="6" total="6" label="评估 · 第 6 步"></progress-header>
@@ -6,8 +6,6 @@
       <text class="page-title">最后了解预算和入住计划</text>
       <text class="page-description">这些信息只用于匹配参考，不代表任何机构的价格承诺。月费或一次性费用还不确定时，可以选择相应的“不确定”选项。</text>
     </view>
-
-    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
     <section-card extraClass="assessment-form-card">
       <view id="{{monthlyRangeAnchorId}}" class="question-anchor">
@@ -57,6 +55,7 @@
 
     <text class="privacy-note">如果之后明确预约看院或希望顾问联系，再按对应流程处理联系方式。</text>
     <text class="save-status">{{saveStatus}}</text>
+    <view wx:if="{{formError}}" class="form-error form-error--footer" role="alert">{{formError}}</view>
     <assessment-footer backText="上一步" nextText="查看老人需求画像" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

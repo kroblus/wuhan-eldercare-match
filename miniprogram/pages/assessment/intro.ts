@@ -6,6 +6,7 @@ interface AssessmentIntroData {
   hasDraft: boolean
   savedAtLabel: string
   restartError: string
+  restartPending: boolean
   overviewItems: Array<{ index: string; title: string; description: string }>
 }
 
@@ -20,6 +21,7 @@ Page({
     hasDraft: false,
     savedAtLabel: '',
     restartError: '',
+    restartPending: false,
     overviewItems: [
       { index: '01', title: '基本情况', description: '先了解老人年龄、关系和目前生活状态。' },
       { index: '02', title: '身体与生活能力', description: '从健康和日常场景了解照护需要。' },
@@ -31,6 +33,9 @@ Page({
 
   onShow() {
     resetNavigationGuard(this)
+    this.setData({
+      restartPending: false,
+    })
     this.refreshDraftState()
   },
 
@@ -53,22 +58,50 @@ Page({
   },
 
   restartAssessment() {
-    wx.showModal({
-      title: '重新开始评估？',
-      content: '本机会清除当前未完成的草稿，但不会影响任何历史评估。',
-      confirmText: '清除并开始',
-      cancelText: '先保留',
-      success: (result) => {
-        if (result.confirm) {
-          const clearResult = assessmentDraftStore.clear()
-          if (!clearResult.persistence.ok) {
-            this.setData({ restartError: '本机草稿清理失败，未开始新的评估，请重试。' })
+    if (this.data.restartPending) {
+      return
+    }
+
+    this.setData({ restartPending: true, restartError: '' })
+
+    try {
+      wx.showModal({
+        title: '重新开始评估？',
+        content: '本机会清除当前未完成的草稿，但不会影响任何历史评估。',
+        confirmText: '清除重来',
+        cancelText: '先保留',
+        success: (result) => {
+          if (!result.confirm) {
             return
           }
+
+          const clearResult = assessmentDraftStore.clear()
+          if (!clearResult.persistence.ok) {
+            this.setData({
+              restartPending: false,
+              restartError: '本机草稿清理失败，未开始新的评估，请重试。',
+            })
+            return
+          }
+
           this.refreshDraftState()
           navigateToWithGuard(this, 'intro.restartAssessment', '/pages/assessment/basic')
-        }
-      },
-    })
+        },
+        fail: () => {
+          this.setData({
+            restartPending: false,
+            restartError: '无法打开重新开始提示，请重试。',
+          })
+        },
+        complete: () => {
+          this.setData({ restartPending: false })
+        },
+      })
+    } catch (_error) {
+      this.setData({
+        restartPending: false,
+        restartError: '无法打开重新开始提示，请重试。',
+      })
+    }
   },
 })

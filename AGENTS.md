@@ -363,3 +363,46 @@ this.triggerEvent('action', {}, { bubbles: false, composed: false })
 6. 可获得时的真实设备证据，并明确区分项目负责人手工复测、ADB 验证与自动化测试。
 
 如果无法检查实际生成的 JavaScript，QA 最多只能给出 `PASS_WITH_RISKS`，不得给出 `PASS`。
+
+### 12.4 微信 API 参数契约
+
+新增或修改任何 `wx.*` API 调用时，TypeScript 能编译不足以证明参数可在真机使用。实现 Agent 与 QA 必须主动核对当前微信官方 typings / API contract 中的：
+
+- 字符长度限制；
+- enum 或允许值范围；
+- required 参数；
+- 平台、基础库或设备限制；
+- `success` / `fail` / `complete` 的触发与释放行为。
+
+禁止向微信 API 传入已知违反官方参数约束的值。对 `wx.showModal`、导航、授权、手机号、登录、文件/媒体选择、地图/位置、WebView/VR 等用户可见关键路径，如果 API 提供 `fail` callback，必须评估失败后的用户反馈与状态释放；不得让失败表现为“按钮没反应”。DevTools 可运行不能替代真机参数行为验证。
+
+本项目已发生真实事故：`wx.showModal.confirmText` 曾使用 5 字“清除并开始”，超过项目微信 typings 规定的最多 4 个字符；Android 17 真机未显示 Modal，用户感知为 Restart 无响应。
+
+`qa_reviewer` 审查新增或修改的 `wx.*` 调用时，必须检查参数满足官方 typings / API contract，并检查关键失败路径。该要求是现有真机兼容与 Interaction QA Gate 的一个维度，不建设大型封装框架。
+
+## 13. 微信真机交互规则
+
+`docs/architecture/WECHAT_INTERACTION_CONTRACT.md` 是所有微信交互页面的长期工程契约。真机可操作是最终标准；TypeScript、自动回归与微信开发者工具通过不能单独证明真机交互通过。
+
+### 13.1 Action 与校验分离
+
+- 公共交互必须满足 `1 physical tap → 1 component event → 1 page handler → at most 1 navigation`。
+- Assessment 的 Back 默认始终可物理点击，不依赖表单完整性，不执行 required 校验，不清空 Draft。
+- Assessment 的 Next 即使 required 未完成也必须可物理点击；点击后才校验。
+- 校验失败时不导航，保留 Draft，在对应问题附近显示错误并让首个错误可见。
+- 禁止使用 `disabled = !formComplete` 代替 Assessment validation。Back/Next 的真实禁用状态必须分开建模。
+
+### 13.2 公共组件与导航
+
+- PrimaryButton 对外只发出一次 `action`；AssessmentFooter 通过 PrimaryButton 分别转发一次 `back` / `next`；所有事件显式设置 `bubbles: false`、`composed: false`。
+- 禁止 native tap bubbling 与 custom event 共同执行同一业务操作。
+- NavigationGuard 只防御快速重复导航，不能掩盖错误事件模型；失败和返回后必须允许再次导航。
+- 不得让透明 overlay、safe-area、fixed/sticky 布局、`z-index` 或 loading mask 阻断可用按钮的真机 hit testing。
+
+### 13.3 Interaction Gate
+
+- `wechat_frontend` 在编码任何新增或修改的交互页面前，先定义 `INTERACTION_MATRIX`；实现后运行轻量 Interaction Runtime Regression。
+- Matrix 至少覆盖 Action、初始状态、物理可点击性、校验、副作用、导航、loading/disabled、快速点击、Back 与错误行为。
+- Assessment 六步至少覆盖未填写、部分填写、有效、快速点击、返回后重试、invalid 后修正，以及 Draft 保持。
+- `qa_reviewer` 必须验证 `physical action → component event → page handler → validation → navigation` 的完整行为链。仅检查编译、handler 或 route 存在不得判定交互 PASS。
+- 项目负责人手工真机、ADB 和自动化证据必须分别标注；缺少本次修复后的真机证据时，Android 状态为 `PENDING_MANUAL_REAL_DEVICE_VERIFICATION`。

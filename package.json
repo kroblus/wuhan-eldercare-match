@@ -4,7 +4,9 @@
   "description": "",
   "scripts": {
     "check:wechat-js-compat": "node scripts/check-wechat-js-compat.mjs",
-    "check:wechat-js-compat:self-test": "node scripts/check-wechat-js-compat.mjs --self-test"
+    "check:wechat-js-compat:self-test": "node scripts/check-wechat-js-compat.mjs --self-test",
+    "check:assessment-runtime": "node scripts/check-assessment-runtime.mjs",
+    "check:assessment-interactions": "node scripts/check-assessment-interactions.mjs"
   },
   "keywords": [],
   "author": "",

@@ -11,6 +11,7 @@ import {
 } from '../../services/institution-region-catalog'
 import { institutionService } from '../../services/institution.service'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
+import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 type ChoiceOption = {
@@ -304,7 +305,7 @@ Page({
   },
 
   onBack() {
-    wx.navigateBack()
+    navigateBackFromAssessment('preference')
   },
 
   onNext() {

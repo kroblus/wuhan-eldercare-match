@@ -1,4 +1,4 @@
-<navigation-bar title="老人基本情况" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="老人基本情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/intro" color="#27313D" background="#FFFFFF"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header current="1" total="6" label="评估 · 第 1 步"></progress-header>
@@ -50,6 +50,6 @@
     </section-card>
 
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

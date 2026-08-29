@@ -1,4 +1,17 @@
 <view class="assessment-footer">
-  <button class="assessment-footer__back" catch:tap="onBack">{{backText}}</button>
-  <button class="assessment-footer__next {{nextDisabled ? 'is-disabled' : ''}}" disabled="{{nextDisabled}}" catch:tap="onNext">{{nextText}}</button>
+  <view class="assessment-footer__back">
+    <primary-button
+      text="{{backText}}"
+      variant="quiet"
+      disabled="{{backDisabled}}"
+      bind:action="onBackAction"
+    ></primary-button>
+  </view>
+  <view class="assessment-footer__next">
+    <primary-button
+      text="{{nextText}}"
+      disabled="{{nextDisabled}}"
+      bind:action="onNextAction"
+    ></primary-button>
+  </view>
 </view>
