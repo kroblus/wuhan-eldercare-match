@@ -1,17 +1,205 @@
-<navigation-bar title="老人需求画像" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar
+  title="老人需求画像"
+  back="{{backEnabled}}"
+  fallbackUrl="/pages/assessment/budget"
+  color="#27313D"
+  background="#FFFFFF"
+  bind:navigationfail="onBackNavigationFailure"
+></navigation-bar>
+
+<page-container extraClass="profile-page">
+  <view class="page-shell profile-shell">
+    <view class="page-head profile-head">
+      <text class="eyebrow">评估 · 画像确认</text>
+      <text class="page-title">老人需求画像</text>
+      <text class="page-description">以下内容根据本次评估生成，用于后续合作机构匹配。请先确认系统是否正确理解了老人当前情况和养老需求。</text>
+      <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
-    <section-card>
-      <tag text="Bootstrap 骨架" tone="development"></tag>
-      <text class="route-card-title">把原始答案翻译成家属看得懂的话</text>
-      <text class="route-card-message">未来按基本信息、健康、生活照护、特殊护理、偏好和预算分组展示，并允许返回对应题目修改。</text>
-      <state-panel state="development" title="画像转换待后续实现" message="当前不生成任何画像结论或推荐分数。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+
+    <view wx:if="{{pageState === 'loading'}}" class="profile-card-wrap">
+      <section-card>
+        <state-panel state="loading" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+      </section-card>
+    </view>
+
+    <block wx:elif="{{pageState === 'ready' && viewModel}}">
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">核心画像概览</text>
+              <text class="section-title">{{viewModel.headline}}</text>
+              <text class="section-subtitle">{{viewModel.relationshipLine}}</text>
+            </view>
+            <button class="edit-action" data-section="basic" catchtap="onEdit" aria-label="修改基本情况">修改</button>
+          </view>
+          <view wx:if="{{viewModel.overviewTags.length}}" class="tag-list">
+            <tag wx:for="{{viewModel.overviewTags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
+          </view>
+          <view class="profile-rows profile-rows--overview">
+            <view wx:for="{{viewModel.basicRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{actionErrorKey === 'edit-basic'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">健康情况</text>
+              <text class="section-subtitle">仅汇总评估中已报告的健康事实，不作医学诊断。</text>
+            </view>
+            <button class="edit-action" data-section="health" catchtap="onEdit" aria-label="修改健康情况">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.healthRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{actionErrorKey === 'edit-health'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">日常生活与照护</text>
+              <text class="section-subtitle">照护等级与具体行动、照护方式分别呈现。</text>
+            </view>
+            <button class="edit-action" data-section="adl" catchtap="onEdit" aria-label="修改日常生活能力">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.dailyRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{viewModel.careModeTags.length}}" class="detail-group">
+            <text class="detail-group__label">重要照护方式</text>
+            <view class="tag-list tag-list--compact">
+              <tag wx:for="{{viewModel.careModeTags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
+            </view>
+          </view>
+          <text class="boundary-note">{{viewModel.careLevelNote}}</text>
+          <view wx:if="{{actionErrorKey === 'edit-adl'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">认知与特殊护理</text>
+              <text class="section-subtitle">展示用户已报告的情况和明确护理需求，不从症状推断医学诊断。</text>
+            </view>
+            <button class="edit-action" data-section="cognitive" catchtap="onEdit" aria-label="修改认知与特殊护理">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.cognitionRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{viewModel.specialCareTags.length}}" class="detail-group">
+            <text class="detail-group__label">已明确或待确认的特殊护理</text>
+            <view class="tag-list tag-list--compact">
+              <tag wx:for="{{viewModel.specialCareTags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
+            </view>
+          </view>
+          <text wx:if="{{viewModel.specialCareNote}}" class="boundary-note">{{viewModel.specialCareNote}}</text>
+          <view wx:if="{{actionErrorKey === 'edit-cognitive'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.clarifications.length}}" class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading section-heading--stacked">
+            <view class="section-heading__copy">
+              <text class="section-kicker section-kicker--warning">仍有信息需要确认</text>
+              <text class="section-subtitle">这些信息不会被当作确定结论；补充后画像会在再次进入本页时更新。</text>
+            </view>
+          </view>
+          <view class="clarification-list">
+            <view wx:for="{{viewModel.clarifications}}" wx:key="text" class="clarification clarification--{{item.tone}}">
+              <text class="clarification__priority">{{item.priorityLabel}}</text>
+              <text class="clarification__text">{{item.text}}</text>
+              <button class="clarification__edit" data-section="{{item.editSection}}" catchtap="onEdit">{{item.editLabel}}</button>
+              <view wx:if="{{actionErrorKey === item.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">养老偏好</text>
+              <text class="section-subtitle">区域使用作答时保存的名称，不查询当前机构目录。</text>
+            </view>
+            <button class="edit-action" data-section="preference" catchtap="onEdit" aria-label="修改养老偏好">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.preferenceRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{actionErrorKey === 'edit-preference'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">预算与入住计划</text>
+              <text class="section-subtitle">顾问协助仅为意向记录，本页不会获取手机号或发起联系。</text>
+            </view>
+            <button class="edit-action" data-section="budget" catchtap="onEdit" aria-label="修改预算与入住计划">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.financialRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{actionErrorKey === 'edit-budget'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="recommendation-boundary">
+        <text class="recommendation-boundary__note">下一页仍是推荐开发态说明，本阶段不会生成机构、匹配度或推荐理由。</text>
+        <view wx:if="{{actionErrorKey === 'recommendation'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <primary-button text="查看推荐结果（开发中）" bind:action="onOpenRecommendation"></primary-button>
+      </view>
+    </block>
+
+    <view wx:else class="profile-card-wrap">
+      <section-card>
+        <state-panel
+          wx:if="{{pageState === 'incomplete'}}"
+          state="empty"
+          title="{{stateTitle}}"
+          message="{{stateMessage}}"
+        ></state-panel>
+        <state-panel
+          wx:else
+          state="error"
+          title="{{stateTitle}}"
+          message="{{stateMessage}}"
+        ></state-panel>
+        <view class="recovery-action">
+          <view wx:if="{{actionErrorKey === 'recovery'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+          <primary-button text="{{recoveryLabel}}" variant="secondary" bind:action="onRecover"></primary-button>
+        </view>
+      </section-card>
+    </view>
   </view>
 </page-container>

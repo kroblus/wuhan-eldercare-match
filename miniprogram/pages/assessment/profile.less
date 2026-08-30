@@ -1,1 +1,246 @@
 @import '../../styles/base.less';
+@import '../../styles/tokens.less';
+@import '../../styles/mixins.less';
+
+.profile-shell {
+  padding-top: @space-4;
+}
+
+.profile-head {
+  padding-bottom: @space-3;
+}
+
+.profile-card-wrap {
+  margin-top: @space-3;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.section-heading--stacked {
+  display: block;
+}
+
+.section-heading__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-kicker {
+  display: block;
+  color: @color-brand-dark;
+  font-size: @font-size-body-large;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.section-kicker--warning {
+  color: @color-warning;
+}
+
+.section-title {
+  display: block;
+  margin-top: @space-2;
+  color: @color-text-primary;
+  font-size: @font-size-title;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.section-subtitle {
+  display: block;
+  margin-top: @space-2;
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.edit-action,
+.clarification__edit {
+  .touch-target();
+  flex: 0 0 auto;
+  margin: -@space-2 -@space-2 0 @space-2;
+  padding: 0 @space-2;
+  border: 0;
+  background: transparent;
+  color: @color-brand-dark;
+  font-size: @font-size-body;
+  font-weight: 600;
+  line-height: @touch-target-min;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: @space-3 -@space-1 -@space-1 0;
+}
+
+.tag-list tag {
+  margin: 0 @space-1 @space-1 0;
+}
+
+.tag-list--compact {
+  margin-top: @space-2;
+}
+
+.profile-rows {
+  margin-top: @space-3;
+  border-top: 1rpx solid @color-border;
+}
+
+.profile-rows--overview {
+  margin-top: @space-2;
+}
+
+.profile-row {
+  display: flex;
+  align-items: flex-start;
+  padding: @space-3 0;
+  border-bottom: 1rpx solid @color-border;
+}
+
+.profile-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-row__label {
+  flex: 0 0 184rpx;
+  padding-right: @space-3;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.profile-row__value {
+  flex: 1;
+  min-width: 0;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+  word-break: break-word;
+}
+
+.profile-row--muted .profile-row__value {
+  color: @color-text-secondary;
+}
+
+.profile-row--attention .profile-row__value {
+  color: @color-warning;
+}
+
+.detail-group {
+  margin-top: @space-4;
+  padding-top: @space-3;
+  border-top: 1rpx solid @color-border;
+}
+
+.detail-group__label {
+  display: block;
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  font-weight: 600;
+  line-height: @line-height-body;
+}
+
+.boundary-note {
+  display: block;
+  margin-top: @space-3;
+  padding: @space-2 @space-3;
+  border-radius: @radius-sm;
+  background: @color-page-background;
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.clarification-list {
+  margin-top: @space-3;
+}
+
+.clarification {
+  padding: @space-3;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-sm;
+  background: @color-page-background;
+}
+
+.clarification + .clarification {
+  margin-top: @space-2;
+}
+
+.clarification--important {
+  border-color: #E7CFAB;
+  background: #FCF7EE;
+}
+
+.clarification__priority,
+.clarification__text {
+  display: block;
+}
+
+.clarification__priority {
+  color: @color-warning;
+  font-size: @font-size-caption;
+  font-weight: 600;
+  line-height: @line-height-tight;
+}
+
+.clarification__text {
+  margin-top: @space-2;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.clarification__edit {
+  margin: @space-1 0 -@space-2 -@space-2;
+}
+
+.action-error {
+  display: block;
+  margin-top: @space-2;
+  padding: @space-2 @space-3;
+  border-radius: @radius-sm;
+  background: #FBE9E7;
+  color: @color-error;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.recommendation-boundary {
+  margin-top: @space-4;
+  padding: 0 @space-1;
+}
+
+.recommendation-boundary__note {
+  display: block;
+  margin-bottom: @space-3;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+  text-align: center;
+}
+
+.recovery-action {
+  margin-top: @space-2;
+}
+
+@media (max-width: 360px) {
+  .profile-row {
+    display: block;
+  }
+
+  .profile-row__label {
+    display: block;
+    padding-right: 0;
+  }
+
+  .profile-row__value {
+    display: block;
+    margin-top: @space-1;
+  }
+}

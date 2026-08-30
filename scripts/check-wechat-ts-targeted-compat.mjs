@@ -10,6 +10,10 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const tsconfigPath = path.join(repositoryRoot, 'tsconfig.json')
 const elderProfileDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'elder-profile')
 const elderProfileTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile.ts')
+const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
+const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
+const navigationBarPath = path.join(repositoryRoot, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts')
+const profileCompatibilityTargets = [profilePagePath, profileViewModelPath, navigationBarPath]
 
 const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
 
@@ -162,8 +166,10 @@ const run = async () => {
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
     elderProfileTypePath,
   ].sort()
-  if (targetFiles.length === 0 || !existsSync(elderProfileTypePath)) {
-    throw new Error('ElderProfile targeted TypeScript sources are missing')
+  const requiredTargets = [elderProfileTypePath, ...profileCompatibilityTargets]
+  const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
+  if (targetFiles.length === 0 || missingTargets.length > 0) {
+    throw new Error(`targeted TypeScript sources are missing:\n${missingTargets.map((filePath) => path.relative(repositoryRoot, filePath)).join('\n')}`)
   }
 
   const configResult = ts.readConfigFile(tsconfigPath, (fileName) => readFileSync(fileName, 'utf8'))
@@ -214,13 +220,30 @@ const run = async () => {
     throw new Error(`targeted emit failed:\n${emitErrors.map((diagnostic) => diagnosticText(ts, diagnostic)).join('\n')}`)
   }
 
+  const profileSyntaxErrors = []
+  for (const profileTarget of profileCompatibilityTargets) {
+    const source = readFileSync(profileTarget, 'utf8')
+    const transpiled = ts.transpileModule(source, {
+      compilerOptions,
+      fileName: profileTarget,
+      reportDiagnostics: true,
+    })
+    const errors = (transpiled.diagnostics || [])
+      .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
+    profileSyntaxErrors.push(...errors)
+    emittedJavaScript.push({ fileName: `${profileTarget}.js`, source: transpiled.outputText })
+  }
+  if (profileSyntaxErrors.length > 0) {
+    throw new Error(`Profile targeted TypeScript syntax diagnostics:\n${profileSyntaxErrors.map((diagnostic) => diagnosticText(ts, diagnostic)).join('\n')}`)
+  }
+
   const missingEmits = targetFiles.filter((fileName) => !emittedSourcePaths.has(normalizePath(fileName)))
   if (missingEmits.length > 0) {
     throw new Error(`targeted sources were not emitted in memory:\n${missingEmits.map((fileName) => path.relative(repositoryRoot, fileName)).join('\n')}`)
   }
 
   const sourceClassFields = []
-  for (const targetFile of targetFiles) {
+  for (const targetFile of [...targetFiles, ...profileCompatibilityTargets]) {
     sourceClassFields.push(...findClassFields(
       ts,
       path.relative(repositoryRoot, targetFile),
@@ -257,9 +280,11 @@ const run = async () => {
   console.log(`PARSER_SOURCE: ${parserSource}`)
   console.log(`PARSER: TypeScript ${ts.version} (${parserPath})`)
   console.log(`COMPILER_TARGET: ${compilerTarget}`)
-  console.log(`TARGET_ROOTS: ${targetFiles.length}`)
+  console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
+  console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)
   console.log(`TYPESCRIPT_DIAGNOSTIC_ERRORS: ${diagnosticErrors.length}`)
+  console.log(`PROFILE_SYNTAX_DIAGNOSTIC_ERRORS: ${profileSyntaxErrors.length}`)
   console.log(`SOURCE_CLASS_FIELDS: ${sourceClassFields.length}`)
   console.log(`EMITTED_CLASS_FIELDS: ${emittedClassFields.length}`)
   console.log(`EXTERNAL_RUNTIME_IMPORTS: ${externalImports.length}`)

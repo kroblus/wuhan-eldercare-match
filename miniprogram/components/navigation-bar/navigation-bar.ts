@@ -100,13 +100,22 @@ Component({
     back() {
       const data = this.data
       const pages = getCurrentPages()
+      const notifyNavigationFailure = () => {
+        this.triggerEvent(
+          'navigationfail',
+          { action: 'back' },
+          { bubbles: false, composed: false },
+        )
+      }
       if (pages.length > 1 && data.delta) {
         wx.navigateBack({
-          delta: data.delta
+          delta: data.delta,
+          fail: notifyNavigationFailure,
         })
       } else if (pages.length <= 1 && data.fallbackUrl) {
         wx.redirectTo({
-          url: data.fallbackUrl
+          url: data.fallbackUrl,
+          fail: notifyNavigationFailure,
         })
       }
       this.triggerEvent('back', { delta: data.delta }, { bubbles: false, composed: false })
