@@ -13,6 +13,7 @@ export type {
   CompletedAssessment,
   PreferenceRegionAnswer,
 } from './assessment'
+export type { ElderProfile } from './elder-profile'
 
 export type Identifier = string
 export type Nullable<T> = T | MissingData
@@ -36,17 +37,6 @@ export interface Elder {
 
 /** 兼容旧领域引用；它严格等价于未来服务器返回的已完成历史评估。 */
 export type Assessment = CompletedAssessment
-
-export interface ElderProfile {
-  id: Identifier
-  elderId: Identifier
-  assessmentId: Identifier
-  summary: Nullable<string>
-  tags: string[]
-  /** 内部 ADL 结果仅供推荐服务使用，页面骨架不直接展示。 */
-  adlLevel: Nullable<'自理' | '轻度照护' | '半失能' | '失能' | '重度失能'>
-  dataProvenance: DataProvenance
-}
 
 export interface InstitutionService {
   key: string

@@ -2,6 +2,8 @@
 
 本文件冻结小程序骨架所需的最小语义，不代表正式后端 API 或数据库 schema 已完成。
 
+Phase 3A-2 已在 `ELDER_PROFILE_CONTRACT.md` 冻结 `elder-profile-contract-v1`，并在 `ADL_RULE_CONTRACT.md` 冻结 `adl-ruleset-v1`；二者替代本文和 Bootstrap 类型中的 ElderProfile 占位形状。
+
 ## 核心对象
 
 - `Elder`：老人档案，可拥有多次评估。
@@ -16,7 +18,7 @@
 ## 不变量
 
 1. 重新评估创建新的 `Assessment`，不得覆盖历史记录。
-2. `ElderProfile.assessmentId` 指向生成画像的评估。
+2. `ElderProfile.identity.assessmentId` 指向生成画像的评估。
 3. `Recommendation.assessmentId` 指向生成推荐的评估。
 4. `RecommendationReason` 不得脱离机构真实字段生成。
 5. 健康与特殊护理数据按高敏感信息处理，最小化采集和展示。

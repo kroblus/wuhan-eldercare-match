@@ -16,6 +16,7 @@ miniprogram/
 ├─ components/  小而稳定的公共组件
 ├─ styles/      Less token、mixins 和全局基础样式
 ├─ types/       领域类型与 service contract 类型
+├─ domain/      不依赖页面、Store、wx 或网络的纯领域规则
 ├─ services/    页面唯一的数据访问入口
 ├─ store/       评估草稿等跨页状态
 ├─ mock/        仅开发使用的显式 Mock provider
@@ -58,10 +59,14 @@ Mock provider（Bootstrap）或未来 HTTP provider
 - Mock 与未来 HTTP 实现共享稳定 service contract。
 - 登录、重试、错误映射和数据来源判断不得分散到页面。
 
+## 纯领域规则
+
+`miniprogram/domain/elder-profile/` 固定承载 Phase 3A-2 的纯 ADL classifier 与 ElderProfile derivation。该目录只能依赖 `types/assessment`、`types/elder-profile` 和同目录纯模块；不得读取 Page、Component、Store、Service、Mock、`wx.*`、Institution 或 Recommendation。
+
 ## 文件所有权
 
 - `wechat_frontend`：`miniprogram/**`。
 - `backend_domain`：未来 `server/**`。
-- `matching_engine`：未来推荐规则模块及其测试，开始前由主 SOL 冻结位置。
+- `matching_engine`：`miniprogram/domain/elder-profile/**` 及其独立 runtime fixtures；未来推荐模块仍需主 SOL 另行冻结位置。
 - `qa_reviewer`：只读审查，不拥有功能实现。
 - 主 SOL：跨模块契约、集成和最终验收。

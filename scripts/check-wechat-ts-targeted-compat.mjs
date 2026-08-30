@@ -1,0 +1,274 @@
+import { existsSync, readFileSync } from 'node:fs'
+import { readdir, stat } from 'node:fs/promises'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+const require = createRequire(import.meta.url)
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const tsconfigPath = path.join(repositoryRoot, 'tsconfig.json')
+const elderProfileDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'elder-profile')
+const elderProfileTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile.ts')
+
+const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
+
+const walkTypeScriptFiles = async (root) => {
+  const files = []
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    const entryPath = path.join(root, entry.name)
+    if (entry.isDirectory()) {
+      files.push(...await walkTypeScriptFiles(entryPath))
+    } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+      files.push(entryPath)
+    }
+  }
+  return files
+}
+
+const loadWechatTypeScript = async () => {
+  const explicitPath = process.env.WECHAT_TYPESCRIPT_PATH
+  if (explicitPath) {
+    const parserPath = path.resolve(explicitPath)
+    if (!existsSync(parserPath)) {
+      throw new Error(`WECHAT_TYPESCRIPT_PATH does not exist: ${parserPath}`)
+    }
+    return { parser: require(parserPath), parserPath, source: 'WECHAT_TYPESCRIPT_PATH' }
+  }
+
+  if (process.platform !== 'win32' || !process.env.LOCALAPPDATA) {
+    throw new Error('WeChat DevTools TypeScript not found; set WECHAT_TYPESCRIPT_PATH explicitly')
+  }
+
+  const profileRoot = path.join(process.env.LOCALAPPDATA, '微信开发者工具', 'User Data')
+  if (!existsSync(profileRoot)) {
+    throw new Error('WeChat DevTools profile directory not found')
+  }
+
+  const candidates = []
+  for (const profile of await readdir(profileRoot, { withFileTypes: true })) {
+    if (!profile.isDirectory()) {
+      continue
+    }
+    const runtimeRoot = path.join(profileRoot, profile.name, 'WeappForeignPkgs', 'mptslib')
+    if (!existsSync(runtimeRoot)) {
+      continue
+    }
+    for (const runtimePackage of await readdir(runtimeRoot, { withFileTypes: true })) {
+      const parserPath = path.join(runtimeRoot, runtimePackage.name, 'lib', 'typescript.js')
+      if (runtimePackage.isDirectory() && existsSync(parserPath)) {
+        candidates.push({ parserPath, mtimeMs: (await stat(parserPath)).mtimeMs })
+      }
+    }
+  }
+
+  candidates.sort((left, right) => right.mtimeMs - left.mtimeMs)
+  if (candidates.length === 0) {
+    throw new Error('WeChat DevTools TypeScript not found; open DevTools or set WECHAT_TYPESCRIPT_PATH')
+  }
+
+  const parserPath = candidates[0].parserPath
+  return { parser: require(parserPath), parserPath, source: 'WeChat DevTools mptslib' }
+}
+
+const diagnosticText = (ts, diagnostic) => {
+  const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+  if (!diagnostic.file || typeof diagnostic.start !== 'number') {
+    return message
+  }
+  const location = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+  const relativePath = path.relative(repositoryRoot, diagnostic.file.fileName)
+  return `${relativePath}:${location.line + 1}:${location.character + 1} ${message}`
+}
+
+const findClassFields = (ts, fileName, source, scriptKind) => {
+  const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, scriptKind)
+  const findings = []
+  const visit = (node) => {
+    const parent = node.parent
+    const insideClass = parent && (ts.isClassDeclaration(parent) || ts.isClassExpression(parent))
+    if (insideClass && ts.isPropertyDeclaration(node)) {
+      const location = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
+      findings.push(`${fileName}:${location.line + 1}:${location.character + 1} ${node.getText(sourceFile)}`)
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+  return findings
+}
+
+const inspectRuntimeSurface = (ts, fileName, source) => {
+  const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const externalImports = []
+  const unsupportedRuntimeFeatures = []
+  const unsupportedIdentifiers = new Set(['structuredClone', 'WeakRef', 'FinalizationRegistry', 'BigInt'])
+  const unsupportedProperties = new Set(['at', 'findLast', 'findLastIndex', 'replaceAll'])
+  const unsupportedStaticMembers = new Set(['Promise.any', 'Object.hasOwn', 'Array.fromAsync'])
+
+  const visit = (node) => {
+    if (ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === 'require'
+      && node.arguments.length === 1
+      && ts.isStringLiteral(node.arguments[0])) {
+      const request = node.arguments[0].text
+      if (!request.startsWith('.')) {
+        externalImports.push(`${fileName}: require(${JSON.stringify(request)})`)
+      }
+    }
+
+    if (ts.isIdentifier(node) && unsupportedIdentifiers.has(node.text)) {
+      unsupportedRuntimeFeatures.push(`${fileName}: ${node.text}`)
+    }
+
+    if (ts.isPropertyAccessExpression(node)) {
+      const propertyName = node.name.text
+      if (unsupportedProperties.has(propertyName)) {
+        unsupportedRuntimeFeatures.push(`${fileName}: .${propertyName}`)
+      }
+      if (ts.isIdentifier(node.expression)
+        && unsupportedStaticMembers.has(`${node.expression.text}.${propertyName}`)) {
+        unsupportedRuntimeFeatures.push(`${fileName}: ${node.expression.text}.${propertyName}`)
+      }
+    }
+
+    if (node.kind === ts.SyntaxKind.BigIntLiteral
+      || node.kind === ts.SyntaxKind.QuestionDotToken
+      || node.kind === ts.SyntaxKind.QuestionQuestionToken) {
+      unsupportedRuntimeFeatures.push(`${fileName}: ${ts.SyntaxKind[node.kind]}`)
+    }
+
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+
+  const helperPattern = /\b(?:__awaiter|__generator|__spreadArray|__spreadArrays|__assign|regeneratorRuntime)\b|\b(?:tslib|core-js)\b/g
+  const helperMatches = source.match(helperPattern) || []
+  helperMatches.forEach((helper) => unsupportedRuntimeFeatures.push(`${fileName}: ${helper}`))
+
+  return { externalImports, unsupportedRuntimeFeatures }
+}
+
+const assertNoConfigErrors = (ts, diagnostics) => {
+  const errors = diagnostics.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
+  if (errors.length > 0) {
+    throw new Error(`tsconfig diagnostics:\n${errors.map((diagnostic) => diagnosticText(ts, diagnostic)).join('\n')}`)
+  }
+}
+
+const run = async () => {
+  const { parser: ts, parserPath, source: parserSource } = await loadWechatTypeScript()
+  const targetFiles = [
+    ...await walkTypeScriptFiles(elderProfileDomainRoot),
+    elderProfileTypePath,
+  ].sort()
+  if (targetFiles.length === 0 || !existsSync(elderProfileTypePath)) {
+    throw new Error('ElderProfile targeted TypeScript sources are missing')
+  }
+
+  const configResult = ts.readConfigFile(tsconfigPath, (fileName) => readFileSync(fileName, 'utf8'))
+  if (configResult.error) {
+    throw new Error(diagnosticText(ts, configResult.error))
+  }
+  const parsedConfig = ts.parseJsonConfigFileContent(configResult.config, ts.sys, repositoryRoot, undefined, tsconfigPath)
+  assertNoConfigErrors(ts, parsedConfig.errors)
+
+  const compilerOptions = {
+    ...parsedConfig.options,
+    noEmit: false,
+    noEmitOnError: true,
+    declaration: false,
+    declarationMap: false,
+    sourceMap: false,
+    inlineSourceMap: false,
+    inlineSources: false,
+    incremental: false,
+    composite: false,
+    outDir: undefined,
+    outFile: undefined,
+    tsBuildInfoFile: undefined,
+  }
+  const host = ts.createCompilerHost(compilerOptions)
+  const emittedJavaScript = []
+  const emittedSourcePaths = new Set()
+  host.writeFile = (fileName, data, _writeByteOrderMark, _onError, sourceFiles) => {
+    if (!fileName.endsWith('.js')) {
+      return
+    }
+    emittedJavaScript.push({ fileName, source: data })
+    for (const sourceFile of sourceFiles || []) {
+      emittedSourcePaths.add(normalizePath(sourceFile.fileName))
+    }
+  }
+
+  const program = ts.createProgram(targetFiles, compilerOptions, host)
+  const diagnostics = ts.getPreEmitDiagnostics(program)
+  const diagnosticErrors = diagnostics.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
+  if (diagnosticErrors.length > 0) {
+    throw new Error(`targeted TypeScript diagnostics:\n${diagnosticErrors.map((diagnostic) => diagnosticText(ts, diagnostic)).join('\n')}`)
+  }
+
+  const emitResult = program.emit()
+  const emitErrors = emitResult.diagnostics.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
+  if (emitResult.emitSkipped || emitErrors.length > 0) {
+    throw new Error(`targeted emit failed:\n${emitErrors.map((diagnostic) => diagnosticText(ts, diagnostic)).join('\n')}`)
+  }
+
+  const missingEmits = targetFiles.filter((fileName) => !emittedSourcePaths.has(normalizePath(fileName)))
+  if (missingEmits.length > 0) {
+    throw new Error(`targeted sources were not emitted in memory:\n${missingEmits.map((fileName) => path.relative(repositoryRoot, fileName)).join('\n')}`)
+  }
+
+  const sourceClassFields = []
+  for (const targetFile of targetFiles) {
+    sourceClassFields.push(...findClassFields(
+      ts,
+      path.relative(repositoryRoot, targetFile),
+      readFileSync(targetFile, 'utf8'),
+      ts.ScriptKind.TS,
+    ))
+  }
+
+  const emittedClassFields = []
+  const externalImports = []
+  const unsupportedRuntimeFeatures = []
+  for (const emitted of emittedJavaScript) {
+    const relativeOutputPath = path.relative(repositoryRoot, emitted.fileName)
+    emittedClassFields.push(...findClassFields(ts, relativeOutputPath, emitted.source, ts.ScriptKind.JS))
+    const runtimeSurface = inspectRuntimeSurface(ts, relativeOutputPath, emitted.source)
+    externalImports.push(...runtimeSurface.externalImports)
+    unsupportedRuntimeFeatures.push(...runtimeSurface.unsupportedRuntimeFeatures)
+  }
+
+  if (sourceClassFields.length > 0) {
+    throw new Error(`source class property initializer/declaration is forbidden:\n${sourceClassFields.join('\n')}`)
+  }
+  if (emittedClassFields.length > 0) {
+    throw new Error(`unsupported emitted class-field syntax:\n${emittedClassFields.join('\n')}`)
+  }
+  if (externalImports.length > 0) {
+    throw new Error(`external runtime imports are forbidden:\n${externalImports.join('\n')}`)
+  }
+  if (unsupportedRuntimeFeatures.length > 0) {
+    throw new Error(`additional runtime/polyfill assumptions detected:\n${[...new Set(unsupportedRuntimeFeatures)].join('\n')}`)
+  }
+
+  const compilerTarget = ts.ScriptTarget[compilerOptions.target] || String(compilerOptions.target)
+  console.log(`PARSER_SOURCE: ${parserSource}`)
+  console.log(`PARSER: TypeScript ${ts.version} (${parserPath})`)
+  console.log(`COMPILER_TARGET: ${compilerTarget}`)
+  console.log(`TARGET_ROOTS: ${targetFiles.length}`)
+  console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)
+  console.log(`TYPESCRIPT_DIAGNOSTIC_ERRORS: ${diagnosticErrors.length}`)
+  console.log(`SOURCE_CLASS_FIELDS: ${sourceClassFields.length}`)
+  console.log(`EMITTED_CLASS_FIELDS: ${emittedClassFields.length}`)
+  console.log(`EXTERNAL_RUNTIME_IMPORTS: ${externalImports.length}`)
+  console.log(`ADDITIONAL_RUNTIME_POLYFILL_ASSUMPTIONS: ${unsupportedRuntimeFeatures.length}`)
+  console.log('WECHAT_TYPESCRIPT_TARGETED_COMPATIBILITY = PASS')
+}
+
+run().catch((error) => {
+  console.error('WECHAT_TYPESCRIPT_TARGETED_COMPATIBILITY = FAIL')
+  console.error(error instanceof Error ? error.message : String(error))
+  process.exitCode = 1
+})
