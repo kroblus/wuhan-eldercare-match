@@ -12,6 +12,7 @@ import {
   completedAtValidationFixtures,
   elderProfileFixtures,
   makeCompletedAssessment,
+  REHABILITATION_CONFLICT_ANSWERS,
 } from './fixtures/elder-profile-fixtures.mjs'
 
 const require = createRequire(import.meta.url)
@@ -948,10 +949,7 @@ const run = async () => {
   })
 
   runCase('REHABILITATION_CONFLICT', () => {
-    const assessment = makeCompletedAssessment({
-      'health.rehabilitationNeed': 'none',
-      'cognitive.specialCareNeeds': ['rehabilitation_training'],
-    })
+    const assessment = makeCompletedAssessment(REHABILITATION_CONFLICT_ANSWERS)
     const result = deriveModule.deriveElderProfile(assessment)
     assert.equal(result.ok, true)
     const fact = result.profile.health.derivedFacts.rehabilitationNeed

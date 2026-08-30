@@ -28,6 +28,7 @@ import type {
   ElderProfile,
   ElderProfileDerivedField,
   ElderProfileDerivationResult,
+  ElderProfileSemanticPayload,
   ElderProfileUserFacingSummary,
   HealthProfileDerivedFacts,
   MobilityLevel,
@@ -62,6 +63,22 @@ type OptionContribution = Exclude<AssessmentEvidenceSource['contribution'], 'est
 type DerivationSuccessOrFailure =
   | { ok: true, assessment: CompletedAssessment }
   | { ok: false, result: ElderProfileDerivationResult }
+export type ProfileAssessmentAnswersValidationResult =
+  | { ok: true, answers: AssessmentAnswerSnapshot }
+  | {
+    ok: false
+    reason: 'incomplete' | 'invalid'
+    questionIds: readonly AssessmentQuestionId[]
+  }
+export type ProfileSemanticDerivationResult =
+  | { ok: true, semantics: ElderProfileSemanticPayload }
+  | {
+    ok: false
+    error: {
+      code: 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE' | 'INVALID_ASSESSMENT_ANSWER_NOT_DERIVABLE'
+      questionIds: readonly AssessmentQuestionId[]
+    }
+  }
 
 const QUESTION_IDS = Object.keys(ASSESSMENT_QUESTION_DEFINITIONS) as AssessmentQuestionId[]
 
@@ -71,9 +88,9 @@ const isPlainRecord = (value: unknown): value is RawRecord =>
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0
 
-// CompletedAssessment.completedAt is an ISO 8601 date-time, not merely a
-// non-empty string. Keep this validator local and dependency-free so the gate
-// remains deterministic in both the WeChat runtime and the node harness.
+// Assessment timestamps are ISO 8601 date-times, not merely non-empty strings.
+// Keep this validator dependency-free so formal and local-preview gates remain
+// deterministic in both the WeChat runtime and the node harness.
 const ISO_8601_TIMESTAMP_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-]\d{2}:\d{2})$/
 
 const isLeapYear = (year: number): boolean => year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0)
@@ -85,7 +102,7 @@ const daysInMonth = (year: number, month: number): number => {
   return [4, 6, 9, 11].indexOf(month) >= 0 ? 30 : 31
 }
 
-const isValidIso8601Timestamp = (value: unknown): value is string => {
+export const isValidIso8601Timestamp = (value: unknown): value is string => {
   if (typeof value !== 'string') {
     return false
   }
@@ -303,6 +320,41 @@ const cloneAnswers = (answers: RawRecord): AssessmentAnswerSnapshot => {
   return result as AssessmentAnswerSnapshot
 }
 
+/**
+ * @internal Adapter-only runtime proof for the answer snapshot consumed by
+ * profile semantics. It is deliberately omitted from the public domain barrel
+ * and does not create either a CompletedAssessment or a local preview source.
+ */
+export const validateAssessmentAnswersForProfileDerivation = (
+  input: unknown,
+): ProfileAssessmentAnswersValidationResult => {
+  if (!isPlainRecord(input)) {
+    return { ok: false, reason: 'invalid', questionIds: [] }
+  }
+
+  const unknownAnswerKeys = Object.keys(input).filter((key) => !isAssessmentQuestionId(key))
+  const missingRequired = REQUIRED_ASSESSMENT_QUESTION_ORDER.filter((questionId) => !hasOwn(input, questionId))
+  const invalidQuestionIds = QUESTION_IDS.filter((questionId) =>
+    hasOwn(input, questionId) && !isValidAnswerForQuestion(questionId, input[questionId]),
+  )
+
+  // The conditional answer is not a free-standing optional field. Reject it
+  // instead of silently normalizing the source snapshot during derivation.
+  if (input['basic.hasInstitutionExperience'] !== 'true' && hasOwn(input, 'basic.institutionExitReasons')) {
+    if (invalidQuestionIds.indexOf('basic.institutionExitReasons') < 0) {
+      invalidQuestionIds.push('basic.institutionExitReasons')
+    }
+  }
+
+  if (missingRequired.length > 0) {
+    return { ok: false, reason: 'incomplete', questionIds: missingRequired }
+  }
+  if (unknownAnswerKeys.length > 0 || invalidQuestionIds.length > 0) {
+    return { ok: false, reason: 'invalid', questionIds: invalidQuestionIds }
+  }
+  return { ok: true, answers: cloneAnswers(input) }
+}
+
 const makeFailure = (
   code:
     | 'NOT_COMPLETED_ASSESSMENT'
@@ -329,32 +381,14 @@ const validateCompletedAssessment = (input: unknown): DerivationSuccessOrFailure
   if (!isValidIso8601Timestamp(input.completedAt)) {
     return { ok: false, result: makeFailure('INVALID_COMPLETED_AT_TIMESTAMP') }
   }
-  if (!isPlainRecord(input.answers)) {
-    return { ok: false, result: makeFailure('INVALID_ASSESSMENT_ANSWER_NOT_DERIVABLE') }
-  }
-
-  const answers = input.answers
-  const unknownAnswerKeys = Object.keys(answers).filter((key) => !isAssessmentQuestionId(key))
-  const missingRequired = REQUIRED_ASSESSMENT_QUESTION_ORDER.filter((questionId) => !hasOwn(answers, questionId))
-  const invalidQuestionIds = QUESTION_IDS.filter((questionId) =>
-    hasOwn(answers, questionId) && !isValidAnswerForQuestion(questionId, answers[questionId]),
-  )
-
-  // The conditional answer is not a free-standing optional field. It is
-  // invalid when the controlling answer is absent or explicitly false.
-  if (answers['basic.hasInstitutionExperience'] !== 'true' && hasOwn(answers, 'basic.institutionExitReasons')) {
-    if (invalidQuestionIds.indexOf('basic.institutionExitReasons') < 0) {
-      invalidQuestionIds.push('basic.institutionExitReasons')
-    }
-  }
-
-  if (missingRequired.length > 0) {
-    return { ok: false, result: makeFailure('INCOMPLETE_ASSESSMENT_NOT_DERIVABLE', missingRequired) }
-  }
-  if (unknownAnswerKeys.length > 0 || invalidQuestionIds.length > 0) {
+  const answerValidation = validateAssessmentAnswersForProfileDerivation(input.answers)
+  if (!answerValidation.ok) {
+    const code = answerValidation.reason === 'incomplete'
+      ? 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE'
+      : 'INVALID_ASSESSMENT_ANSWER_NOT_DERIVABLE'
     return {
       ok: false,
-      result: makeFailure('INVALID_ASSESSMENT_ANSWER_NOT_DERIVABLE', invalidQuestionIds),
+      result: makeFailure(code, answerValidation.questionIds),
     }
   }
 
@@ -366,7 +400,7 @@ const validateCompletedAssessment = (input: unknown): DerivationSuccessOrFailure
       elderId: input.elderId,
       status: 'completed',
       schemaVersion: ASSESSMENT_SCHEMA_VERSION,
-      answers: cloneAnswers(answers),
+      answers: answerValidation.answers,
       completedAt: input.completedAt,
     },
   }
@@ -1013,21 +1047,23 @@ const sortClarifications = (clarifications: readonly ProfileClarification[]): Pr
 
 const cloneRegionAnswer = (value: PreferenceRegionAnswer): PreferenceRegionAnswer => ({ ...value })
 
-/** Pure, deterministic CompletedAssessment -> ElderProfile derivation. */
-export const deriveElderProfile = (input: unknown): ElderProfileDerivationResult => {
-  const validation = validateCompletedAssessment(input)
-  if (!validation.ok) {
-    return validation.result
-  }
-
-  const assessment = validation.assessment
-  const answers = assessment.answers
+/**
+ * @internal Single identity-free semantic core shared only by the formal and
+ * preview adapters. Callers that need provenance must use one of those public
+ * adapters; this function is deliberately omitted from the domain barrel.
+ */
+export const deriveProfileSemantics = (
+  answers: AssessmentAnswerSnapshot,
+): ProfileSemanticDerivationResult => {
   const adlResult = classifyAdl(adlRawAnswersFromSnapshot(answers))
   if (!adlResult.ok) {
     const code = adlResult.error.code === 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE'
       ? 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE'
       : 'INVALID_ASSESSMENT_ANSWER_NOT_DERIVABLE'
-    return makeFailure(code, adlResult.error.questionIds)
+    return {
+      ok: false,
+      error: { code, questionIds: adlResult.error.questionIds.slice() },
+    }
   }
 
   const adl = adlResult.classification
@@ -1044,7 +1080,7 @@ export const deriveElderProfile = (input: unknown): ElderProfileDerivationResult
     ...capabilities.evidence,
   ])
 
-  const basicRawFacts: ElderProfile['basic']['rawFacts'] = {
+  const basicRawFacts: ElderProfileSemanticPayload['basic']['rawFacts'] = {
     relation: answers['basic.relationship'],
     sex: answers['basic.gender'],
     age: answers['basic.age'],
@@ -1070,16 +1106,7 @@ export const deriveElderProfile = (input: unknown): ElderProfileDerivationResult
     regionPreference = cloneRegionAnswer(answers['preference.region'])
   }
 
-  const profile: ElderProfile = {
-    kind: 'elder_profile',
-    identity: {
-      elderId: assessment.elderId,
-      assessmentId: assessment.id,
-      assessmentSchemaVersion: assessment.schemaVersion,
-      assessmentCompletedAt: assessment.completedAt,
-      profileContractVersion: PROFILE_CONTRACT_VERSION,
-      derivationRulesetVersion: PROFILE_DERIVATION_RULESET_VERSION,
-    },
+  const semantics: ElderProfileSemanticPayload = {
     basic: { rawFacts: basicRawFacts },
     health: {
       rawFacts: {
@@ -1121,6 +1148,34 @@ export const deriveElderProfile = (input: unknown): ElderProfileDerivationResult
     userFacingSummary: makeSummary(answers, adl),
     evidence,
     clarifications: sortClarifications(clarifications),
+  }
+  return { ok: true, semantics }
+}
+
+/** Pure, deterministic CompletedAssessment -> ElderProfile formal adapter. */
+export const deriveElderProfile = (input: unknown): ElderProfileDerivationResult => {
+  const validation = validateCompletedAssessment(input)
+  if (!validation.ok) {
+    return validation.result
+  }
+
+  const assessment = validation.assessment
+  const semanticResult = deriveProfileSemantics(assessment.answers)
+  if (!semanticResult.ok) {
+    return makeFailure(semanticResult.error.code, semanticResult.error.questionIds)
+  }
+
+  const profile: ElderProfile = {
+    kind: 'elder_profile',
+    identity: {
+      elderId: assessment.elderId,
+      assessmentId: assessment.id,
+      assessmentSchemaVersion: assessment.schemaVersion,
+      assessmentCompletedAt: assessment.completedAt,
+      profileContractVersion: PROFILE_CONTRACT_VERSION,
+      derivationRulesetVersion: PROFILE_DERIVATION_RULESET_VERSION,
+    },
+    ...semanticResult.semantics,
   }
   return { ok: true, profile }
 }

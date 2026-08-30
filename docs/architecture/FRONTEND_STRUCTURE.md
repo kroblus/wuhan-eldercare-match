@@ -61,7 +61,9 @@ Mock provider（Bootstrap）或未来 HTTP provider
 
 ## 纯领域规则
 
-`miniprogram/domain/elder-profile/` 固定承载 Phase 3A-2 的纯 ADL classifier 与 ElderProfile derivation。该目录只能依赖 `types/assessment`、`types/elder-profile` 和同目录纯模块；不得读取 Page、Component、Store、Service、Mock、`wx.*`、Institution 或 Recommendation。
+`miniprogram/domain/elder-profile/` 固定承载纯 ADL classifier、正式 ElderProfile derivation、共享 semantic core，以及 Phase 3A-3 的 ephemeral Preview adapter。该目录只能依赖 `types/assessment`、`types/elder-profile` 和同目录纯模块；不得读取 Page、Component、Store、Service、Mock、`wx.*`、Institution 或 Recommendation。
+
+Preview adapter 只接受完整合法的 `AssessmentDraft`，不自行读取 Store，也不持久化 Preview。未来 Profile Page 只能读取 Draft 后调用该 adapter；Phase 3A-3 不修改页面。
 
 ## 文件所有权
 

@@ -1,5 +1,6 @@
 export { classifyAdl } from './adl-classifier'
 export { deriveElderProfile } from './derive-elder-profile'
+export { deriveElderProfilePreview } from './derive-elder-profile-preview'
 export {
   ADL_CARE_MODE_ORDER,
   ADL_CORE_QUESTION_IDS,

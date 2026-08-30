@@ -8,6 +8,7 @@
     "check:assessment-runtime": "node scripts/check-assessment-runtime.mjs",
     "check:assessment-interactions": "node scripts/check-assessment-interactions.mjs",
     "check:elder-profile-runtime": "node scripts/check-elder-profile-runtime.mjs",
+    "check:elder-profile-preview-runtime": "node scripts/check-elder-profile-preview-runtime.mjs",
     "check:wechat-ts-targeted-compat": "node scripts/check-wechat-ts-targeted-compat.mjs"
   },
   "keywords": [],

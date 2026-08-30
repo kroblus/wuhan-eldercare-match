@@ -13,7 +13,7 @@ export type {
   CompletedAssessment,
   PreferenceRegionAnswer,
 } from './assessment'
-export type { ElderProfile } from './elder-profile'
+export type { ElderProfile, ElderProfilePreview } from './elder-profile'
 
 export type Identifier = string
 export type Nullable<T> = T | MissingData

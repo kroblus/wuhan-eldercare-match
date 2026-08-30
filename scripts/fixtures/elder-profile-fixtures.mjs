@@ -107,6 +107,12 @@ export const completedAtValidationFixtures = Object.freeze([
   },
 ])
 
+/** Shared by the formal regression and cross-source Preview parity gate. */
+export const REHABILITATION_CONFLICT_ANSWERS = Object.freeze({
+  'health.rehabilitationNeed': 'none',
+  'cognitive.specialCareNeeds': Object.freeze(['rehabilitation_training']),
+})
+
 const adlOverrides = (overrides) => makeAdlAnswers(overrides)
 
 /** Normative Proposal C cases. C12/C13 intentionally expose both fixtures. */

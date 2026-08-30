@@ -472,9 +472,8 @@ export interface ElderProfileUserFacingSummary {
   ]
 }
 
-export interface ElderProfile {
-  kind: 'elder_profile'
-  identity: ElderProfileIdentity
+/** Identity-free semantics shared by formal profiles and ephemeral previews. */
+export interface ElderProfileSemanticPayload {
   basic: {
     rawFacts: BasicProfileRawFacts
   }
@@ -509,6 +508,26 @@ export interface ElderProfile {
   userFacingSummary: ElderProfileUserFacingSummary
   evidence: readonly DerivationEvidence[]
   clarifications: readonly ProfileClarification[]
+}
+
+/** Historical profile derived only from a valid CompletedAssessment. */
+export interface ElderProfile extends ElderProfileSemanticPayload {
+  kind: 'elder_profile'
+  identity: ElderProfileIdentity
+}
+
+export interface ElderProfilePreviewSource {
+  kind: 'local_assessment_preview'
+  localDraftId: string
+  assessmentSchemaVersion: AssessmentSchemaVersion
+}
+
+/** Ephemeral preview; it is never a CompletedAssessment or saved profile. */
+export interface ElderProfilePreview extends ElderProfileSemanticPayload {
+  kind: 'elder_profile_preview'
+  source: ElderProfilePreviewSource
+  profileContractVersion: ElderProfileContractVersion
+  derivationRulesetVersion: ElderProfileDerivationRulesetVersion
 }
 
 export type AdlClassificationErrorCode =
@@ -558,3 +577,25 @@ export interface ElderProfileDerivationSuccess {
 export type ElderProfileDerivationResult =
   | ElderProfileDerivationSuccess
   | ElderProfileDerivationFailure
+
+export type ElderProfilePreviewDerivationErrorCode =
+  | 'INVALID_DRAFT_STRUCTURE'
+  | 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE'
+  | 'UNSUPPORTED_ASSESSMENT_SCHEMA'
+
+export interface ElderProfilePreviewDerivationFailure {
+  ok: false
+  error: {
+    code: ElderProfilePreviewDerivationErrorCode
+    questionIds: readonly AssessmentQuestionId[]
+  }
+}
+
+export interface ElderProfilePreviewDerivationSuccess {
+  ok: true
+  preview: ElderProfilePreview
+}
+
+export type ElderProfilePreviewDerivationResult =
+  | ElderProfilePreviewDerivationSuccess
+  | ElderProfilePreviewDerivationFailure

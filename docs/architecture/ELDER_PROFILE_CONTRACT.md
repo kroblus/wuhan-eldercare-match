@@ -432,3 +432,5 @@ Runtime fixtures 必须验证：
 `ASSESSMENT_INTERACTION_SYSTEM_FROZEN = TRUE`
 
 Phase 3A-2 不修改 `ASSESSMENT_CONTRACT.md` 或 `WECHAT_INTERACTION_CONTRACT.md` 的业务语义。Profile derivation 是只读消费者，不能把派生值写回 AssessmentDraft 或 CompletedAssessment。
+
+Phase 3A-3 的匿名本地预览边界由 `ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md` 单独约束。它只复用本文冻结的 identity-free semantic payload；不得弱化本 Contract 的 `CompletedAssessment → ElderProfile` identity、completedAt 或历史记录要求。

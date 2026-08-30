@@ -4,12 +4,15 @@
 
 Phase 3A-2 已在 `ELDER_PROFILE_CONTRACT.md` 冻结 `elder-profile-contract-v1`，并在 `ADL_RULE_CONTRACT.md` 冻结 `adl-ruleset-v1`；二者替代本文和 Bootstrap 类型中的 ElderProfile 占位形状。
 
+Phase 3A-3 的 `ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md` 单独定义本地完整 Draft 的 ephemeral Preview；它不把 Draft 升级或伪装成正式 Assessment/Profile。
+
 ## 核心对象
 
 - `Elder`：老人档案，可拥有多次评估。
 - `Assessment`：一次不可被后续重评覆盖的评估记录。
 - `AssessmentAnswer` / `AssessmentDraft`：结构化答案与未提交草稿。
 - `ElderProfile`：由指定评估推导的老人需求画像。
+- `ElderProfilePreview`：由当前完整本地 Draft 即时派生、不可持久化的画像预览，不是历史画像。
 - `Institution`：机构资料，字段必须携带数据来源和可空语义。
 - `Recommendation`：必须绑定生成它的 `assessmentId`。
 - `RecommendationReason`：结构化、可追溯到机构字段的理由；本批只定义类型。
@@ -19,11 +22,12 @@ Phase 3A-2 已在 `ELDER_PROFILE_CONTRACT.md` 冻结 `elder-profile-contract-v1`
 
 1. 重新评估创建新的 `Assessment`，不得覆盖历史记录。
 2. `ElderProfile.identity.assessmentId` 指向生成画像的评估。
-3. `Recommendation.assessmentId` 指向生成推荐的评估。
-4. `RecommendationReason` 不得脱离机构真实字段生成。
-5. 健康与特殊护理数据按高敏感信息处理，最小化采集和展示。
-6. 匿名用户可以浏览并填写评估草稿；保存档案、历史记录和预约可以在明确操作点要求登录。
-7. 手机号只在预约或用户明确要求顾问联系时获取。
+3. `ElderProfilePreview.source.localDraftId` 只能指向真实本地 Draft，且 Preview 不得包含 `assessmentId`、`elderId` 或 `completedAt`。
+4. `Recommendation.assessmentId` 指向生成推荐的评估。
+5. `RecommendationReason` 不得脱离机构真实字段生成。
+6. 健康与特殊护理数据按高敏感信息处理，最小化采集和展示。
+7. 匿名用户可以浏览并填写评估草稿；保存档案、历史记录和预约可以在明确操作点要求登录。
+8. 手机号只在预约或用户明确要求顾问联系时获取。
 
 ## 预约状态
 
