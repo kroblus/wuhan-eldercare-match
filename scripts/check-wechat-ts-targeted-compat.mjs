@@ -12,6 +12,9 @@ const elderProfileDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain'
 const elderProfileTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile.ts')
 const institutionDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'institution')
 const institutionTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution.ts')
+const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
+const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
+const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
 const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
 const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
 const navigationBarPath = path.join(repositoryRoot, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts')
@@ -167,10 +170,12 @@ const run = async () => {
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
     ...await walkTypeScriptFiles(institutionDomainRoot),
+    ...await walkTypeScriptFiles(recommendationDomainRoot),
     elderProfileTypePath,
     institutionTypePath,
+    recommendationTypePath,
   ].sort()
-  const requiredTargets = [elderProfileTypePath, institutionTypePath, ...profileCompatibilityTargets]
+  const requiredTargets = [elderProfileTypePath, institutionTypePath, recommendationTypePath, recommendationEntryPath, ...profileCompatibilityTargets]
   const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
   if (targetFiles.length === 0 || missingTargets.length > 0) {
     throw new Error(`targeted TypeScript sources are missing:\n${missingTargets.map((filePath) => path.relative(repositoryRoot, filePath)).join('\n')}`)
@@ -285,6 +290,7 @@ const run = async () => {
   console.log(`PARSER: TypeScript ${ts.version} (${parserPath})`)
   console.log(`COMPILER_TARGET: ${compilerTarget}`)
   console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
+  console.log(`RECOMMENDATION_TARGETS: ${targetFiles.filter((fileName) => fileName === recommendationTypePath || fileName.startsWith(`${recommendationDomainRoot}${path.sep}`)).length}`)
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)
   console.log(`TYPESCRIPT_DIAGNOSTIC_ERRORS: ${diagnosticErrors.length}`)
