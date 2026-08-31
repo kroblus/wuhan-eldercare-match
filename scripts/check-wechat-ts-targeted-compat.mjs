@@ -10,6 +10,8 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const tsconfigPath = path.join(repositoryRoot, 'tsconfig.json')
 const elderProfileDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'elder-profile')
 const elderProfileTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile.ts')
+const institutionDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'institution')
+const institutionTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution.ts')
 const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
 const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
 const navigationBarPath = path.join(repositoryRoot, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts')
@@ -164,9 +166,11 @@ const run = async () => {
   const { parser: ts, parserPath, source: parserSource } = await loadWechatTypeScript()
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
+    ...await walkTypeScriptFiles(institutionDomainRoot),
     elderProfileTypePath,
+    institutionTypePath,
   ].sort()
-  const requiredTargets = [elderProfileTypePath, ...profileCompatibilityTargets]
+  const requiredTargets = [elderProfileTypePath, institutionTypePath, ...profileCompatibilityTargets]
   const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
   if (targetFiles.length === 0 || missingTargets.length > 0) {
     throw new Error(`targeted TypeScript sources are missing:\n${missingTargets.map((filePath) => path.relative(repositoryRoot, filePath)).join('\n')}`)

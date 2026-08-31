@@ -10,6 +10,7 @@
     "check:elder-profile-runtime": "node scripts/check-elder-profile-runtime.mjs",
     "check:elder-profile-preview-runtime": "node scripts/check-elder-profile-preview-runtime.mjs",
     "check:profile-page-runtime": "node scripts/check-profile-page-runtime.mjs",
+    "check:institution-runtime": "node scripts/check-institution-runtime.mjs",
     "check:wechat-ts-targeted-compat": "node scripts/check-wechat-ts-targeted-compat.mjs"
   },
   "keywords": [],
