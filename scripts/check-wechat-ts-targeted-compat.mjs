@@ -15,6 +15,14 @@ const institutionTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'i
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
+const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
+const applicationMockRoot = path.join(repositoryRoot, 'miniprogram', 'mock')
+const integrationTypePaths = [
+  path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview.ts'),
+]
+const draftStorePath = path.join(repositoryRoot, 'miniprogram', 'store', 'assessment-draft.ts')
+const wechatDeclarationPath = path.join(repositoryRoot, 'typings', 'index.d.ts')
 const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
 const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
 const navigationBarPath = path.join(repositoryRoot, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts')
@@ -96,7 +104,10 @@ const findClassFields = (ts, fileName, source, scriptKind) => {
   const visit = (node) => {
     const parent = node.parent
     const insideClass = parent && (ts.isClassDeclaration(parent) || ts.isClassExpression(parent))
-    if (insideClass && ts.isPropertyDeclaration(node)) {
+    // TS declarations initialized in constructors are the required project pattern.
+    // JS must contain no fields at all; TS may contain declarations, not initializers.
+    if (insideClass && ts.isPropertyDeclaration(node)
+      && (scriptKind === ts.ScriptKind.JS || node.initializer)) {
       const location = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
       findings.push(`${fileName}:${location.line + 1}:${location.character + 1} ${node.getText(sourceFile)}`)
     }
@@ -167,6 +178,12 @@ const assertNoConfigErrors = (ts, diagnostics) => {
 
 const run = async () => {
   const { parser: ts, parserPath, source: parserSource } = await loadWechatTypeScript()
+  const applicationTargets = [
+    ...await walkTypeScriptFiles(applicationServiceRoot),
+    ...await walkTypeScriptFiles(applicationMockRoot),
+    ...integrationTypePaths,
+    draftStorePath,
+  ]
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
     ...await walkTypeScriptFiles(institutionDomainRoot),
@@ -174,8 +191,15 @@ const run = async () => {
     elderProfileTypePath,
     institutionTypePath,
     recommendationTypePath,
+    ...applicationTargets,
   ].sort()
-  const requiredTargets = [elderProfileTypePath, institutionTypePath, recommendationTypePath, recommendationEntryPath, ...profileCompatibilityTargets]
+  const requiredTargets = [
+    elderProfileTypePath, institutionTypePath, recommendationTypePath, recommendationEntryPath,
+    ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
+    path.join(applicationServiceRoot, 'recommendation-preview.ts'),
+    path.join(applicationServiceRoot, 'institution-catalog.ts'),
+    path.join(applicationMockRoot, 'institution-catalog.mock.ts'),
+  ]
   const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
   if (targetFiles.length === 0 || missingTargets.length > 0) {
     throw new Error(`targeted TypeScript sources are missing:\n${missingTargets.map((filePath) => path.relative(repositoryRoot, filePath)).join('\n')}`)
@@ -216,7 +240,9 @@ const run = async () => {
     }
   }
 
-  const program = ts.createProgram(targetFiles, compilerOptions, host)
+  // Full diagnostics for the application/service graph with the real wx declarations.
+  // No stub Store, no replacement declarations, no skipLibCheck or error suppression.
+  const program = ts.createProgram([...targetFiles, wechatDeclarationPath], compilerOptions, host)
   const diagnostics = ts.getPreEmitDiagnostics(program)
   const diagnosticErrors = diagnostics.filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
   if (diagnosticErrors.length > 0) {
@@ -273,7 +299,7 @@ const run = async () => {
   }
 
   if (sourceClassFields.length > 0) {
-    throw new Error(`source class property initializer/declaration is forbidden:\n${sourceClassFields.join('\n')}`)
+    throw new Error(`source class property initializer is forbidden:\n${sourceClassFields.join('\n')}`)
   }
   if (emittedClassFields.length > 0) {
     throw new Error(`unsupported emitted class-field syntax:\n${emittedClassFields.join('\n')}`)
@@ -291,11 +317,13 @@ const run = async () => {
   console.log(`COMPILER_TARGET: ${compilerTarget}`)
   console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
   console.log(`RECOMMENDATION_TARGETS: ${targetFiles.filter((fileName) => fileName === recommendationTypePath || fileName.startsWith(`${recommendationDomainRoot}${path.sep}`)).length}`)
+  console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
+  console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)
   console.log(`TYPESCRIPT_DIAGNOSTIC_ERRORS: ${diagnosticErrors.length}`)
   console.log(`PROFILE_SYNTAX_DIAGNOSTIC_ERRORS: ${profileSyntaxErrors.length}`)
-  console.log(`SOURCE_CLASS_FIELDS: ${sourceClassFields.length}`)
+  console.log(`SOURCE_CLASS_INITIALIZERS: ${sourceClassFields.length}`)
   console.log(`EMITTED_CLASS_FIELDS: ${emittedClassFields.length}`)
   console.log(`EXTERNAL_RUNTIME_IMPORTS: ${externalImports.length}`)
   console.log(`ADDITIONAL_RUNTIME_POLYFILL_ASSUMPTIONS: ${unsupportedRuntimeFeatures.length}`)

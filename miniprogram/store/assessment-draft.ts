@@ -4,12 +4,14 @@ import {
   isAssessmentQuestionId,
   isValidAnswerForQuestion,
   normalizeMultiChoiceValue,
-  type AssessmentAnswerValueMap,
-  type AssessmentDraft,
-  type AssessmentDraftAnswers,
-  type AssessmentQuestionId,
-  type AssessmentStepId,
   LOCAL_ASSESSMENT_PERSISTENCE,
+} from '../types/assessment'
+import type {
+  AssessmentAnswerValueMap,
+  AssessmentDraft,
+  AssessmentDraftAnswers,
+  AssessmentQuestionId,
+  AssessmentStepId,
 } from '../types/assessment'
 
 const STORAGE_KEY = 'wuhan-eldercare-match.assessment-draft.v1'
@@ -145,7 +147,10 @@ export class AssessmentDraftStore {
     return Object.keys(this.draft.answers).length > 0
   }
 
-  getAnswer<K extends AssessmentQuestionId>(questionId: K): AssessmentAnswerValueMap[K] | undefined {
+  getAnswer<K extends AssessmentQuestionId>(questionId: K): AssessmentAnswerValueMap[K] | undefined;
+  getAnswer(
+    questionId: AssessmentQuestionId,
+  ): AssessmentAnswerValueMap[AssessmentQuestionId] | undefined {
     return this.draft.answers[questionId]
   }
 

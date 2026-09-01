@@ -41,3 +41,20 @@ Bootstrap 阶段允许使用 Mock 机构记录，只为开发页面结构、状�
 ## 进入真实数据阶段的门槛
 
 真实机构记录进入产品前必须逐项核验名称、地址、价格、护理能力、医疗与康复、房型、媒体、VR、资质及更新时间。缺失字段继续保持空值，不以 Mock 补齐。
+
+## Phase 4C-1 授权增量
+
+以上 Bootstrap 限制保留其阶段含义。本次产品批准独立的 8 条 V1 开发 Catalog，
+只用合成 price/region/type/capability/availability facts 验证已冻结 Recommendation Domain 的客户端接入。
+不把合成值补到 legacy 记录，不根据真实市场猜机构事实。
+
+V1 记录的 provenance 字段是冻结的 `recordProvenance: 'MOCK_DEVELOPMENT_ONLY'`，
+旧 DTO 仍使用 `dataProvenance`；不得新增 `VERIFIED` 记录 provenance。
+开发合成 verification 可使用冻结字段枚举，但其 evidence 必须声明
+`DEVELOPMENT_SYNTHETIC_VERIFICATION; NOT_REAL_INSTITUTION_DATA`，不代表现实人工核验。
+生产数据不得使用这些证据；完整输出保留 MOCK dataset mode，下一阶段 UI 必须显示“开发 Mock 数据”。
+这不改变生产字段级 verified 定义，不把测试 fixture 变成 App 数据源。
+
+开发 Catalog 与 `scripts/fixtures/**` 分开所有权；合成区域不得进入 Assessment 的真实区域目录。
+VR 始终为空且无伪媒体。精确接口、错误和全池校验规则见
+`RECOMMENDATION_PREVIEW_INTEGRATION_CONTRACT.md`。

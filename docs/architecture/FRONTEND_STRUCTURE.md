@@ -59,6 +59,16 @@ Mock provider（Bootstrap）或未来 HTTP provider
 - Mock 与未来 HTTP 实现共享稳定 service contract。
 - 登录、重试、错误映射和数据来源判断不得分散到页面。
 
+### Phase 4C-1 application boundary
+
+`services/recommendation-preview.ts` 只编排 Draft snapshot、公开 Profile Preview deriver、
+`services/institution-catalog.ts` 和公开 Recommendation Preview evaluator；不拥有任何领域推导规则。
+V1 Catalog 服务返回经过正式 validator 的完整 `InstitutionRecord` 池，Provider 数据位于
+`mock/institution-catalog.mock.ts`，不可导入 `scripts/fixtures/**`。
+旧 `institution.service.ts` / `contracts.ts::InstitutionServiceContract` 暂时只服务现有
+home/preference 的 legacy 兼容路径；新 application consumer 不得依赖旧 DTO。
+本阶段不把新服务接入 Page。详见 `RECOMMENDATION_PREVIEW_INTEGRATION_CONTRACT.md`。
+
 ## 纯领域规则
 
 `miniprogram/domain/elder-profile/` 固定承载纯 ADL classifier、正式 ElderProfile derivation、共享 semantic core，以及 Phase 3A-3 的 ephemeral Preview adapter。该目录只能依赖 `types/assessment`、`types/elder-profile` 和同目录纯模块；不得读取 Page、Component、Store、Service、Mock、`wx.*`、Institution 或 Recommendation。

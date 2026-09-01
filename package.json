@@ -12,6 +12,7 @@
     "check:profile-page-runtime": "node scripts/check-profile-page-runtime.mjs",
     "check:institution-runtime": "node scripts/check-institution-runtime.mjs",
     "check:recommendation-runtime": "node scripts/check-recommendation-runtime.mjs",
+    "check:recommendation-preview-integration-runtime": "node scripts/check-recommendation-preview-integration-runtime.mjs",
     "check:wechat-ts-targeted-compat": "node scripts/check-wechat-ts-targeted-compat.mjs"
   },
   "keywords": [],
