@@ -9,6 +9,7 @@
     "check:assessment-v2-runtime": "node scripts/check-assessment-v2-runtime.mjs",
     "check:assessment-interactions": "node scripts/check-assessment-interactions.mjs",
     "check:elder-profile-runtime": "node scripts/check-elder-profile-runtime.mjs",
+    "check:elder-profile-v2-runtime": "node scripts/check-elder-profile-v2-runtime.mjs",
     "check:elder-profile-preview-runtime": "node scripts/check-elder-profile-preview-runtime.mjs",
     "check:profile-page-runtime": "node scripts/check-profile-page-runtime.mjs",
     "check:institution-runtime": "node scripts/check-institution-runtime.mjs",

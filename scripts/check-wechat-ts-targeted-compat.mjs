@@ -10,6 +10,11 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const tsconfigPath = path.join(repositoryRoot, 'tsconfig.json')
 const elderProfileDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'elder-profile')
 const elderProfileTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile.ts')
+const elderProfileV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'elder-profile-v2.ts')
+const elderProfileV2DomainRoot = path.join(elderProfileDomainRoot, 'v2')
+const elderProfileV2EntryPath = path.join(elderProfileV2DomainRoot, 'index.ts')
+const elderProfileV2FormalPath = path.join(elderProfileV2DomainRoot, 'derive-elder-profile-v2.ts')
+const elderProfileV2PreviewPath = path.join(elderProfileV2DomainRoot, 'derive-elder-profile-preview-v2.ts')
 const institutionDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'institution')
 const institutionTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
@@ -205,12 +210,15 @@ const run = async () => {
     ...await walkTypeScriptFiles(institutionDomainRoot),
     ...await walkTypeScriptFiles(recommendationDomainRoot),
     elderProfileTypePath,
+    elderProfileV2TypePath,
     institutionTypePath,
     recommendationTypePath,
     ...applicationTargets,
   ].sort()
   const requiredTargets = [
-    elderProfileTypePath, institutionTypePath, recommendationTypePath, recommendationEntryPath,
+    elderProfileTypePath, elderProfileV2TypePath,
+    elderProfileV2EntryPath, elderProfileV2FormalPath, elderProfileV2PreviewPath,
+    institutionTypePath, recommendationTypePath, recommendationEntryPath,
     ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
@@ -335,6 +343,7 @@ const run = async () => {
   console.log(`COMPILER_TARGET: ${compilerTarget}`)
   console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
   console.log(`RECOMMENDATION_TARGETS: ${targetFiles.filter((fileName) => fileName === recommendationTypePath || fileName.startsWith(`${recommendationDomainRoot}${path.sep}`)).length}`)
+  console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
