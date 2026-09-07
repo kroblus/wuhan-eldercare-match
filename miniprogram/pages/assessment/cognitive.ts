@@ -1,10 +1,11 @@
-import {
-  validateCognitiveAnswers,
-  type AssessmentAnswerValueMap,
-  type CognitiveSpecialCareNeed,
-  type CognitiveSymptom,
-} from '../../types/assessment'
-import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+import { validateCognitiveAnswersV2 } from '../../types/assessment-v2'
+import type {
+  AssessmentAnswerValueMapV2,
+  CognitiveSpecialCareNeedV2,
+  CognitiveSymptomV2,
+} from '../../types/assessment-v2'
+import { assessmentDraftStore } from '../../store/assessment-draft'
+import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
@@ -14,8 +15,8 @@ type CognitiveQuestionId = 'cognitive.symptoms' | 'cognitive.specialCareNeeds'
 
 interface AssessmentCognitiveData {
   backEnabled: boolean
-  symptoms: CognitiveSymptom[]
-  specialCareNeeds: CognitiveSpecialCareNeed[]
+  symptoms: CognitiveSymptomV2[]
+  specialCareNeeds: CognitiveSpecialCareNeedV2[]
   symptomsOptions: ChoiceOption[]
   specialCareNeedsOptions: ChoiceOption[]
   symptomsAnchorId: string
@@ -89,8 +90,8 @@ Page({
 
   syncFromDraft() {
     const answers = assessmentDraftStore.getDraft().answers
-    const symptoms = readMultiAnswer(answers, 'cognitive.symptoms') as CognitiveSymptom[]
-    const specialCareNeeds = readMultiAnswer(answers, 'cognitive.specialCareNeeds') as CognitiveSpecialCareNeed[]
+    const symptoms = readMultiAnswer(answers, 'cognitive.symptoms') as CognitiveSymptomV2[]
+    const specialCareNeeds = readMultiAnswer(answers, 'cognitive.specialCareNeeds') as CognitiveSpecialCareNeedV2[]
     this.setData({
       symptoms,
       specialCareNeeds,
@@ -116,7 +117,7 @@ Page({
   onSymptomsChange(event: WechatMiniprogram.CustomEvent) {
     this.updateMultiAnswer(
       'cognitive.symptoms',
-      (event.detail as { values: CognitiveSymptom[] }).values,
+      (event.detail as { values: CognitiveSymptomV2[] }).values,
       'symptoms',
     )
   },
@@ -124,14 +125,14 @@ Page({
   onSpecialCareNeedsChange(event: WechatMiniprogram.CustomEvent) {
     this.updateMultiAnswer(
       'cognitive.specialCareNeeds',
-      (event.detail as { values: CognitiveSpecialCareNeed[] }).values,
+      (event.detail as { values: CognitiveSpecialCareNeedV2[] }).values,
       'specialCareNeeds',
     )
   },
 
   updateMultiAnswer<K extends CognitiveQuestionId>(
     questionId: K,
-    values: AssessmentAnswerValueMap[K],
+    values: AssessmentAnswerValueMapV2[K],
     dataKey: 'symptoms' | 'specialCareNeeds',
   ) {
     const result = values.length > 0
@@ -151,7 +152,7 @@ Page({
   },
 
   onNext() {
-    const validation = validateCognitiveAnswers(assessmentDraftStore.getDraft().answers)
+    const validation = validateCognitiveAnswersV2(assessmentDraftStore.getDraft().answers)
     const firstErrorQuestionId = validation.firstErrorQuestionId
     this.setData({
       symptomsError: validation.errors['cognitive.symptoms'] || '',

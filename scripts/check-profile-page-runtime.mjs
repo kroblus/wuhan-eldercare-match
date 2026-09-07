@@ -347,6 +347,55 @@ const answersFor = (id, overrides = {}) => ({
   ...clone(overrides),
 })
 
+/**
+ * Profile Phase 3B is frozen against Assessment V1. The production Draft
+ * Store now owns active Schema V2 migration, so this historical regression
+ * harness supplies an explicit V1 Draft boundary instead of pretending that
+ * a V2 Draft is valid Profile V1 input.
+ */
+const installHistoricalV1DraftStoreHarness = (draftStore, draftStorageKey) => {
+  const emptyDraft = () => ({
+    kind: 'assessment_draft',
+    schemaVersion: 1,
+    localDraftId: 'profile-v1-runtime-draft',
+    persistence: 'LOCAL_DEVICE_DEVELOPMENT_ONLY',
+    currentStep: 'basic',
+    answers: {},
+    startedAt: '2026-01-02T03:04:05.000Z',
+    updatedAt: '2026-01-02T03:04:05.000Z',
+  })
+  let activeDraft = emptyDraft()
+  const snapshot = () => clone(activeDraft)
+  const persist = (status = 'saved') => {
+    runtimeState.storage[draftStorageKey] = snapshot()
+    return { draft: snapshot(), persistence: { ok: true, status } }
+  }
+
+  draftStore.getDraft = snapshot
+  draftStore.hasAnswers = () => Object.keys(activeDraft.answers).length > 0
+  draftStore.getAnswer = (questionId) => clone(activeDraft.answers[questionId])
+  draftStore.setAnswer = (questionId, value) => {
+    activeDraft.answers[questionId] = clone(value)
+    if (questionId === 'basic.hasInstitutionExperience' && value !== 'true') {
+      delete activeDraft.answers['basic.institutionExitReasons']
+    }
+    return persist()
+  }
+  draftStore.clearAnswer = (questionId) => {
+    delete activeDraft.answers[questionId]
+    return persist()
+  }
+  draftStore.setCurrentStep = (step) => {
+    activeDraft.currentStep = step
+    return persist()
+  }
+  draftStore.clear = () => {
+    activeDraft = emptyDraft()
+    return persist('cleared')
+  }
+  draftStore.getLastPersistenceResult = () => ({ ok: true, status: 'saved' })
+}
+
 const resetRuntime = (draftStore) => {
   runtimeState.storage = Object.create(null)
   const cleared = draftStore.clear()
@@ -460,6 +509,7 @@ const run = async () => {
   const navigationBarDefinition = loadComponentDefinition(loadModule, 'miniprogram/components/navigation-bar/navigation-bar.ts')
   const draftStore = draftModule.assessmentDraftStore
   const draftStorageKey = draftModule.assessmentDraftStorageKey
+  installHistoricalV1DraftStoreHarness(draftStore, draftStorageKey)
 
   assert.equal(typeof profileDefinition.onShow, 'function')
   assert.equal(typeof profileDefinition.refreshProfile, 'function')

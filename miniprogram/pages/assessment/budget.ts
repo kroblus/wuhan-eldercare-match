@@ -1,15 +1,18 @@
 import {
-  ASSESSMENT_QUESTION_DEFINITIONS,
-  validateAssessmentDraftForCompletion,
-  validateBudgetAnswers,
-  type AssessmentAnswerValueMap,
-  type AssessmentStepId,
-  type ConsultantSupport,
-  type MonthlyRange,
-  type MoveInTiming,
-  type UpfrontCostAcceptance,
-} from '../../types/assessment'
-import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+  ASSESSMENT_QUESTION_DEFINITIONS_V2,
+  validateBudgetAnswersV2,
+  validateAssessmentDraftForCompletionV2,
+} from '../../types/assessment-v2'
+import type {
+  AssessmentAnswerValueMapV2,
+  AssessmentStepIdV2,
+  ConsultantSupportV2,
+  MonthlyRangeV2,
+  MoveInTimingV2,
+  UpfrontCostAcceptanceV2,
+} from '../../types/assessment-v2'
+import { assessmentDraftStore } from '../../store/assessment-draft'
+import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
@@ -21,14 +24,14 @@ type BudgetQuestionId =
   | 'budget.moveInTiming'
   | 'budget.consultantSupport'
 
-type BudgetQuestionValueMap = Pick<AssessmentAnswerValueMap, BudgetQuestionId>
+type BudgetQuestionValueMap = Pick<AssessmentAnswerValueMapV2, BudgetQuestionId>
 
 interface AssessmentBudgetData {
   backEnabled: boolean
-  monthlyRange: MonthlyRange | ''
-  upfrontCostAcceptance: UpfrontCostAcceptance | ''
-  moveInTiming: MoveInTiming | ''
-  consultantSupport: ConsultantSupport | ''
+  monthlyRange: MonthlyRangeV2 | ''
+  upfrontCostAcceptance: UpfrontCostAcceptanceV2 | ''
+  moveInTiming: MoveInTimingV2 | ''
+  consultantSupport: ConsultantSupportV2 | ''
   monthlyRangeOptions: ChoiceOption[]
   upfrontCostOptions: ChoiceOption[]
   moveInTimingOptions: ChoiceOption[]
@@ -75,7 +78,7 @@ const consultantSupportOptions: ChoiceOption[] = [
   { value: 'recommendation_first', label: '先看推荐结果' },
 ]
 
-const assessmentStepLabels: Record<AssessmentStepId, string> = {
+const assessmentStepLabels: Record<AssessmentStepIdV2, string> = {
   basic: '老人基本情况',
   health: '健康情况',
   adl: '日常生活能力',
@@ -94,8 +97,10 @@ type DraftAnswers = ReturnType<typeof assessmentDraftStore.getDraft>['answers']
 const readBudgetAnswer = <K extends BudgetQuestionId>(
   answers: DraftAnswers,
   questionId: K,
-): BudgetQuestionValueMap[K] | '' =>
-  answers[questionId] || ''
+): BudgetQuestionValueMap[K] | '' => {
+  const value = answers[questionId]
+  return value === undefined ? '' : value as BudgetQuestionValueMap[K]
+}
 
 const hasBudgetAnswers = (answers: DraftAnswers): boolean =>
   answers['budget.monthlyRange'] !== undefined
@@ -162,7 +167,7 @@ Page({
 
   updateSingleAnswer<K extends BudgetQuestionId>(
     questionId: K,
-    value: BudgetQuestionValueMap[K],
+    value: AssessmentAnswerValueMapV2[K],
     dataKey: K extends 'budget.monthlyRange'
       ? 'monthlyRange'
       : K extends 'budget.upfrontCostAcceptance'
@@ -171,7 +176,7 @@ Page({
           ? 'moveInTiming'
           : 'consultantSupport',
   ) {
-    const result = assessmentDraftStore.setAnswer(questionId, value as AssessmentAnswerValueMap[K])
+    const result = assessmentDraftStore.setAnswer(questionId, value)
     const answer = result.draft.answers[questionId] || ''
     this.setData({
       [dataKey]: answer,
@@ -184,7 +189,7 @@ Page({
   onMonthlyRangeChange(event: WechatMiniprogram.CustomEvent) {
     this.updateSingleAnswer(
       'budget.monthlyRange',
-      (event.detail as { value: MonthlyRange }).value,
+      (event.detail as { value: MonthlyRangeV2 }).value,
       'monthlyRange',
     )
   },
@@ -192,7 +197,7 @@ Page({
   onUpfrontCostChange(event: WechatMiniprogram.CustomEvent) {
     this.updateSingleAnswer(
       'budget.upfrontCostAcceptance',
-      (event.detail as { value: UpfrontCostAcceptance }).value,
+      (event.detail as { value: UpfrontCostAcceptanceV2 }).value,
       'upfrontCostAcceptance',
     )
   },
@@ -200,7 +205,7 @@ Page({
   onMoveInTimingChange(event: WechatMiniprogram.CustomEvent) {
     this.updateSingleAnswer(
       'budget.moveInTiming',
-      (event.detail as { value: MoveInTiming }).value,
+      (event.detail as { value: MoveInTimingV2 }).value,
       'moveInTiming',
     )
   },
@@ -208,7 +213,7 @@ Page({
   onConsultantSupportChange(event: WechatMiniprogram.CustomEvent) {
     this.updateSingleAnswer(
       'budget.consultantSupport',
-      (event.detail as { value: ConsultantSupport }).value,
+      (event.detail as { value: ConsultantSupportV2 }).value,
       'consultantSupport',
     )
   },
@@ -218,7 +223,7 @@ Page({
   },
 
   onNext() {
-    const validation = validateBudgetAnswers(assessmentDraftStore.getDraft().answers)
+    const validation = validateBudgetAnswersV2(assessmentDraftStore.getDraft().answers)
     const firstErrorQuestionId = validation.firstErrorQuestionId
     this.setData({
       monthlyRangeError: validation.errors['budget.monthlyRange'] || '',
@@ -243,15 +248,16 @@ Page({
       return
     }
 
-    const completionValidation = validateAssessmentDraftForCompletion(
+    const completionValidation = validateAssessmentDraftForCompletionV2(
       assessmentDraftStore.getDraft().answers,
     )
-    if (!completionValidation.valid && completionValidation.firstInvalidQuestionId) {
-      const incompleteStep = ASSESSMENT_QUESTION_DEFINITIONS[
-        completionValidation.firstInvalidQuestionId
-      ].step
+    if (!completionValidation.valid) {
+      const firstInvalidQuestionId = completionValidation.firstInvalidQuestionId
+      const formError = firstInvalidQuestionId
+        ? `${assessmentStepLabels[ASSESSMENT_QUESTION_DEFINITIONS_V2[firstInvalidQuestionId].step]}仍有未完成或无效的必填项，请返回补充后再继续`
+        : '评估草稿包含无法识别的答案，请返回评估说明重新检查或开始评估'
       this.setData({
-        formError: `${assessmentStepLabels[incompleteStep]}仍有未完成或无效的必填项，请返回补充后再继续`,
+        formError,
       })
       return
     }

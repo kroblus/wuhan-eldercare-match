@@ -22,6 +22,18 @@ const integrationTypePaths = [
   path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview.ts'),
 ]
 const draftStorePath = path.join(repositoryRoot, 'miniprogram', 'store', 'assessment-draft.ts')
+const assessmentV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'assessment-v2.ts')
+const assessmentMigrationPath = path.join(repositoryRoot, 'miniprogram', 'utils', 'assessment-migration.ts')
+const assessmentResumePath = path.join(repositoryRoot, 'miniprogram', 'utils', 'assessment-resume.ts')
+const assessmentV2PageTargets = [
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'intro.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'basic.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'health.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'adl.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'cognitive.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'preference.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'budget.ts'),
+]
 const wechatDeclarationPath = path.join(repositoryRoot, 'typings', 'index.d.ts')
 const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
 const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
@@ -183,6 +195,10 @@ const run = async () => {
     ...await walkTypeScriptFiles(applicationMockRoot),
     ...integrationTypePaths,
     draftStorePath,
+    assessmentV2TypePath,
+    assessmentMigrationPath,
+    assessmentResumePath,
+    ...assessmentV2PageTargets,
   ]
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
@@ -196,6 +212,8 @@ const run = async () => {
   const requiredTargets = [
     elderProfileTypePath, institutionTypePath, recommendationTypePath, recommendationEntryPath,
     ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
+    assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
+    ...assessmentV2PageTargets,
     path.join(applicationServiceRoot, 'recommendation-preview.ts'),
     path.join(applicationServiceRoot, 'institution-catalog.ts'),
     path.join(applicationMockRoot, 'institution-catalog.mock.ts'),

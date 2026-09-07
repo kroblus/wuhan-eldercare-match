@@ -9,6 +9,7 @@ import {
   INTEGRATION_EVALUATION_AS_OF,
   makeIntegrationDraft,
 } from './fixtures/recommendation-preview-integration-fixtures.mjs'
+import { makeV2Draft } from './fixtures/assessment-v2-fixtures.mjs'
 
 /** In-memory runtime: real application/provider/domain modules, no built cache. */
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -43,7 +44,7 @@ function loadTypeScript() {
   return { ts: require(candidates[0]), file: candidates[0] }
 }
 
-function createRuntime(ts, initialDraft = makeIntegrationDraft()) {
+function createRuntime(ts, initialDraft = makeV2Draft()) {
   const cache = new Map()
   const loaded = new Set()
   const calls = { profile: 0, recommendation: [], validation: 0, storageRead: 0, writes: 0, logs: 0 }
@@ -57,10 +58,23 @@ function createRuntime(ts, initialDraft = makeIntegrationDraft()) {
   }
   const deterministicMath = Object.create(Math)
   deterministicMath.random = () => { throw new Error('random forbidden') }
+  const initialStorage = Object.create(null)
+  if (initialDraft && initialDraft.schemaVersion === 2) {
+    initialStorage['wuhan-eldercare-match.assessment-draft.active'] = 'v2'
+    initialStorage['wuhan-eldercare-match.assessment-draft.v2'] = clone(initialDraft)
+  } else {
+    initialStorage['wuhan-eldercare-match.assessment-draft.active'] = 'v1'
+    initialStorage['wuhan-eldercare-match.assessment-draft.v1'] = clone(initialDraft)
+  }
   const context = vm.createContext({
     Date: ExplicitDate, Math: deterministicMath,
     wx: new Proxy({
-      getStorageSync: () => { calls.storageRead += 1; return clone(initialDraft) },
+      getStorageSync: (key) => {
+        calls.storageRead += 1
+        return Object.prototype.hasOwnProperty.call(initialStorage, key)
+          ? clone(initialStorage[key])
+          : ''
+      },
       setStorageSync: forbidden('writes'), removeStorageSync: forbidden('writes'),
     }, { get(target, key) { if (!(key in target)) throw new Error(`unexpected wx API: ${String(key)}`); return target[key] } }),
     console: { log: forbidden('logs'), error: forbidden('logs'), warn: forbidden('logs') },
@@ -279,16 +293,16 @@ async function main() {
     c.equal(second.value.semantics.elderSnapshot.financial.monthlyBudget, 'cny_12000_15000')
     c.equal(rt.calls.profile, 2)
   })
-  await runCase('INTEGRATION-014', 'real Store default entry reads without Preview persistence', async c => {
-    const rt = newRuntime()
+  await runCase('INTEGRATION-014', 'real Store exposes active V2 safely without Preview persistence or V1 semantic leakage', async c => {
+    const rt = createRuntime(ts, makeV2Draft())
     const store = rt.load('store/assessment-draft.ts').assessmentDraftStore
     const before = clone(store.getDraft())
     const result = await app(rt).buildRecommendationPreview(time)
-    c.equal(result.ok, true)
+    assertError(c, result, 'ASSESSMENT_PREVIEW_ERROR', 'UNSUPPORTED_ASSESSMENT_SCHEMA')
     c.same(store.getDraft(), before)
     c.equal(rt.calls.writes, 0)
     c.equal(rt.calls.logs, 0)
-    c.equal(rt.calls.recommendation.length, 1)
+    c.equal(rt.calls.recommendation.length, 0)
   })
   await runCase('INTEGRATION-015', 'App source graph never imports scripts fixtures', async c => {
     const sources = walk(appRoot).filter(file => file.endsWith('.ts'))

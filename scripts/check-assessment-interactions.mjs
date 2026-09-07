@@ -263,23 +263,35 @@ const pageSpecs = [
   {
     step: 'basic',
     questions: ['basic.relationship', 'basic.gender', 'basic.age'],
-    validatorName: 'validateBasicAnswers',
+    validatorName: 'validateBasicAnswersV2',
     complete: { 'basic.relationship': 'father', 'basic.gender': 'male', 'basic.age': 72 },
     partial: { 'basic.relationship': 'father' },
     invalid: { 'basic.relationship': 'father', 'basic.gender': 'male', 'basic.age': 49 },
   },
   {
     step: 'health',
-    questions: ['health.conditions', 'health.recentEvents', 'health.rehabilitationNeed'],
-    validatorName: 'validateHealthAnswers',
-    complete: { 'health.conditions': ['none'], 'health.recentEvents': ['none'], 'health.rehabilitationNeed': 'unknown' },
+    questions: [
+      'health.conditions',
+      'health.recentEvents',
+      'health.rehabilitationNeed',
+      'health.chewingAbility',
+      'health.swallowingAbility',
+    ],
+    validatorName: 'validateHealthAnswersV2',
+    complete: {
+      'health.conditions': ['none'],
+      'health.recentEvents': ['none'],
+      'health.rehabilitationNeed': 'unknown',
+      'health.chewingAbility': 'unknown',
+      'health.swallowingAbility': 'unknown',
+    },
     partial: { 'health.conditions': ['unknown'] },
     invalid: { 'health.conditions': ['hypertension', 'none'], 'health.recentEvents': ['none'], 'health.rehabilitationNeed': 'unknown' },
   },
   {
     step: 'adl',
     questions: ['adl.eating', 'adl.mobility', 'adl.toileting', 'adl.bathing', 'adl.dressing', 'adl.transfer', 'adl.stairs'],
-    validatorName: 'validateAdlAnswers',
+    validatorName: 'validateAdlAnswersV2',
     complete: {
       'adl.eating': 'independent',
       'adl.mobility': 'independent',
@@ -295,16 +307,28 @@ const pageSpecs = [
   {
     step: 'cognitive',
     questions: ['cognitive.symptoms', 'cognitive.specialCareNeeds'],
-    validatorName: 'validateCognitiveAnswers',
+    validatorName: 'validateCognitiveAnswersV2',
     complete: { 'cognitive.symptoms': ['none'], 'cognitive.specialCareNeeds': ['none'] },
     partial: { 'cognitive.symptoms': ['unknown'] },
     invalid: { 'cognitive.symptoms': ['memory_decline', 'unknown'], 'cognitive.specialCareNeeds': ['none'] },
   },
   {
     step: 'preference',
-    questions: ['preference.careType', 'preference.priorities'],
-    validatorName: 'validatePreferenceAnswers',
-    complete: { 'preference.careType': 'unknown', 'preference.priorities': ['price'] },
+    questions: [
+      'preference.careType',
+      'preference.roomType',
+      'preference.mealSchedule',
+      'preference.activityPreference',
+      'preference.priorities',
+    ],
+    validatorName: 'validatePreferenceAnswersV2',
+    complete: {
+      'preference.careType': 'unknown',
+      'preference.roomType': 'no_preference',
+      'preference.mealSchedule': 'no_preference',
+      'preference.activityPreference': 'no_preference',
+      'preference.priorities': ['price'],
+    },
     partial: { 'preference.careType': 'unknown' },
     invalid: { 'preference.careType': 'unknown', 'preference.priorities': [] },
   },
@@ -316,7 +340,7 @@ const pageSpecs = [
       'budget.moveInTiming',
       'budget.consultantSupport',
     ],
-    validatorName: 'validateBudgetAnswers',
+    validatorName: 'validateBudgetAnswersV2',
     complete: {
       'budget.monthlyRange': 'unknown',
       'budget.upfrontCostAcceptance': 'unknown',
@@ -360,8 +384,16 @@ const pageInteractionSpecs = {
       ['onConditionsChange', detail({ values: ['none'] })],
       ['onRecentEventsChange', detail({ values: ['none'] })],
       ['onRehabilitationNeedChange', detail({ value: 'unknown' })],
+      ['onChewingAbilityChange', detail({ value: 'unknown' })],
+      ['onSwallowingAbilityChange', detail({ value: 'unknown' })],
     ],
-    restore: { conditions: ['none'], recentEvents: ['none'], rehabilitationNeed: 'unknown' },
+    restore: {
+      conditions: ['none'],
+      recentEvents: ['none'],
+      rehabilitationNeed: 'unknown',
+      chewingAbility: 'unknown',
+      swallowingAbility: 'unknown',
+    },
     firstErrorDataKey: 'conditionsError',
     secondErrorDataKey: 'recentEventsError',
     nextRoute: '/pages/assessment/adl',
@@ -414,9 +446,18 @@ const pageInteractionSpecs = {
     ],
     completeInputs: [
       ['onCareTypeChange', detail({ value: 'unknown' })],
+      ['onRoomTypeChange', detail({ value: 'no_preference' })],
+      ['onMealScheduleChange', detail({ value: 'no_preference' })],
+      ['onActivityPreferenceChange', detail({ value: 'no_preference' })],
       ['onPrioritiesChange', detail({ values: ['price'] })],
     ],
-    restore: { careType: 'unknown', priorities: ['price'] },
+    restore: {
+      careType: 'unknown',
+      roomType: 'no_preference',
+      mealSchedule: 'no_preference',
+      activityPreference: 'no_preference',
+      priorities: ['price'],
+    },
     firstErrorDataKey: 'careTypeError',
     secondErrorDataKey: 'prioritiesError',
     nextRoute: '/pages/assessment/budget',
@@ -452,6 +493,8 @@ const allPrerequisiteAnswers = {
   'health.conditions': ['none'],
   'health.recentEvents': ['none'],
   'health.rehabilitationNeed': 'unknown',
+  'health.chewingAbility': 'unknown',
+  'health.swallowingAbility': 'unknown',
   'adl.eating': 'independent',
   'adl.mobility': 'independent',
   'adl.toileting': 'independent',
@@ -462,6 +505,9 @@ const allPrerequisiteAnswers = {
   'cognitive.symptoms': ['none'],
   'cognitive.specialCareNeeds': ['none'],
   'preference.careType': 'unknown',
+  'preference.roomType': 'no_preference',
+  'preference.mealSchedule': 'no_preference',
+  'preference.activityPreference': 'no_preference',
   'preference.priorities': ['price'],
 }
 
@@ -487,7 +533,7 @@ const navigationBarFallbacks = {
 const run = async () => {
   const { parser, parserPath } = await getDevToolsTypeScriptParser()
   const loadModule = makeRuntimeLoader(parser)
-  const assessment = loadModule(path.join(miniprogramRoot, 'types', 'assessment.ts'))
+  const assessmentV2 = loadModule(path.join(miniprogramRoot, 'types', 'assessment-v2.ts'))
   const draftModule = loadModule(path.join(miniprogramRoot, 'store', 'assessment-draft.ts'))
   const primaryDefinition = loadDefinition(loadModule, 'miniprogram/components/primary-button/primary-button.ts')
   const footerDefinition = loadDefinition(loadModule, 'miniprogram/components/assessment-footer/assessment-footer.ts')
@@ -636,6 +682,48 @@ const run = async () => {
         runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
         [{ type: 'navigateTo', url: '/pages/assessment/basic' }],
       )
+    },
+  )
+
+  runCase(
+    'RESUME_FIRST_INCOMPLETE_V2_QUESTION',
+    'A V2 Draft with all earlier required answers complete resumes at the first missing V2 question step, independent of currentStep',
+    () => {
+      resetRuntime('intro')
+      seedAnswers({
+        'basic.relationship': 'father',
+        'basic.gender': 'male',
+        'basic.age': 72,
+        'health.conditions': ['none'],
+        'health.recentEvents': ['none'],
+        'health.rehabilitationNeed': 'unknown',
+        'health.chewingAbility': 'unknown',
+        'health.swallowingAbility': 'unknown',
+        'adl.eating': 'independent',
+        'adl.mobility': 'independent',
+        'adl.toileting': 'independent',
+        'adl.bathing': 'independent',
+        'adl.dressing': 'independent',
+        'adl.transfer': 'independent',
+        'adl.stairs': 'independent',
+        'cognitive.symptoms': ['none'],
+        'cognitive.specialCareNeeds': ['none'],
+        'preference.careType': 'unknown',
+      })
+      assert.equal(draftStore.setCurrentStep('budget').persistence.ok, true)
+      runtimeState.navigationCalls.length = 0
+      runtimeState.pageStack = [
+        { route: 'pages/home/index' },
+        { route: 'pages/assessment/intro' },
+      ]
+      const page = mountPage(introDefinition)
+      invokePageHandler(page, 'onShow')
+      invokePageHandler(page, 'startAssessment')
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'navigateTo', url: '/pages/assessment/preference' }],
+      )
+      assert.equal(draftStore.getDraft().currentStep, 'budget')
     },
   )
 
@@ -822,7 +910,7 @@ const run = async () => {
   for (const spec of pageSpecs) {
     const pageSource = readText(`miniprogram/pages/assessment/${spec.step}.ts`)
     const pageWxml = readText(`miniprogram/pages/assessment/${spec.step}.wxml`)
-    const validator = assessment[spec.validatorName]
+    const validator = assessmentV2[spec.validatorName]
     const interaction = pageInteractionSpecs[spec.step]
     const expectedErrorSelector = (questionId) =>
       `#assessment-question-${questionId.replace(/[^a-zA-Z0-9]+/g, '-')}`
@@ -968,6 +1056,34 @@ const run = async () => {
         assert.deepEqual(draftStore.getDraft().answers[questionId], expected)
         assert.deepEqual(runtimeState.storage[draftStorageKey].answers[questionId], expected)
       })
+    },
+  )
+
+  runCase(
+    'BUDGET_INVALID_DRAFT_ENVELOPE_GATE',
+    'Budget Page must not navigate when completion validation rejects a damaged Draft without a locatable question ID',
+    () => {
+      const budgetSpec = pageSpecs.find((spec) => spec.step === 'budget')
+      const page = preparePage(budgetSpec)
+      seedAnswers(allPrerequisiteAnswers)
+      applyInputs(page, pageInteractionSpecs.budget.completeInputs)
+
+      const originalGetDraft = draftStore.getDraft.bind(draftStore)
+      draftStore.getDraft = () => {
+        const draft = originalGetDraft()
+        draft.answers['unknown.question'] = 'damaged-answer'
+        return draft
+      }
+      try {
+        invokePageHandler(page, 'onNext')
+      } finally {
+        draftStore.getDraft = originalGetDraft
+      }
+
+      assert.equal(page.handlerCalls.onNext, 1)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 0)
+      assert.equal(runtimeState.scrollCalls.length, 0)
+      assert.match(page.data.formError, /无法识别的答案/)
     },
   )
 

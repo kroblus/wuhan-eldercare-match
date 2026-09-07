@@ -1,9 +1,11 @@
 import { assessmentDraftStore } from '../../store/assessment-draft'
+import { getAssessmentResumeRouteV2 } from '../../utils/assessment-resume'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 interface AssessmentIntroData {
   backEnabled: boolean
   hasDraft: boolean
+  draftRecoveryRequired: boolean
   savedAtLabel: string
   restartError: string
   restartPending: boolean
@@ -19,6 +21,7 @@ Page({
   data: {
     backEnabled: true,
     hasDraft: false,
+    draftRecoveryRequired: false,
     savedAtLabel: '',
     restartError: '',
     restartPending: false,
@@ -42,10 +45,14 @@ Page({
   refreshDraftState() {
     const hasDraft = hasDraftContent()
     const persistence = assessmentDraftStore.getLastPersistenceResult()
+    const draftRecoveryRequired = assessmentDraftStore.requiresLegacyRecovery()
     this.setData({
       hasDraft,
+      draftRecoveryRequired,
       savedAtLabel: hasDraft
-        ? persistence.ok
+        ? draftRecoveryRequired
+          ? '检测到旧版草稿，但无法安全迁移；原数据仍保留，请重新开始后再填写'
+          : persistence.ok
           ? '草稿已保存在本机，仅用于本次开发体验'
           : '本机保存失败，当前答案只在本次打开期间保留，请重试'
         : '',
@@ -54,7 +61,12 @@ Page({
   },
 
   startAssessment() {
-    navigateToWithGuard(this, 'intro.startAssessment', '/pages/assessment/basic')
+    if (assessmentDraftStore.requiresLegacyRecovery()) {
+      this.setData({ restartError: '旧版草稿无法安全迁移；原数据仍保留，请选择重新开始。' })
+      return
+    }
+    const targetRoute = getAssessmentResumeRouteV2(assessmentDraftStore.getDraft())
+    navigateToWithGuard(this, 'intro.startAssessment', targetRoute)
   },
 
   restartAssessment() {

@@ -55,6 +55,24 @@ const questionSpecs = [
 
 const questionIds = questionSpecs.map(({ id }) => id)
 const requiredQuestionIds = questionSpecs.filter(({ required }) => required).map(({ id }) => id)
+const v2HealthAdditionalOptionSpecs = {
+  chewingOptions: ['normal', 'easy_chew', 'modified_food', 'unknown'],
+  swallowingOptions: ['normal', 'occasional_difficulty', 'significant_difficulty', 'unknown'],
+}
+const v2PriorityOptions = [
+  'care_capability',
+  'caregiver_quality',
+  'medical_conditions',
+  'rehabilitation_capability',
+  'food_quality',
+  'living_environment',
+  'room_facilities',
+  'activity_space',
+  'transportation',
+  'near_major_hospital',
+  'price',
+  'region',
+]
 
 const pageOptionSpecs = {
   basic: {
@@ -69,6 +87,8 @@ const pageOptionSpecs = {
     conditionsOptions: questionSpecs[8].values,
     recentEventOptions: questionSpecs[9].values,
     rehabilitationOptions: questionSpecs[10].values,
+    chewingOptions: v2HealthAdditionalOptionSpecs.chewingOptions,
+    swallowingOptions: v2HealthAdditionalOptionSpecs.swallowingOptions,
   },
   adl: {
     eatingOptions: questionSpecs[11].values,
@@ -85,7 +105,7 @@ const pageOptionSpecs = {
   },
   preference: {
     careTypeOptions: questionSpecs[20].values,
-    priorityOptions: questionSpecs[21].values,
+    priorityOptions: v2PriorityOptions,
   },
   budget: {
     monthlyRangeOptions: questionSpecs[23].values,
@@ -102,6 +122,8 @@ const completeAnswers = {
   'health.conditions': ['none'],
   'health.recentEvents': ['none'],
   'health.rehabilitationNeed': 'unknown',
+  'health.chewingAbility': 'unknown',
+  'health.swallowingAbility': 'unknown',
   'adl.eating': 'independent',
   'adl.mobility': 'independent',
   'adl.toileting': 'independent',
@@ -112,6 +134,9 @@ const completeAnswers = {
   'cognitive.symptoms': ['none'],
   'cognitive.specialCareNeeds': ['none'],
   'preference.careType': 'unknown',
+  'preference.roomType': 'no_preference',
+  'preference.mealSchedule': 'no_preference',
+  'preference.activityPreference': 'no_preference',
   'preference.priorities': ['price'],
   'budget.monthlyRange': 'unknown',
   'budget.upfrontCostAcceptance': 'unknown',
@@ -326,6 +351,7 @@ const run = async () => {
   const { parser, parserPath } = await getTypeScriptParser()
   const loadModule = createSourceLoader(parser)
   const assessment = loadModule(path.join(miniprogramRoot, 'types', 'assessment.ts'))
+  const assessmentV2 = loadModule(path.join(miniprogramRoot, 'types', 'assessment-v2.ts'))
   const draftModule = loadModule(path.join(miniprogramRoot, 'store', 'assessment-draft.ts'))
   const regionCatalogModule = loadModule(path.join(miniprogramRoot, 'services', 'institution-region-catalog.ts'))
   const pageDefinitions = {}
@@ -499,6 +525,8 @@ const run = async () => {
     page.onRecentEventsChange(detail({ values: ['unknown', 'recently_discharged'] }))
     assert.deepEqual(draftStore.getAnswer('health.recentEvents'), ['recently_discharged'])
     page.onRehabilitationNeedChange(detail({ value: 'possible' }))
+    page.onChewingAbilityChange(detail({ value: 'easy_chew' }))
+    page.onSwallowingAbilityChange(detail({ value: 'unknown' }))
 
     assert.deepEqual(
       assessment.normalizeMultiChoiceValue('health.conditions', ['diabetes', 'diabetes']),
@@ -513,11 +541,15 @@ const run = async () => {
     assert.deepEqual(restored.getAnswer('health.conditions'), ['unknown'])
     assert.deepEqual(restored.getAnswer('health.recentEvents'), ['recently_discharged'])
     assert.equal(restored.getAnswer('health.rehabilitationNeed'), 'possible')
+    assert.equal(restored.getAnswer('health.chewingAbility'), 'easy_chew')
+    assert.equal(restored.getAnswer('health.swallowingAbility'), 'unknown')
     const restoredPage = mountPage(pageDefinitions.health)
     restoredPage.syncFromDraft()
     assert.deepEqual(restoredPage.data.conditions, ['unknown'])
     assert.deepEqual(restoredPage.data.recentEvents, ['recently_discharged'])
     assert.equal(restoredPage.data.rehabilitationNeed, 'possible')
+    assert.equal(restoredPage.data.chewingAbility, 'easy_chew')
+    assert.equal(restoredPage.data.swallowingAbility, 'unknown')
   })
 
   await runCase('ADL_RAW_ANSWERS_ONLY_AND_RECOVERY', () => {
@@ -589,13 +621,16 @@ const run = async () => {
     const page = mountPage(pageDefinitions.preference)
     page.syncFromDraft()
     page.onCareTypeChange(detail({ value: 'unknown' }))
-    page.onPrioritiesChange(detail({ values: ['price', 'close_to_family', 'transportation', 'food_quality'] }))
-    assert.deepEqual(page.data.priorities, ['price', 'close_to_family', 'transportation'])
-    assert.deepEqual(draftStore.getAnswer('preference.priorities'), ['price', 'close_to_family', 'transportation'])
+    page.onRoomTypeChange(detail({ value: 'double' }))
+    page.onMealScheduleChange(detail({ value: 'three_meals_one_snack' }))
+    page.onActivityPreferenceChange(detail({ value: 'indoor_and_outdoor' }))
+    page.onPrioritiesChange(detail({ values: ['price', 'transportation', 'food_quality', 'care_capability'] }))
+    assert.deepEqual(page.data.priorities, ['price', 'transportation', 'food_quality'])
+    assert.deepEqual(draftStore.getAnswer('preference.priorities'), ['price', 'transportation', 'food_quality'])
     assert.equal(page.data.priorityLimitMessage, '最多选择 3 项')
-    const tooMany = draftStore.setAnswer('preference.priorities', ['price', 'close_to_family', 'transportation', 'food_quality'])
+    const tooMany = draftStore.setAnswer('preference.priorities', ['price', 'transportation', 'food_quality', 'care_capability'])
     assert.equal(tooMany.persistence.ok, false)
-    assert.deepEqual(draftStore.getAnswer('preference.priorities'), ['price', 'close_to_family', 'transportation'])
+    assert.deepEqual(draftStore.getAnswer('preference.priorities'), ['price', 'transportation', 'food_quality'])
 
     const verifiedCatalog = regionCatalogModule.buildInstitutionRegionCatalog([
       { dataProvenance: 'VERIFIED', regionCode: 'jianghan', regionDisplayName: '江汉区' },
@@ -639,6 +674,9 @@ const run = async () => {
     const restoredPage = mountPage(pageDefinitions.preference)
     restoredPage.syncFromDraft()
     assert.equal(restoredPage.data.regionCode, 'no_preference')
+    assert.equal(restoredPage.data.roomType, 'double')
+    assert.equal(restoredPage.data.mealSchedule, 'three_meals_one_snack')
+    assert.equal(restoredPage.data.activityPreference, 'indoor_and_outdoor')
   })
 
   await runCase('BUDGET_INPUT_AND_DRAFT_RECOVERY', () => {
@@ -692,6 +730,26 @@ const run = async () => {
     assert.equal(assessment.validateAssessmentDraftForCompletion(regionOptionalAnswers).valid, true)
     assert.equal(Object.prototype.hasOwnProperty.call(validResult, 'profile'), false)
     assert.equal(Object.prototype.hasOwnProperty.call(validResult, 'recommendation'), false)
+
+    const validV2Result = assessmentV2.validateAssessmentDraftForCompletionV2(clone(completeAnswers))
+    assert.equal(validV2Result.valid, true)
+    assert.deepEqual(validV2Result.invalidQuestionIds, [])
+    assert.equal(validV2Result.firstInvalidQuestionId, undefined)
+
+    assessmentV2.REQUIRED_ASSESSMENT_QUESTION_ORDER_V2.forEach((questionId) => {
+      const answers = clone(completeAnswers)
+      delete answers[questionId]
+      const result = assessmentV2.validateAssessmentDraftForCompletionV2(answers)
+      assert.equal(result.valid, false, `${questionId} missing must block V2 completion`)
+      assert.equal(result.firstInvalidQuestionId, questionId)
+      assert.deepEqual(result.invalidQuestionIds, [questionId])
+    })
+
+    const invalidV2AgeAnswers = clone(completeAnswers)
+    invalidV2AgeAnswers['basic.age'] = 111
+    const invalidV2AgeResult = assessmentV2.validateAssessmentDraftForCompletionV2(invalidV2AgeAnswers)
+    assert.equal(invalidV2AgeResult.valid, false)
+    assert.deepEqual(invalidV2AgeResult.invalidQuestionIds, ['basic.age'])
   })
 
   await runCase('DRAFT_INVALID_STATE_AND_CONDITIONAL_RULES', () => {

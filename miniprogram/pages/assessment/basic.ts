@@ -1,13 +1,14 @@
-import {
-  validateBasicAnswers,
-  type BasicGender,
-  type BasicInstitutionExperience,
-  type BasicInstitutionExitReason,
-  type BasicLivingStatus,
-  type BasicPrimaryCaregiver,
-  type BasicRelationship,
+import type {
+  BasicGender,
+  BasicInstitutionExperience,
+  BasicInstitutionExitReason,
+  BasicLivingStatus,
+  BasicPrimaryCaregiver,
+  BasicRelationship,
 } from '../../types/assessment'
-import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+import { validateBasicAnswersV2 } from '../../types/assessment-v2'
+import { assessmentDraftStore } from '../../store/assessment-draft'
+import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
@@ -237,7 +238,7 @@ Page({
   },
 
   onNext() {
-    const validation = validateBasicAnswers(assessmentDraftStore.getDraft().answers)
+    const validation = validateBasicAnswersV2(assessmentDraftStore.getDraft().answers)
     const firstErrorQuestionId = validation.firstErrorQuestionId
     this.setData({
       relationshipError: validation.errors['basic.relationship'] || '',

@@ -1,10 +1,17 @@
-import {
-  validateHealthAnswers,
-  type HealthCondition,
-  type HealthRecentEvent,
-  type RehabilitationNeed,
+import type {
+  HealthCondition,
+  HealthRecentEvent,
+  RehabilitationNeed,
 } from '../../types/assessment'
-import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+import {
+  validateHealthAnswersV2,
+} from '../../types/assessment-v2'
+import type {
+  ChewingAbility,
+  SwallowingAbility,
+} from '../../types/assessment-v2'
+import { assessmentDraftStore } from '../../store/assessment-draft'
+import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
@@ -16,17 +23,26 @@ interface AssessmentHealthData {
   conditions: HealthCondition[]
   recentEvents: HealthRecentEvent[]
   rehabilitationNeed: RehabilitationNeed | ''
+  chewingAbility: ChewingAbility | ''
+  swallowingAbility: SwallowingAbility | ''
   conditionsOptions: ChoiceOption[]
   recentEventOptions: ChoiceOption[]
   rehabilitationOptions: ChoiceOption[]
+  chewingOptions: ChoiceOption[]
+  swallowingOptions: ChoiceOption[]
   conditionsError: string
   recentEventsError: string
   rehabilitationNeedError: string
+  chewingAbilityError: string
+  swallowingAbilityError: string
   formError: string
   saveStatus: string
+  persistenceFailed: boolean
   conditionsAnchorId: string
   recentEventsAnchorId: string
   rehabilitationNeedAnchorId: string
+  chewingAbilityAnchorId: string
+  swallowingAbilityAnchorId: string
 }
 
 const conditionsOptions: ChoiceOption[] = [
@@ -64,15 +80,37 @@ const rehabilitationOptions: ChoiceOption[] = [
   { value: 'unknown', label: '不确定' },
 ]
 
+const chewingOptions: ChoiceOption[] = [
+  { value: 'normal', label: '正常咀嚼' },
+  { value: 'easy_chew', label: '更适合软食、易咀嚼食物' },
+  { value: 'modified_food', label: '咀嚼能力较差，需要对食物做特殊处理' },
+  { value: 'unknown', label: '暂不确定' },
+]
+
+const swallowingOptions: ChoiceOption[] = [
+  { value: 'normal', label: '正常' },
+  { value: 'occasional_difficulty', label: '偶尔吞咽不顺或容易呛咳' },
+  { value: 'significant_difficulty', label: '明显吞咽困难' },
+  { value: 'unknown', label: '暂不确定' },
+]
+
 const conditionsAnchorId = getAssessmentQuestionAnchorId('health.conditions')
 const recentEventsAnchorId = getAssessmentQuestionAnchorId('health.recentEvents')
 const rehabilitationNeedAnchorId = getAssessmentQuestionAnchorId('health.rehabilitationNeed')
+const chewingAbilityAnchorId = getAssessmentQuestionAnchorId('health.chewingAbility')
+const swallowingAbilityAnchorId = getAssessmentQuestionAnchorId('health.swallowingAbility')
 
 const hasHealthAnswers = (
   conditions: HealthCondition[],
   recentEvents: HealthRecentEvent[],
   rehabilitationNeed: RehabilitationNeed | '',
-): boolean => conditions.length > 0 || recentEvents.length > 0 || rehabilitationNeed !== ''
+  chewingAbility: ChewingAbility | '',
+  swallowingAbility: SwallowingAbility | '',
+): boolean => conditions.length > 0
+  || recentEvents.length > 0
+  || rehabilitationNeed !== ''
+  || chewingAbility !== ''
+  || swallowingAbility !== ''
 
 Page({
   data: {
@@ -80,17 +118,26 @@ Page({
     conditions: [],
     recentEvents: [],
     rehabilitationNeed: '',
+    chewingAbility: '',
+    swallowingAbility: '',
     conditionsOptions,
     recentEventOptions,
     rehabilitationOptions,
+    chewingOptions,
+    swallowingOptions,
     conditionsError: '',
     recentEventsError: '',
     rehabilitationNeedError: '',
+    chewingAbilityError: '',
+    swallowingAbilityError: '',
     formError: '',
     saveStatus: '选择后会尝试保存到本机开发态草稿',
+    persistenceFailed: false,
     conditionsAnchorId,
     recentEventsAnchorId,
     rehabilitationNeedAnchorId,
+    chewingAbilityAnchorId,
+    swallowingAbilityAnchorId,
   } as AssessmentHealthData,
 
   onShow() {
@@ -103,15 +150,22 @@ Page({
     const conditions = answers['health.conditions'] || []
     const recentEvents = answers['health.recentEvents'] || []
     const rehabilitationNeed = answers['health.rehabilitationNeed'] || ''
+    const chewingAbility = answers['health.chewingAbility'] || ''
+    const swallowingAbility = answers['health.swallowingAbility'] || ''
     this.setData({
       conditions: [...conditions],
       recentEvents: [...recentEvents],
       rehabilitationNeed,
+      chewingAbility,
+      swallowingAbility,
       conditionsError: '',
       recentEventsError: '',
       rehabilitationNeedError: '',
+      chewingAbilityError: '',
+      swallowingAbilityError: '',
       formError: '',
-      saveStatus: hasHealthAnswers(conditions, recentEvents, rehabilitationNeed)
+      persistenceFailed: false,
+      saveStatus: hasHealthAnswers(conditions, recentEvents, rehabilitationNeed, chewingAbility, swallowingAbility)
         ? '已从本机草稿恢复（开发态）'
         : '选择后会尝试保存到本机开发态草稿',
     })
@@ -119,6 +173,7 @@ Page({
 
   applyPersistenceResult(result: AssessmentDraftMutationResult) {
     this.setData({
+      persistenceFailed: !result.persistence.ok,
       saveStatus: result.persistence.ok
         ? '已保存到本机（开发态），不会同步服务器'
         : '本机保存失败，请重试；答案不会同步服务器',
@@ -165,17 +220,43 @@ Page({
     this.applyPersistenceResult(result)
   },
 
+  onChewingAbilityChange(event: WechatMiniprogram.CustomEvent) {
+    const value = (event.detail as { value: ChewingAbility }).value
+    const result = assessmentDraftStore.setAnswer('health.chewingAbility', value)
+    const answer = result.draft.answers['health.chewingAbility'] || ''
+    this.setData({
+      chewingAbility: answer,
+      chewingAbilityError: '',
+      formError: '',
+    })
+    this.applyPersistenceResult(result)
+  },
+
+  onSwallowingAbilityChange(event: WechatMiniprogram.CustomEvent) {
+    const value = (event.detail as { value: SwallowingAbility }).value
+    const result = assessmentDraftStore.setAnswer('health.swallowingAbility', value)
+    const answer = result.draft.answers['health.swallowingAbility'] || ''
+    this.setData({
+      swallowingAbility: answer,
+      swallowingAbilityError: '',
+      formError: '',
+    })
+    this.applyPersistenceResult(result)
+  },
+
   onBack() {
     navigateBackFromAssessment('health')
   },
 
   onNext() {
-    const validation = validateHealthAnswers(assessmentDraftStore.getDraft().answers)
+    const validation = validateHealthAnswersV2(assessmentDraftStore.getDraft().answers)
     const firstErrorQuestionId = validation.firstErrorQuestionId
     this.setData({
       conditionsError: validation.errors['health.conditions'] || '',
       recentEventsError: validation.errors['health.recentEvents'] || '',
       rehabilitationNeedError: validation.errors['health.rehabilitationNeed'] || '',
+      chewingAbilityError: validation.errors['health.chewingAbility'] || '',
+      swallowingAbilityError: validation.errors['health.swallowingAbility'] || '',
       formError: '',
     }, () => {
       if (!validation.valid && firstErrorQuestionId) {
@@ -183,6 +264,14 @@ Page({
       }
     })
     if (!validation.valid) {
+      return
+    }
+
+    if (this.data.persistenceFailed) {
+      this.setData({
+        formError: '本机保存失败，暂时无法进入下一步，请重新选择并保存后再试',
+        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+      })
       return
     }
 

@@ -21,6 +21,39 @@
         </question-section>
       </view>
 
+      <view id="{{roomTypeAnchorId}}" class="question-anchor">
+        <question-section
+          title="更倾向哪种房型"
+          hint="按家庭目前的居住期待选择；不特别要求时可选择“不限制”"
+          required="{{true}}"
+          error="{{roomTypeError}}"
+        >
+          <single-choice options="{{roomTypeOptions}}" value="{{roomType}}" bindchange="onRoomTypeChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{mealScheduleAnchorId}}" class="question-anchor">
+        <question-section
+          title="膳食安排更关注什么"
+          hint="按家庭目前的用餐期待选择；不特别要求时可选择“不特别要求”"
+          required="{{true}}"
+          error="{{mealScheduleError}}"
+        >
+          <single-choice options="{{mealScheduleOptions}}" value="{{mealSchedule}}" bindchange="onMealScheduleChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{activityPreferenceAnchorId}}" class="question-anchor">
+        <question-section
+          title="活动和社交偏好"
+          hint="按家庭目前的活动期待选择；不特别在意时可选择“不特别在意”"
+          required="{{true}}"
+          error="{{activityPreferenceError}}"
+        >
+          <single-choice options="{{activityPreferenceOptions}}" value="{{activityPreference}}" bindchange="onActivityPreferenceChange"></single-choice>
+        </question-section>
+      </view>
+
       <view id="{{prioritiesAnchorId}}" class="question-anchor">
         <question-section
           title="选择机构时最关注什么"

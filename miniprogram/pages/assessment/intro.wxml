@@ -46,7 +46,7 @@
         <text class="draft-title">发现一份未完成的评估</text>
         <text class="draft-message">{{savedAtLabel}}</text>
       </view>
-      <button class="draft-continue" bindtap="startAssessment">继续填写</button>
+      <button wx:if="{{!draftRecoveryRequired}}" class="draft-continue" bindtap="startAssessment">继续填写</button>
     </view>
 
     <primary-button wx:if="{{!hasDraft}}" text="开始评估" bind:action="startAssessment"></primary-button>

@@ -1,14 +1,15 @@
-import {
-  validateAdlAnswers,
-  type AdlAssistance,
-  type AdlEating,
-  type AdlMobility,
-  type AdlStairs,
-  type AdlToileting,
-  type AdlTransfer,
-  type AssessmentAnswerValueMap,
-} from '../../types/assessment'
-import { assessmentDraftStore, type AssessmentDraftMutationResult } from '../../store/assessment-draft'
+import { validateAdlAnswersV2 } from '../../types/assessment-v2'
+import type {
+  AdlAssistanceV2,
+  AdlEatingV2,
+  AdlMobilityV2,
+  AdlStairsV2,
+  AdlToiletingV2,
+  AdlTransferV2,
+  AssessmentAnswerValueMapV2,
+} from '../../types/assessment-v2'
+import { assessmentDraftStore } from '../../store/assessment-draft'
+import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
 import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
@@ -25,13 +26,13 @@ type AdlQuestionId =
 
 interface AssessmentAdlData {
   backEnabled: boolean
-  eating: AdlEating | ''
-  mobility: AdlMobility | ''
-  toileting: AdlToileting | ''
-  bathing: AdlAssistance | ''
-  dressing: AdlAssistance | ''
-  transfer: AdlTransfer | ''
-  stairs: AdlStairs | ''
+  eating: AdlEatingV2 | ''
+  mobility: AdlMobilityV2 | ''
+  toileting: AdlToiletingV2 | ''
+  bathing: AdlAssistanceV2 | ''
+  dressing: AdlAssistanceV2 | ''
+  transfer: AdlTransferV2 | ''
+  stairs: AdlStairsV2 | ''
   eatingOptions: ChoiceOption[]
   mobilityOptions: ChoiceOption[]
   toiletingOptions: ChoiceOption[]
@@ -136,8 +137,10 @@ type DraftAnswers = ReturnType<typeof assessmentDraftStore.getDraft>['answers']
 const readStringAnswer = <K extends AdlQuestionId>(
   answers: DraftAnswers,
   questionId: K,
-): AssessmentAnswerValueMap[K] | '' =>
-  answers[questionId] || ''
+): AssessmentAnswerValueMapV2[K] | '' => {
+  const value = answers[questionId]
+  return value === undefined ? '' : value as AssessmentAnswerValueMapV2[K]
+}
 
 Page({
   data: {
@@ -215,36 +218,36 @@ Page({
   },
 
   onEatingChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.eating', (event.detail as { value: AdlEating }).value, 'eating')
+    this.updateSingleAnswer('adl.eating', (event.detail as { value: AdlEatingV2 }).value, 'eating')
   },
 
   onMobilityChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.mobility', (event.detail as { value: AdlMobility }).value, 'mobility')
+    this.updateSingleAnswer('adl.mobility', (event.detail as { value: AdlMobilityV2 }).value, 'mobility')
   },
 
   onToiletingChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.toileting', (event.detail as { value: AdlToileting }).value, 'toileting')
+    this.updateSingleAnswer('adl.toileting', (event.detail as { value: AdlToiletingV2 }).value, 'toileting')
   },
 
   onBathingChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.bathing', (event.detail as { value: AdlAssistance }).value, 'bathing')
+    this.updateSingleAnswer('adl.bathing', (event.detail as { value: AdlAssistanceV2 }).value, 'bathing')
   },
 
   onDressingChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.dressing', (event.detail as { value: AdlAssistance }).value, 'dressing')
+    this.updateSingleAnswer('adl.dressing', (event.detail as { value: AdlAssistanceV2 }).value, 'dressing')
   },
 
   onTransferChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.transfer', (event.detail as { value: AdlTransfer }).value, 'transfer')
+    this.updateSingleAnswer('adl.transfer', (event.detail as { value: AdlTransferV2 }).value, 'transfer')
   },
 
   onStairsChange(event: WechatMiniprogram.CustomEvent) {
-    this.updateSingleAnswer('adl.stairs', (event.detail as { value: AdlStairs }).value, 'stairs')
+    this.updateSingleAnswer('adl.stairs', (event.detail as { value: AdlStairsV2 }).value, 'stairs')
   },
 
   updateSingleAnswer<K extends AdlQuestionId>(
     questionId: K,
-    value: AssessmentAnswerValueMap[K],
+    value: AssessmentAnswerValueMapV2[K],
     dataKey: keyof Pick<AssessmentAdlData, 'eating' | 'mobility' | 'toileting' | 'bathing' | 'dressing' | 'transfer' | 'stairs'>,
   ) {
     const result = assessmentDraftStore.setAnswer(questionId, value)
@@ -262,7 +265,7 @@ Page({
   },
 
   onNext() {
-    const validation = validateAdlAnswers(assessmentDraftStore.getDraft().answers)
+    const validation = validateAdlAnswersV2(assessmentDraftStore.getDraft().answers)
     const firstErrorQuestionId = validation.firstErrorQuestionId
     this.setData({
       eatingError: validation.errors['adl.eating'] || '',

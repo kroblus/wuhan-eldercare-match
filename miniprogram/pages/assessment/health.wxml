@@ -42,6 +42,28 @@
           <single-choice options="{{rehabilitationOptions}}" value="{{rehabilitationNeed}}" bindchange="onRehabilitationNeedChange"></single-choice>
         </question-section>
       </view>
+
+      <view id="{{chewingAbilityAnchorId}}" class="question-anchor">
+        <question-section
+          title="咀嚼情况"
+          hint="请选择老人目前最接近的咀嚼情况；不确定时可以选择“暂不确定”"
+          required="{{true}}"
+          error="{{chewingAbilityError}}"
+        >
+          <single-choice options="{{chewingOptions}}" value="{{chewingAbility}}" bindchange="onChewingAbilityChange"></single-choice>
+        </question-section>
+      </view>
+
+      <view id="{{swallowingAbilityAnchorId}}" class="question-anchor">
+        <question-section
+          title="吞咽情况"
+          hint="请选择老人目前最接近的吞咽情况；这里仅记录事实，不代表鼻饲判断"
+          required="{{true}}"
+          error="{{swallowingAbilityError}}"
+        >
+          <single-choice options="{{swallowingOptions}}" value="{{swallowingAbility}}" bindchange="onSwallowingAbilityChange"></single-choice>
+        </question-section>
+      </view>
     </section-card>
 
     <text class="save-status">{{saveStatus}}</text>
