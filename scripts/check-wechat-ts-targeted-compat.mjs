@@ -17,6 +17,11 @@ const elderProfileV2FormalPath = path.join(elderProfileV2DomainRoot, 'derive-eld
 const elderProfileV2PreviewPath = path.join(elderProfileV2DomainRoot, 'derive-elder-profile-preview-v2.ts')
 const institutionDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'institution')
 const institutionTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution.ts')
+const institutionV11TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-v1-1.ts')
+const institutionV11DomainRoot = path.join(institutionDomainRoot, 'v1-1')
+const institutionV11EntryPath = path.join(institutionV11DomainRoot, 'index.ts')
+const institutionV11ValidatorPath = path.join(institutionV11DomainRoot, 'validate-institution-v1-1.ts')
+const institutionV11ProjectionPath = path.join(institutionV11DomainRoot, 'project-to-v1.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
@@ -212,13 +217,16 @@ const run = async () => {
     elderProfileTypePath,
     elderProfileV2TypePath,
     institutionTypePath,
+    institutionV11TypePath,
     recommendationTypePath,
     ...applicationTargets,
   ].sort()
   const requiredTargets = [
     elderProfileTypePath, elderProfileV2TypePath,
     elderProfileV2EntryPath, elderProfileV2FormalPath, elderProfileV2PreviewPath,
-    institutionTypePath, recommendationTypePath, recommendationEntryPath,
+    institutionTypePath, institutionV11TypePath,
+    institutionV11EntryPath, institutionV11ValidatorPath, institutionV11ProjectionPath,
+    recommendationTypePath, recommendationEntryPath,
     ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
@@ -343,6 +351,7 @@ const run = async () => {
   console.log(`COMPILER_TARGET: ${compilerTarget}`)
   console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
   console.log(`RECOMMENDATION_TARGETS: ${targetFiles.filter((fileName) => fileName === recommendationTypePath || fileName.startsWith(`${recommendationDomainRoot}${path.sep}`)).length}`)
+  console.log(`INSTITUTION_V1_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV11TypePath || fileName.startsWith(`${institutionV11DomainRoot}${path.sep}`)).length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')

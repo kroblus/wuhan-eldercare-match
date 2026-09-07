@@ -15,20 +15,34 @@ import type {
   InstitutionField,
   InstitutionEvidence,
   InstitutionEvidenceValueSnapshot,
-  InstitutionMedicalSupport,
   InstitutionMobilityCapabilityCode,
   InstitutionPriceProfile,
   InstitutionRecord,
   InstitutionRehabilitationFeatureCode,
   InstitutionRehabilitationSupport,
+  InstitutionRecurringPriceComponentCode,
   InstitutionSpecialCareCapabilityCode,
-  InstitutionStaffing,
   InstitutionTypeCode,
   InstitutionTypeProfile,
   InstitutionFieldVerification,
   ReferenceMonthlyPrice,
   MoneyRange,
 } from '../types/institution'
+import type {
+  InstitutionActivityV11,
+  InstitutionHealthMonitoringItemV11,
+  InstitutionHealthMonitoringV11,
+  InstitutionMealV11,
+  InstitutionMedicalSupportV11,
+  InstitutionRecordV11,
+  InstitutionResponseTimeV11,
+  InstitutionStaffingV11,
+  InstitutionTransportationV11,
+} from '../types/institution-v1-1'
+import {
+  projectInstitutionRecordV11ToV1,
+  validateInstitutionRecordV11,
+} from '../domain/institution/v1-1'
 import type {
   InstitutionCatalogPayload,
   InstitutionCatalogProvider,
@@ -85,6 +99,15 @@ const REHABILITATION_FEATURE_CODES: readonly InstitutionRehabilitationFeatureCod
   'cognitive_training',
 ]
 
+const RECURRING_PRICE_COMPONENT_CODES: readonly InstitutionRecurringPriceComponentCode[] = [
+  'bed_fee',
+  'care_fee',
+  'meal_fee',
+  'management_fee',
+  'special_care_fee',
+  'other_fee',
+]
+
 const asNonEmpty = <T>(values: readonly T[]): readonly [T, ...T[]] =>
   values.slice() as unknown as readonly [T, ...T[]]
 
@@ -109,6 +132,18 @@ const cloneCatalog = (catalog: InstitutionCatalogPayload): InstitutionCatalogPay
   datasetVersion: catalog.datasetVersion,
   datasetMode: catalog.datasetMode,
   records: cloneValue(catalog.records) as InstitutionRecord[],
+})
+
+interface InstitutionCatalogPayloadV11 {
+  datasetVersion: string
+  datasetMode: 'MOCK_DEVELOPMENT_ONLY'
+  records: readonly InstitutionRecordV11[]
+}
+
+const cloneCatalogV11 = (catalog: InstitutionCatalogPayloadV11): InstitutionCatalogPayloadV11 => ({
+  datasetVersion: catalog.datasetVersion,
+  datasetMode: catalog.datasetMode,
+  records: cloneValue(catalog.records) as InstitutionRecordV11[],
 })
 
 const evidenceIdFor = (institutionId: string, fieldPath: string): string =>
@@ -284,7 +319,7 @@ interface MockRecordSpec {
   price: MockPriceSpec | null
 }
 
-const makeMedicalSupport = (): InstitutionMedicalSupport => ({
+const makeMedicalSupport = (): InstitutionMedicalSupportV11 => ({
   doctorRounds: makeUnknownField(),
   nurseStaff: makeUnknownField(),
   nurseStation: makeUnknownField(),
@@ -294,6 +329,10 @@ const makeMedicalSupport = (): InstitutionMedicalSupport => ({
     status: 'unknown',
     verification: { status: 'unverified', evidenceIds: [] },
   },
+  clinic: makeUnknownField(),
+  relationships: [],
+  medicalDuty24h: makeUnknownField(),
+  medicalDuty24hNote: makeUnknownField(),
 })
 
 const makeRehabilitationSupport = (): InstitutionRehabilitationSupport => {
@@ -315,9 +354,83 @@ const makeRehabilitationSupport = (): InstitutionRehabilitationSupport => {
   return { features }
 }
 
-const makeStaffing = (): InstitutionStaffing => ({
+const makeResponseTime = (): InstitutionResponseTimeV11 => ({
+  responseTimeMinutes: makeUnknownField(),
+  scenario: makeUnknownField(),
+  statistic: makeUnknownField(),
+  measurementNote: makeUnknownField(),
+})
+
+const makeStaffing = (): InstitutionStaffingV11 => ({
   counts: makeUnknownField(),
   caregiverResidentRatio: makeUnknownField(),
+  caregiverCertification: {
+    certifiedCaregiverCount: makeUnknownField(),
+    observedCaregiverCount: makeUnknownField(),
+    certifiedRatioBasisPoints: makeUnknownField(),
+    certificateTypes: makeUnknownField(),
+    rawStatement: makeUnknownField(),
+  },
+  caregiverExperienceDistribution: {
+    less_than_one_year: makeUnknownField(),
+    one_to_three_years: makeUnknownField(),
+    three_to_five_years: makeUnknownField(),
+    five_years_or_more: makeUnknownField(),
+  },
+  caregiverExperienceStatement: makeUnknownField(),
+  nurseResponseTime: makeResponseTime(),
+  caregiverResponseTime: makeResponseTime(),
+  dutyStaffing24h: {
+    availability: makeUnknownField(),
+    staffedRoles: makeUnknownField(),
+    coverageNote: makeUnknownField(),
+  },
+})
+
+const makeMonitoringItem = (): InstitutionHealthMonitoringItemV11 => ({
+  availability: makeUnknownField(),
+  frequency: makeUnknownField(),
+  serviceNote: makeUnknownField(),
+})
+
+const makeHealthMonitoring = (): InstitutionHealthMonitoringV11 => ({
+  bloodPressure: makeMonitoringItem(),
+  bloodOxygen: makeMonitoringItem(),
+  bloodGlucose: makeMonitoringItem(),
+})
+
+const makeMeal = (): InstitutionMealV11 => ({
+  mealSchedule: makeUnknownField(),
+  easyChewSupport: makeUnknownField(),
+  modifiedFoodSupport: makeUnknownField(),
+  mealFee: makeUnknownField(),
+  specialDietExtraFee: makeUnknownField(),
+  serviceNote: makeUnknownField(),
+})
+
+const makeActivity = (): InstitutionActivityV11 => ({
+  indoorSpace: makeUnknownField(),
+  outdoorSpace: makeUnknownField(),
+  offerings: [],
+  zones: {
+    publicActivityZone: makeUnknownField(),
+    activeAgingZone: makeUnknownField(),
+    careZone: makeUnknownField(),
+    dementiaZone: makeUnknownField(),
+  },
+})
+
+const makeTransportation = (): InstitutionTransportationV11 => ({
+  metro: {
+    nearestStationName: makeUnknownField(),
+    distanceMeters: makeUnknownField(),
+    routeNote: makeUnknownField(),
+  },
+  busStops: [],
+  vehicleAccess: {
+    availability: makeUnknownField(),
+    accessNote: makeUnknownField(),
+  },
 })
 
 const makePrice = (
@@ -340,7 +453,10 @@ const makePrice = (
     )
   return {
     referenceMonthlyPrice,
-    recurringComponents: [],
+    recurringComponents: RECURRING_PRICE_COMPONENT_CODES.map((component) => ({
+      component,
+      referenceAmount: makeUnknownField<MoneyRange<'month'>>(),
+    })),
     deposit: makeUnknownField<MoneyRange<'one_time'>>(),
     oneTimeFees: [],
     adjustmentFactors: makeUnknownField(),
@@ -348,7 +464,7 @@ const makePrice = (
   }
 }
 
-const makeRecord = (spec: MockRecordSpec): InstitutionRecord => {
+const makeRecord = (spec: MockRecordSpec): InstitutionRecordV11 => {
   const evidence: InstitutionEvidence[] = []
   const { institutionId } = spec
   const identityRegion = makeProvidedField(
@@ -433,7 +549,7 @@ const makeRecord = (spec: MockRecordSpec): InstitutionRecord => {
   }
   const regionSuffix = spec.regionCode.slice(-1).toUpperCase()
   return {
-    contractVersion: 'institution-contract-v1',
+    contractVersion: 'institution-contract-v1.1',
     capabilityContractVersion: 'institution-capability-contract-v1',
     institutionId,
     recordRevision: 1,
@@ -470,9 +586,14 @@ const makeRecord = (spec: MockRecordSpec): InstitutionRecord => {
     medicalSupport: makeMedicalSupport(),
     rehabilitationSupport: makeRehabilitationSupport(),
     staffing: makeStaffing(),
+    healthMonitoring: makeHealthMonitoring(),
     price: makePrice(institutionId, spec.price, evidence),
     operations,
     rooms: [],
+    meal: makeMeal(),
+    activity: makeActivity(),
+    transportation: makeTransportation(),
+    majorHospitalAccess: [],
     media: [],
     vr: {
       status: 'unknown',
@@ -486,7 +607,7 @@ const makeRecord = (spec: MockRecordSpec): InstitutionRecord => {
   }
 }
 
-const DEVELOPMENT_CATALOG_RECORDS: InstitutionRecord[] = [
+const DEVELOPMENT_CATALOG_V11_RECORDS: InstitutionRecordV11[] = [
   makeRecord({
     institutionId: 'institution-a-mock',
     name: '示例机构 A（Mock）',
@@ -573,6 +694,31 @@ const DEVELOPMENT_CATALOG_RECORDS: InstitutionRecord[] = [
   }),
 ]
 
+const assertDevelopmentRecordV11 = (record: InstitutionRecordV11): InstitutionRecordV11 => {
+  const result = validateInstitutionRecordV11(record)
+  if (!result.ok) {
+    throw new Error('Invalid Institution V1.1 development catalog record')
+  }
+  return result.value
+}
+
+const VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS =
+  DEVELOPMENT_CATALOG_V11_RECORDS.map(assertDevelopmentRecordV11)
+
+const DEVELOPMENT_CATALOG_V11: InstitutionCatalogPayloadV11 = {
+  datasetVersion: 'institution-catalog-development-v1.1',
+  datasetMode: 'MOCK_DEVELOPMENT_ONLY',
+  records: VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS,
+}
+
+/**
+ * Frozen Recommendation V1 still requires institution-contract-v1. This view
+ * is an explicit lossless V1 projection; no V1.1 fact is converted into a V1
+ * capability, matching field, price, or recommendation reason.
+ */
+const DEVELOPMENT_CATALOG_RECORDS: InstitutionRecord[] =
+  VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS.map(projectInstitutionRecordV11ToV1)
+
 const DEVELOPMENT_CATALOG: InstitutionCatalogPayload = {
   datasetVersion: 'institution-catalog-development-v1',
   datasetMode: 'MOCK_DEVELOPMENT_ONLY',
@@ -585,6 +731,13 @@ export const MOCK_INSTITUTION_CATALOG_RECORDS: readonly InstitutionRecord[] =
 
 export const MOCK_INSTITUTION_CATALOG: InstitutionCatalogPayload =
   cloneCatalog(DEVELOPMENT_CATALOG)
+
+/** Canonical eight-record App development catalog after the V1.1 migration. */
+export const MOCK_INSTITUTION_CATALOG_V11_RECORDS: readonly InstitutionRecordV11[] =
+  cloneValue(VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS) as InstitutionRecordV11[]
+
+export const MOCK_INSTITUTION_CATALOG_V11: InstitutionCatalogPayloadV11 =
+  cloneCatalogV11(DEVELOPMENT_CATALOG_V11)
 
 /** Development provider: each call returns a fresh isolated copy of all eight records. */
 export const mockInstitutionCatalogProvider: InstitutionCatalogProvider = {
