@@ -25,11 +25,18 @@ const institutionV11ProjectionPath = path.join(institutionV11DomainRoot, 'projec
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
+const recommendationV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-v2.ts')
+const recommendationPreviewV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview-v2.ts')
+const institutionCatalogV11TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog-v1-1.ts')
+const recommendationV2EntryPath = path.join(recommendationDomainRoot, 'v2', 'index.ts')
 const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
 const applicationMockRoot = path.join(repositoryRoot, 'miniprogram', 'mock')
 const integrationTypePaths = [
   path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog.ts'),
   path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview.ts'),
+  recommendationV2TypePath,
+  recommendationPreviewV2TypePath,
+  institutionCatalogV11TypePath,
 ]
 const draftStorePath = path.join(repositoryRoot, 'miniprogram', 'store', 'assessment-draft.ts')
 const assessmentV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'assessment-v2.ts')
@@ -219,6 +226,9 @@ const run = async () => {
     institutionTypePath,
     institutionV11TypePath,
     recommendationTypePath,
+    recommendationV2TypePath,
+    recommendationPreviewV2TypePath,
+    institutionCatalogV11TypePath,
     ...applicationTargets,
   ].sort()
   const requiredTargets = [
@@ -227,12 +237,16 @@ const run = async () => {
     institutionTypePath, institutionV11TypePath,
     institutionV11EntryPath, institutionV11ValidatorPath, institutionV11ProjectionPath,
     recommendationTypePath, recommendationEntryPath,
+    recommendationV2TypePath, recommendationV2EntryPath,
+    recommendationPreviewV2TypePath, institutionCatalogV11TypePath,
     ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
     path.join(applicationServiceRoot, 'recommendation-preview.ts'),
     path.join(applicationServiceRoot, 'institution-catalog.ts'),
     path.join(applicationMockRoot, 'institution-catalog.mock.ts'),
+    path.join(applicationServiceRoot, 'recommendation-preview-v2.ts'),
+    path.join(applicationServiceRoot, 'institution-catalog-v1-1.ts'),
   ]
   const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
   if (targetFiles.length === 0 || missingTargets.length > 0) {

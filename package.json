@@ -15,7 +15,9 @@
     "check:institution-runtime": "node scripts/check-institution-runtime.mjs",
     "check:institution-v1-1-runtime": "node scripts/check-institution-v1-1-runtime.mjs",
     "check:recommendation-runtime": "node scripts/check-recommendation-runtime.mjs",
+    "check:recommendation-v2-runtime": "node scripts/check-recommendation-v2-runtime.mjs",
     "check:recommendation-preview-integration-runtime": "node scripts/check-recommendation-preview-integration-runtime.mjs",
+    "check:recommendation-preview-v2-integration-runtime": "node scripts/check-recommendation-preview-v2-integration-runtime.mjs",
     "check:wechat-ts-targeted-compat": "node scripts/check-wechat-ts-targeted-compat.mjs"
   },
   "keywords": [],

@@ -43,6 +43,20 @@ export interface RecommendationCoreProfile {
   intent: RecommendationProfile['intent']
 }
 
+/**
+ * Version-neutral input surface for the frozen V1 readiness rules.
+ * Recommendation V2 may reuse this surface because the referenced ADL,
+ * mobility, cognition and special-care semantics are explicitly unchanged.
+ */
+export interface FrozenSafetyReadinessProfile {
+  adl: RecommendationCoreProfile['adl']
+  mobility: RecommendationCoreProfile['mobility']
+  health: RecommendationCoreProfile['health']
+  cognition: RecommendationCoreProfile['cognition']
+  specialCare: RecommendationProfile['specialCare']
+  clarifications: readonly ProfileClarification[]
+}
+
 export interface ValidatedProfileSnapshot {
   profile: RecommendationCoreProfile
   snapshot: RecommendationElderSemanticSnapshot
@@ -630,7 +644,7 @@ const mergeReadiness = (
   existing.elderEvidenceRefs = existing.elderEvidenceRefs.concat(elderEvidenceRefs)
 }
 
-const buildReadiness = (profile: RecommendationProfile): {
+const buildReadiness = (profile: FrozenSafetyReadinessProfile): {
   elderReadiness: RecommendationElderReadiness
   requirementReadiness: readonly RequirementReadiness[]
 } => {
@@ -750,6 +764,14 @@ const buildReadiness = (profile: RecommendationProfile): {
     requirementReadiness: entries,
   }
 }
+
+/** Reuses the frozen V1 readiness policy without exposing mutable internals. */
+export const evaluateFrozenSafetyReadiness = (
+  profile: FrozenSafetyReadinessProfile,
+): {
+  elderReadiness: RecommendationElderReadiness
+  requirementReadiness: readonly RequirementReadiness[]
+} => buildReadiness(profile)
 
 const createSnapshot = (profile: RecommendationProfile): RecommendationElderSemanticSnapshot => {
   const priorities = profile.preference.rawFacts.priorities.slice().sort((left, right) =>

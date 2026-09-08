@@ -59,6 +59,18 @@ import { RECOMMENDATION_CARD_LIMIT } from '../../types/recommendation'
 
 type Profile = RecommendationCoreProfile
 
+export interface FrozenSafetyProfile {
+  adl: RecommendationCoreProfile['adl']
+  mobility: RecommendationCoreProfile['mobility']
+  cognition: RecommendationCoreProfile['cognition']
+  specialCare: RecommendationCoreProfile['specialCare']
+}
+
+export interface FrozenSafetyCoreResult {
+  constraints: readonly HardConstraintResult[]
+  hardPaths: readonly InstitutionMatchingCriticalFieldPath[]
+}
+
 interface RequirementSpec {
   path: InstitutionMatchingCriticalFieldPath | null
   constraintCode: string
@@ -181,7 +193,7 @@ const addRequirementSpec = (specs: RequirementSpec[], next: RequirementSpec): vo
   existing.clarificationIds = uniqStrings(existing.clarificationIds.concat(next.clarificationIds))
 }
 
-const buildRequirementSpecs = (profile: Profile): RequirementSpec[] => {
+const buildRequirementSpecs = (profile: FrozenSafetyProfile): RequirementSpec[] => {
   const specs: RequirementSpec[] = []
   const adlCareLevel = profile.adl.derivedFacts.careLevel
   if (isKnown(adlCareLevel)) {
@@ -349,6 +361,23 @@ const evaluateHardConstraints = (
     clarificationIds: spec.clarificationIds.slice(),
   }
 })
+
+/**
+ * Shared frozen Safety Core. This is the only Recommendation V1 behavior
+ * reused by V2; life-fit, priority and ranking remain version-isolated.
+ */
+export const evaluateFrozenSafetyCore = (
+  profile: FrozenSafetyProfile,
+  facts: EffectiveInstitutionFacts,
+): FrozenSafetyCoreResult => {
+  const specs = buildRequirementSpecs(profile)
+  return {
+    constraints: evaluateHardConstraints(specs, facts),
+    hardPaths: specs
+      .filter((spec): spec is RequirementSpec & { path: InstitutionMatchingCriticalFieldPath } => spec.path !== null)
+      .map((spec) => spec.path),
+  }
+}
 
 const budgetFitFor = (
   profile: Profile,
