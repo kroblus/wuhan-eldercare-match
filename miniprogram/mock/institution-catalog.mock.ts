@@ -41,8 +41,8 @@ import type {
 } from '../types/institution-v1-1'
 import {
   projectInstitutionRecordV11ToV1,
-  validateInstitutionRecordV11,
-} from '../domain/institution/v1-1'
+} from '../domain/institution/v1-1/project-to-v1'
+import { validateInstitutionRecordV11 } from '../domain/institution/v1-1/validate-institution-v1-1'
 import type {
   InstitutionCatalogPayload,
   InstitutionCatalogProvider,
@@ -561,7 +561,7 @@ const makeRecord = (spec: MockRecordSpec): InstitutionRecordV11 => {
         'identity.name',
         spec.name,
         { valueType: 'text', value: spec.name },
-        'unverified',
+        spec.capabilityVerification,
         evidence,
       ),
       regionCode: identityRegion,
@@ -570,7 +570,7 @@ const makeRecord = (spec: MockRecordSpec): InstitutionRecordV11 => {
         'identity.regionDisplayName',
         `开发示例区域 ${regionSuffix}（Mock）`,
         { valueType: 'text', value: `开发示例区域 ${regionSuffix}（Mock）` },
-        'unverified',
+        spec.capabilityVerification,
         evidence,
       ),
       address: makeUnknownField(),

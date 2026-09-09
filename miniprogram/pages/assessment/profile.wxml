@@ -65,6 +65,25 @@
         </section-card>
       </view>
 
+      <view wx:if="{{viewModel.nutritionRows && viewModel.nutritionRows.length}}" class="profile-card-wrap">
+        <section-card>
+          <view class="section-heading">
+            <view class="section-heading__copy">
+              <text class="section-kicker">进食与饮食</text>
+              <text class="section-subtitle">这是对生活适配的提示，不是医学诊断或护理等级。</text>
+            </view>
+            <button class="edit-action" data-section="health" catchtap="onEdit" aria-label="修改进食与饮食">修改</button>
+          </view>
+          <view class="profile-rows">
+            <view wx:for="{{viewModel.nutritionRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}">
+              <text class="profile-row__label">{{item.label}}</text>
+              <text class="profile-row__value">{{item.value}}</text>
+            </view>
+          </view>
+          <view wx:if="{{actionErrorKey === 'edit-health'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
       <view class="profile-card-wrap">
         <section-card>
           <view class="section-heading">
@@ -170,14 +189,17 @@
               <text class="profile-row__value">{{item.value}}</text>
             </view>
           </view>
+          <view wx:if="{{viewModel.budgetAdvisory}}" class="profile-advisory profile-advisory--warning" role="note">
+            {{viewModel.budgetAdvisory.text}}
+          </view>
           <view wx:if="{{actionErrorKey === 'edit-budget'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         </section-card>
       </view>
 
       <view class="recommendation-boundary">
-        <text class="recommendation-boundary__note">下一页仍是推荐开发态说明，本阶段不会生成机构、匹配度或推荐理由。</text>
+        <text class="recommendation-boundary__note">下一页将基于当前画像与开发 Mock 机构目录生成推荐预览，并说明推荐理由与需要确认的差异。</text>
         <view wx:if="{{actionErrorKey === 'recommendation'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        <primary-button text="查看推荐结果（开发中）" bind:action="onOpenRecommendation"></primary-button>
+        <primary-button text="查看机构推荐" bind:action="onOpenRecommendation"></primary-button>
       </view>
     </block>
 

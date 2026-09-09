@@ -1,12 +1,10 @@
 import type {
-  ElderProfilePreviewV2,
   ElderProfileV2,
 } from '../../../types/elder-profile-v2'
 import type {
   RecommendationErrorV2,
   RecommendationEvaluationInputV2,
   RecommendationEvaluationResultV2,
-  RecommendationPreviewV2,
   RecommendationProfileV2,
   RecommendationV2,
   RecommendationVersionsV2,
@@ -94,32 +92,6 @@ const evaluate = (
   }
 }
 
-export const evaluateRecommendationPreviewV2 = (
-  input: RecommendationEvaluationInputV2<ElderProfilePreviewV2>,
-): RecommendationEvaluationResultV2<RecommendationPreviewV2> => {
-  const result = evaluate(input, 'elder_profile_preview')
-  if (!result.ok) return result
-  if (result.value.profile.kind !== 'elder_profile_preview') {
-    return { ok: false, error: makeError('UNSUPPORTED_PROFILE_VERSION', ['profile.kind']) }
-  }
-  return {
-    ok: true,
-    value: {
-      kind: 'recommendation_preview_v2',
-      source: {
-        kind: result.value.profile.source.kind,
-        localDraftId: result.value.profile.source.localDraftId,
-        assessmentSchemaVersion: result.value.profile.source.assessmentSchemaVersion,
-      },
-      profileContractVersion: 'elder-profile-contract-v2',
-      derivationRulesetVersion: 'elder-profile-ruleset-v2',
-      adlRulesetVersion: result.value.profile.adl.derivedFacts.rulesetVersion,
-      persistence: 'FORBIDDEN',
-      semantics: result.value.semantics,
-    },
-  }
-}
-
 export const evaluateFormalRecommendationV2 = (
   input: RecommendationEvaluationInputV2<ElderProfileV2>,
 ): RecommendationEvaluationResultV2<RecommendationV2> => {
@@ -146,6 +118,7 @@ export const evaluateFormalRecommendationV2 = (
 }
 
 export { deriveRecommendationSemanticsV2 } from './core-v2'
+export { evaluateRecommendationPreviewV2 } from './evaluate-recommendation-preview-v2'
 export {
   ACTIVITY_MATCHING_RUNTIME_V2,
   MEAL_SCHEDULE_COMPARATOR_V2,

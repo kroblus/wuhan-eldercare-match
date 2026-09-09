@@ -1,5 +1,5 @@
-import { deriveElderProfilePreview } from '../domain/elder-profile'
-import { evaluateRecommendationPreview } from '../domain/recommendation'
+import { deriveElderProfilePreview } from '../domain/elder-profile/index'
+import { buildRecommendationAdvisories, evaluateRecommendationPreview } from '../domain/recommendation/index'
 import { isAssessmentQuestionId } from '../types/assessment'
 import type { AssessmentQuestionId } from '../types/assessment'
 import type { ElderProfilePreviewDerivationResult } from '../types/elder-profile'
@@ -15,6 +15,7 @@ import type {
   ElderProfilePreviewDerivationErrorCode,
 } from '../types/elder-profile'
 import type {
+  RecommendationAdvisoryAttachment,
   RecommendationError,
   RecommendationEvaluationInput,
   RecommendationPreview,
@@ -25,9 +26,12 @@ import {
 } from '../types/recommendation'
 import type {
   RecommendationPreviewApplicationError,
+  RecommendationPreviewApplicationFailure,
   RecommendationPreviewApplicationResult,
   RecommendationPreviewBuildOptions,
   RecommendationPreviewApplicationErrorCauseCode,
+  RecommendationResultApplicationResult,
+  RecommendationResultApplicationSnapshot,
 } from '../types/recommendation-preview'
 import { assessmentDraftStore } from '../store/assessment-draft'
 import { institutionCatalogService } from './institution-catalog'
@@ -36,6 +40,8 @@ export type {
   RecommendationPreviewApplicationError,
   RecommendationPreviewApplicationResult,
   RecommendationPreviewBuildOptions,
+  RecommendationResultApplicationResult,
+  RecommendationResultApplicationSnapshot,
 } from '../types/recommendation-preview'
 
 export interface RecommendationPreviewServiceDependencies {
@@ -47,6 +53,9 @@ export interface RecommendationPreviewService {
   buildRecommendationPreview(
     options: RecommendationPreviewBuildOptions,
   ): Promise<RecommendationPreviewApplicationResult>
+  buildRecommendationResultSnapshot(
+    options: RecommendationPreviewBuildOptions,
+  ): Promise<RecommendationResultApplicationResult>
 }
 
 type RawRecord = Record<string, unknown>
@@ -131,7 +140,7 @@ const makeError = (
   causeCode: RecommendationPreviewApplicationErrorCauseCode,
   questionIds?: readonly AssessmentQuestionId[],
   recordIndex?: number,
-): RecommendationPreviewApplicationResult => ({
+): RecommendationPreviewApplicationFailure => ({
   ok: false,
   error: {
     code,
@@ -230,75 +239,157 @@ const isCatalogPayload = (value: unknown): value is InstitutionCatalogPayload =>
     && (value.datasetMode === 'PRODUCTION' || value.datasetMode === 'MOCK_DEVELOPMENT_ONLY')
     && Array.isArray(value.records)
 
+interface RecommendationPreviewEvaluationContext {
+  preview: RecommendationPreview
+  profile: ElderProfilePreview
+  catalog: InstitutionCatalogPayload
+  evaluationAsOf: string
+}
+
+type RecommendationPreviewEvaluationResult =
+  | { ok: true, value: RecommendationPreviewEvaluationContext }
+  | { ok: false, error: RecommendationPreviewApplicationError }
+
+const buildEvaluationWithDependencies = async (
+  dependencies: RecommendationPreviewServiceDependencies,
+  options: RecommendationPreviewBuildOptions,
+): Promise<RecommendationPreviewEvaluationResult> => {
+  let draftSnapshot: unknown
+  try {
+    draftSnapshot = dependencies.readDraftSnapshot()
+  } catch (_error) {
+    return { ok: false, error: makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_READ_FAILED').error }
+  }
+
+  let profileResult: ElderProfilePreviewDerivationResult
+  try {
+    profileResult = deriveElderProfilePreview(draftSnapshot)
+  } catch (_error) {
+    return { ok: false, error: makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_DERIVATION_FAILED').error }
+  }
+  if (!isPreviewDerivationResult(profileResult)) {
+    return { ok: false, error: makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_DERIVATION_FAILED').error }
+  }
+  if (!profileResult.ok) {
+    const failure = mapDraftFailure(profileResult)
+    return failure.ok
+      ? { ok: false, error: makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_DERIVATION_FAILED').error }
+      : { ok: false, error: failure.error }
+  }
+
+  let catalogResult: unknown
+  try {
+    catalogResult = await dependencies.catalogService.loadCatalog()
+  } catch (_error) {
+    return { ok: false, error: makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED').error }
+  }
+  if (!isCatalogResult(catalogResult)) {
+    return { ok: false, error: makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED').error }
+  }
+  if (!catalogResult.ok) {
+    const failure = mapCatalogFailure(catalogResult)
+    return failure.ok
+      ? { ok: false, error: makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED').error }
+      : { ok: false, error: failure.error }
+  }
+  if (!isCatalogPayload(catalogResult.value)) {
+    return { ok: false, error: makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED').error }
+  }
+
+  const request: RawRecord = isPlainRecord(options) ? options : {}
+  const evaluationAsOf = request.evaluationAsOf as string
+  const evaluationInput: RecommendationEvaluationInput<ElderProfilePreview> = {
+    profile: profileResult.preview,
+    institutions: catalogResult.value.records,
+    datasetVersion: catalogResult.value.datasetVersion,
+    datasetMode: catalogResult.value.datasetMode,
+    evaluationAsOf,
+    rulesetVersion: RECOMMENDATION_RULESET_VERSION,
+    policyVersion: RECOMMENDATION_POLICY_VERSION,
+  }
+
+  let recommendationResult: {
+    ok: true
+    value: RecommendationPreview
+  } | {
+    ok: false
+    error: RecommendationError
+  }
+  try {
+    recommendationResult = evaluateRecommendationPreview(evaluationInput)
+  } catch (error) {
+    const failure = mapRecommendationFailure(error)
+    return failure.ok
+      ? { ok: false, error: makeError('RECOMMENDATION_DERIVATION_ERROR', 'EVALUATOR_FAILED').error }
+      : { ok: false, error: failure.error }
+  }
+  if (!recommendationResult.ok) {
+    const failure = mapRecommendationFailure(recommendationResult.error)
+    return failure.ok
+      ? { ok: false, error: makeError('RECOMMENDATION_DERIVATION_ERROR', 'EVALUATOR_FAILED').error }
+      : { ok: false, error: failure.error }
+  }
+  return {
+    ok: true,
+    value: {
+      preview: recommendationResult.value,
+      profile: profileResult.preview,
+      catalog: catalogResult.value,
+      evaluationAsOf,
+    },
+  }
+}
+
 const buildWithDependencies = (
   dependencies: RecommendationPreviewServiceDependencies,
 ): RecommendationPreviewService => ({
   buildRecommendationPreview: async (
     options: RecommendationPreviewBuildOptions,
   ): Promise<RecommendationPreviewApplicationResult> => {
-    let draftSnapshot: unknown
-    try {
-      draftSnapshot = dependencies.readDraftSnapshot()
-    } catch (_error) {
-      return makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_READ_FAILED')
+    const evaluation = await buildEvaluationWithDependencies(dependencies, options)
+    if (!evaluation.ok) {
+      return { ok: false, error: evaluation.error }
+    }
+    return { ok: true, value: evaluation.value.preview }
+  },
+
+  buildRecommendationResultSnapshot: async (
+    options: RecommendationPreviewBuildOptions,
+  ): Promise<RecommendationResultApplicationResult> => {
+    const evaluation = await buildEvaluationWithDependencies(dependencies, options)
+    if (!evaluation.ok) {
+      return { ok: false, error: evaluation.error }
     }
 
-    let profileResult: ElderProfilePreviewDerivationResult
+    let advisoryResult: ReturnType<typeof buildRecommendationAdvisories>
     try {
-      profileResult = deriveElderProfilePreview(draftSnapshot)
-    } catch (_error) {
-      return makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_DERIVATION_FAILED')
-    }
-    if (!isPreviewDerivationResult(profileResult)) {
-      return makeError('ASSESSMENT_PREVIEW_ERROR', 'DRAFT_DERIVATION_FAILED')
-    }
-    if (!profileResult.ok) {
-      return mapDraftFailure(profileResult)
-    }
-
-    let catalogResult: unknown
-    try {
-      catalogResult = await dependencies.catalogService.loadCatalog()
-    } catch (_error) {
-      return makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED')
-    }
-    if (!isCatalogResult(catalogResult)) {
-      return makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED')
-    }
-    if (!catalogResult.ok) {
-      return mapCatalogFailure(catalogResult)
-    }
-    if (!isCatalogPayload(catalogResult.value)) {
-      return makeError('INSTITUTION_CATALOG_ERROR', 'CATALOG_SERVICE_FAILED')
-    }
-
-    const request: RawRecord = isPlainRecord(options) ? options : {}
-    const evaluationInput: RecommendationEvaluationInput<ElderProfilePreview> = {
-      profile: profileResult.preview,
-      institutions: catalogResult.value.records,
-      datasetVersion: catalogResult.value.datasetVersion,
-      datasetMode: catalogResult.value.datasetMode,
-      evaluationAsOf: request.evaluationAsOf as string,
-      rulesetVersion: RECOMMENDATION_RULESET_VERSION,
-      policyVersion: RECOMMENDATION_POLICY_VERSION,
-    }
-
-    let recommendationResult: {
-      ok: true
-      value: RecommendationPreview
-    } | {
-      ok: false
-      error: RecommendationError
-    }
-    try {
-      recommendationResult = evaluateRecommendationPreview(evaluationInput)
+      advisoryResult = buildRecommendationAdvisories({
+        profile: evaluation.value.profile,
+        institutions: evaluation.value.catalog.records,
+        evaluationAsOf: evaluation.value.evaluationAsOf,
+      })
     } catch (error) {
-      return mapRecommendationFailure(error)
+      const failure = mapRecommendationFailure(error)
+      return failure.ok
+        ? { ok: false, error: makeError('RECOMMENDATION_DERIVATION_ERROR', 'EVALUATOR_FAILED').error }
+        : { ok: false, error: failure.error }
     }
-    if (!recommendationResult.ok) {
-      return mapRecommendationFailure(recommendationResult.error)
+    if (!advisoryResult.ok) {
+      const failure = mapRecommendationFailure(advisoryResult.error)
+      return failure.ok
+        ? { ok: false, error: makeError('RECOMMENDATION_DERIVATION_ERROR', 'EVALUATOR_FAILED').error }
+        : { ok: false, error: failure.error }
     }
-    return { ok: true, value: recommendationResult.value }
+
+    const snapshot: RecommendationResultApplicationSnapshot = {
+      preview: evaluation.value.preview,
+      institutionRecords: evaluation.value.catalog.records,
+      advisories: advisoryResult.value as readonly RecommendationAdvisoryAttachment[],
+      datasetVersion: evaluation.value.catalog.datasetVersion,
+      datasetMode: evaluation.value.catalog.datasetMode,
+      evaluationAsOf: evaluation.value.evaluationAsOf,
+    }
+    return { ok: true, value: snapshot }
   },
 })
 
@@ -320,3 +411,9 @@ export const buildRecommendationPreview = (
   options: RecommendationPreviewBuildOptions,
 ): Promise<RecommendationPreviewApplicationResult> =>
   defaultRecommendationPreviewService.buildRecommendationPreview(options)
+
+/** Page-facing ephemeral snapshot; never persisted or cached. */
+export const buildRecommendationResultSnapshot = (
+  options: RecommendationPreviewBuildOptions,
+): Promise<RecommendationResultApplicationResult> =>
+  defaultRecommendationPreviewService.buildRecommendationResultSnapshot(options)

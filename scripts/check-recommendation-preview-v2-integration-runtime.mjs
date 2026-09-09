@@ -17,8 +17,8 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const appRoot = path.join(repositoryRoot, 'miniprogram')
 const serviceEntry = path.join(appRoot, 'services', 'recommendation-preview-v2.ts')
 const catalogServiceEntry = path.join(appRoot, 'services', 'institution-catalog-v1-1.ts')
-const recommendationEntry = path.join(appRoot, 'domain', 'recommendation', 'v2', 'index.ts')
-const profileEntry = path.join(appRoot, 'domain', 'elder-profile', 'v2', 'index.ts')
+const recommendationEntry = path.join(appRoot, 'domain', 'recommendation', 'v2', 'evaluate-recommendation-preview-v2.ts')
+const profileEntry = path.join(appRoot, 'domain', 'elder-profile', 'v2', 'derive-elder-profile-preview-v2.ts')
 
 const clone = (value) => typeof structuredClone === 'function'
   ? structuredClone(value)

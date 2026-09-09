@@ -582,7 +582,7 @@ const run = async () => {
       assert.equal(page.data.stateTitle, '评估信息暂时无法读取')
       assert.match(page.data.stateMessage, /草稿结构不完整/)
 
-      draftStore.getDraft = () => ({ ...clone(validDraft), schemaVersion: 2 })
+      draftStore.getDraft = () => ({ ...clone(validDraft), schemaVersion: 99 })
       invoke(page, 'onShow')
       assert.equal(page.data.pageState, 'error')
       assert.equal(page.data.viewModel, null)
@@ -794,7 +794,7 @@ const run = async () => {
     assert.equal(runtimeState.phoneCalls, 0)
     const profileWxml = readText('miniprogram/pages/assessment/profile.wxml')
     assert.doesNotMatch(profileWxml, /<button[^>]*(?:bind|catch):?tap="onOpenRecommendation"/)
-    assert.match(profileWxml, /<primary-button[^>]*text="查看推荐结果（开发中）"[^>]*bind:action="onOpenRecommendation"/)
+    assert.match(profileWxml, /<primary-button[^>]*text="查看机构推荐"[^>]*bind:action="onOpenRecommendation"/)
   })
 
   runCase('PROFILE-016', 'Primary CTA rapid taps navigate at most once per lifecycle', () => {

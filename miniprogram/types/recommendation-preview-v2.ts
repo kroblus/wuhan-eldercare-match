@@ -1,6 +1,9 @@
 import type { AssessmentDraftV2 } from './assessment-v2'
 import type { InstitutionCatalogServiceV11 } from './institution-catalog-v1-1'
 import type { RecommendationErrorV2, RecommendationPreviewV2 } from './recommendation-v2'
+import type {
+  RecommendationResultApplicationResultV2,
+} from './recommendation-result-v2'
 
 export interface AssessmentDraftSourceV2 {
   getDraft(): AssessmentDraftV2
@@ -28,6 +31,7 @@ export interface RecommendationPreviewServiceDependenciesV2 {
 
 export interface RecommendationPreviewServiceV2 {
   build(evaluationAsOf: string): Promise<RecommendationPreviewApplicationResultV2>
+  buildResultSnapshot(evaluationAsOf: string): Promise<RecommendationResultApplicationResultV2>
 }
 
 export const recommendationErrorPathsV2 = (

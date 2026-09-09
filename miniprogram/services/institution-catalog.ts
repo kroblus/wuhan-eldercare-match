@@ -1,4 +1,4 @@
-import { validateInstitutionRecord } from '../domain/institution'
+import { validateInstitutionRecord } from '../domain/institution/validate-institution'
 import { mockInstitutionCatalogProvider } from '../mock/institution-catalog.mock'
 import type { InstitutionRecord } from '../types/institution'
 import type {

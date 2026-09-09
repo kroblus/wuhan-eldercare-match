@@ -1,17 +1,17 @@
-import { deriveElderProfilePreview } from '../../domain/elder-profile/derive-elder-profile-preview'
-import { assessmentDraftStore } from '../../store/assessment-draft'
-import { ASSESSMENT_QUESTION_DEFINITIONS } from '../../types/assessment'
-import type { AssessmentQuestionId, AssessmentStepId } from '../../types/assessment'
+import { buildProfileApplicationSnapshot } from '../../services/profile-application-v2'
+import type { AssessmentStepId } from '../../types/assessment'
 import { getNavigationGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 import { createProfilePageViewModel } from './profile-view-model'
+import { createProfilePageViewModelV2 } from './profile-v2-view-model'
 import type { ProfileEditSection, ProfilePageViewModel } from './profile-view-model'
+import type { ProfilePageViewModelV2 } from './profile-v2-view-model'
 
 type ProfilePageState = 'loading' | 'ready' | 'incomplete' | 'error'
 
 interface ProfilePageData {
   backEnabled: boolean
   pageState: ProfilePageState
-  viewModel: ProfilePageViewModel | null
+  viewModel: ProfilePageViewModel | ProfilePageViewModelV2 | null
   stateTitle: string
   stateMessage: string
   recoveryRoute: string
@@ -89,8 +89,11 @@ const runGuardedNavigation = (
   return true
 }
 
-const questionRoute = (questionId: AssessmentQuestionId): { route: string, label: string } => {
-  const step = ASSESSMENT_QUESTION_DEFINITIONS[questionId].step
+const questionRoute = (questionId: string): { route: string, label: string } => {
+  const step = questionId.split('.')[0] as AssessmentStepId
+  if (!Object.prototype.hasOwnProperty.call(EDIT_ROUTES, step)) {
+    return { route: '/pages/assessment/intro', label: '评估说明' }
+  }
   return {
     route: EDIT_ROUTES[step],
     label: STEP_LABELS[step],
@@ -126,12 +129,14 @@ Page({
     })
 
     try {
-      const draft = assessmentDraftStore.getDraft()
-      const result = deriveElderProfilePreview(draft)
+      const result = buildProfileApplicationSnapshot()
       if (result.ok) {
+        const viewModel = result.version === 2
+          ? createProfilePageViewModelV2(result.value.preview)
+          : createProfilePageViewModel(result.value.preview)
         this.setData({
           pageState: 'ready',
-          viewModel: createProfilePageViewModel(result.preview),
+          viewModel,
           stateTitle: '',
           stateMessage: '',
           recoveryRoute: '/pages/assessment/intro',
@@ -140,9 +145,9 @@ Page({
         return
       }
 
-      if (result.error.code === 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE') {
-        const firstQuestionId = result.error.questionIds[0]
-        const hasAnswers = assessmentDraftStore.hasAnswers()
+      if (result.error.causeCode === 'INCOMPLETE_ASSESSMENT_NOT_DERIVABLE') {
+        const firstQuestionId = result.error.questionIds && result.error.questionIds[0]
+        const hasAnswers = result.hasAnswers
         const recovery = firstQuestionId && hasAnswers
           ? questionRoute(firstQuestionId)
           : { route: '/pages/assessment/intro', label: '评估说明' }
@@ -157,7 +162,7 @@ Page({
         return
       }
 
-      const unsupported = result.error.code === 'UNSUPPORTED_ASSESSMENT_SCHEMA'
+      const unsupported = result.error.causeCode === 'UNSUPPORTED_ASSESSMENT_SCHEMA'
       this.setData({
         pageState: 'error',
         viewModel: null,
@@ -256,7 +261,7 @@ Page({
       fail: callbacks.fail,
       complete: callbacks.complete,
     }), () => {
-      this.showNavigationFailure('recommendation', '暂时无法打开推荐说明，请稍后重试。')
+      this.showNavigationFailure('recommendation', '暂时无法打开机构推荐，请稍后重试。')
     })
   },
 

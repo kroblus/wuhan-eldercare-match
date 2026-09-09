@@ -29,11 +29,14 @@ const recommendationV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types
 const recommendationPreviewV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview-v2.ts')
 const institutionCatalogV11TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog-v1-1.ts')
 const recommendationV2EntryPath = path.join(recommendationDomainRoot, 'v2', 'index.ts')
+const recommendationV2PreviewEvaluatorPath = path.join(recommendationDomainRoot, 'v2', 'evaluate-recommendation-preview-v2.ts')
 const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
 const applicationMockRoot = path.join(repositoryRoot, 'miniprogram', 'mock')
 const integrationTypePaths = [
   path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog.ts'),
   path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'types', 'profile-application-v2.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-result-v2.ts'),
   recommendationV2TypePath,
   recommendationPreviewV2TypePath,
   institutionCatalogV11TypePath,
@@ -54,8 +57,15 @@ const assessmentV2PageTargets = [
 const wechatDeclarationPath = path.join(repositoryRoot, 'typings', 'index.d.ts')
 const profilePagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile.ts')
 const profileViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-view-model.ts')
+const profileV2ViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'assessment', 'profile-v2-view-model.ts')
+const profileV2ApplicationPath = path.join(repositoryRoot, 'miniprogram', 'services', 'profile-application-v2.ts')
 const navigationBarPath = path.join(repositoryRoot, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts')
-const profileCompatibilityTargets = [profilePagePath, profileViewModelPath, navigationBarPath]
+const profileCompatibilityTargets = [profilePagePath, profileViewModelPath, profileV2ViewModelPath, profileV2ApplicationPath, navigationBarPath]
+const recommendationResultPagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'result.ts')
+const recommendationResultViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'result-view-model.ts')
+const recommendationResultV2ViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'result-v2-view-model.ts')
+const recommendationResultApplicationPath = path.join(repositoryRoot, 'miniprogram', 'services', 'recommendation-result-application.ts')
+const recommendationResultCompatibilityTargets = [recommendationResultPagePath, recommendationResultViewModelPath, recommendationResultV2ViewModelPath, recommendationResultApplicationPath]
 
 const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
 
@@ -216,6 +226,7 @@ const run = async () => {
     assessmentMigrationPath,
     assessmentResumePath,
     ...assessmentV2PageTargets,
+    ...recommendationResultCompatibilityTargets,
   ]
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
@@ -238,6 +249,7 @@ const run = async () => {
     institutionV11EntryPath, institutionV11ValidatorPath, institutionV11ProjectionPath,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
+    recommendationV2PreviewEvaluatorPath,
     recommendationPreviewV2TypePath, institutionCatalogV11TypePath,
     ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
@@ -247,6 +259,7 @@ const run = async () => {
     path.join(applicationMockRoot, 'institution-catalog.mock.ts'),
     path.join(applicationServiceRoot, 'recommendation-preview-v2.ts'),
     path.join(applicationServiceRoot, 'institution-catalog-v1-1.ts'),
+    ...recommendationResultCompatibilityTargets,
   ]
   const missingTargets = requiredTargets.filter((filePath) => !existsSync(filePath))
   if (targetFiles.length === 0 || missingTargets.length > 0) {

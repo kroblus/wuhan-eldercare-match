@@ -19,8 +19,8 @@ import {
 } from '../../institution/primitives'
 import {
   projectInstitutionRecordV11ToV1,
-  validateInstitutionRecordV11,
-} from '../../institution/v1-1'
+} from '../../institution/v1-1/project-to-v1'
+import { validateInstitutionRecordV11 } from '../../institution/v1-1/validate-institution-v1-1'
 import { isVerificationCurrentAt } from '../../institution/verification'
 import {
   validateAndProjectInstitutionPool,

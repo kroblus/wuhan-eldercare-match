@@ -1,8 +1,11 @@
 import type { AssessmentQuestionId } from './assessment'
 import type {
   RecommendationErrorCode,
+  RecommendationAdvisoryAttachment,
+  RecommendationDatasetMode,
   RecommendationPreview,
 } from './recommendation'
+import type { InstitutionRecord } from './institution'
 import type {
   ElderProfilePreviewDerivationErrorCode,
 } from './elder-profile'
@@ -50,3 +53,31 @@ export interface RecommendationPreviewApplicationFailure {
 export type RecommendationPreviewApplicationResult =
   | RecommendationPreviewApplicationSuccess
   | RecommendationPreviewApplicationFailure
+
+/**
+ * Page-facing additive snapshot.  The frozen RecommendationPreview remains a
+ * semantic result; display facts are joined from the same validated catalog
+ * snapshot at the application boundary.
+ */
+export interface RecommendationResultApplicationSnapshot {
+  preview: RecommendationPreview
+  institutionRecords: readonly InstitutionRecord[]
+  advisories: readonly RecommendationAdvisoryAttachment[]
+  datasetVersion: string
+  datasetMode: RecommendationDatasetMode
+  evaluationAsOf: string
+}
+
+export interface RecommendationResultApplicationSuccess {
+  ok: true
+  value: RecommendationResultApplicationSnapshot
+}
+
+export interface RecommendationResultApplicationFailure {
+  ok: false
+  error: RecommendationPreviewApplicationError
+}
+
+export type RecommendationResultApplicationResult =
+  | RecommendationResultApplicationSuccess
+  | RecommendationResultApplicationFailure

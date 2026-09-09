@@ -1,5 +1,5 @@
 import { MOCK_INSTITUTION_CATALOG_V11 } from '../mock/institution-catalog.mock'
-import { validateInstitutionRecordV11 } from '../domain/institution/v1-1'
+import { validateInstitutionRecordV11 } from '../domain/institution/v1-1/validate-institution-v1-1'
 import type {
   InstitutionCatalogPayloadV11,
   InstitutionCatalogProviderV11,
