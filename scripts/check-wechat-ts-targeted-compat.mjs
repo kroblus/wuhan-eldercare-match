@@ -28,6 +28,7 @@ const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
 const recommendationV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-v2.ts')
 const recommendationPreviewV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview-v2.ts')
 const institutionCatalogV11TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog-v1-1.ts')
+const institutionListDetailTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-list-detail.ts')
 const recommendationV2EntryPath = path.join(recommendationDomainRoot, 'v2', 'index.ts')
 const recommendationV2PreviewEvaluatorPath = path.join(recommendationDomainRoot, 'v2', 'evaluate-recommendation-preview-v2.ts')
 const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
@@ -40,6 +41,7 @@ const integrationTypePaths = [
   recommendationV2TypePath,
   recommendationPreviewV2TypePath,
   institutionCatalogV11TypePath,
+  institutionListDetailTypePath,
 ]
 const draftStorePath = path.join(repositoryRoot, 'miniprogram', 'store', 'assessment-draft.ts')
 const assessmentV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'assessment-v2.ts')
@@ -66,6 +68,16 @@ const recommendationResultViewModelPath = path.join(repositoryRoot, 'miniprogram
 const recommendationResultV2ViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'result-v2-view-model.ts')
 const recommendationResultApplicationPath = path.join(repositoryRoot, 'miniprogram', 'services', 'recommendation-result-application.ts')
 const recommendationResultCompatibilityTargets = [recommendationResultPagePath, recommendationResultViewModelPath, recommendationResultV2ViewModelPath, recommendationResultApplicationPath]
+const institutionListDetailCompatibilityTargets = [
+  path.join(applicationServiceRoot, 'institution-detail-route.ts'),
+  path.join(applicationServiceRoot, 'institution-display-projection-v11.ts'),
+  path.join(applicationServiceRoot, 'institution-list-detail-application.ts'),
+  path.join(applicationServiceRoot, 'institution-presentation.ts'),
+  path.join(applicationServiceRoot, 'institution-recommendation-source.ts'),
+  path.join(applicationServiceRoot, 'institution-record-resolver.ts'),
+  path.join(applicationServiceRoot, 'institution-source-context.ts'),
+  institutionListDetailTypePath,
+]
 
 const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
 
@@ -251,7 +263,8 @@ const run = async () => {
     recommendationV2TypePath, recommendationV2EntryPath,
     recommendationV2PreviewEvaluatorPath,
     recommendationPreviewV2TypePath, institutionCatalogV11TypePath,
-    ...profileCompatibilityTargets, ...integrationTypePaths, wechatDeclarationPath,
+    ...profileCompatibilityTargets, ...integrationTypePaths,
+    ...institutionListDetailCompatibilityTargets, wechatDeclarationPath,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
     path.join(applicationServiceRoot, 'recommendation-preview.ts'),
@@ -381,6 +394,7 @@ const run = async () => {
   console.log(`INSTITUTION_V1_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV11TypePath || fileName.startsWith(`${institutionV11DomainRoot}${path.sep}`)).length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
+  console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)
   console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)
