@@ -78,6 +78,18 @@ const institutionListDetailCompatibilityTargets = [
   path.join(applicationServiceRoot, 'institution-source-context.ts'),
   institutionListDetailTypePath,
 ]
+// A0-3 live Page/ViewModel/Home composition is listed explicitly.  The
+// application-service walk above is intentionally not relied on to prove
+// that these page entry points passed the WeChat TypeScript parser.
+const institutionListDetailPageCompatibilityTargets = [
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'institution', 'index.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'institution', 'detail.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'institution', 'list-view-model.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'institution', 'detail-view-model.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'home', 'index.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'recommendation-display-semantics.ts'),
+  path.join(applicationServiceRoot, 'institution-list-detail-page.ts'),
+]
 
 const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
 
@@ -239,6 +251,7 @@ const run = async () => {
     assessmentResumePath,
     ...assessmentV2PageTargets,
     ...recommendationResultCompatibilityTargets,
+    ...institutionListDetailPageCompatibilityTargets,
   ]
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
@@ -265,6 +278,7 @@ const run = async () => {
     recommendationPreviewV2TypePath, institutionCatalogV11TypePath,
     ...profileCompatibilityTargets, ...integrationTypePaths,
     ...institutionListDetailCompatibilityTargets, wechatDeclarationPath,
+    ...institutionListDetailPageCompatibilityTargets,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
     path.join(applicationServiceRoot, 'recommendation-preview.ts'),
@@ -395,6 +409,7 @@ const run = async () => {
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)
+  console.log(`INSTITUTION_LIST_DETAIL_A0_3_PAGE_TARGETS: ${institutionListDetailPageCompatibilityTargets.length}`)
   console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)

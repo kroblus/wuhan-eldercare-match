@@ -9,38 +9,57 @@
     <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
   </view>
 
-  <section-card extraClass="home-section">
-    <view class="section-heading">
-      <view>
-        <text class="section-heading__title">当前开发中的机构结构示例</text>
-        <text class="section-heading__note">真实合作机构资料接入前，仅用于页面联调</text>
+    <section-card extraClass="home-section">
+      <view class="section-heading">
+        <view>
+          <text class="section-heading__title">当前机构资料示例</text>
+          <text class="section-heading__note">先浏览基础资料；详情入口仍处于开发验证阶段</text>
+        </view>
+        <tag text="开发 Mock" tone="development"></tag>
       </view>
-      <tag text="开发 Mock" tone="development"></tag>
-    </view>
 
-    <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取示例结构" message="仅加载本地开发 Mock 数据"></state-panel>
-    <state-panel wx:elif="{{loadError}}" state="error" title="示例数据暂时不可用" message="这是开发期本地数据，不影响匿名浏览。" actionText="重新加载" bind:action="retryLoad"></state-panel>
-    <block wx:else>
-      <view wx:for="{{institutions}}" wx:key="id" class="institution-preview" data-institution-id="{{item.id}}" bindtap="openInstitution">
-        <view class="institution-preview__media">
-          <text>暂无真实图片</text>
-        </view>
-        <view class="institution-preview__body">
-          <view class="institution-preview__title-row">
-            <text class="institution-preview__title">{{item.name}}</text>
-            <tag text="Mock" tone="development"></tag>
-          </view>
-          <text class="institution-preview__meta">地址、类型、费用与护理能力：需咨询</text>
-          <text class="institution-preview__meta">VR：暂无真实地址</text>
-        </view>
+      <view wx:if="{{showMockDisclosure}}" class="home-mock-disclosure">
+        <text>{{mockDisclosure}}</text>
       </view>
-    </block>
-  </section-card>
+      <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取机构资料" message="仅加载当前本地开发目录"></state-panel>
+      <state-panel wx:elif="{{loadError}}" state="error" title="机构资料暂时不可用" message="当前本地开发目录未能读取。" actionText="重新加载" bind:action="retryLoad"></state-panel>
+      <state-panel wx:elif="{{empty}}" state="empty" title="当前暂无可展示的合作机构资料" message="资料补充后，这里会展示基础机构信息。"></state-panel>
+      <block wx:else>
+        <view
+          wx:for="{{institutions}}"
+          wx:key="key"
+          class="institution-preview"
+          data-item-key="{{item.key}}"
+          data-institution-id="{{item.navigationIntent.institutionId}}"
+          data-record-revision="{{item.navigationIntent.recordRevision}}"
+          bindtap="openInstitution"
+        >
+          <view wx:if="{{item.hasCover}}" class="institution-preview__media institution-preview__media--image">
+            <image src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
+          </view>
+          <view wx:else class="institution-preview__media">
+            <text>暂无机构图片</text>
+          </view>
+          <view class="institution-preview__body">
+            <view class="institution-preview__title-row">
+              <text class="institution-preview__title">{{item.name}}</text>
+              <tag text="{{item.placementLabel}}" tone="development"></tag>
+            </view>
+            <text class="institution-preview__meta">区域：{{item.region}}（{{item.regionStatus}}）</text>
+            <text class="institution-preview__meta">类型：{{item.type}}（{{item.typeStatus}}）</text>
+            <text class="institution-preview__meta">参考费用：{{item.price}}（{{item.priceStatus}}）</text>
+            <text class="institution-preview__meta">{{item.vrLabel}}</text>
+          </view>
+        </view>
+      </block>
+      <view wx:if="{{institutionActionError}}" class="home-action-error" role="alert">{{institutionActionError}}</view>
+    </section-card>
 
   <section-card extraClass="home-section home-section--guide">
     <text class="guide-title">不知道该怎么选？</text>
     <text class="guide-description">完成几步简短评估，先了解老人更需要哪类照护，再看机构。</text>
     <primary-button text="3～5 分钟完成评估" variant="secondary" bind:action="startAssessment"></primary-button>
     <primary-button text="咨询养老顾问" variant="quiet" bind:action="openConsultant"></primary-button>
+    <view wx:if="{{consultantActionError}}" class="home-action-error" role="alert">{{consultantActionError}}</view>
   </section-card>
 </page-container>

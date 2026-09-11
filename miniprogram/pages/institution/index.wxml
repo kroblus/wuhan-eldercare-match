@@ -1,17 +1,104 @@
-<navigation-bar title="合作机构列表" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar
+  title="合作机构列表"
+  back="{{true}}"
+  fallbackUrl="/pages/home/index"
+  color="#27313D"
+  background="#FFFFFF"
+  bind:navigationfail="onNavigationFailure"
+></navigation-bar>
+
+<page-container extraClass="institution-list-page">
+  <view class="page-shell institution-list-shell">
+    <view class="page-head institution-list-head">
+      <text class="eyebrow">机构 · 武汉合作机构</text>
+      <text class="page-title">{{viewModel ? viewModel.title : '合作机构列表'}}</text>
+      <text class="page-description">{{viewModel ? viewModel.description : '正在读取当前合作机构资料。'}}</text>
+      <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
-    <section-card>
-      <tag text="开发 Mock 结构" tone="development"></tag>
-      <text class="route-card-title">精选机构列表壳层已建立</text>
-      <text class="route-card-message">后续筛选和排序只能使用真实机构数据；当前 Mock 机构不代表任何合作方。</text>
-      <state-panel state="development" title="机构资料待接入" message="地址、类型、费用、护理能力、图片和 VR 均显示为暂无数据或需咨询。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+
+    <view wx:if="{{pageState === 'loading'}}" class="list-card-wrap">
+      <section-card>
+        <state-panel state="loading" title="正在读取合作机构资料" message="正在通过当前资料目录整理可展示内容。"></state-panel>
+      </section-card>
+    </view>
+
+    <block wx:elif="{{viewModel}}">
+      <view wx:if="{{viewModel.hasDisclosure}}" class="mock-disclosure">
+        <tag text="开发演示数据" tone="development"></tag>
+        <text class="mock-disclosure__title">本页只用于功能演示</text>
+        <text class="mock-disclosure__message">{{viewModel.disclosure}}</text>
+      </view>
+
+      <view wx:if="{{viewModel.pageState === 'ready'}}" class="list-card-wrap">
+        <section-card>
+          <text class="section-kicker">当前可展示资料</text>
+          <text class="section-subtitle">资料按当前应用快照展示，页面不会自行筛选、排序或推断护理能力。</text>
+          <view
+            wx:for="{{viewModel.items}}"
+            wx:key="key"
+            class="institution-card"
+            data-item-key="{{item.key}}"
+            data-institution-id="{{item.navigationIntent.institutionId}}"
+            data-record-revision="{{item.navigationIntent.recordRevision}}"
+            data-route-source="{{item.navigationIntent.source}}"
+            bindtap="onCardTap"
+          >
+            <text wx:if="{{item.showGroupHeading}}" class="institution-group-heading">{{item.groupLabel}}</text>
+            <view wx:if="{{item.hasCover}}" class="institution-cover-wrap">
+              <image class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
+            </view>
+            <view wx:else class="institution-cover institution-cover--empty">
+              <text>暂无机构图片</text>
+            </view>
+            <view class="institution-card__head">
+              <view class="institution-card__identity">
+                <text class="institution-name">{{item.name}}</text>
+                <text wx:if="{{item.nameStatus !== '已核验'}}" class="fact-status">{{item.nameStatus}}</text>
+              </view>
+              <view class="institution-region">
+                <text class="institution-region__value">{{item.region}}</text>
+                <text class="institution-region__status">{{item.regionStatus}}</text>
+              </view>
+            </view>
+            <view class="institution-meta">
+              <view class="institution-meta__item">
+                <text class="institution-meta__value">{{item.type}}</text>
+                <text class="institution-meta__status">{{item.typeStatus}}</text>
+              </view>
+              <view class="institution-meta__item">
+                <text class="institution-meta__value">{{item.price}}</text>
+                <text class="institution-meta__status">{{item.priceStatus}}</text>
+              </view>
+              <text class="institution-meta__item">{{item.vrLabel}}</text>
+              <text class="institution-meta__item institution-meta__item--placement">{{item.placementLabel}}</text>
+            </view>
+            <view wx:if="{{item.tags.length}}" class="tag-list tag-list--compact">
+              <tag wx:for="{{item.tags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
+            </view>
+            <view class="institution-card__footer">
+              <text class="development-boundary">机构详情入口开发中</text>
+            </view>
+            <view wx:if="{{actionErrorKey === item.key}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.pageState === 'empty'}}" class="list-card-wrap">
+        <section-card>
+          <state-panel state="empty" title="{{viewModel.emptyTitle}}" message="{{viewModel.emptyMessage}}"></state-panel>
+          <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.pageState !== 'ready' && viewModel.pageState !== 'empty'}}" class="list-card-wrap">
+        <section-card>
+          <state-panel state="error" title="{{viewModel.errorTitle}}" message="{{viewModel.errorMessage}}"></state-panel>
+          <view class="error-actions">
+            <button wx:if="{{viewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button>
+            <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
+          </view>
+        </section-card>
+      </view>
+    </block>
   </view>
 </page-container>

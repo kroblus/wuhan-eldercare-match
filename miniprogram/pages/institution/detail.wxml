@@ -1,18 +1,254 @@
-<navigation-bar title="机构详情" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar
+  title="机构详情"
+  back="{{true}}"
+  fallbackUrl="/pages/institution/index"
+  color="#27313D"
+  background="#FFFFFF"
+  bind:navigationfail="onNavigationFailure"
+></navigation-bar>
+
+<page-container extraClass="institution-detail-page">
+  <view class="page-shell institution-detail-shell">
+    <view class="page-head institution-detail-head">
+      <text class="eyebrow">机构 · 资料详情</text>
+      <text class="page-title">{{viewModel ? viewModel.title : '机构详情'}}</text>
+      <text class="page-description">{{viewModel ? viewModel.description : '正在读取指定版本的机构资料。'}}</text>
+      <view wx:if="{{viewModel && viewModel.contextLabel}}" class="context-label">{{viewModel.contextLabel}}</view>
+      <view wx:if="{{viewModel && viewModel.historyLabel}}" class="history-label">{{viewModel.historyLabel}}</view>
+      <view wx:if="{{viewModel && viewModel.revisionNotice}}" class="revision-notice" role="status">{{viewModel.revisionNotice}}</view>
+      <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
-    <section-card>
-      <tag text="开发 Mock 结构" tone="development"></tag>
-      <tag text="VR 入口模块已预留" tone="brand"></tag>
-      <text class="route-card-title">真实内容优先，缺失内容不编造</text>
-      <text class="route-card-message">详情页未来按基础信息、为什么推荐、VR、图集、护理、医疗康复、房型、收费和资质展开。</text>
-      <state-panel state="development" title="机构详情资料待接入" message="当前不展示虚构机构、费用、床位、护理能力、资质或评价。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+
+    <view wx:if="{{pageState === 'loading'}}" class="detail-card-wrap">
+      <section-card>
+        <state-panel state="loading" title="正在读取机构资料" message="正在按指定机构版本整理可展示内容。"></state-panel>
+      </section-card>
+    </view>
+
+    <block wx:elif="{{pageState === 'ready' && viewModel}}">
+      <view wx:if="{{viewModel.hasDisclosure}}" class="mock-disclosure">
+        <tag text="开发演示数据" tone="development"></tag>
+        <text class="mock-disclosure__title">本页只用于功能演示</text>
+        <text class="mock-disclosure__message">{{viewModel.disclosure}}</text>
+      </view>
+
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">基础资料</text>
+          <view class="fact-list">
+            <view wx:for="{{viewModel.basicRows}}" wx:key="key" class="fact-row">
+              <text class="fact-row__label">{{item.label}}</text>
+              <view class="fact-row__body">
+                <text class="fact-row__value">{{item.value}}</text>
+                <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+              </view>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.recommendation}}" class="detail-card-wrap">
+        <section-card extraClass="recommendation-card">
+          <text class="section-kicker">为什么推荐给您</text>
+          <text class="section-subtitle">以下内容来自当时的推荐上下文，不在详情页重新计算。</text>
+          <text class="recommendation-tier">{{viewModel.recommendation.tierLabel}}</text>
+          <view wx:if="{{viewModel.recommendation.reasons.length}}" class="recommendation-list">
+            <view wx:for="{{viewModel.recommendation.reasons}}" wx:key="key" class="recommendation-line">
+              <text class="recommendation-line__mark">•</text>
+              <view class="recommendation-line__body">
+                <text class="recommendation-line__value">{{item.value}}</text>
+                <text class="recommendation-line__source">{{item.status}}</text>
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{viewModel.recommendation.differences.length}}" class="recommendation-list recommendation-list--difference">
+            <text class="recommendation-difference-title">需要进一步确认</text>
+            <view wx:for="{{viewModel.recommendation.differences}}" wx:key="key" class="recommendation-line">
+              <text class="recommendation-line__mark">•</text>
+              <view class="recommendation-line__body">
+                <text class="recommendation-line__value">{{item.value}}</text>
+                <text class="recommendation-line__source">{{item.status}}</text>
+              </view>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">图片与 VR 看院</text>
+          <view wx:if="{{viewModel.media.hasCover}}" class="detail-cover-wrap">
+            <image class="detail-cover" src="{{viewModel.media.coverUrl}}" mode="aspectFill" aria-label="{{viewModel.title}}封面"></image>
+          </view>
+          <view wx:else class="detail-cover detail-cover--empty"><text>暂无已核验机构图片</text></view>
+          <view wx:if="{{viewModel.media.gallery.length}}" class="gallery-list">
+            <view wx:for="{{viewModel.media.gallery}}" wx:key="key" class="gallery-item">
+              <image wx:if="{{item.url}}" class="gallery-item__image" src="{{item.url}}" mode="aspectFill" aria-label="机构图片"></image>
+              <view wx:else class="gallery-item__empty"><text>{{item.caption}}</text></view>
+              <text class="gallery-item__caption">{{item.caption}}</text>
+              <text class="gallery-item__status">{{item.status}}</text>
+            </view>
+          </view>
+          <button wx:if="{{viewModel.media.canOpenVr}}" class="vr-action" bindtap="onVrTap">查看 VR 看院资料</button>
+          <view wx:else class="vr-status vr-status--{{viewModel.media.vrState}}">
+            <text>{{viewModel.media.vrLabel}}</text>
+          </view>
+          <view wx:if="{{actionErrorKey === 'vr'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">护理能力资料</text>
+          <view wx:for="{{viewModel.capabilityGroups}}" wx:key="key" class="capability-group">
+            <text class="capability-group__title">{{item.title}}</text>
+            <view wx:for="{{item.items}}" wx:key="key" class="capability-row">
+              <text class="capability-row__label">{{item.label}}</text>
+              <view class="capability-row__body">
+                <text class="capability-row__status capability-row__status--{{item.tone}}">{{item.status}}</text>
+                <text class="capability-row__verification">{{item.verification}}</text>
+              </view>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.staffingRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">人员配置</text>
+          <view wx:for="{{viewModel.staffingRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.medicalRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">医疗、康复与健康监测</text>
+          <view wx:for="{{viewModel.medicalRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.rooms.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">房型资料</text>
+          <view wx:for="{{viewModel.rooms}}" wx:key="key" class="room-card">
+            <view class="room-card__head">
+              <text class="room-card__name">{{item.name}}</text>
+              <text class="room-card__type">{{item.type}}</text>
+            </view>
+            <view wx:for="{{item.rows}}" wx:key="key" class="fact-row fact-row--nested">
+              <text class="fact-row__label">{{item.label}}</text>
+              <view class="fact-row__body">
+                <text class="fact-row__value">{{item.value}}</text>
+                <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+              </view>
+            </view>
+            <text wx:if="{{item.hasMedia}}" class="room-card__note">房型图片资料按对应媒体记录展示</text>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.mealRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">餐饮资料</text>
+          <view wx:for="{{viewModel.mealRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.activityRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">活动资料</text>
+          <view wx:for="{{viewModel.activityRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.transportRows.length || viewModel.hospitalRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">交通与周边医院</text>
+          <view wx:for="{{viewModel.transportRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+          <view wx:for="{{viewModel.hospitalRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.priceRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">费用资料</text>
+          <text class="section-subtitle">以下是各项已提供的参考费用，不自动合并为总月费。</text>
+          <view wx:for="{{viewModel.priceRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.qualificationRows.length}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">资质资料</text>
+          <view wx:for="{{viewModel.qualificationRows}}" wx:key="key" class="fact-row">
+            <text class="fact-row__label">{{item.label}}</text>
+            <view class="fact-row__body">
+              <text class="fact-row__value">{{item.value}}</text>
+              <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+            </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.canViewCurrentRevision}}" class="detail-card-wrap detail-card-wrap--last">
+        <section-card extraClass="revision-card">
+          <text class="section-kicker">资料版本</text>
+          <text class="section-subtitle">当前页面固定展示原机构版本；如需查看最新资料，请明确切换。</text>
+          <button class="primary-action" loading="{{isSwitchingRevision}}" disabled="{{isSwitchingRevision}}" bindtap="onViewCurrentRevision">{{viewModel.currentRevisionLabel}}</button>
+        </section-card>
+      </view>
+    </block>
+
+    <view wx:elif="{{errorViewModel}}" class="detail-card-wrap">
+      <section-card>
+        <state-panel state="error" title="{{errorViewModel.title}}" message="{{errorViewModel.message}}"></state-panel>
+        <view class="error-actions">
+          <button wx:if="{{errorViewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button>
+          <button class="secondary-action" bindtap="onBackToList">返回合作机构列表</button>
+        </view>
+      </section-card>
+    </view>
   </view>
 </page-container>
