@@ -7,13 +7,14 @@
     <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
     <primary-button text="开始养老需求评估" bind:action="startAssessment"></primary-button>
     <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
+    <view wx:if="{{institutionListActionError}}" class="home-action-error home-action-error--cta" role="alert">{{institutionListActionError}}</view>
   </view>
 
     <section-card extraClass="home-section">
       <view class="section-heading">
         <view>
           <text class="section-heading__title">当前机构资料示例</text>
-          <text class="section-heading__note">先浏览基础资料；详情入口仍处于开发验证阶段</text>
+          <text class="section-heading__note">先浏览当前可读取的基础资料，再了解机构详情</text>
         </view>
         <tag text="开发 Mock" tone="development"></tag>
       </view>

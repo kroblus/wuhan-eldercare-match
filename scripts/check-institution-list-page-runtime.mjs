@@ -290,11 +290,13 @@ const main = async () => {
     assert.ok(view.items.every((item) => item.tags.every((tag) => tag.tone === 'neutral')))
     assert.equal(view.items[0].tags.map((tag) => tag.text).join('|'), snapshotItems(snapshot)[0].verifiedDisplayTags.map((tag) => tag.code || tag.fieldPath).join('|'))
   })
-  await run('LIST-UI-019', 'page and WXML retain a single blocked card action', () => {
+  await run('LIST-UI-019', 'page and WXML expose one canonical direct-detail action', () => {
     assert.match(pageSource, /onCardTap/)
-    assert.match(pageSource, /不会打开详情页面/)
+    assert.match(pageSource, /serializeInstitutionDetailRoute/)
+    assert.match(pageSource, /direct_list/)
+    assert.match(pageSource, /wx\.navigateTo/)
     assert.match(wxml, /bindtap="onCardTap"/)
-    assert.equal((pageSource.match(/navigateTo|redirectTo|switchTab|reLaunch/g) || []).length, 1)
+    assert.doesNotMatch(pageSource, /不会打开详情页面|开发验证中/)
   })
   await run('LIST-UI-020', 'legacy id/name/array fallback and direct fixture imports are absent', () => {
     assert.equal(/\?id=|data-id=|item\.id|legacy|fixtures\/institution/i.test(pageSource), false)

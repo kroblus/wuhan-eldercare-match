@@ -682,18 +682,18 @@ const main = async () => {
     c.equal(wxml.includes('pages/institution/vr'), false)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
-  await run('RESULT-UI-V2-021', 'detail action remains blocked by the identity gate', async (c) => {
+  await run('RESULT-UI-V2-021', 'detail action exposes the canonical navigation label', async (c) => {
     const { vm } = await view('exact')
-    c.equal(vm.actions.detailLabel, '机构详情接入中')
-    c.equal(wxml.includes('机构详情接入中'), true)
-    c.equal(vm.cards.every((card) => card.detailLabel === '机构详情接入中'), true)
+    c.equal(vm.actions.detailLabel, '查看机构详情')
+    c.equal(wxml.includes('bindtap="onRecommendationCardTap"'), true)
+    c.equal(vm.cards.every((card) => card.detailLabel === '查看机构详情'), true)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
-  await run('RESULT-UI-V2-022', 'list action remains blocked by the identity gate', async (c) => {
+  await run('RESULT-UI-V2-022', 'list action exposes the canonical source-context path', async (c) => {
     const { vm } = await view('exact')
-    c.equal(vm.actions.listLabel, '合作机构列表接入中')
-    c.equal(wxml.includes('合作机构列表接入中'), true)
-    c.equal(/navigateTo\(.*institution\/list/.test(wxml), false)
+    c.equal(vm.actions.listLabel, '查看合作机构列表')
+    c.equal(wxml.includes('bindtap="onRecommendationListTap"'), true)
+    c.equal(wxml.includes('viewModel.actions.listLabel'), true)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
   await run('RESULT-UI-V2-023', 'Mock dataset disclosure is visible and truthful', async (c) => {

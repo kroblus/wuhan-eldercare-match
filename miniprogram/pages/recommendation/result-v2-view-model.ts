@@ -340,7 +340,7 @@ const cardFromCandidate = (
     compactFacts: buildCompactFacts(candidate, display),
     advisories,
     vrLabel: display.media.vr.state === 'current_verified_available' ? 'VR 看院已准备' : '',
-    detailLabel: '机构详情接入中',
+    detailLabel: '查看机构详情',
     isConditional,
   }
 }
@@ -462,8 +462,8 @@ export const createRecommendationResultViewModelV2 = (
       canRetry: false,
       canAdjustNeeds: true,
       canContactConsultant: true,
-      detailLabel: '机构详情接入中',
-      listLabel: '合作机构列表接入中',
+      detailLabel: '查看机构详情',
+      listLabel: '查看合作机构列表',
     },
   }
 }

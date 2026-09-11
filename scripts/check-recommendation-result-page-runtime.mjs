@@ -682,18 +682,24 @@ failures.push(await runCase('RESULT-027', 'application code does not import test
   c.ok(sourceFiles.some((file) => file.endsWith(path.join('recommendation', 'result.ts'))))
 }))
 
-failures.push(await runCase('RESULT-028', 'Detail identity gate blocks legacy navigation', async (c) => {
+failures.push(await runCase('RESULT-028', 'Detail navigation releases only through a V2 canonical source context', async (c) => {
   const source = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.wxml'), 'utf8')
   const pageSource = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.ts'), 'utf8')
-  c.equal(/pages\/institution\/detail/.test(source + pageSource), false)
-  c.ok(source.includes('机构详情接入中'))
+  c.ok(source.includes('bindtap="onRecommendationCardTap"'))
+  c.ok(pageSource.includes('registerInstitutionRecommendationSourceContextV2'))
+  c.ok(pageSource.includes('serializeInstitutionDetailRoute'))
+  c.ok(pageSource.includes("'recommendation'"))
+  c.ok(pageSource.includes('当前推荐结果暂不支持机构详情入口'))
+  c.equal(/detail\?id=|[?&]id=/.test(source + pageSource), false)
 }))
 
-failures.push(await runCase('RESULT-029', 'List identity gate remains a safe development state', async (c) => {
+failures.push(await runCase('RESULT-029', 'List navigation shares the current V2 source context and keeps V1 safe', async (c) => {
   const source = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.wxml'), 'utf8')
   const pageSource = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.ts'), 'utf8')
-  c.equal(/pages\/institution\/index/.test(source + pageSource), false)
-  c.ok(source.includes('合作机构列表接入中'))
+  c.ok(source.includes('bindtap="onRecommendationListTap"'))
+  c.ok(pageSource.includes('/pages/institution/index?sourceContextRef='))
+  c.ok(pageSource.includes('resultSnapshots.get(this)'))
+  c.ok(pageSource.includes('当前推荐结果暂不支持机构列表入口'))
 }))
 
 failures.push(await runCase('RESULT-030', 'ViewModel preserves Domain ranking order', async (c) => {

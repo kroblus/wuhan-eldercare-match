@@ -69,18 +69,20 @@ const main = () => {
     assert.match(body, /pageState\s*===\s*['"]loading['"]/)
     assert.match(body, /this\.loadList\(this\.data\.sourceContextRef\)/)
   })
-  run('INTERACTION-003', 'List card action is visibly blocked and never navigates', () => {
+  run('INTERACTION-003', 'List card action serializes canonical direct detail identity', () => {
     const body = functionBody(listTs, 'onCardTap')
-    assert.match(body, /actionErrorMessage/)
-    assert.match(body, /不会打开详情页面|开发验证中/)
-    assert.equal(/navigateTo|redirectTo|switchTab|reLaunch/.test(body), false)
+    assert.match(body, /serializeInstitutionDetailRoute/)
+    assert.match(body, /direct_list/)
+    assert.match(body, /wx\.navigateTo/)
+    assert.match(body, /navigationIntent/)
     assert.match(listWxml, /bindtap="onCardTap"/)
   })
-  run('INTERACTION-004', 'List rapid card taps remain one visible action channel', () => {
+  run('INTERACTION-004', 'List rapid card taps are protected by one navigation guard', () => {
     assert.equal((listWxml.match(/bindtap="onCardTap"/g) || []).length, 1)
     assert.equal((listTs.match(/onCardTap\s*\(/g) || []).length, 1)
     assert.equal(/triggerEvent\(['"]tap['"]/.test(listTs), false)
-    assert.match(functionBody(listTs, 'onCardTap'), /blockedCardActions\.delete\(this\)/)
+    assert.match(functionBody(listTs, 'onCardTap'), /getNavigationGuard/)
+    assert.match(functionBody(listTs, 'onCardTap'), /institution\.list\.openDetail/)
   })
   run('INTERACTION-005', 'List Back uses guard and gives failure feedback', () => {
     assert.match(listTs, /const runBack\s*=\s*\([\s\S]*?getNavigationGuard/)
@@ -140,12 +142,13 @@ const main = () => {
     assert.equal(/\?id=|detail\?id=/.test(homeWxml), false)
     assert.match(homeTs, /openInstitution|openInstitutions/)
   })
-  run('INTERACTION-014', 'Home institution stays blocked and Consultant uses one guarded navigation', () => {
+  run('INTERACTION-014', 'Home institution uses canonical direct-link navigation and Consultant stays guarded', () => {
     const body = functionBody(homeTs, 'openInstitution')
     assert.ok(body.length > 0)
-    assert.match(body, /setData|开发|详情|institutionId|recordRevision/)
-    assert.equal(/pages\/institution\/detail\?/.test(body), false)
-    assert.match(body, /blockedInstitutionActions\.delete\(this\)/)
+    assert.match(body, /serializeInstitutionDetailRoute/)
+    assert.match(body, /direct_link/)
+    assert.match(body, /wx\.navigateTo/)
+    assert.match(body, /navigationIntent/)
     const consultantBody = functionBody(homeTs, 'openConsultant')
     assert.match(consultantBody, /switchToConsultantWithGuard/)
     assert.match(homeTs, /getNavigationGuard/)
@@ -157,11 +160,13 @@ const main = () => {
     assert.equal(/wx\.request|wx\.login|getPhoneNumber|phoneNumber/.test(all), false)
     assert.equal(/triggerEvent\(['"]tap['"]/.test(all), false)
   })
-  run('INTERACTION-016', 'Blocked routes expose no accidental direct navigation', () => {
+  run('INTERACTION-016', 'Canonical routes never use legacy id-only navigation', () => {
     const all = listTs + detailTs + homeTs
     const listCard = functionBody(listTs, 'onCardTap')
     const vr = functionBody(detailTs, 'onVrTap')
-    assert.equal(/navigateTo|switchTab|reLaunch/.test(listCard + vr), false)
+    assert.match(listCard, /serializeInstitutionDetailRoute/)
+    assert.equal(/pages\/institution\/detail\?id=/.test(all), false)
+    assert.equal(/switchTab|reLaunch/.test(listCard + vr), false)
     assert.match(all, /getNavigationGuard/)
   })
 

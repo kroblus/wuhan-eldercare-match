@@ -11,6 +11,7 @@ import {
   getNavigationGuard,
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
+import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
@@ -24,7 +25,6 @@ interface InstitutionListPageData {
 
 const listGenerations = new WeakMap<object, number>()
 const listLoadsInFlight = new WeakSet<object>()
-const blockedCardActions = new WeakSet<object>()
 
 const nextGeneration = (instance: object): number => {
   const generation = (listGenerations.get(instance) || 0) + 1
@@ -102,7 +102,6 @@ Page({
   loadList(sourceContextRef: string | null) {
     if (listLoadsInFlight.has(this)) return
     listLoadsInFlight.add(this)
-    blockedCardActions.delete(this)
     const generation = nextGeneration(this)
     const loading = createInstitutionListLoadingViewModel()
     this.setData({
@@ -153,17 +152,38 @@ Page({
   onCardTap(event: WechatMiniprogram.BaseEvent) {
     const itemKey = event.currentTarget.dataset.itemKey as string
     if (!itemKey || this.data.pageState !== 'ready') return
-    if (blockedCardActions.has(this)) return
-    blockedCardActions.add(this)
-    // The canonical intent is already built in the ViewModel.  The A0-3 gate
-    // remains blocked, so this action has one visible result and zero routing.
-    this.setData(
-      {
-        actionErrorKey: itemKey,
-        actionErrorMessage: '机构详情入口正在开发验证中，当前不会打开详情页面。',
-      },
-      () => { blockedCardActions.delete(this) },
-    )
+    const viewModel = this.data.viewModel
+    const item = viewModel === null
+      ? undefined
+      : viewModel.items.find((candidate) => candidate.key === itemKey)
+    if (item === undefined) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    const guard = getNavigationGuard(this)
+    if (!guard.acquire('institution.list.openDetail')) return
+    const url = serializeInstitutionDetailRoute(item.navigationIntent, 'direct_list')
+    if (url === null) {
+      guard.release('institution.list.openDetail')
+      this.setData({ actionErrorKey: itemKey, actionErrorMessage: '机构资料链接暂时无法生成，请稍后重试。' })
+      return
+    }
+    let succeeded = false
+    let reported = false
+    const fail = () => {
+      guard.release('institution.list.openDetail')
+      if (reported) return
+      reported = true
+      this.setData({ actionErrorKey: itemKey, actionErrorMessage: '暂时无法打开机构详情，请稍后重试。' })
+    }
+    try {
+      wx.navigateTo({
+        url,
+        success: () => { succeeded = true },
+        fail,
+        complete: () => { if (!succeeded) fail() },
+      })
+    } catch (_error) {
+      fail()
+    }
   },
 
   onBackToHome() {

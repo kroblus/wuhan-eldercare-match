@@ -4,6 +4,16 @@ import {
 import type {
   RecommendationPreviewApplicationError,
 } from '../../types/recommendation-preview'
+import type { RecommendationResultApplicationSnapshotV2 } from '../../types/recommendation-result-v2'
+import {
+  institutionSourceContextRegistry,
+} from '../../services/institution-list-detail-page'
+import {
+  registerInstitutionRecommendationSourceContextV2,
+} from '../../services/institution-recommendation-source'
+import {
+  serializeInstitutionDetailRoute,
+} from '../../services/institution-detail-route'
 import {
   getNavigationGuard,
   resetNavigationGuard,
@@ -50,6 +60,8 @@ interface NavigationCallbacks {
 type NavigationInvoker = (callbacks: NavigationCallbacks) => unknown
 
 const refreshGenerations = new WeakMap<object, number>()
+const resultSnapshots = new WeakMap<object, RecommendationResultApplicationSnapshotV2>()
+const resultSourceContextRefs = new WeakMap<object, Set<string>>()
 
 const nextRefreshGeneration = (instance: object): number => {
   const next = (refreshGenerations.get(instance) || 0) + 1
@@ -133,6 +145,44 @@ const errorPresentation = (
 
 const currentRoute = (route: string): string => route.charAt(0) === '/' ? route.slice(1) : route
 
+const hasRecommendationIdentity = (
+  snapshot: RecommendationResultApplicationSnapshotV2,
+  institutionId: string,
+  recordRevision: number,
+): boolean => {
+  const semantics = snapshot.preview.semantics
+  const candidates = semantics.cards.concat(
+    semantics.conditionalCandidates,
+    semantics.noExactMatch === undefined ? [] : semantics.noExactMatch.nearMatches,
+  )
+  return candidates.some((candidate) => candidate.institutionId === institutionId
+    && candidate.recordRevision === recordRevision)
+}
+
+const clearResultSourceContexts = (instance: object): void => {
+  const refs = resultSourceContextRefs.get(instance)
+  if (refs === undefined) return
+  refs.forEach((ref) => institutionSourceContextRegistry.clear(ref))
+  refs.clear()
+  resultSourceContextRefs.delete(instance)
+}
+
+const rememberResultSourceContext = (instance: object, ref: string): void => {
+  const existing = resultSourceContextRefs.get(instance)
+  if (existing !== undefined) {
+    existing.add(ref)
+    return
+  }
+  resultSourceContextRefs.set(instance, new Set([ref]))
+}
+
+const forgetResultSourceContext = (instance: object, ref: string): void => {
+  const refs = resultSourceContextRefs.get(instance)
+  if (refs === undefined) return
+  refs.delete(ref)
+  if (refs.size === 0) resultSourceContextRefs.delete(instance)
+}
+
 Page({
   data: {
     pageTitle: '评估结果与机构推荐',
@@ -152,8 +202,14 @@ Page({
     this.refreshRecommendation()
   },
 
+  onUnload() {
+    clearResultSourceContexts(this)
+  },
+
   refreshRecommendation() {
+    clearResultSourceContexts(this)
     const generation = nextRefreshGeneration(this)
+    resultSnapshots.delete(this)
     this.setData({
       pageState: 'loading',
       viewModel: null,
@@ -181,6 +237,9 @@ Page({
       const viewModel = result.version === 2
         ? createRecommendationResultViewModelV2(result.value)
         : createRecommendationResultViewModel(result.value)
+      if (result.version === 2) {
+        resultSnapshots.set(this, result.value)
+      }
       this.setData({
         pageState: viewModel.state,
         viewModel,
@@ -258,6 +317,151 @@ Page({
         actionErrorMessage: '暂时无法打开养老顾问，请稍后重试。',
       })
     })
+  },
+
+  onRecommendationCardTap(event: WechatMiniprogram.BaseEvent) {
+    const institutionId = event.currentTarget.dataset.institutionId as string
+    const recordRevision = Number(event.currentTarget.dataset.recordRevision)
+    const snapshot = resultSnapshots.get(this)
+    if (snapshot === undefined) {
+      this.setData({
+        actionErrorKey: 'recommendation-detail',
+        actionErrorMessage: '当前推荐结果暂不支持机构详情入口，详情资料仍在开发验证中。',
+      })
+      return
+    }
+    if (this.data.pageState !== 'ready_exact'
+      && this.data.pageState !== 'ready_soft_near'
+      && this.data.pageState !== 'ready_conditional') return
+    if (!institutionId
+      || !Number.isSafeInteger(recordRevision)
+      || recordRevision <= 0
+      || !hasRecommendationIdentity(snapshot, institutionId, recordRevision)) {
+      this.setData({
+        actionErrorKey: 'recommendation-detail',
+        actionErrorMessage: '当前推荐资料已失效，请重新生成推荐后再查看详情。',
+      })
+      return
+    }
+
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    const guard = getNavigationGuard(this)
+    if (!guard.acquire('recommendation.result.openInstitution')) return
+    const registered = registerInstitutionRecommendationSourceContextV2(
+      snapshot,
+      institutionSourceContextRegistry,
+    )
+    if (!registered.ok) {
+      guard.release('recommendation.result.openInstitution')
+      this.setData({
+        actionErrorKey: 'recommendation-detail',
+        actionErrorMessage: '当前推荐资料暂时无法打开，请重新生成推荐后重试。',
+      })
+      return
+    }
+    const sourceContextRef = registered.value.sourceContextRef
+    rememberResultSourceContext(this, sourceContextRef)
+    const url = serializeInstitutionDetailRoute(
+      { institutionId, recordRevision },
+      'recommendation',
+      sourceContextRef,
+    )
+    if (url === null) {
+      institutionSourceContextRegistry.clear(sourceContextRef)
+      forgetResultSourceContext(this, sourceContextRef)
+      guard.release('recommendation.result.openInstitution')
+      this.setData({
+        actionErrorKey: 'recommendation-detail',
+        actionErrorMessage: '当前推荐详情链接暂时无法生成，请稍后重试。',
+      })
+      return
+    }
+
+    let succeeded = false
+    let cleaned = false
+    const fail = () => {
+      if (cleaned) return
+      cleaned = true
+      institutionSourceContextRegistry.clear(sourceContextRef)
+      forgetResultSourceContext(this, sourceContextRef)
+      guard.release('recommendation.result.openInstitution')
+      this.setData({
+        actionErrorKey: 'recommendation-detail',
+        actionErrorMessage: '暂时无法打开机构详情，请稍后重试。',
+      })
+    }
+    try {
+      wx.navigateTo({
+        url,
+        success: () => { succeeded = true },
+        fail,
+        complete: () => { if (!succeeded) fail() },
+      })
+    } catch (_error) {
+      fail()
+    }
+  },
+
+  onRecommendationListTap() {
+    const snapshot = resultSnapshots.get(this)
+    if (snapshot === undefined) {
+      this.setData({
+        actionErrorKey: 'recommendation-list',
+        actionErrorMessage: '当前推荐结果暂不支持机构列表入口，列表资料仍在开发验证中。',
+      })
+      return
+    }
+    if (this.data.pageState === 'loading'
+      || this.data.pageState === 'assessment_error'
+      || this.data.pageState === 'catalog_error'
+      || this.data.pageState === 'recommendation_error') {
+      this.setData({
+        actionErrorKey: 'recommendation-list',
+        actionErrorMessage: '当前推荐资料已失效，请重新生成推荐后再查看机构列表。',
+      })
+      return
+    }
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    const guard = getNavigationGuard(this)
+    if (!guard.acquire('recommendation.result.openInstitution')) return
+    const registered = registerInstitutionRecommendationSourceContextV2(
+      snapshot,
+      institutionSourceContextRegistry,
+    )
+    if (!registered.ok) {
+      guard.release('recommendation.result.openInstitution')
+      this.setData({
+        actionErrorKey: 'recommendation-list',
+        actionErrorMessage: '当前推荐资料暂时无法打开机构列表，请重新生成推荐后重试。',
+      })
+      return
+    }
+    const sourceContextRef = registered.value.sourceContextRef
+    rememberResultSourceContext(this, sourceContextRef)
+    const url = `/pages/institution/index?sourceContextRef=${encodeURIComponent(sourceContextRef)}`
+    let succeeded = false
+    let cleaned = false
+    const fail = () => {
+      if (cleaned) return
+      cleaned = true
+      institutionSourceContextRegistry.clear(sourceContextRef)
+      forgetResultSourceContext(this, sourceContextRef)
+      guard.release('recommendation.result.openInstitution')
+      this.setData({
+        actionErrorKey: 'recommendation-list',
+        actionErrorMessage: '暂时无法打开机构列表，请稍后重试。',
+      })
+    }
+    try {
+      wx.navigateTo({
+        url,
+        success: () => { succeeded = true },
+        fail,
+        complete: () => { if (!succeeded) fail() },
+      })
+    } catch (_error) {
+      fail()
+    }
   },
 
   onBackNavigationFailure() {

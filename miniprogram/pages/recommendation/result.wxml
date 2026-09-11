@@ -48,7 +48,14 @@
         <section-card>
           <text class="section-kicker">推荐机构</text>
           <text class="section-subtitle">推荐理由来自本次评估与结构化机构资料；请把卡片内容作为看院前的参考。</text>
-          <view wx:for="{{viewModel.cards}}" wx:key="institutionId" class="institution-card">
+          <view
+            wx:for="{{viewModel.cards}}"
+            wx:key="institutionId"
+            class="institution-card"
+            data-institution-id="{{item.institutionId}}"
+            data-record-revision="{{item.recordRevision}}"
+            bindtap="onRecommendationCardTap"
+          >
             <view wx:if="{{item.hasCover}}" class="institution-cover-wrap">
               <image class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
             </view>
@@ -93,10 +100,12 @@
             <view class="institution-card__footer">
               <text class="development-boundary">{{item.detailLabel}}</text>
             </view>
+            <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
           </view>
-          <view class="list-boundary">
-            <text>合作机构列表接入中</text>
+          <view class="list-boundary" bindtap="onRecommendationListTap" role="button">
+            <text>{{viewModel.actions ? viewModel.actions.listLabel : '合作机构列表接入中'}}</text>
           </view>
+          <view wx:if="{{actionErrorKey === 'recommendation-list'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         </section-card>
       </view>
 
@@ -104,7 +113,14 @@
         <section-card>
           <text class="section-kicker section-kicker--warning">需要机构进一步评估的候选</text>
           <text class="section-subtitle">以下候选不能直接视为已匹配，请先向机构确认护理条件。</text>
-          <view wx:for="{{viewModel.conditionalCards}}" wx:key="institutionId" class="institution-card institution-card--conditional">
+          <view
+            wx:for="{{viewModel.conditionalCards}}"
+            wx:key="institutionId"
+            class="institution-card institution-card--conditional"
+            data-institution-id="{{item.institutionId}}"
+            data-record-revision="{{item.recordRevision}}"
+            bindtap="onRecommendationCardTap"
+          >
             <view class="institution-card__head">
               <text class="institution-name">{{item.name}}</text>
               <text class="institution-region">{{item.region}}</text>
@@ -141,8 +157,9 @@
               <text wx:for="{{item.advisories}}" wx:key="*this" class="advisory-line">{{item}}</text>
             </view>
             <view class="institution-card__footer">
-              <text class="development-boundary">机构详情接入中</text>
+              <text class="development-boundary">{{item.detailLabel}}</text>
             </view>
+            <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
           </view>
         </section-card>
       </view>
@@ -151,9 +168,10 @@
         <section-card>
           <state-panel state="empty" title="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED' ? '还需要补充或确认老人信息' : '当前还没有可直接确认的安全推荐'}}" message="{{viewModel.summary}}"></state-panel>
           <text class="no-safe-note">{{viewModel.noSafeMessage}}</text>
-          <view class="list-boundary">
-            <text>合作机构列表接入中</text>
+          <view class="list-boundary" bindtap="onRecommendationListTap" role="button">
+            <text>{{viewModel.actions ? viewModel.actions.listLabel : '合作机构列表接入中'}}</text>
           </view>
+          <view wx:if="{{actionErrorKey === 'recommendation-list'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         </section-card>
       </view>
 

@@ -19,6 +19,7 @@
     "check:institution-list-page-runtime": "node scripts/check-institution-list-page-runtime.mjs",
     "check:institution-detail-page-runtime": "node scripts/check-institution-detail-page-runtime.mjs",
     "check:institution-list-detail-interactions": "node scripts/check-institution-list-detail-interactions.mjs",
+    "check:institution-navigation-a0-4-interactions": "node scripts/check-institution-navigation-a0-4-interactions.mjs",
     "check:recommendation-runtime": "node scripts/check-recommendation-runtime.mjs",
     "check:recommendation-v2-runtime": "node scripts/check-recommendation-v2-runtime.mjs",
     "check:recommendation-preview-integration-runtime": "node scripts/check-recommendation-preview-integration-runtime.mjs",

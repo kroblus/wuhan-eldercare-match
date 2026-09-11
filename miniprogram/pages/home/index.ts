@@ -6,6 +6,7 @@ import {
   navigateToWithGuard,
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
+import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
 
 interface HomePageData {
   institutions: readonly InstitutionListItemViewModel[]
@@ -15,12 +16,12 @@ interface HomePageData {
   mockDisclosure: string
   showMockDisclosure: boolean
   institutionActionError: string
+  institutionListActionError: string
   consultantActionError: string
 }
 
 const loadGenerations = new WeakMap<object, number>()
 const homeLoadsInFlight = new WeakSet<object>()
-const blockedInstitutionActions = new WeakSet<object>()
 
 const nextGeneration = (instance: object): number => {
   const generation = (loadGenerations.get(instance) || 0) + 1
@@ -70,6 +71,7 @@ Component({
     mockDisclosure: '',
     showMockDisclosure: false,
     institutionActionError: '',
+    institutionListActionError: '',
     consultantActionError: '',
   } as HomePageData,
 
@@ -89,13 +91,13 @@ Component({
     loadInstitutions() {
       if (homeLoadsInFlight.has(this)) return
       homeLoadsInFlight.add(this)
-      blockedInstitutionActions.delete(this)
       const generation = nextGeneration(this)
       this.setData({
         isLoading: true,
         loadError: false,
         empty: false,
         institutionActionError: '',
+        institutionListActionError: '',
       })
       buildInstitutionListPageSnapshot(null).then((result) => {
         homeLoadsInFlight.delete(this)
@@ -139,7 +141,27 @@ Component({
     },
 
     openInstitutions() {
-      navigateToWithGuard(this, 'home.openInstitutions', '/pages/institution/index')
+      this.setData({ institutionListActionError: '' })
+      const guard = getNavigationGuard(this)
+      if (!guard.acquire('home.openInstitutions')) return
+      let succeeded = false
+      let reported = false
+      const fail = () => {
+        guard.release('home.openInstitutions')
+        if (reported) return
+        reported = true
+        this.setData({ institutionListActionError: '暂时无法打开机构列表，请稍后重试。' })
+      }
+      try {
+        wx.navigateTo({
+          url: '/pages/institution/index',
+          success: () => { succeeded = true },
+          fail,
+          complete: () => { if (!succeeded) fail() },
+        })
+      } catch (_error) {
+        fail()
+      }
     },
 
     openConsultant() {
@@ -152,14 +174,35 @@ Component({
     openInstitution(event: WechatMiniprogram.BaseEvent) {
       const itemKey = event.currentTarget.dataset.itemKey as string
       if (!itemKey) return
-      if (blockedInstitutionActions.has(this)) return
-      blockedInstitutionActions.add(this)
-      // The canonical identity is already carried by the List ViewModel.  The
-      // A0-3 navigation gate remains closed, so this tap never navigates.
-      this.setData(
-        { institutionActionError: '机构详情入口正在开发验证中，当前不会打开详情页面。' },
-        () => { blockedInstitutionActions.delete(this) },
-      )
+      const item = this.data.institutions.find((candidate) => candidate.key === itemKey)
+      if (item === undefined) return
+      this.setData({ institutionActionError: '' })
+      const guard = getNavigationGuard(this)
+      if (!guard.acquire('home.openInstitution')) return
+      const url = serializeInstitutionDetailRoute(item.navigationIntent, 'direct_link')
+      if (url === null) {
+        guard.release('home.openInstitution')
+        this.setData({ institutionActionError: '机构资料链接暂时无法生成，请稍后重试。' })
+        return
+      }
+      let succeeded = false
+      let reported = false
+      const fail = () => {
+        guard.release('home.openInstitution')
+        if (reported) return
+        reported = true
+        this.setData({ institutionActionError: '暂时无法打开机构详情，请稍后重试。' })
+      }
+      try {
+        wx.navigateTo({
+          url,
+          success: () => { succeeded = true },
+          fail,
+          complete: () => { if (!succeeded) fail() },
+        })
+      } catch (_error) {
+        fail()
+      }
     },
 
     retryLoad() {

@@ -76,7 +76,7 @@
               <tag wx:for="{{item.tags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
             </view>
             <view class="institution-card__footer">
-              <text class="development-boundary">机构详情入口开发中</text>
+              <text class="development-boundary">查看机构详情</text>
             </view>
             <view wx:if="{{actionErrorKey === item.key}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
           </view>

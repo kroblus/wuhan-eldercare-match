@@ -28,7 +28,8 @@ const checks = [
     assert.match(resultWxml, /bind:action="onAdjustNeeds"/)
     assert.match(resultWxml, /bind:action="onRetry"/)
     assert.doesNotMatch(profileWxml, /\sbindtap=/)
-    assert.doesNotMatch(resultWxml, /\sbindtap=/)
+    assert.equal((resultWxml.match(/bindtap="onRecommendationCardTap"/g) || []).length, 2)
+    assert.doesNotMatch(resultWxml, /<primary-button[^>]*bindtap=/)
   }],
   ['INTERACTION-V2-003', 'Back remains available while page data is loading', () => {
     assert.match(profileSource, /resetNavigationGuard\(this\)/)
@@ -55,8 +56,15 @@ const checks = [
     assert.doesNotMatch(resultApplication, /setStorageSync|removeStorageSync/)
   }],
   ['INTERACTION-V2-007', 'Result keeps downstream identity gates and no fake score', () => {
-    assert.match(resultWxml, /机构详情接入中/)
-    assert.match(resultWxml, /合作机构列表接入中/)
+    assert.match(resultWxml, /item\.detailLabel/)
+    assert.match(resultWxml, /bindtap="onRecommendationCardTap"/)
+    assert.match(resultSource, /registerInstitutionRecommendationSourceContextV2/)
+    assert.match(resultSource, /serializeInstitutionDetailRoute/)
+    assert.match(resultSource, /onRecommendationListTap/)
+    assert.match(resultSource, /recommendation\.result\.openInstitution/)
+    assert.match(resultViewModel, /查看机构详情/)
+    assert.match(resultViewModel, /查看合作机构列表/)
+    assert.match(resultWxml, /bindtap="onRecommendationListTap"/)
     assert.doesNotMatch(resultWxml, /匹配度|百分比|概率|评分/)
     assert.doesNotMatch(resultViewModel, /InstitutionRecordV11/)
   }],
