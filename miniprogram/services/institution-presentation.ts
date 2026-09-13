@@ -21,6 +21,7 @@ import type {
   InstitutionDetailMediaDisplay,
   InstitutionDetailRecommendationDisplay,
   InstitutionDetailRoomDisplay,
+  InstitutionDetailFutureSectionsV121,
   InstitutionDetailSectionsV12,
   InstitutionEffectiveVerification,
   InstitutionDataDisclosure,
@@ -416,13 +417,14 @@ export const projectInstitutionListDisplayItemV12 = (
   record: InstitutionRecordV11,
   evaluationAsOf: string,
   recommendationPlacement: InstitutionRecommendationPlacement | null = null,
+  sourceContractVersion: InstitutionListDisplayItemV12['sourceContractVersion'] = 'institution-contract-v1.1',
 ): InstitutionListDisplayItemV12 => {
   if (record.recordStatus !== 'published') throw new Error('CURRENT_RECORD_NOT_LIST_DISPLAYABLE')
   const base = projectInstitutionDisplaySnapshotV11Pure(record, evaluationAsOf)
   return {
     institutionId: record.institutionId,
     recordRevision: record.recordRevision,
-    sourceContractVersion: 'institution-contract-v1.1',
+    sourceContractVersion,
     recordProvenance: record.recordProvenance,
     recordStatus: 'published',
     name: base.identity.name,
@@ -451,6 +453,9 @@ export const projectInstitutionDetailSnapshotV12 = (
     revisionContext: InstitutionRevisionDisplayContext
     recommendationContext: InstitutionDetailRecommendationDisplay | null
     canViewCurrentRevision: boolean
+    sourceContractVersion?: InstitutionDetailApplicationSnapshotV12['sourceContractVersion']
+    /** Optional V1.2.1 application-safe sections; A0 UI intentionally ignores them. */
+    futureV121?: InstitutionDetailFutureSectionsV121
   },
 ): InstitutionDetailApplicationSnapshotV12 => {
   if (record.recordStatus === 'draft') throw new Error('DRAFT_RECORD_NOT_DISPLAYABLE')
@@ -468,6 +473,7 @@ export const projectInstitutionDetailSnapshotV12 = (
     media,
     careCapability: capability,
     careProcess: { state: 'not_integrated' },
+    ...(input.futureV121 === undefined ? {} : { futureV121: input.futureV121 }),
     staffing: {
       counts: projectInstitutionField(record.staffing.counts, input.evaluationAsOf),
       caregiverResidentRatio: projectInstitutionField(record.staffing.caregiverResidentRatio, input.evaluationAsOf),
@@ -520,7 +526,7 @@ export const projectInstitutionDetailSnapshotV12 = (
     identity,
     contextKind: input.contextKind,
     source: input.source,
-    sourceContractVersion: 'institution-contract-v1.1',
+    sourceContractVersion: input.sourceContractVersion || 'institution-contract-v1.1',
     datasetVersion: input.datasetVersion,
     datasetMode: input.datasetMode,
     evaluationAsOf: input.evaluationAsOf,

@@ -179,7 +179,13 @@ Component({
       this.setData({ institutionActionError: '' })
       const guard = getNavigationGuard(this)
       if (!guard.acquire('home.openInstitution')) return
-      const url = serializeInstitutionDetailRoute(item.navigationIntent, 'direct_link')
+      const url = serializeInstitutionDetailRoute(
+        {
+          institutionId: item.navigationIntent.institutionId,
+          recordRevision: item.navigationIntent.recordRevision,
+        },
+        'direct_link',
+      )
       if (url === null) {
         guard.release('home.openInstitution')
         this.setData({ institutionActionError: '机构资料链接暂时无法生成，请稍后重试。' })

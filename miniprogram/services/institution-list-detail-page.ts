@@ -13,13 +13,18 @@ import {
   createInstitutionListApplicationServiceV12,
 } from './institution-list-detail-application'
 import {
-  createInstitutionCurrentCatalogResolver,
+  createInstitutionCurrentCatalogResolverV121,
   createNotConfiguredHistoricalRevisionResolver,
 } from './institution-record-resolver'
-import { institutionCatalogServiceV11 } from './institution-catalog-v1-1'
+import { institutionCatalogServiceV121 } from './institution-catalog-v1-2-1'
 import {
   createInstitutionSourceContextRegistry,
 } from './institution-source-context'
+import {
+  registerInstitutionRecommendationSourceContextV2 as registerInstitutionRecommendationSourceContextV2WithSidecar,
+} from './institution-recommendation-source'
+import { institutionPublicContentServiceV1 } from './institution-public-content-v1'
+import type { RecommendationResultApplicationSnapshotV2 } from '../types/recommendation-result-v2'
 import type {
   InstitutionCanonicalIdentity,
   InstitutionDetailApplicationResultV12,
@@ -55,7 +60,7 @@ const evaluationAsOfForSourceContext = (
  */
 export const institutionSourceContextRegistry = createInstitutionSourceContextRegistry()
 
-const currentCatalogResolver = createInstitutionCurrentCatalogResolver(institutionCatalogServiceV11)
+const currentCatalogResolver = createInstitutionCurrentCatalogResolverV121(institutionCatalogServiceV121)
 const historicalRevisionResolver = createNotConfiguredHistoricalRevisionResolver()
 
 export const institutionListApplicationV12 = createInstitutionListApplicationServiceV12({
@@ -64,10 +69,26 @@ export const institutionListApplicationV12 = createInstitutionListApplicationSer
   sourceContextRegistry: institutionSourceContextRegistry,
 })
 
+/**
+ * Page-facing source-context entry point. Result Page only passes its frozen
+ * Recommendation snapshot here; provider details stay in this application
+ * composition boundary and presentation pins remain outside Recommendation
+ * manifest/ranking semantics.
+ */
+export const registerInstitutionRecommendationSourceContextV2 = (
+  snapshot: RecommendationResultApplicationSnapshotV2,
+) => registerInstitutionRecommendationSourceContextV2WithSidecar(
+  snapshot,
+  institutionSourceContextRegistry,
+  { publicContentResolver: institutionPublicContentServiceV1 },
+)
+
 export const institutionDetailApplicationV12 = createInstitutionDetailApplicationServiceV12({
   currentCatalogResolver,
   historicalRevisionResolver,
   sourceContextRegistry: institutionSourceContextRegistry,
+  publicContentCurrentResolver: institutionPublicContentServiceV1,
+  publicContentExactResolver: institutionPublicContentServiceV1,
 })
 
 export const buildInstitutionListPageSnapshot = async (

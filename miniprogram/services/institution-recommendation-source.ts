@@ -5,9 +5,12 @@
  */
 
 import { isPlainRecord } from '../domain/institution/primitives'
+import { resolveCurrentPublishedPublicContent } from '../domain/institution/v1-2-1/public-content'
+import type { CurrentInstitutionPublicContentResolver } from '../domain/institution/v1-2-1/public-content'
 import type {
   InstitutionContextManifestEntry,
   InstitutionNavigationSourceContextInput,
+  InstitutionPublicContentPresentationPinV121,
   InstitutionRecommendationCandidateGroup,
   InstitutionRecommendationCandidateProjection,
 } from '../types/institution-list-detail'
@@ -32,6 +35,11 @@ export type InstitutionRecommendationSourceResult<T> =
 const failure = (
   code: InstitutionRecommendationSourceErrorCode,
 ): InstitutionRecommendationSourceResult<never> => ({ ok: false, error: { code } })
+
+export interface InstitutionRecommendationSourceOptions {
+  /** Presentation-only sidecar resolver. Failure never affects recommendation. */
+  publicContentResolver?: CurrentInstitutionPublicContentResolver
+}
 
 const projectCandidate = (
   candidate: RecommendationCandidateEvaluationV2,
@@ -79,6 +87,7 @@ const projectCandidate = (
  */
 export const projectInstitutionNavigationSourceContextV2 = (
   snapshot: RecommendationResultApplicationSnapshotV2,
+  options: InstitutionRecommendationSourceOptions = {},
 ): InstitutionRecommendationSourceResult<InstitutionNavigationSourceContextInput> => {
   if (!isPlainRecord(snapshot)
     || snapshot.kind !== 'recommendation_result_application_snapshot_v2'
@@ -162,6 +171,26 @@ export const projectInstitutionNavigationSourceContextV2 = (
   const conditionalError = append(semantics.conditionalCandidates, 'conditionalCandidates')
   if (conditionalError !== null) return failure(conditionalError)
 
+  const publicContentPins: InstitutionPublicContentPresentationPinV121[] = []
+  if (options.publicContentResolver !== undefined) {
+    for (let index = 0; index < candidates.length; index += 1) {
+      const candidate = candidates[index]
+      const resolved = resolveCurrentPublishedPublicContent(
+        options.publicContentResolver,
+        candidate.identity.institutionId,
+      )
+      if (resolved.ok && resolved.value !== null) {
+        publicContentPins.push({
+          identity: {
+            institutionId: candidate.identity.institutionId,
+            recordRevision: candidate.identity.recordRevision,
+          },
+          contentRevision: resolved.value.contentRevision,
+        })
+      }
+    }
+  }
+
   return {
     ok: true,
     value: {
@@ -175,6 +204,7 @@ export const projectInstitutionNavigationSourceContextV2 = (
       institutionCapabilityContractVersion: versions.institutionCapabilityContractVersion,
       manifest,
       candidates,
+      ...(publicContentPins.length === 0 ? {} : { publicContentPins }),
     },
   }
 }
@@ -192,8 +222,9 @@ export type RegisterInstitutionRecommendationContextResult =
 export const registerInstitutionRecommendationSourceContextV2 = (
   snapshot: RecommendationResultApplicationSnapshotV2,
   registry: InstitutionSourceContextRegistry,
+  options: InstitutionRecommendationSourceOptions = {},
 ): RegisterInstitutionRecommendationContextResult => {
-  const projected = projectInstitutionNavigationSourceContextV2(snapshot)
+  const projected = projectInstitutionNavigationSourceContextV2(snapshot, options)
   if (!projected.ok) {
     return {
       ok: false,

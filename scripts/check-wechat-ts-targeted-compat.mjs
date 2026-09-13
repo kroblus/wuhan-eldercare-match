@@ -35,6 +35,8 @@ const recommendationV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types
 const recommendationPreviewV2TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview-v2.ts')
 const institutionCatalogV11TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog-v1-1.ts')
 const institutionListDetailTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-list-detail.ts')
+const institutionCatalogV121TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog-v1-2-1.ts')
+const institutionPublicContentV1TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-public-content-v1.ts')
 const recommendationV2EntryPath = path.join(recommendationDomainRoot, 'v2', 'index.ts')
 const recommendationV2PreviewEvaluatorPath = path.join(recommendationDomainRoot, 'v2', 'evaluate-recommendation-preview-v2.ts')
 const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
@@ -95,6 +97,17 @@ const institutionListDetailPageCompatibilityTargets = [
   path.join(repositoryRoot, 'miniprogram', 'pages', 'home', 'index.ts'),
   path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'recommendation-display-semantics.ts'),
   path.join(applicationServiceRoot, 'institution-list-detail-page.ts'),
+]
+// A1-3 application integration is called out explicitly so a missing provider,
+// adapter or public-content boundary cannot be hidden by the broad directory walk.
+const institutionV121CatalogIntegrationCompatibilityTargets = [
+  institutionCatalogV121TypePath,
+  institutionPublicContentV1TypePath,
+  path.join(applicationServiceRoot, 'institution-catalog-v1-2-1.ts'),
+  path.join(applicationServiceRoot, 'institution-public-content-v1.ts'),
+  path.join(applicationServiceRoot, 'institution-v1-2-1-presentation.ts'),
+  path.join(applicationMockRoot, 'institution-catalog.mock.ts'),
+  path.join(applicationMockRoot, 'institution-public-content.mock.ts'),
 ]
 
 const normalizePath = (filePath) => path.resolve(filePath).toLowerCase()
@@ -288,6 +301,7 @@ const run = async () => {
     ...profileCompatibilityTargets, ...integrationTypePaths,
     ...institutionListDetailCompatibilityTargets, wechatDeclarationPath,
     ...institutionListDetailPageCompatibilityTargets,
+    ...institutionV121CatalogIntegrationCompatibilityTargets,
     assessmentV2TypePath, assessmentMigrationPath, assessmentResumePath,
     ...assessmentV2PageTargets,
     path.join(applicationServiceRoot, 'recommendation-preview.ts'),
@@ -421,6 +435,7 @@ const run = async () => {
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_3_PAGE_TARGETS: ${institutionListDetailPageCompatibilityTargets.length}`)
+  console.log(`INSTITUTION_V1_2_1_CATALOG_INTEGRATION_TARGETS: ${institutionV121CatalogIntegrationCompatibilityTargets.length}`)
   console.log('APPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression')
   console.log(`PROFILE_SYNTAX_TARGETS: ${profileCompatibilityTargets.length}`)
   console.log(`EMITTED_JS_MODULES_IN_MEMORY: ${emittedJavaScript.length}`)

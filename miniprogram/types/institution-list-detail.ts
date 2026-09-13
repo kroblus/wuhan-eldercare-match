@@ -23,6 +23,22 @@ import type {
   InstitutionRecordV11,
   InstitutionServiceAvailabilityV11,
 } from './institution-v1-1'
+import type {
+  CareProcessPresenceCode,
+  CareRecordCompletenessCode,
+  CareRecordFrequencyCode,
+  CareRecordTraceabilityCode,
+  HandoverContentCode,
+} from './institution-v1-2'
+import type {
+  InstitutionOfficialPhonePurposeCode,
+  InstitutionPublicContentSourceTypeV1,
+  InstitutionRecordV121,
+} from './institution-v1-2-1'
+import type {
+  InstitutionCatalogCurrentPointerV121,
+  InstitutionCatalogPresentationMetadataV121,
+} from './institution-catalog-v1-2-1'
 import type { RecommendationPolicyVersion } from './recommendation'
 
 export interface InstitutionCanonicalIdentity {
@@ -127,10 +143,22 @@ export interface InstitutionNavigationSourceContextInput {
   institutionCapabilityContractVersion: 'institution-capability-contract-v1'
   manifest: readonly InstitutionContextManifestEntry[]
   candidates: readonly InstitutionRecommendationCandidateProjection[]
+  /** Presentation-only exact content references; never recommendation input. */
+  publicContentPins?: readonly InstitutionPublicContentPresentationPinV121[]
 }
 
 export interface InstitutionNavigationSourceContext extends InstitutionNavigationSourceContextInput {
   kind: 'institution_navigation_source_context_v1'
+}
+
+/**
+ * An immutable presentation reference for a recommendation-pinned Detail.
+ * `contentRevision` versions the public sidecar only; it is not an Institution
+ * identity and must never be used for matching or current-record selection.
+ */
+export interface InstitutionPublicContentPresentationPinV121 {
+  identity: InstitutionCanonicalIdentity
+  contentRevision: number
 }
 
 export interface InstitutionCatalogPresentationMetadataEntry {
@@ -162,7 +190,7 @@ export interface InstitutionListOrderingManifestV12 {
 export interface InstitutionListDisplayItemV12 {
   institutionId: string
   recordRevision: number
-  sourceContractVersion: 'institution-contract-v1.1' | 'institution-contract-v1.2'
+  sourceContractVersion: 'institution-contract-v1.1' | 'institution-contract-v1.2' | 'institution-contract-v1.2.1'
   recordProvenance: 'PRODUCTION_CANDIDATE' | 'MOCK_DEVELOPMENT_ONLY'
   recordStatus: 'published'
   name: InstitutionPresentationFact<string>
@@ -248,12 +276,99 @@ export interface InstitutionDetailRoomDisplay {
   mediaIds: readonly string[]
 }
 
+export type InstitutionV121FutureAvailability = 'provided' | 'unknown' | 'unavailable'
+
+export interface InstitutionPublicIntroductionApplicationSnapshotV121 {
+  status: 'ready' | 'hidden_no_pin' | 'hidden_no_current_head' | 'hidden_not_found' | 'unavailable'
+  contentRevision: number | null
+  text: string | null
+  sourceType: InstitutionPublicContentSourceTypeV1 | null
+  updatedAt: string | null
+}
+
+export interface InstitutionOfficialPhoneApplicationSnapshotV121 {
+  officialPhoneKey: string
+  purpose: InstitutionOfficialPhonePurposeCode
+  displayValue: string | null
+  dialValue: string | null
+  extension: string | null
+  status: 'current_verified' | 'unverified_with_source' | 'unverified_without_source' | 'expired'
+  verifiedDate: string | null
+  callActionAvailable: boolean
+}
+
+export interface InstitutionOfficialContactApplicationSnapshotV121 {
+  status: InstitutionV121FutureAvailability
+  directory: InstitutionPresentationFact<'present' | 'absent'>
+  phones: readonly InstitutionOfficialPhoneApplicationSnapshotV121[]
+}
+
+export interface InstitutionOfficialAddressApplicationSnapshotV121 {
+  status: InstitutionV121FutureAvailability
+  formattedAddress: string | null
+  effectiveVerification: InstitutionEffectiveVerification
+}
+
+export type InstitutionMapApplicationStatusV121 =
+  | 'available'
+  | 'address_unknown'
+  | 'address_unavailable'
+  | 'address_unverified'
+  | 'address_expired'
+  | 'geo_unknown'
+  | 'geo_unavailable'
+  | 'geo_unverified'
+  | 'geo_expired'
+  | 'unavailable'
+
+export interface InstitutionMapApplicationSnapshotV121 {
+  status: InstitutionMapApplicationStatusV121
+  institutionName: string
+  formattedAddress: string | null
+  latitude: number | null
+  longitude: number | null
+  coordinateSystem: 'gcj02' | null
+  addressVerification: InstitutionEffectiveVerification | null
+  geoVerification: InstitutionEffectiveVerification | null
+  mapActionAvailable: boolean
+}
+
+export interface InstitutionCareRecordApplicationSnapshotV121 {
+  presence: InstitutionPresentationFact<CareProcessPresenceCode>
+  completeness: InstitutionPresentationFact<CareRecordCompletenessCode>
+  frequency: InstitutionPresentationFact<readonly CareRecordFrequencyCode[]>
+  traceability: InstitutionPresentationFact<CareRecordTraceabilityCode>
+}
+
+export type InstitutionCareHandoverContentApplicationSnapshotV121 = Readonly<{
+  [K in HandoverContentCode]: InstitutionPresentationFact<CareProcessPresenceCode>
+}>
+
+export interface InstitutionCareProcessApplicationSnapshotV121 {
+  status: InstitutionV121FutureAvailability
+  careRecord: InstitutionCareRecordApplicationSnapshotV121
+  shiftHandover24h: {
+    presence: InstitutionPresentationFact<CareProcessPresenceCode>
+    contents: InstitutionCareHandoverContentApplicationSnapshotV121
+  }
+}
+
+export interface InstitutionDetailFutureSectionsV121 {
+  publicIntroduction: InstitutionPublicIntroductionApplicationSnapshotV121
+  officialContact: InstitutionOfficialContactApplicationSnapshotV121
+  officialAddress: InstitutionOfficialAddressApplicationSnapshotV121
+  mapLocation: InstitutionMapApplicationSnapshotV121
+  careProcess: InstitutionCareProcessApplicationSnapshotV121
+}
+
 export interface InstitutionDetailSectionsV12 {
   basic: InstitutionDetailBasicDisplay
   recommendation: InstitutionDetailRecommendationDisplay | null
   media: InstitutionDetailMediaDisplay
   careCapability: InstitutionCareCapabilityDisplay
   careProcess: { state: 'not_integrated' | 'not_in_source_contract' }
+  /** Prepared for V1.2.1 consumers; current WXML intentionally ignores it. */
+  futureV121?: InstitutionDetailFutureSectionsV121
   staffing: Readonly<Record<string, unknown>>
   medicalRehabilitationMonitoring: Readonly<Record<string, unknown>>
   rooms: readonly InstitutionDetailRoomDisplay[]
@@ -282,7 +397,7 @@ export interface InstitutionDetailApplicationSnapshotV12 {
     | 'HISTORICAL_READ_ONLY'
     | 'CURRENT_INSTITUTION_CONTEXT'
   source: InstitutionApplicationSource
-  sourceContractVersion: 'institution-contract-v1.1' | 'institution-contract-v1.2'
+  sourceContractVersion: 'institution-contract-v1.1' | 'institution-contract-v1.2' | 'institution-contract-v1.2.1'
   datasetVersion: string
   datasetMode: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY'
   evaluationAsOf: string
@@ -342,6 +457,11 @@ export type InstitutionCurrentCatalogDataset = {
   datasetVersion: string
   datasetMode: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY'
   records: readonly InstitutionRecordV11[]
+  /** Present only when the current provider was loaded through V1.2.1. */
+  sourceContractVersion?: 'institution-contract-v1.2.1'
+  sourceRecordsV121?: readonly InstitutionRecordV121[]
+  currentPointersV121?: readonly InstitutionCatalogCurrentPointerV121[]
+  presentationV121?: InstitutionCatalogPresentationMetadataV121
 }
 
 export type InstitutionCanonicalCapabilityCode =

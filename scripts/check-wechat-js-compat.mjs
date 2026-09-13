@@ -11,6 +11,21 @@ const projectConfigPath = path.join(repositoryRoot, 'project.config.json')
 const cacheModulePattern = /define\("([^"\r\n]+\.js)"/
 const sourceMapMarker = '//# sourceMappingURL='
 const staleToleranceMs = 2000
+const a13RequiredSourcePaths = [
+  'mock/institution-catalog.mock.ts',
+  'mock/institution-public-content.mock.ts',
+  'pages/recommendation/result.ts',
+  'services/institution-catalog-v1-1.ts',
+  'services/institution-catalog-v1-2-1.ts',
+  'services/institution-public-content-v1.ts',
+  'services/institution-v1-2-1-presentation.ts',
+  'services/institution-list-detail-application.ts',
+  'services/institution-list-detail-page.ts',
+  'services/institution-presentation.ts',
+  'services/institution-recommendation-source.ts',
+  'services/institution-record-resolver.ts',
+  'services/institution-source-context.ts',
+]
 
 const walkFiles = async (root, accept = () => true) => {
   const files = []
@@ -135,6 +150,33 @@ const getClassSourceModules = async (ts, sourceRoot) => {
   return modules
 }
 
+const getRequiredSourceModules = async (sourceRoot, relativePaths) => {
+  const modules = []
+  for (const relativePath of relativePaths) {
+    const sourceFile = path.join(sourceRoot, ...relativePath.split('/'))
+    if (!existsSync(sourceFile)) {
+      throw new Error(`required TypeScript source is missing: ${relativePath}`)
+    }
+    modules.push({
+      moduleName: relativePath.replace(/\.ts$/, '.js'),
+      sourceFile,
+      sourceMtimeMs: (await stat(sourceFile)).mtimeMs,
+    })
+  }
+  return modules
+}
+
+const mergeSourceModules = (...groups) => {
+  const byModuleName = new Map()
+  for (const sourceModule of groups.flat()) {
+    const existing = byModuleName.get(sourceModule.moduleName)
+    if (!existing || existing.sourceMtimeMs < sourceModule.sourceMtimeMs) {
+      byModuleName.set(sourceModule.moduleName, sourceModule)
+    }
+  }
+  return [...byModuleName.values()]
+}
+
 const extractJavaScriptUnit = async (filePath, artifactRoot) => {
   const fileStats = await stat(filePath)
   const text = (await readFile(filePath)).toString('utf8')
@@ -197,7 +239,7 @@ const findCurrentDevToolsCache = async (requiredModules) => {
   return matches[0]
 }
 
-const locateArtifacts = async (options, configuration, classModules) => {
+const locateArtifacts = async (options, configuration, requiredModules) => {
   const explicit = options.artifactDirectory || process.env.WECHAT_JS_ARTIFACT_DIR
   if (explicit) {
     const artifactRoot = path.resolve(repositoryRoot, explicit)
@@ -215,22 +257,22 @@ const locateArtifacts = async (options, configuration, classModules) => {
     }
   }
 
-  const cache = await findCurrentDevToolsCache(classModules.map((item) => item.moduleName))
+  const cache = await findCurrentDevToolsCache(requiredModules.map((item) => item.moduleName))
   if (!cache) {
     throw new Error('current DevTools artifacts not found; compile the project or pass --artifact-dir')
   }
   return { ...cache, source: 'WeChat DevTools WeappCompileCache' }
 }
 
-const verifyCoverage = (classModules, units) => {
+const verifyCoverage = (requiredModules, units) => {
   const unitByModule = new Map(units.map((unit) => [unit.moduleName, unit]))
   const errors = []
-  for (const sourceModule of classModules) {
+  for (const sourceModule of requiredModules) {
     const unit = unitByModule.get(sourceModule.moduleName)
     if (!unit) {
-      errors.push(`missing generated class module: ${sourceModule.moduleName}`)
+      errors.push(`missing generated required module: ${sourceModule.moduleName}`)
     } else if (unit.mtimeMs + staleToleranceMs < sourceModule.sourceMtimeMs) {
-      errors.push(`stale generated class module: ${sourceModule.moduleName}`)
+      errors.push(`stale generated required module: ${sourceModule.moduleName}`)
     }
   }
   if (errors.length > 0) {
@@ -331,7 +373,9 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   if (classModules.length === 0) {
     throw new Error(`no TypeScript class sources found under ${sourceRoot}`)
   }
-  const artifacts = await locateArtifacts(options, configuration, classModules)
+  const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
+  const requiredModules = mergeSourceModules(classModules, a13RequiredModules)
+  const artifacts = await locateArtifacts(options, configuration, requiredModules)
   if (artifacts.units.length === 0) {
     throw new Error(`no generated JavaScript found under ${artifacts.artifactRoot}`)
   }
@@ -341,8 +385,9 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`ARTIFACT_ROOT: ${artifacts.artifactRoot}`)
   console.log(`GENERATED_JS_MODULES: ${artifacts.units.length}`)
   console.log(`CLASS_SOURCE_MODULES: ${classModules.map((item) => item.moduleName).join(', ')}`)
+  console.log(`A1_3_REQUIRED_GENERATED_MODULES: ${a13RequiredModules.map((item) => item.moduleName).join(', ')}`)
 
-  const passed = verifyCoverage(classModules, artifacts.units) && reportClassFields(ts, artifacts.units)
+  const passed = verifyCoverage(requiredModules, artifacts.units) && reportClassFields(ts, artifacts.units)
   if (!passed) {
     process.exitCode = 1
     return

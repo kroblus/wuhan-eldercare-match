@@ -160,7 +160,13 @@ Page({
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     const guard = getNavigationGuard(this)
     if (!guard.acquire('institution.list.openDetail')) return
-    const url = serializeInstitutionDetailRoute(item.navigationIntent, 'direct_list')
+    const url = serializeInstitutionDetailRoute(
+      {
+        institutionId: item.navigationIntent.institutionId,
+        recordRevision: item.navigationIntent.recordRevision,
+      },
+      'direct_list',
+    )
     if (url === null) {
       guard.release('institution.list.openDetail')
       this.setData({ actionErrorKey: itemKey, actionErrorMessage: '机构资料链接暂时无法生成，请稍后重试。' })

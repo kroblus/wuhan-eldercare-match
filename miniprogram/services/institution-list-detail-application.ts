@@ -15,6 +15,7 @@ import type {
   InstitutionDetailApplicationResultV12,
   InstitutionDetailApplicationSnapshotV12,
   InstitutionDetailRecommendationDisplay,
+  InstitutionDetailFutureSectionsV121,
   InstitutionListApplicationResultV12,
   InstitutionListApplicationSnapshotV12,
   InstitutionListDisplayItemV12,
@@ -25,6 +26,11 @@ import type {
   InstitutionRevisionDisplayContext,
 } from '../types/institution-list-detail'
 import type { InstitutionRecordV11 } from '../types/institution-v1-1'
+import type { InstitutionRecordV121 } from '../types/institution-v1-2-1'
+import type {
+  CurrentInstitutionPublicContentResolver,
+  ExactInstitutionPublicContentRevisionResolver,
+} from '../domain/institution/v1-2-1/public-content'
 import {
   compareInstitutionCanonicalIdentity,
   equalInstitutionCanonicalIdentity,
@@ -48,6 +54,13 @@ import {
   assertInstitutionSourceContextIdentity,
 } from './institution-source-context'
 import type { InstitutionSourceContextRegistry } from './institution-source-context'
+import {
+  createUnavailableFutureSectionsV121,
+  projectInstitutionPublicIntroductionV121,
+  projectInstitutionFutureSectionsV121,
+} from './institution-v1-2-1-presentation'
+import { resolveCurrentPublishedPublicContent, resolveExactPublishedPublicContentRevision } from '../domain/institution/v1-2-1/public-content'
+import { projectInstitutionRecordV121ToV11 } from '../domain/institution/v1-2-1/project-to-v1-1'
 
 export interface InstitutionListApplicationDependenciesV12 {
   currentCatalogResolver: InstitutionCurrentCatalogResolver
@@ -65,6 +78,9 @@ export interface InstitutionDetailApplicationDependenciesV12 {
   currentCatalogResolver: InstitutionCurrentCatalogResolver
   historicalRevisionResolver: InstitutionHistoricalRevisionResolver
   sourceContextRegistry: InstitutionSourceContextRegistry
+  /** Optional presentation sidecars; failures never invalidate Institution catalog. */
+  publicContentCurrentResolver?: CurrentInstitutionPublicContentResolver
+  publicContentExactResolver?: ExactInstitutionPublicContentRevisionResolver
 }
 
 export interface InstitutionDetailApplicationBuildInputV12 {
@@ -101,6 +117,19 @@ const detailFailure = (
   ok: false,
   error: { code, causeCode },
 })
+
+const stableStructuralSignature = (value: unknown): string => {
+  if (value === undefined) return 'undefined'
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStructuralSignature(item)).join(',')}]`
+  }
+  if (value !== null && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    return `{${Object.keys(record).sort().map((key) =>
+      `${JSON.stringify(key)}:${stableStructuralSignature(record[key])}`).join(',')}}`
+  }
+  return JSON.stringify(value)
+}
 
 const loadCurrentCatalogSafely = async (
   resolver: InstitutionCurrentCatalogResolver,
@@ -186,6 +215,27 @@ export const orderCurrentInstitutionRecordsForList = (
   return { ok: true, value: { kind: 'CURATED_DISPLAY_ORDER_V1', records: ordered } }
 }
 
+const currentPresentationMetadataFor = (
+  dataset: InstitutionCurrentCatalogDataset,
+  records: readonly InstitutionRecordV11[],
+): InstitutionCatalogPresentationMetadata | undefined => {
+  const presentation = dataset.presentationV121
+  if (presentation === undefined || presentation.orderingPolicy !== 'CURATED_DISPLAY_ORDER_V1') {
+    return undefined
+  }
+  const entries = presentation.displayOrder
+    .filter((entry) => records.some((record) =>
+      equalInstitutionCanonicalIdentity(record, entry)))
+    .map((entry) => ({
+      identity: {
+        institutionId: entry.institutionId,
+        recordRevision: entry.recordRevision,
+      },
+      displayOrder: entry.displayOrder,
+    }))
+  return entries.length === records.length ? { entries } : undefined
+}
+
 const sourceCandidateOrder = (
   candidates: readonly InstitutionRecommendationCandidateProjection[],
 ): readonly InstitutionRecommendationCandidateProjection[] => {
@@ -243,6 +293,7 @@ const projectListItems = (
   records: readonly InstitutionRecordV11[],
   evaluationAsOf: string,
   placementByKey?: ReadonlyMap<string, InstitutionRecommendationCandidateProjection>,
+  sourceContractVersion: InstitutionListDisplayItemV12['sourceContractVersion'] = 'institution-contract-v1.1',
 ): InstitutionListDisplayItemV12[] => records.map((record) => {
   const candidate = placementByKey === undefined
     ? undefined
@@ -255,6 +306,7 @@ const projectListItems = (
       order: candidate.order,
       tier: candidate.tier,
     },
+    sourceContractVersion,
   )
 })
 
@@ -301,14 +353,22 @@ export const createInstitutionListApplicationServiceV12 = (
       ? null
       : currentDataset
     const published = currentDataset.records.filter((record) => record.recordStatus === 'published')
-    const directOrder = orderCurrentInstitutionRecordsForList(published, input.presentationMetadata)
+    const directOrder = orderCurrentInstitutionRecordsForList(
+      published,
+      input.presentationMetadata || currentPresentationMetadataFor(currentDataset, published),
+    )
     if (!directOrder.ok) {
       return listFailure('INSTITUTION_LIST_PROJECTION_ERROR', directOrder.error.code)
     }
 
     try {
       if (context === null) {
-        const directItems = projectListItems(directOrder.value.records, input.evaluationAsOf)
+        const directItems = projectListItems(
+          directOrder.value.records,
+          input.evaluationAsOf,
+          undefined,
+          currentDataset.sourceContractVersion || 'institution-contract-v1.1',
+        )
         const snapshot: InstitutionListApplicationSnapshotV12 = {
           kind: 'institution_list_application_snapshot_v1_2',
           snapshotVersion: 'institution-list-application-snapshot-v1.2',
@@ -364,8 +424,16 @@ export const createInstitutionListApplicationServiceV12 = (
         candidateRecords,
         context.evaluationAsOf,
         placementByKey,
+        sourceCurrentDataset === null
+          ? 'institution-contract-v1.1'
+          : sourceCurrentDataset.sourceContractVersion || 'institution-contract-v1.1',
       )
-      const otherItems = projectListItems(otherRecords, input.evaluationAsOf)
+      const otherItems = projectListItems(
+        otherRecords,
+        input.evaluationAsOf,
+        undefined,
+        currentDataset.sourceContractVersion || 'institution-contract-v1.1',
+      )
       const groups: InstitutionListOrderingGroup[] = []
       ;(['cards', 'nearMatches', 'conditionalCandidates'] as const).forEach((candidateGroup) => {
         const keys = orderedCandidates
@@ -473,6 +541,154 @@ const recommendationDisplay = (
   differences: candidate.differences.map((item) => ({ ...item })),
 })
 
+type PublicContentApplicationInput =
+  | { status: 'ready'; value: import('../types/institution-v1-2-1').InstitutionPublicContentV1 }
+  | { status: 'hidden_no_pin' | 'hidden_no_current_head' | 'hidden_not_found' | 'unavailable'; value: null }
+
+const resolveDirectPublicContent = (
+  resolver: CurrentInstitutionPublicContentResolver | undefined,
+  institutionId: string,
+): PublicContentApplicationInput => {
+  if (resolver === undefined) return { status: 'unavailable', value: null }
+  const result = resolveCurrentPublishedPublicContent(resolver, institutionId)
+  if (!result.ok) return { status: 'unavailable', value: null }
+  return result.value === null
+    ? { status: 'hidden_no_current_head', value: null }
+    : { status: 'ready', value: result.value }
+}
+
+const resolvePinnedPublicContent = (
+  resolver: ExactInstitutionPublicContentRevisionResolver | undefined,
+  context: InstitutionNavigationSourceContext,
+  identity: InstitutionCanonicalIdentity,
+): PublicContentApplicationInput => {
+  const pin = (context.publicContentPins || []).find((item) =>
+    equalInstitutionCanonicalIdentity(item.identity, identity))
+  if (pin === undefined) return { status: 'hidden_no_pin', value: null }
+  if (resolver === undefined) return { status: 'hidden_not_found', value: null }
+  const result = resolveExactPublishedPublicContentRevision(
+    resolver,
+    identity.institutionId,
+    pin.contentRevision,
+  )
+  return result.ok && result.value !== null
+    ? { status: 'ready', value: result.value }
+    : { status: 'hidden_not_found', value: null }
+}
+
+const sourceV121ForDataset = (
+  dataset: InstitutionCurrentCatalogDataset,
+  identity: InstitutionCanonicalIdentity,
+):
+  | { ok: true; value: InstitutionRecordV121 }
+  | { ok: false; error: { code: string } } => {
+  if (dataset.sourceContractVersion !== 'institution-contract-v1.2.1') {
+    return { ok: false, error: { code: 'LEGACY_DATASET_WITHOUT_V121_SOURCE' } }
+  }
+
+  const projectedRecordIsPresent = dataset.records.some((record) =>
+    equalInstitutionCanonicalIdentity(record, identity))
+  const sourceRecords = dataset.sourceRecordsV121
+  if (sourceRecords === undefined) {
+    return {
+      ok: false,
+      error: {
+        code: projectedRecordIsPresent
+          ? 'V121_SOURCE_RECORD_MISSING'
+          : 'HISTORICAL_V11_SOURCE_NOT_IN_CURRENT_DATASET',
+      },
+    }
+  }
+  const matches = sourceRecords.filter((record) =>
+    equalInstitutionCanonicalIdentity(record, identity))
+  if (matches.length === 0) {
+    return {
+      ok: false,
+      error: {
+        code: projectedRecordIsPresent
+          ? 'V121_SOURCE_RECORD_MISSING'
+          : 'HISTORICAL_V11_SOURCE_NOT_IN_CURRENT_DATASET',
+      },
+    }
+  }
+  if (matches.length !== 1) {
+    return { ok: false, error: { code: 'V121_SOURCE_RECORD_DUPLICATE' } }
+  }
+
+  const projected = projectInstitutionRecordV121ToV11(matches[0])
+  if (!projected.ok) {
+    return { ok: false, error: { code: 'V121_TO_V11_PROJECTION_ERROR' } }
+  }
+  if (!equalInstitutionCanonicalIdentity(projected.value, identity)) {
+    return { ok: false, error: { code: 'V121_SOURCE_IDENTITY_MISMATCH' } }
+  }
+  const expectedRecord = dataset.records.find((record) =>
+    equalInstitutionCanonicalIdentity(record, identity))
+  if (expectedRecord === undefined
+    || stableStructuralSignature(projected.value) !== stableStructuralSignature(expectedRecord)) {
+    return { ok: false, error: { code: 'V121_SOURCE_RECORD_MISMATCH' } }
+  }
+  return { ok: true, value: matches[0] }
+}
+
+const unavailableFutureSectionsWithPublicContent = (
+  institutionId: string,
+  publicContent: PublicContentApplicationInput,
+): InstitutionDetailFutureSectionsV121 => {
+  const fallback = createUnavailableFutureSectionsV121()
+  return {
+    ...fallback,
+    publicIntroduction: projectInstitutionPublicIntroductionV121(publicContent, institutionId),
+  }
+}
+
+const futureSectionsFor = (
+  dataset: InstitutionCurrentCatalogDataset | null,
+  record: InstitutionRecordV11,
+  evaluationAsOf: string,
+  publicContent: PublicContentApplicationInput,
+):
+  | { ok: true; value: InstitutionDetailFutureSectionsV121 }
+  | { ok: false; error: { code: string } } => {
+  const identity = {
+    institutionId: record.institutionId,
+    recordRevision: record.recordRevision,
+  }
+  if (dataset === null) {
+    return {
+      ok: true,
+      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+    }
+  }
+  const source = sourceV121ForDataset(dataset, identity)
+  if (!source.ok && source.error.code === 'LEGACY_DATASET_WITHOUT_V121_SOURCE') {
+    return {
+      ok: true,
+      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+    }
+  }
+  // A V1.2.1 dataset may still be used to display a historical V1.1 pinned
+  // revision. In that case there is no raw successor to project, so only the
+  // exact public-content pin may be shown; all future V1.2.1 fact sections
+  // remain explicitly unavailable. A current projected identity, however,
+  // must fail closed if its raw source is missing or inconsistent.
+  if (!source.ok && source.error.code === 'HISTORICAL_V11_SOURCE_NOT_IN_CURRENT_DATASET') {
+    return {
+      ok: true,
+      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+    }
+  }
+  if (!source.ok) return source
+  try {
+    return {
+      ok: true,
+      value: projectInstitutionFutureSectionsV121(source.value, evaluationAsOf, publicContent),
+    }
+  } catch (_error) {
+    return { ok: false, error: { code: 'V121_FUTURE_SECTION_PROJECTION_ERROR' } }
+  }
+}
+
 const projectDetail = (
   record: InstitutionRecordV11,
   input: {
@@ -484,6 +700,8 @@ const projectDetail = (
     revisionContext: InstitutionRevisionDisplayContext
     recommendationContext: InstitutionDetailRecommendationDisplay | null
     canViewCurrentRevision: boolean
+    sourceContractVersion?: InstitutionDetailApplicationSnapshotV12['sourceContractVersion']
+    futureV121?: InstitutionDetailFutureSectionsV121
   },
 ): InstitutionDetailApplicationResultV12 => {
   try {
@@ -523,6 +741,18 @@ export const createInstitutionDetailApplicationServiceV12 = (
       if (current.value.record.recordStatus !== 'published') {
         return detailFailure('INSTITUTION_RECORD_NOT_DISPLAYABLE', current.value.record.recordStatus)
       }
+      const futureV121 = futureSectionsFor(
+        current.value.dataset,
+        current.value.record,
+        input.evaluationAsOf,
+        resolveDirectPublicContent(
+          dependencies.publicContentCurrentResolver,
+          identity.value.institutionId,
+        ),
+      )
+      if (!futureV121.ok) {
+        return detailFailure('INSTITUTION_DETAIL_PROJECTION_ERROR', futureV121.error.code)
+      }
       const revisionContext = revisionContextFor(
         identity.value,
         identity.value,
@@ -538,6 +768,8 @@ export const createInstitutionDetailApplicationServiceV12 = (
         revisionContext,
         recommendationContext: null,
         canViewCurrentRevision: false,
+        futureV121: futureV121.value,
+        sourceContractVersion: current.value.dataset.sourceContractVersion || 'institution-contract-v1.1',
       })
     }
 
@@ -598,6 +830,19 @@ export const createInstitutionDetailApplicationServiceV12 = (
       resolved.value,
       'PINNED_RECOMMENDATION_REVISION',
     )
+    const futureV121 = futureSectionsFor(
+      sourceCurrentDataset,
+      resolved.value,
+      context.evaluationAsOf,
+      resolvePinnedPublicContent(
+        dependencies.publicContentExactResolver,
+        context,
+        identity.value,
+      ),
+    )
+    if (!futureV121.ok) {
+      return detailFailure('INSTITUTION_DETAIL_PROJECTION_ERROR', futureV121.error.code)
+    }
     return projectDetail(resolved.value, {
       contextKind: isHistoricalInactive ? 'HISTORICAL_READ_ONLY' : 'RECOMMENDATION_PINNED',
       source: 'recommendation',
@@ -608,6 +853,10 @@ export const createInstitutionDetailApplicationServiceV12 = (
       recommendationContext: recommendationDisplay(candidate),
       canViewCurrentRevision: currentIdentity !== null
         && !equalInstitutionCanonicalIdentity(currentIdentity, identity.value),
+      futureV121: futureV121.value,
+      sourceContractVersion: sourceCurrentDataset === null
+        ? 'institution-contract-v1.1'
+        : sourceCurrentDataset.sourceContractVersion || 'institution-contract-v1.1',
     })
   },
 
@@ -643,6 +892,18 @@ export const createInstitutionDetailApplicationServiceV12 = (
       originalIdentity: original.value,
       currentIdentity,
     }
+    const futureV121 = futureSectionsFor(
+      currentResult.value,
+      record,
+      input.evaluationAsOf,
+      resolveDirectPublicContent(
+        dependencies.publicContentCurrentResolver,
+        original.value.institutionId,
+      ),
+    )
+    if (!futureV121.ok) {
+      return detailFailure('INSTITUTION_DETAIL_PROJECTION_ERROR', futureV121.error.code)
+    }
     return projectDetail(record, {
       contextKind: 'CURRENT_INSTITUTION_CONTEXT',
       source: 'direct',
@@ -652,6 +913,8 @@ export const createInstitutionDetailApplicationServiceV12 = (
       revisionContext,
       recommendationContext: null,
       canViewCurrentRevision: false,
+      futureV121: futureV121.value,
+      sourceContractVersion: currentResult.value.sourceContractVersion || 'institution-contract-v1.1',
     })
   },
 })

@@ -17,6 +17,13 @@ import type {
   InstitutionCatalogPayloadV11,
   InstitutionCatalogServiceV11,
 } from '../types/institution-catalog-v1-1'
+import type {
+  InstitutionCatalogPayloadV121,
+  InstitutionCatalogResultV121,
+  InstitutionCatalogServiceV121,
+  InstitutionCatalogErrorCodeV121,
+} from '../types/institution-catalog-v1-2-1'
+import type { InstitutionRecordV121 } from '../types/institution-v1-2-1'
 
 export type InstitutionIdentityErrorCode =
   | 'INSTITUTION_ID_INVALID'
@@ -115,6 +122,14 @@ export type InstitutionCurrentCatalogErrorCode =
   | 'DATASET_PROVENANCE_MISMATCH'
   | 'DUPLICATE_CURRENT_INSTITUTION_ID'
   | 'DUPLICATE_CANONICAL_IDENTITY'
+  | 'UNSUPPORTED_INSTITUTION_CONTRACT_VERSION'
+  | 'CURRENT_POINTER_NOT_FOUND'
+  | 'CURRENT_POINTER_MISMATCH'
+  | 'DUPLICATE_CURRENT_POINTER'
+  | 'INVALID_PRESENTATION_METADATA'
+  | 'PRESENTATION_IDENTITY_NOT_FOUND'
+  | 'DUPLICATE_DISPLAY_ORDER'
+  | 'V121_TO_V11_PROJECTION_ERROR'
 
 export type InstitutionCurrentCatalogResult =
   | { ok: true; value: InstitutionCurrentCatalogDataset }
@@ -263,6 +278,130 @@ export const createInstitutionCurrentCatalogResolver = (
       }
     },
   }
+}
+
+const mapV121CatalogError = (
+  code: InstitutionCatalogErrorCodeV121,
+): InstitutionCurrentCatalogErrorCode => {
+  if (code === 'PROVIDER_LOAD_FAILED') return 'PROVIDER_LOAD_FAILED'
+  if (code === 'INVALID_INSTITUTION_RECORD') return 'INVALID_INSTITUTION_RECORD'
+  if (code === 'DATASET_PROVENANCE_MISMATCH') return 'DATASET_PROVENANCE_MISMATCH'
+  if (code === 'DUPLICATE_CURRENT_INSTITUTION_ID') return 'DUPLICATE_CURRENT_INSTITUTION_ID'
+  if (code === 'DUPLICATE_CANONICAL_IDENTITY') return 'DUPLICATE_CANONICAL_IDENTITY'
+  if (code === 'UNSUPPORTED_INSTITUTION_CONTRACT_VERSION') return 'UNSUPPORTED_INSTITUTION_CONTRACT_VERSION'
+  if (code === 'CURRENT_POINTER_NOT_FOUND') return 'CURRENT_POINTER_NOT_FOUND'
+  if (code === 'CURRENT_POINTER_MISMATCH') return 'CURRENT_POINTER_MISMATCH'
+  if (code === 'DUPLICATE_CURRENT_POINTER') return 'DUPLICATE_CURRENT_POINTER'
+  if (code === 'INVALID_PRESENTATION_METADATA') return 'INVALID_PRESENTATION_METADATA'
+  if (code === 'PRESENTATION_IDENTITY_NOT_FOUND') return 'PRESENTATION_IDENTITY_NOT_FOUND'
+  if (code === 'DUPLICATE_DISPLAY_ORDER') return 'DUPLICATE_DISPLAY_ORDER'
+  if (code === 'V121_TO_V11_PROJECTION_ERROR') return 'V121_TO_V11_PROJECTION_ERROR'
+  return 'INVALID_CATALOG_ENVELOPE'
+}
+
+const mapV121ResultError = (
+  result: Extract<InstitutionCatalogResultV121, { ok: false }>,
+): InstitutionCurrentCatalogResult => ({
+  ok: false,
+  error: {
+    code: mapV121CatalogError(result.error.code),
+    ...(result.error.recordIndex === undefined ? {} : { recordIndex: result.error.recordIndex }),
+  },
+})
+
+/**
+ * Current-catalog resolver for the V1.2.1 live provider. The provider owns
+ * the explicit current pointer; this adapter never derives current from a
+ * revision number, array order, or a max/latest lookup. Existing A0 callers
+ * receive the explicit V1.2.1 -> V1.1 projection, while the same validated
+ * dataset retains the raw V1.2.1 records for future application sections.
+ */
+export const createInstitutionCurrentCatalogResolverV121 = (
+  service: InstitutionCatalogServiceV121,
+): InstitutionCurrentCatalogResolver => {
+  const loadCurrentCatalog = async (): Promise<InstitutionCurrentCatalogResult> => {
+    let result: InstitutionCatalogResultV121
+    try {
+      result = await service.loadCatalog()
+    } catch (_error) {
+      return { ok: false, error: { code: 'PROVIDER_LOAD_FAILED' } }
+    }
+    if (!result.ok) return mapV121ResultError(result)
+
+    // Re-run the exact envelope validation at this application boundary so a
+    // custom/injected service cannot bypass the V1.2.1 contract gate.
+    // Keep the V1.2.1 provider (and its development mock) out of the frozen
+    // A0 V1.1 runtime graph.  This module is loaded lazily only when a caller
+    // explicitly composes the V1.2.1 resolver.
+    const v121CatalogModule = require('./institution-catalog-v1-2-1') as {
+      validateInstitutionCatalogPayloadV121: (value: unknown) => InstitutionCatalogResultV121
+      projectInstitutionCatalogV121ToV11: (
+        value: InstitutionCatalogPayloadV121,
+      ) => {
+        ok: true
+        value: { datasetVersion: string; datasetMode: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY'; records: readonly InstitutionRecordV11[] }
+      } | { ok: false; error: { code: string; recordIndex?: number } }
+    }
+    const validated = v121CatalogModule.validateInstitutionCatalogPayloadV121(result.value)
+    if (!validated.ok) return mapV121ResultError(validated)
+    const projected = v121CatalogModule.projectInstitutionCatalogV121ToV11(validated.value)
+    if (!projected.ok) {
+      return {
+        ok: false,
+        error: { code: 'V121_TO_V11_PROJECTION_ERROR' },
+      }
+    }
+    const payload: InstitutionCatalogPayloadV121 = validated.value
+    return {
+      ok: true,
+      value: {
+        datasetVersion: projected.value.datasetVersion,
+        datasetMode: projected.value.datasetMode,
+        records: cloneValue(projected.value.records),
+        sourceContractVersion: 'institution-contract-v1.2.1',
+        sourceRecordsV121: cloneValue(payload.records),
+        currentPointersV121: cloneValue(payload.currentPointers),
+        presentationV121: cloneValue(payload.presentation),
+      },
+    }
+  }
+
+  return {
+    loadCurrentCatalog,
+    resolveExactCurrentRevision: async (
+      identity: InstitutionCanonicalIdentity,
+    ): Promise<InstitutionCurrentRevisionResult> => {
+      const catalog = await loadCurrentCatalog()
+      if (!catalog.ok) return catalog
+      const resolved = resolveExactCurrentInstitutionRecord(catalog.value.records, identity)
+      if (!resolved.ok) return resolved
+      return {
+        ok: true,
+        value: {
+          dataset: cloneValue(catalog.value),
+          record: cloneValue(resolved.value),
+        },
+      }
+    },
+  }
+}
+
+/** Compatibility alias with the more explicit V1.2.1 naming used by callers. */
+export const createInstitutionCurrentV121CatalogResolver =
+  createInstitutionCurrentCatalogResolverV121
+
+/** Find the V1.2.1 source record attached to the same loaded A0 dataset. */
+export const resolveExactCurrentInstitutionRecordV121 = (
+  dataset: InstitutionCurrentCatalogDataset,
+  identity: InstitutionCanonicalIdentity,
+): InstitutionRecordV121 | null => {
+  if (dataset.sourceContractVersion !== 'institution-contract-v1.2.1'
+    || dataset.sourceRecordsV121 === undefined) return null
+  const identityResult = validateInstitutionCanonicalIdentity(identity)
+  if (!identityResult.ok) return null
+  const matches = dataset.sourceRecordsV121.filter((record) =>
+    equalInstitutionCanonicalIdentity(record, identityResult.value))
+  return matches.length === 1 ? cloneValue(matches[0]) : null
 }
 
 export const resolveExactCurrentInstitutionRecord = (

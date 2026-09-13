@@ -39,10 +39,23 @@ import type {
   InstitutionStaffingV11,
   InstitutionTransportationV11,
 } from '../types/institution-v1-1'
+import type {
+  InstitutionCareProcessV1,
+} from '../types/institution-v1-2'
+import type {
+  InstitutionCatalogPayloadV121,
+  InstitutionCatalogCurrentPointerV121,
+} from '../types/institution-catalog-v1-2-1'
+import type {
+  InstitutionOfficialContactV1,
+  InstitutionPublicLocationV1,
+  InstitutionRecordV121,
+} from '../types/institution-v1-2-1'
 import {
   projectInstitutionRecordV11ToV1,
 } from '../domain/institution/v1-1/project-to-v1'
 import { validateInstitutionRecordV11 } from '../domain/institution/v1-1/validate-institution-v1-1'
+import { validateInstitutionRecordV121 } from '../domain/institution/v1-2-1/validate-institution-v1-2-1'
 import type {
   InstitutionCatalogPayload,
   InstitutionCatalogProvider,
@@ -144,6 +157,14 @@ const cloneCatalogV11 = (catalog: InstitutionCatalogPayloadV11): InstitutionCata
   datasetVersion: catalog.datasetVersion,
   datasetMode: catalog.datasetMode,
   records: cloneValue(catalog.records) as InstitutionRecordV11[],
+})
+
+const cloneCatalogV121 = (catalog: InstitutionCatalogPayloadV121): InstitutionCatalogPayloadV121 => ({
+  datasetVersion: catalog.datasetVersion,
+  datasetMode: catalog.datasetMode,
+  records: cloneValue(catalog.records) as InstitutionRecordV121[],
+  currentPointers: cloneValue(catalog.currentPointers) as InstitutionCatalogCurrentPointerV121[],
+  presentation: cloneValue(catalog.presentation) as InstitutionCatalogPayloadV121['presentation'],
 })
 
 const evidenceIdFor = (institutionId: string, fieldPath: string): string =>
@@ -705,6 +726,148 @@ const assertDevelopmentRecordV11 = (record: InstitutionRecordV11): InstitutionRe
 const VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS =
   DEVELOPMENT_CATALOG_V11_RECORDS.map(assertDevelopmentRecordV11)
 
+/** Explicit predecessor -> successor identity mapping; never infer current by revision arithmetic. */
+export const MOCK_INSTITUTION_V11_TO_V121_IDENTITY_MAP = [
+  { old: { institutionId: 'institution-a-mock', recordRevision: 1 }, current: { institutionId: 'institution-a-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-b-mock', recordRevision: 1 }, current: { institutionId: 'institution-b-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-c-mock', recordRevision: 1 }, current: { institutionId: 'institution-c-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-d-mock', recordRevision: 1 }, current: { institutionId: 'institution-d-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-e-mock', recordRevision: 1 }, current: { institutionId: 'institution-e-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-f-mock', recordRevision: 1 }, current: { institutionId: 'institution-f-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-g-mock', recordRevision: 1 }, current: { institutionId: 'institution-g-mock', recordRevision: 2 } },
+  { old: { institutionId: 'institution-h-mock', recordRevision: 1 }, current: { institutionId: 'institution-h-mock', recordRevision: 2 } },
+] as const
+
+const makeUnknownCareProcess = (): InstitutionCareProcessV1 => ({
+  schemaVersion: 'institution-care-process-v1',
+  careRecord: {
+    presence: makeUnknownField(),
+    completeness: makeUnknownField(),
+    completenessCriteriaRef: makeUnknownField(),
+    frequency: makeUnknownField(),
+    otherFrequencyNote: makeUnknownField(),
+    traceability: makeUnknownField(),
+  },
+  shiftHandover24h: {
+    presence: makeUnknownField(),
+    processNote: makeUnknownField(),
+    contents: {
+      vital_signs: makeUnknownField(),
+      abnormal_events: makeUnknownField(),
+      interventions_recorded: makeUnknownField(),
+      follow_up: makeUnknownField(),
+      family_communication: makeUnknownField(),
+      medical_transfer: makeUnknownField(),
+    },
+  },
+})
+
+const makeUnknownOfficialContact = (): InstitutionOfficialContactV1 => ({
+  schemaVersion: 'institution-official-contact-v1',
+  phoneDirectoryPresence: makeUnknownField(),
+  officialPhones: [],
+})
+
+const makeUnknownPublicLocation = (): InstitutionPublicLocationV1 => ({
+  schemaVersion: 'institution-public-location-v1',
+  address: makeUnknownField(),
+  geo: makeUnknownField(),
+})
+
+/**
+ * V1.1 -> V1.2.1 migration is an explicit successor record.  The new
+ * revision is intentionally configured here rather than calculated from the
+ * predecessor revision.  New V1.2.1 facts remain unknown until separately
+ * sourced and verified; no address, phone, coordinate, or care-process fact
+ * is inferred from the V1.1 record.
+ */
+const migrateV11RecordToV121 = (record: InstitutionRecordV11): InstitutionRecordV121 => {
+  const mapping = MOCK_INSTITUTION_V11_TO_V121_IDENTITY_MAP.find((item) =>
+    item.old.institutionId === record.institutionId
+    && item.old.recordRevision === record.recordRevision)
+  if (mapping === undefined) {
+    throw new Error('Missing explicit Institution V1.1 to V1.2.1 identity mapping')
+  }
+  const migrated: InstitutionRecordV121 = {
+    contractVersion: 'institution-contract-v1.2.1',
+    capabilityContractVersion: record.capabilityContractVersion,
+    institutionId: mapping.current.institutionId,
+    recordRevision: mapping.current.recordRevision,
+    recordProvenance: record.recordProvenance,
+    recordStatus: record.recordStatus,
+    identity: record.identity,
+    typeProfile: record.typeProfile,
+    capabilities: record.capabilities,
+    services: record.services,
+    medicalSupport: record.medicalSupport,
+    rehabilitationSupport: record.rehabilitationSupport,
+    staffing: record.staffing,
+    healthMonitoring: record.healthMonitoring,
+    price: record.price,
+    operations: record.operations,
+    rooms: record.rooms,
+    meal: record.meal,
+    activity: record.activity,
+    transportation: record.transportation,
+    majorHospitalAccess: record.majorHospitalAccess,
+    media: record.media,
+    vr: record.vr,
+    qualifications: record.qualifications,
+    evidence: record.evidence.map((evidence) => ({
+      ...evidence,
+      recordRevision: mapping.current.recordRevision,
+    })),
+    careProcess: makeUnknownCareProcess(),
+    officialContact: makeUnknownOfficialContact(),
+    publicLocation: makeUnknownPublicLocation(),
+  }
+  const validation = validateInstitutionRecordV121(migrated)
+  if (!validation.ok) {
+    throw new Error('Invalid Institution V1.2.1 development catalog record')
+  }
+  return validation.value
+}
+
+const VALIDATED_DEVELOPMENT_CATALOG_V121_RECORDS: InstitutionRecordV121[] =
+  VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS.map(migrateV11RecordToV121)
+
+const DEVELOPMENT_CATALOG_V121: InstitutionCatalogPayloadV121 = {
+  datasetVersion: 'institution-catalog-development-v1.2.1',
+  datasetMode: 'MOCK_DEVELOPMENT_ONLY',
+  records: VALIDATED_DEVELOPMENT_CATALOG_V121_RECORDS,
+  currentPointers: [
+    { institutionId: 'institution-a-mock', recordRevision: 2 },
+    { institutionId: 'institution-b-mock', recordRevision: 2 },
+    { institutionId: 'institution-c-mock', recordRevision: 2 },
+    { institutionId: 'institution-d-mock', recordRevision: 2 },
+    { institutionId: 'institution-e-mock', recordRevision: 2 },
+    { institutionId: 'institution-f-mock', recordRevision: 2 },
+    { institutionId: 'institution-g-mock', recordRevision: 2 },
+    { institutionId: 'institution-h-mock', recordRevision: 2 },
+  ],
+  presentation: {
+    orderingPolicy: 'CURATED_DISPLAY_ORDER_V1',
+    displayOrder: [
+      { institutionId: 'institution-a-mock', recordRevision: 2, displayOrder: 0 },
+      { institutionId: 'institution-b-mock', recordRevision: 2, displayOrder: 1 },
+      { institutionId: 'institution-c-mock', recordRevision: 2, displayOrder: 2 },
+      { institutionId: 'institution-d-mock', recordRevision: 2, displayOrder: 3 },
+      { institutionId: 'institution-e-mock', recordRevision: 2, displayOrder: 4 },
+      { institutionId: 'institution-f-mock', recordRevision: 2, displayOrder: 5 },
+      { institutionId: 'institution-g-mock', recordRevision: 2, displayOrder: 6 },
+      { institutionId: 'institution-h-mock', recordRevision: 2, displayOrder: 7 },
+    ],
+  },
+}
+
+/** Caller-visible isolated V1.2.1 catalog records. */
+export const MOCK_INSTITUTION_CATALOG_V121_RECORDS: readonly InstitutionRecordV121[] =
+  cloneValue(VALIDATED_DEVELOPMENT_CATALOG_V121_RECORDS) as InstitutionRecordV121[]
+
+/** Current live development catalog. It contains V1.2.1 records only. */
+export const MOCK_INSTITUTION_CATALOG_V121: InstitutionCatalogPayloadV121 =
+  cloneCatalogV121(DEVELOPMENT_CATALOG_V121)
+
 const DEVELOPMENT_CATALOG_V11: InstitutionCatalogPayloadV11 = {
   datasetVersion: 'institution-catalog-development-v1.1',
   datasetMode: 'MOCK_DEVELOPMENT_ONLY',
@@ -732,7 +895,11 @@ export const MOCK_INSTITUTION_CATALOG_RECORDS: readonly InstitutionRecord[] =
 export const MOCK_INSTITUTION_CATALOG: InstitutionCatalogPayload =
   cloneCatalog(DEVELOPMENT_CATALOG)
 
-/** Canonical eight-record App development catalog after the V1.1 migration. */
+/**
+ * V1.1 compatibility/migration snapshot only. The live current App catalog is
+ * `MOCK_INSTITUTION_CATALOG_V121`; this predecessor must not be composed as a
+ * second current catalog.
+ */
 export const MOCK_INSTITUTION_CATALOG_V11_RECORDS: readonly InstitutionRecordV11[] =
   cloneValue(VALIDATED_DEVELOPMENT_CATALOG_V11_RECORDS) as InstitutionRecordV11[]
 

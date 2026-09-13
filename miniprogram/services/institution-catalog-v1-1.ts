@@ -1,4 +1,4 @@
-import { MOCK_INSTITUTION_CATALOG_V11 } from '../mock/institution-catalog.mock'
+import { institutionCatalogServiceV11Adapter } from './institution-catalog-v1-2-1'
 import { validateInstitutionRecordV11 } from '../domain/institution/v1-1/validate-institution-v1-1'
 import type {
   InstitutionCatalogPayloadV11,
@@ -24,11 +24,6 @@ const cloneValue = <T>(value: T): T => {
     return copy as T
   }
   return value
-}
-
-const defaultProviderV11: InstitutionCatalogProviderV11 = {
-  loadCatalog: (): Promise<InstitutionCatalogPayloadV11> =>
-    Promise.resolve(cloneValue(MOCK_INSTITUTION_CATALOG_V11)),
 }
 
 export const createInstitutionCatalogServiceV11 = (
@@ -70,4 +65,10 @@ export const createInstitutionCatalogServiceV11 = (
   },
 })
 
-export const institutionCatalogServiceV11 = createInstitutionCatalogServiceV11(defaultProviderV11)
+/**
+ * The live V1.1 consumer contract is backed by the current V1.2.1 catalog.
+ * The adapter validates the complete V1.2.1 pool and then projects each
+ * record through the explicit direct V1.2.1 -> V1.1 boundary.  Test callers
+ * can still create an isolated V1.1 service with createInstitutionCatalogServiceV11.
+ */
+export const institutionCatalogServiceV11 = institutionCatalogServiceV11Adapter

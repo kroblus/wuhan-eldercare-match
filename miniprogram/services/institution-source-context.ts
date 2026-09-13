@@ -10,6 +10,7 @@
 import {
   isNonNegativeInteger,
   isPlainRecord,
+  isPositiveInteger,
   isValidIsoTimestamp,
 } from '../domain/institution/primitives'
 import type {
@@ -17,6 +18,7 @@ import type {
   InstitutionContextManifestEntry,
   InstitutionNavigationSourceContext,
   InstitutionNavigationSourceContextInput,
+  InstitutionPublicContentPresentationPinV121,
   InstitutionRecommendationCandidateProjection,
   InstitutionRecommendationCandidateGroup,
 } from '../types/institution-list-detail'
@@ -37,6 +39,8 @@ export type InstitutionSourceContextErrorCode =
   | 'SOURCE_CONTEXT_MANIFEST_MISMATCH'
   | 'SOURCE_CONTEXT_CANDIDATE_DUPLICATE'
   | 'SOURCE_CONTEXT_CANDIDATE_INVALID'
+  | 'SOURCE_CONTEXT_PRESENTATION_PIN_INVALID'
+  | 'SOURCE_CONTEXT_PRESENTATION_PIN_DUPLICATE'
 
 export type InstitutionSourceContextResult<T> =
   | { ok: true; value: T }
@@ -243,6 +247,40 @@ const validateContextInput = (
     }
   }
 
+  const normalizedPublicContentPins: InstitutionPublicContentPresentationPinV121[] = []
+  if (input.publicContentPins !== undefined && !Array.isArray(input.publicContentPins)) {
+    return invalid('SOURCE_CONTEXT_PRESENTATION_PIN_INVALID')
+  }
+  const publicContentPins = input.publicContentPins === undefined
+    ? []
+    : input.publicContentPins
+  const presentationPinKeys = new Set<string>()
+  for (let index = 0; index < publicContentPins.length; index += 1) {
+    const pin = publicContentPins[index]
+    if (!isPlainRecord(pin)
+      || !isPlainRecord(pin.identity)
+      || !isPositiveInteger(pin.contentRevision)) {
+      return invalid('SOURCE_CONTEXT_PRESENTATION_PIN_INVALID')
+    }
+    const identity = validateInstitutionCanonicalIdentity(pin.identity)
+    if (!identity.ok) return invalid('SOURCE_CONTEXT_PRESENTATION_PIN_INVALID')
+    const identityKey = institutionCanonicalKey(identity.value)
+    if (!candidateKeys.has(identityKey)) {
+      return invalid('SOURCE_CONTEXT_IDENTITY_MISMATCH')
+    }
+    if (presentationPinKeys.has(identityKey)) {
+      return invalid('SOURCE_CONTEXT_PRESENTATION_PIN_DUPLICATE')
+    }
+    presentationPinKeys.add(identityKey)
+    normalizedPublicContentPins.push({
+      identity: {
+        institutionId: identity.value.institutionId,
+        recordRevision: identity.value.recordRevision,
+      },
+      contentRevision: pin.contentRevision,
+    })
+  }
+
   const value: InstitutionNavigationSourceContext = {
     kind: 'institution_navigation_source_context_v1',
     datasetVersion: input.datasetVersion,
@@ -255,6 +293,9 @@ const validateContextInput = (
     institutionCapabilityContractVersion: input.institutionCapabilityContractVersion,
     manifest: cloneValue(normalizedManifest),
     candidates: cloneValue(normalizedCandidates),
+    ...(normalizedPublicContentPins.length === 0
+      ? {}
+      : { publicContentPins: cloneValue(normalizedPublicContentPins) }),
   }
   return { ok: true, value: freezeDeep(value) }
 }

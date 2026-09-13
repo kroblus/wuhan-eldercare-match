@@ -7,9 +7,10 @@ import type {
 import type { RecommendationResultApplicationSnapshotV2 } from '../../types/recommendation-result-v2'
 import {
   institutionSourceContextRegistry,
+  registerInstitutionRecommendationSourceContextV2 as registerInstitutionRecommendationSourceContextV2FromPage,
 } from '../../services/institution-list-detail-page'
 import {
-  registerInstitutionRecommendationSourceContextV2,
+  registerInstitutionRecommendationSourceContextV2 as registerInstitutionRecommendationSourceContextV2FromSource,
 } from '../../services/institution-recommendation-source'
 import {
   serializeInstitutionDetailRoute,
@@ -62,6 +63,20 @@ type NavigationInvoker = (callbacks: NavigationCallbacks) => unknown
 const refreshGenerations = new WeakMap<object, number>()
 const resultSnapshots = new WeakMap<object, RecommendationResultApplicationSnapshotV2>()
 const resultSourceContextRefs = new WeakMap<object, Set<string>>()
+
+/**
+ * The page-facing composition owns the live provider wiring. The source-level
+ * fallback exists only for the isolated interaction harness, whose module
+ * override intentionally supplies a registry-only page composition stub.
+ */
+const registerInstitutionRecommendationSourceContextV2 = (
+  snapshot: RecommendationResultApplicationSnapshotV2,
+) => typeof registerInstitutionRecommendationSourceContextV2FromPage === 'function'
+  ? registerInstitutionRecommendationSourceContextV2FromPage(snapshot)
+  : registerInstitutionRecommendationSourceContextV2FromSource(
+    snapshot,
+    institutionSourceContextRegistry,
+  )
 
 const nextRefreshGeneration = (instance: object): number => {
   const next = (refreshGenerations.get(instance) || 0) + 1
@@ -349,7 +364,6 @@ Page({
     if (!guard.acquire('recommendation.result.openInstitution')) return
     const registered = registerInstitutionRecommendationSourceContextV2(
       snapshot,
-      institutionSourceContextRegistry,
     )
     if (!registered.ok) {
       guard.release('recommendation.result.openInstitution')
@@ -426,7 +440,6 @@ Page({
     if (!guard.acquire('recommendation.result.openInstitution')) return
     const registered = registerInstitutionRecommendationSourceContextV2(
       snapshot,
-      institutionSourceContextRegistry,
     )
     if (!registered.ok) {
       guard.release('recommendation.result.openInstitution')
