@@ -22,6 +22,12 @@ const institutionV11DomainRoot = path.join(institutionDomainRoot, 'v1-1')
 const institutionV11EntryPath = path.join(institutionV11DomainRoot, 'index.ts')
 const institutionV11ValidatorPath = path.join(institutionV11DomainRoot, 'validate-institution-v1-1.ts')
 const institutionV11ProjectionPath = path.join(institutionV11DomainRoot, 'project-to-v1.ts')
+const institutionV12TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-v1-2.ts')
+const institutionV121TypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'institution-v1-2-1.ts')
+const institutionV12DomainRoot = path.join(institutionDomainRoot, 'v1-2')
+const institutionV121DomainRoot = path.join(institutionDomainRoot, 'v1-2-1')
+const institutionV12EntryPath = path.join(institutionV12DomainRoot, 'index.ts')
+const institutionV121EntryPath = path.join(institutionV121DomainRoot, 'index.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
@@ -261,6 +267,8 @@ const run = async () => {
     elderProfileV2TypePath,
     institutionTypePath,
     institutionV11TypePath,
+    institutionV12TypePath,
+    institutionV121TypePath,
     recommendationTypePath,
     recommendationV2TypePath,
     recommendationPreviewV2TypePath,
@@ -270,8 +278,9 @@ const run = async () => {
   const requiredTargets = [
     elderProfileTypePath, elderProfileV2TypePath,
     elderProfileV2EntryPath, elderProfileV2FormalPath, elderProfileV2PreviewPath,
-    institutionTypePath, institutionV11TypePath,
+    institutionTypePath, institutionV11TypePath, institutionV12TypePath, institutionV121TypePath,
     institutionV11EntryPath, institutionV11ValidatorPath, institutionV11ProjectionPath,
+    institutionV12EntryPath, institutionV121EntryPath,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
     recommendationV2PreviewEvaluatorPath,
@@ -406,6 +415,8 @@ const run = async () => {
   console.log(`TARGET_ROOTS: ${targetFiles.length + profileCompatibilityTargets.length}`)
   console.log(`RECOMMENDATION_TARGETS: ${targetFiles.filter((fileName) => fileName === recommendationTypePath || fileName.startsWith(`${recommendationDomainRoot}${path.sep}`)).length}`)
   console.log(`INSTITUTION_V1_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV11TypePath || fileName.startsWith(`${institutionV11DomainRoot}${path.sep}`)).length}`)
+  console.log(`INSTITUTION_V1_2_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV12TypePath || fileName.startsWith(`${institutionV12DomainRoot}${path.sep}`)).length}`)
+  console.log(`INSTITUTION_V1_2_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV121TypePath || fileName.startsWith(`${institutionV121DomainRoot}${path.sep}`)).length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)

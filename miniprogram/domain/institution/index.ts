@@ -21,3 +21,5 @@ export type {
   InstitutionValidationResult,
 } from './validate-institution'
 export type { EffectiveInstitutionField } from './verification'
+export * from './v1-2'
+export * from './v1-2-1'

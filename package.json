@@ -15,6 +15,7 @@
     "check:profile-v2-ui-runtime": "node scripts/check-profile-v2-ui-runtime.mjs",
     "check:institution-runtime": "node scripts/check-institution-runtime.mjs",
     "check:institution-v1-1-runtime": "node scripts/check-institution-v1-1-runtime.mjs",
+    "check:institution-v1-2-1-runtime": "node scripts/check-institution-v1-2-1-runtime.mjs",
     "check:institution-list-detail-runtime": "node scripts/check-institution-list-detail-runtime.mjs",
     "check:institution-list-page-runtime": "node scripts/check-institution-list-page-runtime.mjs",
     "check:institution-detail-page-runtime": "node scripts/check-institution-detail-page-runtime.mjs",
