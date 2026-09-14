@@ -155,9 +155,10 @@ const main = () => {
     assert.match(homeTs, /success:[\s\S]*fail[\s\S]*complete:/)
     assert.equal(/wx\.request|wx\.login|phoneNumber/.test(homeTs + homeWxml), false)
   })
-  run('INTERACTION-015', 'List/detail pages use no forbidden network or auth APIs', () => {
+  run('INTERACTION-015', 'List/detail pages use no forbidden network or auth APIs while Detail owns phone action', () => {
     const all = listTs + listWxml + detailTs + detailWxml
-    assert.equal(/wx\.request|wx\.login|getPhoneNumber|phoneNumber/.test(all), false)
+    assert.equal(/wx\.request|wx\.login|getPhoneNumber/.test(all), false)
+    assert.match(detailTs, /wx\.makePhoneCall/)
     assert.equal(/triggerEvent\(['"]tap['"]/.test(all), false)
   })
   run('INTERACTION-016', 'Canonical routes never use legacy id-only navigation', () => {

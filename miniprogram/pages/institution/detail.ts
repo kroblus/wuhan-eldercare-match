@@ -12,6 +12,7 @@ import {
 } from './detail-view-model'
 import type {
   InstitutionDetailErrorViewModelV12,
+  InstitutionDetailMapActionViewModel,
   InstitutionDetailPageViewModelV12,
 } from './detail-view-model'
 import {
@@ -84,6 +85,95 @@ const runBack = (
         complete: () => { if (!succeeded) fail() },
       })
     }
+  } catch (_error) {
+    fail()
+    return false
+  }
+  return true
+}
+
+const runMapAction = (
+  instance: object,
+  action: InstitutionDetailMapActionViewModel,
+  onFailure: () => void,
+): boolean => {
+  if (!action.available) return false
+  const guard = getNavigationGuard(instance)
+  const actionKey = 'institution.detail.map'
+  if (!guard.acquire(actionKey)) return false
+  let released = false
+  let reported = false
+  const release = () => {
+    if (released) return
+    released = true
+    guard.release(actionKey)
+  }
+  const fail = () => {
+    if (!reported) {
+      reported = true
+      onFailure()
+    }
+    release()
+  }
+  try {
+    wx.openLocation({
+      latitude: action.latitude,
+      longitude: action.longitude,
+      name: action.name,
+      address: action.address,
+      scale: action.scale,
+      success: () => {},
+      fail,
+      complete: release,
+    })
+  } catch (_error) {
+    fail()
+    return false
+  }
+  return true
+}
+
+const findPhone = (
+  viewModel: InstitutionDetailPageViewModelV12,
+  phoneKey: string,
+): InstitutionDetailPageViewModelV12['officialContact']['phones'][number] | null => {
+  for (let index = 0; index < viewModel.officialContact.phones.length; index += 1) {
+    const phone = viewModel.officialContact.phones[index]
+    if (phone.key === phoneKey) return phone
+  }
+  return null
+}
+
+const runPhoneAction = (
+  instance: object,
+  phone: InstitutionDetailPageViewModelV12['officialContact']['phones'][number],
+  onFailure: () => void,
+): boolean => {
+  if (!phone.callAction.available) return false
+  const guard = getNavigationGuard(instance)
+  const actionKey = `institution.detail.phone.${phone.key}`
+  if (!guard.acquire(actionKey)) return false
+  let released = false
+  let reported = false
+  const release = () => {
+    if (released) return
+    released = true
+    guard.release(actionKey)
+  }
+  const fail = () => {
+    if (!reported) {
+      reported = true
+      onFailure()
+    }
+    release()
+  }
+  try {
+    wx.makePhoneCall({
+      phoneNumber: phone.callAction.dialValue,
+      success: () => {},
+      fail,
+      complete: release,
+    })
   } catch (_error) {
     fail()
     return false
@@ -247,6 +337,29 @@ Page({
       actionErrorMessage: this.data.viewModel.media.vrState === 'available'
         ? 'VR看院入口正在开发验证中，当前不会打开。'
         : '当前没有可用的 VR 看院资料。',
+    })
+  },
+
+  onMapTap() {
+    if (this.data.pageState !== 'ready' || this.data.viewModel === null) return
+    runMapAction(this, this.data.viewModel.location.mapAction, () => {
+      this.setData({
+        actionErrorKey: 'map',
+        actionErrorMessage: '暂时无法打开地图，请稍后重试。',
+      })
+    })
+  },
+
+  onOfficialPhoneTap(event: WechatMiniprogram.BaseEvent) {
+    if (this.data.pageState !== 'ready' || this.data.viewModel === null) return
+    const phoneKey = event.currentTarget.dataset.phoneKey as string
+    const phone = findPhone(this.data.viewModel, phoneKey)
+    if (phone === null) return
+    runPhoneAction(this, phone, () => {
+      this.setData({
+        actionErrorKey: 'phone',
+        actionErrorMessage: '暂时无法拨打机构电话，请稍后重试。',
+      })
     })
   },
 

@@ -26,6 +26,10 @@ const a13RequiredSourcePaths = [
   'services/institution-record-resolver.ts',
   'services/institution-source-context.ts',
 ]
+const a14RequiredSourcePaths = [
+  'pages/institution/detail.ts',
+  'pages/institution/detail-view-model.ts',
+]
 
 const walkFiles = async (root, accept = () => true) => {
   const files = []
@@ -374,7 +378,8 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
     throw new Error(`no TypeScript class sources found under ${sourceRoot}`)
   }
   const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
-  const requiredModules = mergeSourceModules(classModules, a13RequiredModules)
+  const a14RequiredModules = await getRequiredSourceModules(sourceRoot, a14RequiredSourcePaths)
+  const requiredModules = mergeSourceModules(classModules, a13RequiredModules, a14RequiredModules)
   const artifacts = await locateArtifacts(options, configuration, requiredModules)
   if (artifacts.units.length === 0) {
     throw new Error(`no generated JavaScript found under ${artifacts.artifactRoot}`)
@@ -386,6 +391,7 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`GENERATED_JS_MODULES: ${artifacts.units.length}`)
   console.log(`CLASS_SOURCE_MODULES: ${classModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`A1_3_REQUIRED_GENERATED_MODULES: ${a13RequiredModules.map((item) => item.moduleName).join(', ')}`)
+  console.log(`A1_4_REQUIRED_GENERATED_MODULES: ${a14RequiredModules.map((item) => item.moduleName).join(', ')}`)
 
   const passed = verifyCoverage(requiredModules, artifacts.units) && reportClassFields(ts, artifacts.units)
   if (!passed) {

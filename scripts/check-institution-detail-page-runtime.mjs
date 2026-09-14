@@ -408,10 +408,13 @@ const main = async () => {
     assert.match(view.media.vrLabel, /待确认/)
     assert.equal(direct.sections.media.vr.canNavigate, false)
   })
-  await run('DETAIL-UI-027', 'future CareProcess and Consultant slots stay hidden from body', () => {
+  await run('DETAIL-UI-027', 'current V1.1 CareProcess stays hidden while Consultant stays hidden from body', () => {
     assert.equal(view.media.vrState, 'unknown')
     assert.equal(rowsText(view).includes('功能开发中'), false)
-    assert.equal(wxml.includes('careProcess'), false)
+    assert.equal(direct.sections.careProcess.state, 'not_applicable_for_schema')
+    assert.equal(view.careProcess, null)
+    assert.equal(wxml.includes('护理管理与交接'), true)
+    assert.match(wxml, /<view wx:if="\{\{viewModel\.careProcess\}\}" class="detail-card-wrap">\s*<section-card>\s*<text class="section-kicker">护理管理与交接/)
     assert.equal(wxml.includes('consultantVisit'), false)
   })
   await run('DETAIL-UI-028', 'public rating is not rendered', () => {

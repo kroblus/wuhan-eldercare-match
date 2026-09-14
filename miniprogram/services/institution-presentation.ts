@@ -454,7 +454,8 @@ export const projectInstitutionDetailSnapshotV12 = (
     recommendationContext: InstitutionDetailRecommendationDisplay | null
     canViewCurrentRevision: boolean
     sourceContractVersion?: InstitutionDetailApplicationSnapshotV12['sourceContractVersion']
-    /** Optional V1.2.1 application-safe sections; A0 UI intentionally ignores them. */
+    careProcessState?: InstitutionDetailSectionsV12['careProcess']['state']
+    /** Optional V1.2.1 application-safe sections for the Detail ViewModel. */
     futureV121?: InstitutionDetailFutureSectionsV121
   },
 ): InstitutionDetailApplicationSnapshotV12 => {
@@ -472,7 +473,7 @@ export const projectInstitutionDetailSnapshotV12 = (
     recommendation: input.recommendationContext,
     media,
     careCapability: capability,
-    careProcess: { state: 'not_integrated' },
+    careProcess: { state: input.careProcessState || 'not_integrated' },
     ...(input.futureV121 === undefined ? {} : { futureV121: input.futureV121 }),
     staffing: {
       counts: projectInstitutionField(record.staffing.counts, input.evaluationAsOf),

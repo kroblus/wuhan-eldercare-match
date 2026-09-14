@@ -47,6 +47,59 @@
         </section-card>
       </view>
 
+      <view wx:if="{{viewModel.introduction}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">机构简介</text>
+          <text class="introduction-text">{{viewModel.introduction.text}}</text>
+          <view wx:if="{{viewModel.introduction.sourceLabel || viewModel.introduction.updatedDateLabel}}" class="introduction-meta">
+            <text wx:if="{{viewModel.introduction.sourceLabel}}">{{viewModel.introduction.sourceLabel}}</text>
+            <text wx:if="{{viewModel.introduction.updatedDateLabel}}">{{viewModel.introduction.updatedDateLabel}}</text>
+          </view>
+        </section-card>
+      </view>
+
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">机构位置</text>
+          <view class="location-address">
+            <text class="location-address__label">机构地址</text>
+            <text class="location-address__value">{{viewModel.location.address}}</text>
+            <text class="location-address__status location-address__status--{{viewModel.location.addressStatusTone}}">{{viewModel.location.addressStatus}}</text>
+          </view>
+          <button
+            class="location-map-action"
+            disabled="{{!viewModel.location.mapAction.available}}"
+            bindtap="onMapTap"
+          >{{viewModel.location.mapAction.label}}</button>
+          <text class="location-map-status location-map-status--{{viewModel.location.mapStatusTone}}">{{viewModel.location.mapStatus}}</text>
+          <view wx:if="{{actionErrorKey === 'map'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">机构官方电话</text>
+          <text class="section-subtitle">{{viewModel.officialContact.statusLabel}}</text>
+          <view wx:if="{{viewModel.officialContact.hasPhones}}" class="official-phone-list">
+            <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key" class="official-phone-row">
+              <view class="official-phone-row__head">
+                <text class="official-phone-row__purpose">{{item.purposeLabel}}</text>
+                <text class="official-phone-row__status official-phone-row__status--{{item.statusTone}}">{{item.statusLabel}}</text>
+              </view>
+              <text wx:if="{{item.displayValue}}" class="official-phone-row__number">{{item.displayValue}}</text>
+              <text wx:else class="official-phone-row__number official-phone-row__number--empty">{{item.statusLabel}}</text>
+              <text wx:if="{{item.verifiedDateLabel}}" class="official-phone-row__date">{{item.verifiedDateLabel}}</text>
+              <button wx:if="{{item.callAction.available}}" class="official-phone-row__action" data-phone-key="{{item.key}}" bindtap="onOfficialPhoneTap">{{item.callAction.label}}</button>
+              <text wx:else class="official-phone-row__action official-phone-row__action--disabled">{{item.callAction.label}}</text>
+            </view>
+          </view>
+          <view wx:else class="official-phone-empty">
+            <text>{{viewModel.officialContact.statusLabel}}</text>
+          </view>
+          <view wx:if="{{actionErrorKey === 'phone'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
       <view wx:if="{{viewModel.recommendation}}" class="detail-card-wrap">
         <section-card extraClass="recommendation-card">
           <text class="section-kicker">为什么推荐给您</text>
@@ -109,6 +162,43 @@
                 <text class="capability-row__verification">{{item.verification}}</text>
               </view>
             </view>
+          </view>
+        </section-card>
+      </view>
+
+      <view wx:if="{{viewModel.careProcess}}" class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">护理管理与交接</text>
+          <text class="section-subtitle section-subtitle--{{viewModel.careProcess.statusTone}}">{{viewModel.careProcess.statusLabel}}</text>
+          <view wx:if="{{viewModel.careProcess.hasFacts}}">
+            <text wx:if="{{viewModel.careProcess.careRecordRows.length}}" class="care-subsection-title">护理记录</text>
+            <view wx:for="{{viewModel.careProcess.careRecordRows}}" wx:key="key" class="fact-row">
+              <text class="fact-row__label">{{item.label}}</text>
+              <view class="fact-row__body">
+                <text class="fact-row__value">{{item.value}}</text>
+                <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+              </view>
+            </view>
+            <text wx:if="{{viewModel.careProcess.handoverPresence}}" class="care-subsection-title">24小时交接班流程</text>
+            <view wx:if="{{viewModel.careProcess.handoverPresence}}" class="fact-row">
+              <text class="fact-row__label">{{viewModel.careProcess.handoverPresence.label}}</text>
+              <view class="fact-row__body">
+                <text class="fact-row__value">{{viewModel.careProcess.handoverPresence.value}}</text>
+                <text class="fact-row__status fact-row__status--{{viewModel.careProcess.handoverPresence.statusTone}}">{{viewModel.careProcess.handoverPresence.statusSummary}}</text>
+              </view>
+            </view>
+            <text wx:if="{{viewModel.careProcess.handoverContentRows.length}}" class="care-subsection-title">交接内容</text>
+            <view wx:for="{{viewModel.careProcess.handoverContentRows}}" wx:key="key" class="fact-row">
+              <text class="fact-row__label">{{item.label}}</text>
+              <view class="fact-row__body">
+                <text class="fact-row__value">{{item.value}}</text>
+                <text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text>
+              </view>
+            </view>
+            <text wx:if="{{viewModel.careProcess.pendingLabel}}" class="care-pending">{{viewModel.careProcess.pendingLabel}}</text>
+          </view>
+          <view wx:else class="care-empty">
+            <text>{{viewModel.careProcess.emptyMessage}}</text>
           </view>
         </section-card>
       </view>

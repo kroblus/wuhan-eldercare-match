@@ -361,13 +361,19 @@ export interface InstitutionDetailFutureSectionsV121 {
   careProcess: InstitutionCareProcessApplicationSnapshotV121
 }
 
+export type InstitutionCareProcessSectionStateV121 =
+  | 'not_integrated'
+  | 'not_in_source_contract'
+  | 'available_for_schema'
+  | 'not_applicable_for_schema'
+
 export interface InstitutionDetailSectionsV12 {
   basic: InstitutionDetailBasicDisplay
   recommendation: InstitutionDetailRecommendationDisplay | null
   media: InstitutionDetailMediaDisplay
   careCapability: InstitutionCareCapabilityDisplay
-  careProcess: { state: 'not_integrated' | 'not_in_source_contract' }
-  /** Prepared for V1.2.1 consumers; current WXML intentionally ignores it. */
+  careProcess: { state: InstitutionCareProcessSectionStateV121 }
+  /** Application-safe V1.2.1 sections consumed by the Detail ViewModel. */
   futureV121?: InstitutionDetailFutureSectionsV121
   staffing: Readonly<Record<string, unknown>>
   medicalRehabilitationMonitoring: Readonly<Record<string, unknown>>

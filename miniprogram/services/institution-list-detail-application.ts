@@ -14,6 +14,7 @@ import type {
   InstitutionDetailApplicationErrorV12,
   InstitutionDetailApplicationResultV12,
   InstitutionDetailApplicationSnapshotV12,
+  InstitutionDetailSectionsV12,
   InstitutionDetailRecommendationDisplay,
   InstitutionDetailFutureSectionsV121,
   InstitutionListApplicationResultV12,
@@ -648,7 +649,13 @@ const futureSectionsFor = (
   evaluationAsOf: string,
   publicContent: PublicContentApplicationInput,
 ):
-  | { ok: true; value: InstitutionDetailFutureSectionsV121 }
+  | {
+      ok: true
+      value: {
+        sections: InstitutionDetailFutureSectionsV121
+        careProcessState: InstitutionDetailSectionsV12['careProcess']['state']
+      }
+    }
   | { ok: false; error: { code: string } } => {
   const identity = {
     institutionId: record.institutionId,
@@ -657,14 +664,20 @@ const futureSectionsFor = (
   if (dataset === null) {
     return {
       ok: true,
-      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+      value: {
+        sections: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+        careProcessState: 'not_applicable_for_schema',
+      },
     }
   }
   const source = sourceV121ForDataset(dataset, identity)
   if (!source.ok && source.error.code === 'LEGACY_DATASET_WITHOUT_V121_SOURCE') {
     return {
       ok: true,
-      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+      value: {
+        sections: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+        careProcessState: 'not_applicable_for_schema',
+      },
     }
   }
   // A V1.2.1 dataset may still be used to display a historical V1.1 pinned
@@ -675,14 +688,20 @@ const futureSectionsFor = (
   if (!source.ok && source.error.code === 'HISTORICAL_V11_SOURCE_NOT_IN_CURRENT_DATASET') {
     return {
       ok: true,
-      value: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+      value: {
+        sections: unavailableFutureSectionsWithPublicContent(record.institutionId, publicContent),
+        careProcessState: 'not_applicable_for_schema',
+      },
     }
   }
   if (!source.ok) return source
   try {
     return {
       ok: true,
-      value: projectInstitutionFutureSectionsV121(source.value, evaluationAsOf, publicContent),
+      value: {
+        sections: projectInstitutionFutureSectionsV121(source.value, evaluationAsOf, publicContent),
+        careProcessState: 'available_for_schema',
+      },
     }
   } catch (_error) {
     return { ok: false, error: { code: 'V121_FUTURE_SECTION_PROJECTION_ERROR' } }
@@ -702,6 +721,7 @@ const projectDetail = (
     canViewCurrentRevision: boolean
     sourceContractVersion?: InstitutionDetailApplicationSnapshotV12['sourceContractVersion']
     futureV121?: InstitutionDetailFutureSectionsV121
+    careProcessState?: InstitutionDetailSectionsV12['careProcess']['state']
   },
 ): InstitutionDetailApplicationResultV12 => {
   try {
@@ -768,7 +788,8 @@ export const createInstitutionDetailApplicationServiceV12 = (
         revisionContext,
         recommendationContext: null,
         canViewCurrentRevision: false,
-        futureV121: futureV121.value,
+        futureV121: futureV121.value.sections,
+        careProcessState: futureV121.value.careProcessState,
         sourceContractVersion: current.value.dataset.sourceContractVersion || 'institution-contract-v1.1',
       })
     }
@@ -853,7 +874,8 @@ export const createInstitutionDetailApplicationServiceV12 = (
       recommendationContext: recommendationDisplay(candidate),
       canViewCurrentRevision: currentIdentity !== null
         && !equalInstitutionCanonicalIdentity(currentIdentity, identity.value),
-      futureV121: futureV121.value,
+      futureV121: futureV121.value.sections,
+      careProcessState: futureV121.value.careProcessState,
       sourceContractVersion: sourceCurrentDataset === null
         ? 'institution-contract-v1.1'
         : sourceCurrentDataset.sourceContractVersion || 'institution-contract-v1.1',
@@ -913,7 +935,8 @@ export const createInstitutionDetailApplicationServiceV12 = (
       revisionContext,
       recommendationContext: null,
       canViewCurrentRevision: false,
-      futureV121: futureV121.value,
+      futureV121: futureV121.value.sections,
+      careProcessState: futureV121.value.careProcessState,
       sourceContractVersion: currentResult.value.sourceContractVersion || 'institution-contract-v1.1',
     })
   },

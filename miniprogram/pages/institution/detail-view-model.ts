@@ -1,10 +1,20 @@
 import type {
+  CareProcessPresenceCode,
+  CareRecordCompletenessCode,
+  CareRecordFrequencyCode,
+  CareRecordTraceabilityCode,
+  HandoverContentCode,
+} from '../../types/institution-v1-2'
+import type {
   InstitutionCapabilityDisplayItem,
   InstitutionDetailApplicationSnapshotV12,
   InstitutionDetailMediaDisplay,
   InstitutionDetailPageStateV12,
   InstitutionDetailRoomDisplay,
+  InstitutionDetailFutureSectionsV121,
   InstitutionEffectiveVerification,
+  InstitutionMapApplicationStatusV121,
+  InstitutionOfficialPhoneApplicationSnapshotV121,
   InstitutionPresentationAvailability,
 } from '../../types/institution-list-detail'
 import type { InstitutionEffectiveCapabilityStatus } from '../../types/institution'
@@ -57,6 +67,85 @@ export interface InstitutionDetailRecommendationViewModel {
   differences: readonly InstitutionDetailFactRowViewModel[]
 }
 
+export interface InstitutionDetailIntroductionViewModel {
+  text: string
+  sourceLabel: string
+  updatedDateLabel: string
+}
+
+export type InstitutionDetailAddressState =
+  | 'ready'
+  | 'address_unknown'
+  | 'address_unavailable'
+  | 'address_unverified'
+  | 'address_expired'
+
+export type InstitutionDetailLocationState = InstitutionDetailAddressState | 'map_unavailable' | 'map_ready'
+
+export type InstitutionDetailMapActionViewModel =
+  | {
+      available: true
+      label: string
+      latitude: number
+      longitude: number
+      name: string
+      address: string
+      scale: 16
+    }
+  | {
+      available: false
+      label: string
+      disabledReason: string
+    }
+
+export interface InstitutionDetailLocationViewModel {
+  state: InstitutionDetailLocationState
+  addressState: InstitutionDetailAddressState
+  address: string
+  addressStatus: string
+  addressStatusTone: InstitutionDetailFactRowViewModel['statusTone']
+  mapState: 'map_unavailable' | 'map_ready'
+  mapStatus: string
+  mapStatusTone: InstitutionDetailFactRowViewModel['statusTone']
+  mapAction: InstitutionDetailMapActionViewModel
+}
+
+export type InstitutionDetailOfficialPhoneState = 'verified' | 'pending' | 'expired' | 'unknown' | 'unavailable'
+
+export type InstitutionDetailPhoneActionViewModel =
+  | { available: true; label: string; dialValue: string }
+  | { available: false; label: string }
+
+export interface InstitutionDetailOfficialPhoneViewModel {
+  key: string
+  purposeLabel: string
+  displayValue: string
+  state: InstitutionDetailOfficialPhoneState
+  statusLabel: string
+  statusTone: InstitutionDetailFactRowViewModel['statusTone']
+  verifiedDateLabel: string
+  callAction: InstitutionDetailPhoneActionViewModel
+}
+
+export interface InstitutionDetailOfficialContactViewModel {
+  state: 'ready' | 'unknown' | 'unavailable'
+  statusLabel: string
+  statusTone: InstitutionDetailFactRowViewModel['statusTone']
+  hasPhones: boolean
+  phones: readonly InstitutionDetailOfficialPhoneViewModel[]
+}
+
+export interface InstitutionDetailCareProcessViewModel {
+  statusLabel: string
+  statusTone: InstitutionDetailFactRowViewModel['statusTone']
+  hasFacts: boolean
+  pendingLabel: string
+  emptyMessage: string
+  careRecordRows: readonly InstitutionDetailFactRowViewModel[]
+  handoverPresence: InstitutionDetailFactRowViewModel | null
+  handoverContentRows: readonly InstitutionDetailFactRowViewModel[]
+}
+
 export interface InstitutionDetailPageViewModelV12 {
   pageState: 'ready'
   title: string
@@ -69,6 +158,10 @@ export interface InstitutionDetailPageViewModelV12 {
   canViewCurrentRevision: boolean
   currentRevisionLabel: string
   recommendation: InstitutionDetailRecommendationViewModel | null
+  introduction: InstitutionDetailIntroductionViewModel | null
+  location: InstitutionDetailLocationViewModel
+  officialContact: InstitutionDetailOfficialContactViewModel
+  careProcess: InstitutionDetailCareProcessViewModel | null
   basicRows: readonly InstitutionDetailFactRowViewModel[]
   media: InstitutionDetailMediaViewModel
   capabilityGroups: readonly {
@@ -170,6 +263,29 @@ const CODE_LABELS: Record<string, string> = {
   other_fee: '其他费用',
 }
 
+const OFFICIAL_PHONE_PURPOSE_LABELS: Record<string, string> = {
+  main: '机构主电话',
+  admission_consultation: '入住咨询',
+  service: '服务电话',
+  other: '其它',
+}
+
+const CARE_FREQUENCY_LABELS: Record<CareRecordFrequencyCode, string> = {
+  per_shift: '每班次',
+  daily: '每日',
+  event_based: '按事件',
+  other: '其他频率',
+}
+
+const HANDOVER_CONTENT_LABELS: Record<HandoverContentCode, string> = {
+  vital_signs: '生命体征',
+  abnormal_events: '异常情况',
+  interventions_recorded: '处理措施记录',
+  follow_up: '后续跟进',
+  family_communication: '家属沟通',
+  medical_transfer: '转医信息',
+}
+
 const FIELD_LABELS: Record<string, string> = {
   name: '机构名称',
   region: '所在区域',
@@ -249,6 +365,57 @@ const FIELD_LABELS: Record<string, string> = {
   count: '人数',
 }
 
+const emptyFutureSections = (): InstitutionDetailFutureSectionsV121 => ({
+  publicIntroduction: {
+    status: 'unavailable',
+    contentRevision: null,
+    text: null,
+    sourceType: null,
+    updatedAt: null,
+  },
+  officialContact: {
+    status: 'unavailable',
+    directory: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+    phones: [],
+  },
+  officialAddress: {
+    status: 'unavailable',
+    formattedAddress: null,
+    effectiveVerification: 'unverified',
+  },
+  mapLocation: {
+    status: 'unavailable',
+    institutionName: '',
+    formattedAddress: null,
+    latitude: null,
+    longitude: null,
+    coordinateSystem: null,
+    addressVerification: null,
+    geoVerification: null,
+    mapActionAvailable: false,
+  },
+  careProcess: {
+    status: 'unavailable',
+    careRecord: {
+      presence: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+      completeness: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+      frequency: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+      traceability: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+    },
+    shiftHandover24h: {
+      presence: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+      contents: {
+        vital_signs: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+        abnormal_events: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+        interventions_recorded: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+        follow_up: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+        family_communication: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+        medical_transfer: { availability: 'unavailable', value: null, effectiveVerification: 'unverified' },
+      },
+    },
+  },
+})
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -272,6 +439,303 @@ const statusToneFor = (
   if (availability === 'unavailable' || verification === 'expired') return 'warning'
   if (availability === 'unknown' || verification === 'unverified') return 'muted'
   return 'positive'
+}
+
+const dateOnlyLabel = (value: string | null): string =>
+  typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? `核验日期：${value}` : ''
+
+const publicSourceLabel = (sourceType: string | null): string =>
+  sourceType === 'institution_supplied' ? '机构提供' : sourceType === 'platform_edited' ? '平台整理' : ''
+
+const introductionViewModel = (
+  introduction: InstitutionDetailFutureSectionsV121['publicIntroduction'],
+): InstitutionDetailIntroductionViewModel | null => {
+  if (introduction.status !== 'ready'
+    || typeof introduction.text !== 'string'
+    || introduction.text.trim().length === 0) return null
+  return {
+    text: introduction.text,
+    sourceLabel: publicSourceLabel(introduction.sourceType),
+    updatedDateLabel: dateOnlyLabel(introduction.updatedAt),
+  }
+}
+
+const addressStateFor = (
+  address: InstitutionDetailFutureSectionsV121['officialAddress'],
+): InstitutionDetailAddressState => {
+  if (address.status === 'unknown') return 'address_unknown'
+  if (address.status === 'unavailable') return 'address_unavailable'
+  if (address.effectiveVerification === 'expired') return 'address_expired'
+  if (address.effectiveVerification === 'unverified') return 'address_unverified'
+  return 'ready'
+}
+
+const addressStatusCopy = (state: InstitutionDetailAddressState): string => {
+  if (state === 'address_unknown') return '机构地址待确认'
+  if (state === 'address_unavailable') return '当前暂无可提供的机构地址'
+  if (state === 'address_unverified') return '地址资料待核验'
+  if (state === 'address_expired') return '地址资料已过核验期'
+  return '地址已核验'
+}
+
+const mapStatusCopy = (status: InstitutionMapApplicationStatusV121): string => {
+  if (status === 'available') return '可查看地图'
+  if (status === 'address_unknown') return '机构地址待确认'
+  if (status === 'address_unavailable') return '当前暂无可提供的机构地址'
+  if (status === 'address_unverified') return '地址资料待核验'
+  if (status === 'address_expired') return '地址资料已过核验期'
+  if (status === 'geo_unknown') return '地图位置待确认'
+  if (status === 'geo_unavailable') return '当前暂无可提供的地图位置'
+  if (status === 'geo_unverified') return '地图位置待核验'
+  if (status === 'geo_expired') return '地图位置资料已过核验期'
+  return '地图暂不可用'
+}
+
+const mapStatusTone = (
+  status: InstitutionMapApplicationStatusV121,
+): InstitutionDetailFactRowViewModel['statusTone'] => {
+  if (status === 'available') return 'positive'
+  if (status === 'address_unavailable' || status === 'geo_unavailable'
+    || status === 'address_expired' || status === 'geo_expired' || status === 'unavailable') return 'warning'
+  return 'muted'
+}
+
+const locationViewModel = (
+  future: InstitutionDetailFutureSectionsV121,
+): InstitutionDetailLocationViewModel => {
+  const addressState = addressStateFor(future.officialAddress)
+  const addressStatus = addressStatusCopy(addressState)
+  const address = future.officialAddress.formattedAddress || addressStatus
+  const addressStatusTone = addressState === 'address_unavailable' || addressState === 'address_expired'
+    ? 'warning'
+    : addressState === 'ready' ? 'positive' : 'muted'
+  const mapReady = future.mapLocation.mapActionAvailable
+  const mapStatus = mapStatusCopy(future.mapLocation.status)
+  const mapAction: InstitutionDetailMapActionViewModel = mapReady
+    ? {
+        available: true,
+        label: '查看地图',
+        latitude: future.mapLocation.latitude as number,
+        longitude: future.mapLocation.longitude as number,
+        name: future.mapLocation.institutionName,
+        address: future.mapLocation.formattedAddress as string,
+        scale: 16,
+      }
+    : {
+        available: false,
+        label: '查看地图',
+        disabledReason: mapStatus,
+      }
+  return {
+    state: mapReady
+      ? 'map_ready'
+      : addressState === 'ready' && future.mapLocation.status !== 'available'
+        ? 'map_unavailable'
+        : addressState,
+    addressState,
+    address,
+    addressStatus,
+    addressStatusTone,
+    mapState: mapReady ? 'map_ready' : 'map_unavailable',
+    mapStatus,
+    mapStatusTone: mapStatusTone(future.mapLocation.status),
+    mapAction,
+  }
+}
+
+const officialPhoneState = (
+  phone: InstitutionOfficialPhoneApplicationSnapshotV121,
+): InstitutionDetailOfficialPhoneState => {
+  if (phone.status === 'current_verified') return 'verified'
+  if (phone.status === 'unverified_with_source') return 'pending'
+  if (phone.status === 'expired') return 'expired'
+  return 'unknown'
+}
+
+const officialPhoneStatusLabel = (state: InstitutionDetailOfficialPhoneState): string => {
+  if (state === 'verified') return '已核验'
+  if (state === 'pending') return '待核验'
+  if (state === 'expired') return '电话资料已过核验期'
+  if (state === 'unavailable') return '当前暂无可提供的官方联系电话'
+  return '官方联系电话待确认'
+}
+
+const officialPhoneStatusTone = (
+  state: InstitutionDetailOfficialPhoneState,
+): InstitutionDetailFactRowViewModel['statusTone'] =>
+  state === 'verified' ? 'positive' : state === 'expired' || state === 'unavailable' ? 'warning' : 'muted'
+
+const officialPhoneViewModel = (
+  phone: InstitutionOfficialPhoneApplicationSnapshotV121,
+): InstitutionDetailOfficialPhoneViewModel => {
+  const state = officialPhoneState(phone)
+  const callAvailable = phone.callActionAvailable
+  const displayValue = state === 'verified' || state === 'pending'
+    ? phone.displayValue || '官方联系电话待确认' : ''
+  return {
+    key: phone.officialPhoneKey,
+    purposeLabel: OFFICIAL_PHONE_PURPOSE_LABELS[phone.purpose] || '其它',
+    displayValue,
+    state,
+    statusLabel: officialPhoneStatusLabel(state),
+    statusTone: officialPhoneStatusTone(state),
+    verifiedDateLabel: dateOnlyLabel(phone.verifiedDate),
+    callAction: callAvailable
+      ? { available: true, label: '拨打机构电话', dialValue: phone.dialValue as string }
+      : { available: false, label: state === 'expired' ? '电话资料已过核验期' : '暂不可拨打' },
+  }
+}
+
+const officialContactViewModel = (
+  contact: InstitutionDetailFutureSectionsV121['officialContact'],
+): InstitutionDetailOfficialContactViewModel => {
+  const phones = contact.phones.map(officialPhoneViewModel)
+  const state: InstitutionDetailOfficialContactViewModel['state'] = contact.status === 'unknown'
+    ? 'unknown' : contact.status === 'unavailable' ? 'unavailable' : 'ready'
+  const statusLabel = state === 'unknown'
+    ? '官方联系电话待确认'
+    : state === 'unavailable'
+      ? '当前暂无可提供的官方联系电话'
+      : phones.length > 0 ? '机构官方联系方式' : '官方联系电话待确认'
+  return {
+    state,
+    statusLabel,
+    statusTone: state === 'unavailable' ? 'warning' : state === 'unknown' ? 'muted' : 'neutral',
+    hasPhones: phones.length > 0,
+    phones,
+  }
+}
+
+const carePresenceValue = (
+  value: unknown,
+  effectiveVerification: InstitutionEffectiveVerification,
+): string => {
+  if (value === 'present') {
+    return effectiveVerification === 'unverified' ? '机构资料称存在' : '有'
+  }
+  if (value === 'absent') {
+    return effectiveVerification === 'unverified' ? '机构资料称暂无' : '已确认暂无'
+  }
+  return ''
+}
+
+const careCompletenessValue = (value: unknown): string =>
+  value === 'complete' ? '完整' : value === 'partial' ? '部分完整' : ''
+
+const careFrequencyValue = (value: unknown): string => {
+  if (!Array.isArray(value)) return ''
+  return value.map((item) => CARE_FREQUENCY_LABELS[item as CareRecordFrequencyCode] || '')
+    .filter((item) => item.length > 0)
+    .join('、')
+}
+
+const careTraceabilityValue = (value: unknown): string =>
+  value === 'traceable' ? '可追溯' : value === 'not_traceable' ? '暂不可追溯' : ''
+
+const careFactRow = (
+  key: string,
+  label: string,
+  fact: {
+    availability: InstitutionPresentationAvailability
+    value: CareProcessPresenceCode | CareRecordCompletenessCode | CareRecordTraceabilityCode
+      | readonly CareRecordFrequencyCode[] | null
+    effectiveVerification: InstitutionEffectiveVerification
+  },
+  formatter: (value: unknown, effectiveVerification: InstitutionEffectiveVerification) => string,
+): InstitutionDetailFactRowViewModel | null => {
+  if (fact.availability !== 'provided'
+    || fact.value === null
+    || formatter(fact.value, fact.effectiveVerification).length === 0) return null
+  const row = factRow(key, label, fact)
+  const formatted = formatter(fact.value, fact.effectiveVerification)
+  return {
+    ...row,
+    value: fact.effectiveVerification === 'expired' ? `此前资料：${formatted}` : formatted,
+  }
+}
+
+const HANDOVER_CONTENT_KEYS: readonly HandoverContentCode[] = [
+  'vital_signs',
+  'abnormal_events',
+  'interventions_recorded',
+  'follow_up',
+  'family_communication',
+  'medical_transfer',
+]
+
+const careProcessViewModel = (
+  careProcess: InstitutionDetailFutureSectionsV121['careProcess'],
+): InstitutionDetailCareProcessViewModel => {
+  const careRecordRows = [
+    careFactRow('careProcess.careRecord.presence', '护理记录', careProcess.careRecord.presence, carePresenceValue),
+    careFactRow('careProcess.careRecord.completeness', '护理记录完整性', careProcess.careRecord.completeness, careCompletenessValue),
+    careFactRow('careProcess.careRecord.frequency', '记录频率', careProcess.careRecord.frequency, careFrequencyValue),
+    careFactRow('careProcess.careRecord.traceability', '可追溯性', careProcess.careRecord.traceability, careTraceabilityValue),
+  ].filter((row): row is InstitutionDetailFactRowViewModel => row !== null)
+  const handoverPresence = careFactRow(
+    'careProcess.shiftHandover24h.presence',
+    '24小时交接',
+    careProcess.shiftHandover24h.presence,
+    carePresenceValue,
+  )
+  const handoverContentRows = HANDOVER_CONTENT_KEYS.map((key) => careFactRow(
+    `careProcess.shiftHandover24h.contents.${key}`,
+    HANDOVER_CONTENT_LABELS[key],
+    careProcess.shiftHandover24h.contents[key],
+    carePresenceValue,
+  )).filter((row): row is InstitutionDetailFactRowViewModel => row !== null)
+  const allFacts = [
+    careProcess.careRecord.presence,
+    careProcess.careRecord.completeness,
+    careProcess.careRecord.frequency,
+    careProcess.careRecord.traceability,
+    careProcess.shiftHandover24h.presence,
+    ...HANDOVER_CONTENT_KEYS.map((key) => careProcess.shiftHandover24h.contents[key]),
+  ]
+  const hasFacts = careRecordRows.length > 0 || handoverPresence !== null || handoverContentRows.length > 0
+  const hasPending = allFacts.some((fact) => fact.availability !== 'provided' || fact.value === null)
+  const statusLabel = !hasFacts
+    ? careProcess.status === 'unavailable' ? '当前暂无可提供的护理管理与交接资料' : '相关资料待确认'
+    : hasPending ? '部分资料已提供，部分资料待确认' : '资料已提供'
+  return {
+    statusLabel,
+    statusTone: !hasFacts
+      ? careProcess.status === 'unavailable' ? 'warning' : 'muted'
+      : hasPending ? 'neutral' : 'positive',
+    hasFacts,
+    pendingLabel: hasFacts && hasPending ? '部分字段资料待确认' : '',
+    emptyMessage: careProcess.status === 'unavailable'
+      ? '当前暂无可提供的护理管理与交接资料' : '相关资料待确认',
+    careRecordRows,
+    handoverPresence,
+    handoverContentRows,
+  }
+}
+
+const careProcessForSnapshot = (
+  snapshot: InstitutionDetailApplicationSnapshotV12,
+  future: InstitutionDetailFutureSectionsV121,
+): InstitutionDetailCareProcessViewModel | null => {
+  const sectionState = snapshot.sections.careProcess.state
+  if (sectionState !== 'not_applicable_for_schema'
+    && sectionState !== 'not_in_source_contract') {
+    return careProcessViewModel(future.careProcess)
+  }
+  if (snapshot.contextKind === 'DIRECT_CURRENT'
+    || snapshot.contextKind === 'CURRENT_INSTITUTION_CONTEXT') return null
+
+  const message = '该版本机构资料尚未包含护理管理信息'
+  return {
+    statusLabel: message,
+    statusTone: 'muted',
+    hasFacts: false,
+    pendingLabel: '',
+    emptyMessage: message,
+    careRecordRows: [],
+    handoverPresence: null,
+    handoverContentRows: [],
+  }
 }
 
 const formatMoney = (amountMinor: unknown): string => {
@@ -519,6 +983,7 @@ export const createInstitutionDetailPageViewModel = (
   snapshot: InstitutionDetailApplicationSnapshotV12,
 ): InstitutionDetailPageViewModelV12 => {
   const history = historyCopy(snapshot)
+  const future = snapshot.sections.futureV121 || emptyFutureSections()
   const recommendation = snapshot.recommendationContext === null ? null : {
     tierLabel: recommendationTierLabelV2(snapshot.recommendationContext.tier),
     reasons: recommendationRows(snapshot.recommendationContext.reasons, 'reason', false),
@@ -538,6 +1003,10 @@ export const createInstitutionDetailPageViewModel = (
     canViewCurrentRevision: snapshot.actions.canViewCurrentRevision,
     currentRevisionLabel: '查看当前机构资料',
     recommendation,
+    introduction: introductionViewModel(future.publicIntroduction),
+    location: locationViewModel(future),
+    officialContact: officialContactViewModel(future.officialContact),
+    careProcess: careProcessForSnapshot(snapshot, future),
     basicRows: basicRows(snapshot),
     media: mediaViewModel(
       snapshot.sections.media,
