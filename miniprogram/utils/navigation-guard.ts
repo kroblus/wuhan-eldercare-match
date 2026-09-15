@@ -52,6 +52,7 @@ export const resetNavigationGuard = (instance: object): void => {
 }
 
 export type NavigateToInvoker = (options: WechatMiniprogram.NavigateToOption) => unknown
+export type NavigationFailureHandler = () => void
 
 const defaultNavigateTo: NavigateToInvoker = (options) => wx.navigateTo(options)
 
@@ -60,6 +61,7 @@ export const navigateToWithGuard = (
   action: string,
   url: string,
   navigateTo: NavigateToInvoker = defaultNavigateTo,
+  onFailure?: NavigationFailureHandler,
 ): boolean => {
   const guard = getNavigationGuard(instance)
   if (!guard.acquire(action)) {
@@ -67,6 +69,16 @@ export const navigateToWithGuard = (
   }
 
   let navigationSucceeded = false
+  let failureNotified = false
+  const handleFailure = () => {
+    guard.release(action)
+    if (!failureNotified) {
+      failureNotified = true
+      if (onFailure) {
+        onFailure()
+      }
+    }
+  }
   try {
     navigateTo({
       url,
@@ -74,16 +86,16 @@ export const navigateToWithGuard = (
         navigationSucceeded = true
       },
       fail: () => {
-        guard.release(action)
+        handleFailure()
       },
       complete: () => {
         if (!navigationSucceeded) {
-          guard.release(action)
+          handleFailure()
         }
       },
     })
   } catch {
-    guard.release(action)
+    handleFailure()
     return false
   }
 

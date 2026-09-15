@@ -271,6 +271,16 @@ Page({
       })
       return
     }
-    navigateToWithGuard(this, 'budget.next', '/pages/assessment/profile')
+    navigateToWithGuard(
+      this,
+      'budget.next',
+      '/pages/assessment/profile',
+      undefined,
+      () => {
+        this.setData({
+          formError: '暂时无法打开老人需求画像，请重试',
+        })
+      },
+    )
   },
 })

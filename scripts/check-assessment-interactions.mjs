@@ -125,6 +125,7 @@ const runtimeState = {
   removeStorageCalls: 0,
   scrollCalls: [],
   setDataCalls: [],
+  failNextNavigateTo: false,
 }
 const previousComponent = globalThis.Component
 const previousPage = globalThis.Page
@@ -161,6 +162,16 @@ globalThis.wx = {
   },
   navigateTo(options) {
     runtimeState.navigationCalls.push({ type: 'navigateTo', url: options.url, options })
+    if (runtimeState.failNextNavigateTo) {
+      runtimeState.failNextNavigateTo = false
+      if (options.fail) {
+        options.fail({ errMsg: 'navigateTo:fail test' })
+      }
+      if (options.complete) {
+        options.complete({ errMsg: 'navigateTo:fail test' })
+      }
+      return
+    }
     if (options.success) {
       options.success()
     }
@@ -556,6 +567,7 @@ const run = async () => {
     runtimeState.removeStorageCalls = 0
     runtimeState.scrollCalls.length = 0
     runtimeState.setDataCalls.length = 0
+    runtimeState.failNextNavigateTo = false
     runtimeState.pageStack = [
       { route: 'pages/assessment/intro' },
       { route: `pages/assessment/${step}` },
@@ -1036,6 +1048,27 @@ const run = async () => {
         )
         assert.deepEqual(draftStore.getDraft().answers, {})
       }
+    },
+  )
+
+  runCase(
+    'BUDGET_NAVIGATION_FAILURE_VISIBLE_AND_RETRY',
+    'Budget valid Next receives navigateTo failure, shows an actionable footer error, releases the guard, then retries successfully',
+    () => {
+      const budgetSpec = pageSpecs.find((spec) => spec.step === 'budget')
+      const page = preparePage(budgetSpec)
+      prepareForCompleteNext(budgetSpec, page)
+      runtimeState.failNextNavigateTo = true
+
+      invokePageHandler(page, 'onNext')
+      assert.equal(page.handlerCalls.onNext, 1)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 1)
+      assert.match(page.data.formError, /无法打开老人需求画像/)
+
+      invokePageHandler(page, 'onNext')
+      assert.equal(page.handlerCalls.onNext, 2)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 2)
+      assert.equal(page.data.formError, '')
     },
   )
 
