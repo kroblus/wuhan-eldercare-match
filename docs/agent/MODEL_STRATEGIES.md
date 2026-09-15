@@ -1,10 +1,16 @@
-# Model Strategy — Quota Balanced
+# Model Strategy — Runtime Selected
 
-## Default
+## Runtime source
 
-Keep the project default on `gpt-5.6-sol` + `max`; keep bounded subagents on `gpt-5.6-luna` + `max`.
+Main-session model and reasoning are selected by the current session/runtime. Subagent defaults come from the current
+`.codex/config.toml`. Agent Engineering documents do not duplicate or freeze those runtime values.
 
-Goal: get the context-routing gains of Agent Engineering V2.1 without changing the model-cost variable at the same time.
+## Selection principles
+
+1. Match model/reasoning selection to task complexity, risk, latency and available quota.
+2. Use specialist ownership to reduce duplicated context; a model name does not replace domain routing.
+3. Do not silently change repository runtime defaults as part of an unrelated feature or documentation task.
+4. When comparing model configurations, keep the code baseline and task scope stable and record the runtime selection with the result.
 
 ## Quota rules
 
@@ -13,9 +19,3 @@ Goal: get the context-routing gains of Agent Engineering V2.1 without changing t
 3. Do not default-load `CONTRACT_INDEX.md`; it is a fallback router.
 4. Do not load multiple Skills unless their trigger surfaces actually overlap.
 5. Stop expanding tests after the relevant Gate passes unless shared code, a failure, or the Contract justifies more.
-
-## Astra pilot
-
-Use Astra as an escalation/pilot model for difficult cross-domain architecture, Contract design, hard debugging, or final high-stakes audit rather than making it the default immediately.
-
-For A/B, keep the same commit and subagent setup; compare irrelevant-document reads, agent count, test count, retries, unrelated diff, first-pass success and client-visible quota use.

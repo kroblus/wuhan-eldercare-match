@@ -1,41 +1,27 @@
 # 武汉养老机构精准匹配小程序
 
-面向武汉本地老人家庭的养老机构精准匹配微信小程序 MVP。
+面向武汉本地老人及其家庭的养老需求评估与机构匹配微信小程序。
 
-核心闭环：
+## 项目入口
 
-> 老人情况评估 → 老人需求画像 → 精准推荐 → 机构详情 → VR 看院 → 养老顾问 → 实地预约
+- [当前产品资料](docs/product/README.md)
+- [当前架构与文档生命周期](docs/architecture/README.md)
+- [Agent Engineering V2.1](docs/agent/README_AGENT_ENGINEERING_V2_1.md)
+- [项目级 Agent 规则](AGENTS.md)
 
-## 当前阶段
+## Source of Truth
 
-仓库目前处于 **Bootstrap** 阶段：只建立微信原生 TypeScript + Less 工程结构、基础组件、领域类型、开发 Mock 层和 P0 路由骨架，不代表业务功能已经完成。
+当前产品版本由 `docs/product/README.md` 指定；对应版本的 Frozen Contract / Ruleset 冻结业务语义。
+`docs/architecture/CONTRACT_INDEX.md` 仅在任务跨领域、版本归属不明或无法确定直接 Contract 时作为 fallback router。
+Proposal、Audit、Migration、redirect stub 与 `docs/archive/**` 默认不是当前实现依据。
 
-## 重要数据声明
+## 开发与验证
 
-第一阶段的机构数据仅用于开发 UI 和流程，必须同时满足：
-
-- 来源标记为 `MOCK_DEVELOPMENT_ONLY`；
-- 机构名称明确包含“示例”或“Mock”；
-- 页面可见位置展示开发 Mock 标识；
-- 不得作为真实机构价格、床位、护理能力、医疗能力、资质、评价或 VR 的依据；
-- 未知数据使用 `null`、`unknown`、“暂未提供”或“需咨询”，不得补造看似合理的事实。
-
-## 目录
+可用脚本以 `package.json` 为准。文档生命周期与引用的机械检查使用：
 
 ```text
-miniprogram/       微信原生 TypeScript + Less 小程序
-server/            后端占位；尚未创建正式 Spring Boot 工程
-docs/product/      产品 PRD
-docs/architecture/ 架构、路由和数据契约
-.codex/            项目级多 Agent 配置
+npm run check:doc-governance
 ```
 
-## 开发约束
-
-- 先评估、后推荐，推荐必须 deterministic、可解释、可测试。
-- 匿名用户可以浏览和填写评估；不得启动即强制登录或获取手机号。
-- 预约提交只代表“待确认”，不等于机构已确认。
-- V1 不采集身份证号码。
-- 不实现全国城市、复杂地图、资讯、社区、商城、直播、AI 顾问或复杂对比。
-
-详细约束见 [AGENTS.md](AGENTS.md) 和 `docs/product/`。
+微信生成 JavaScript 的兼容边界见
+`docs/architecture/WECHAT_RUNTIME_COMPATIBILITY_POLICY.md`；具体业务实现与验证要求以受影响的 CURRENT/FROZEN 文档为准。

@@ -5,7 +5,7 @@ description: Use for Mini Program class syntax, wx.* calls, generated-JS compati
 
 # WeChat runtime compatibility
 
-Read `docs/architecture/Luna Max 微信小程序兼容性长期约束.md` only for the affected surface.
+Read `docs/architecture/WECHAT_RUNTIME_COMPATIBILITY_POLICY.md` only for the affected surface.
 
 Keep the current TS/Less toolchain. Do not introduce class property initializers under `miniprogram/**`; preserve lexical `this`. Shared business actions must have one event path. When `wx.*` calls/parameters change, verify current project typings/API constraints and visible failure/state release for user-visible paths.
 

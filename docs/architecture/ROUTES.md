@@ -1,42 +1,30 @@
-# P0 页面与物理路由
+# 页面与物理路由注册表
 
-## 规则
+`miniprogram/app.json` 是物理 route 的 runtime truth。本文只提供人类与 Agent 可读的同步注册表，
+不记录项目进度、实现完成度或阶段顺序，也不授权增加尚未注册的 route。
 
-- 产品按 20 个 P0 业务页面管理。
-- “老人档案”是一个 P0 业务模块，但工程包含列表和详情两个物理路由。
-- 因此 Bootstrap 共注册 21 个物理路由。
-- 本批路由只提供可编译、可识别、可导航的最小壳层。
+“老人档案”是一个业务模块，在工程中使用列表和详情两个物理 route，因此当前共有 21 个物理 route。
 
-## 路由表
-
-| P0 | 业务页面 | 物理路由 | Tab | 本批状态 |
-|---:|---|---|---|---|
-| 01 | 首页 | `pages/home/index` | 首页 | 骨架 |
-| 02 | 评估说明 | `pages/assessment/intro` | - | 骨架 |
-| 03 | 老人基本情况 | `pages/assessment/basic` | - | 骨架 |
-| 04 | 健康情况 | `pages/assessment/health` | - | 骨架 |
-| 05 | 日常生活能力 | `pages/assessment/adl` | - | 骨架 |
-| 06 | 认知与特殊护理 | `pages/assessment/cognitive` | - | 骨架 |
-| 07 | 养老需求与偏好 | `pages/assessment/preference` | - | 骨架 |
-| 08 | 预算与入住计划 | `pages/assessment/budget` | - | 骨架 |
-| 09 | 老人需求画像确认 | `pages/assessment/profile` | - | 骨架 |
-| 10 | 评估结果与机构推荐 | `pages/recommendation/result` | - | 骨架 |
-| 11 | 合作机构列表 | `pages/institution/index` | - | 骨架 |
-| 12 | 机构详情 | `pages/institution/detail` | - | 骨架 |
-| 13 | VR 看院 | `pages/institution/vr` | - | 无真实 VR 空状态骨架 |
-| 14 | 养老顾问 | `pages/consultant/index` | 养老顾问 | 骨架 |
-| 15 | 预约看院 | `pages/appointment/create` | - | 骨架 |
-| 16 | 预约成功 | `pages/appointment/success` | - | 仅真实提交结果可进入的说明骨架 |
-| 17 | 我的 | `pages/mine/index` | 我的 | 匿名状态骨架 |
-| 18 | 老人档案 | `pages/elder/index` | - | 列表骨架 |
-| 18 | 老人档案 | `pages/elder/detail` | - | 配套详情骨架 |
-| 19 | 我的评估 | `pages/assessment/history` | - | 骨架 |
-| 20 | 我的预约 | `pages/appointment/index` | - | 骨架 |
-
-## 核心闭环优先级
-
-后续业务实现严格按以下顺序推进：
-
-> 评估 → 老人画像 → 推荐结果 → 机构详情 → VR → 预约
-
-路由存在不代表业务完成。每个里程碑必须单独实现、验证并由 QA 独立检查。
+| 业务页面 | 物理 route | 类型 | 稳定用途 |
+|---|---|---|---|
+| 首页 | `pages/home/index` | Tab：首页 | 产品入口与主要服务入口 |
+| 评估说明 | `pages/assessment/intro` | Non-Tab | 进入评估前的说明 |
+| 老人基本情况 | `pages/assessment/basic` | Non-Tab | 采集基本情况 |
+| 健康情况 | `pages/assessment/health` | Non-Tab | 采集健康相关答案 |
+| 日常生活能力 | `pages/assessment/adl` | Non-Tab | 采集 ADL 答案 |
+| 认知与特殊护理 | `pages/assessment/cognitive` | Non-Tab | 采集认知与特殊护理答案 |
+| 养老需求与偏好 | `pages/assessment/preference` | Non-Tab | 采集入住偏好 |
+| 预算与入住计划 | `pages/assessment/budget` | Non-Tab | 采集预算与入住计划 |
+| 老人需求画像确认 | `pages/assessment/profile` | Non-Tab | 展示评估画像 |
+| 评估结果与机构推荐 | `pages/recommendation/result` | Non-Tab | 展示推荐结果 |
+| 合作机构列表 | `pages/institution/index` | Non-Tab | 展示机构列表 |
+| 机构详情 | `pages/institution/detail` | Non-Tab | 展示机构详情 |
+| VR 看院 | `pages/institution/vr` | Non-Tab | 展示可用的 VR 看院入口或对应状态 |
+| 养老顾问 | `pages/consultant/index` | Tab：养老顾问 | 顾问服务入口 |
+| 预约看院 | `pages/appointment/create` | Non-Tab | 发起预约申请 |
+| 预约成功 | `pages/appointment/success` | Non-Tab | 展示预约申请结果 |
+| 我的 | `pages/mine/index` | Tab：我的 | 用户相关功能入口 |
+| 老人档案列表 | `pages/elder/index` | Non-Tab | 展示老人档案列表 |
+| 老人档案详情 | `pages/elder/detail` | Non-Tab | 展示老人档案详情 |
+| 我的评估 | `pages/assessment/history` | Non-Tab | 展示评估历史入口 |
+| 我的预约 | `pages/appointment/index` | Non-Tab | 展示预约记录入口 |

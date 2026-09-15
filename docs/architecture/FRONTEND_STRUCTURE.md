@@ -1,6 +1,10 @@
 # 小程序前端结构与所有权
 
-## 技术基线
+> 适用项目：武汉养老机构精准匹配小程序 / 养老对接小程序
+> 文档定位：前端长期稳定结构、模块职责与所有权约束。
+> 本文件不记录某个历史 Phase 的临时实施步骤；阶段性实现细节应由对应 Contract、交接摘要或任务记录承载。
+
+## 1. 技术基线
 
 - 微信原生小程序；
 - TypeScript；
@@ -8,7 +12,7 @@
 - Less，由微信开发者工具现有编译插件处理；
 - 不引入额外 UI 框架或复杂构建层。
 
-## 目录职责
+## 2. 目录职责
 
 ```text
 miniprogram/
@@ -23,17 +27,66 @@ miniprogram/
 └─ utils/       无业务状态的通用工具
 ```
 
-## Less 策略
+### 2.1 页面与组件
 
-- `tokens.less`：颜色、字号、行高、间距、圆角、边框、阴影和触控尺寸。
-- `mixins.less`：少量复用模式，例如卡片、点击区域、文本截断和焦点态。
-- `base.less`：页面背景、默认文字、盒模型和基础可访问性样式。
-- `app.less`：导入全局基础样式。
-- 页面与组件需要编译期变量或 mixin 时显式导入对应 Less 文件。
+- `pages/` 负责页面展示、页面级交互、页面生命周期和应用层调用；
+- `components/` 只承载小而稳定、可复用的 UI/交互单元；
+- 页面和组件不得复制 Frozen Contract 中的领域算法；
+- 页面展示只消费合法的 Application / Service 输出，不直接解释底层 verification、evidence 或领域判定。
 
-视觉方向为“温暖、可信、克制”：服务 35–65 岁家庭决策者，优先保证高对比、清楚层级、舒适行高和至少 88rpx 的主要触控区域。本批不实现复杂动画或完整品牌视觉。
+### 2.2 Domain
 
-## 首批基础组件
+`miniprogram/domain/**` 承载不依赖 Page、Component、Store、Service、Mock、网络和 `wx.*` 的纯领域逻辑。
+
+领域模块：
+
+- 只依赖自身允许的稳定类型与纯模块；
+- 不读取页面状态；
+- 不直接持久化；
+- 不直接访问机构 Provider、网络或微信运行时；
+- Frozen Domain 的精确规则以对应 Frozen Contract 为最高依据，本文件不复制其算法细节。
+
+### 2.3 Services
+
+`miniprogram/services/**` 是页面和组件访问业务数据与 application capability 的统一入口。
+
+基本方向：
+
+```text
+Page / Component
+      ↓
+Service / Application contract
+      ↓
+Mock provider（开发阶段）或未来 Backend / HTTP provider
+```
+
+要求：
+
+- 页面不得直接调用 `wx.request` 获取业务数据；
+- Mock provider 与未来真实 provider 应尽量共享稳定 contract；
+- 登录、重试、错误映射、数据来源判断不应分散到各页面；
+- 新 application consumer 不应依赖已明确标记为 legacy 的 DTO 或兼容路径；
+- 具体某一领域的 provider、snapshot、evaluator、validator 边界，以对应当前 Contract 为准。
+
+## 3. Less 策略
+
+- `tokens.less`：颜色、字号、行高、间距、圆角、边框、阴影和触控尺寸；
+- `mixins.less`：少量复用模式，例如卡片、点击区域、文本截断和焦点态；
+- `base.less`：页面背景、默认文字、盒模型和基础可访问性样式；
+- `app.less`：导入全局基础样式；
+- 页面与组件需要编译期变量或 mixin 时，显式导入对应 Less 文件。
+
+视觉方向继续保持：
+
+- 温暖；
+- 可信；
+- 克制；
+- 面向 35–65 岁家庭决策者；
+- 优先保证高对比、清楚层级、舒适行高；
+- 主要触控区域至少约 88rpx；
+- 不为单个页面引入复杂动画或独立设计体系。
+
+## 4. 基础组件职责
 
 | 组件 | 职责 | 不负责 |
 |---|---|---|
@@ -43,42 +96,96 @@ miniprogram/
 | `tag` | 标签和状态短文本 | 推断推荐理由 |
 | `state-panel` | empty/error/loading/development 状态 | 伪造成功状态 |
 
-现有 `navigation-bar` 优先复用，只有确认无法满足当前路由壳层时才做局部调整。
+现有 `navigation-bar` 优先复用；只有确认无法满足当前路由壳层时才做局部调整。
 
-## 数据访问规则
+新增或修改公共组件时，应优先保持：
+
+- 单一职责；
+- 稳定输入输出；
+- 不内嵌页面业务状态；
+- 不复制领域规则；
+- 不制造第二套导航、校验或数据访问路径。
+
+## 5. 数据访问与展示边界
+
+### 5.1 页面不得越层读取
+
+Page / Component 不应直接读取：
+
+- raw provider record；
+- schema version；
+- internal evidence；
+- 私有 verification locator；
+- 领域 validator 内部实现；
+- 仅测试使用 fixture。
+
+页面应消费已经面向 UI 的稳定 application / view model / display snapshot。
+
+### 5.2 Verification / Evidence
+
+如果页面展示机构资料：
+
+- availability；
+- effective verification；
+- public verification date；
+
+应保持语义分离。
+
+UI 不应泄露内部 evidence、精确内部 locator、私有 source metadata 或其他不面向用户的核验信息。
+
+### 5.3 Legacy 路径
+
+历史兼容 service / DTO 可以继续存在于明确的 legacy 使用范围，但：
+
+- 新 consumer 不默认依赖 legacy DTO；
+- 不因为兼容旧页面而复制一套新的领域语义；
+- legacy 的退出或替换应由独立任务明确推进，而不是在无关任务中顺手重构。
+
+## 6. Mock 与 Fixture 隔离
+
+- `miniprogram/mock/**` 只用于开发态显式 Mock provider；
+- `scripts/fixtures/**` 属于测试 / runtime fixture，不应作为生产 App 数据源；
+- 生产代码不得导入测试 fixture；
+- Mock / synthetic 数据不得被页面或文案包装成真实合作机构事实；
+- 更完整的规则见 `MOCK_DATA_POLICY.md`。
+
+## 7. 微信运行时与 DevTools
+
+微信 DevTools / MCP 属于开发和验证工具能力，不改变前端模块所有权。
+
+使用原则：
+
+- 只有任务风险需要时，才升级到 DevTools / Simulator / 自动化验证；
+- 纯文案、简单 Less、低风险静态修改不默认启动完整运行时验证；
+- DevTools / Simulator / MCP 自动化证据不能替代要求明确的 Android / iOS 人工真机 Gate；
+- 具体 MCP 连接方式、Token、端口和本机路径不得写入本文件。
+
+## 8. 文件所有权
+
+- `wechat_frontend`：主要负责 `miniprogram/**` 中的页面、组件、WXML、Less、客户端交互及前端 application integration；
+- `backend_domain`：未来 `server/**`、API、数据库、持久化、鉴权和后端领域边界；
+- `matching_engine`：ElderProfile / Recommendation 等明确纯领域规则及其对应 runtime / fixtures，精确范围以当前 Agent ownership 与 Frozen Contract 为准；
+- `qa_reviewer`：只读审查，不拥有功能实现；
+- Main session / orchestrator：负责跨模块契约协调、集成决策与最终验收。
+
+具体主线程模型和 Reasoning effort 不属于模块所有权；由当前任务的模型路由建议和用户选择决定。
+
+## 9. Source of Truth
+
+本文件只定义前端长期稳定结构与所有权，不复制业务规则。
+
+优先级：
 
 ```text
-Page / Component
-      ↓
-Service contract
-      ↓
-Mock provider（Bootstrap）或未来 HTTP provider
+Current Product Source / Frozen Architecture Contract
+    >
+当前代码与冻结实现
+    >
+AGENTS.md / Agent ownership / Repo Skills
+    >
+FRONTEND_STRUCTURE.md
+    >
+历史阶段实现说明
 ```
 
-- 页面不得直接调用 `wx.request`。
-- Mock 与未来 HTTP 实现共享稳定 service contract。
-- 登录、重试、错误映射和数据来源判断不得分散到页面。
-
-### Phase 4C-1 application boundary
-
-`services/recommendation-preview.ts` 只编排 Draft snapshot、公开 Profile Preview deriver、
-`services/institution-catalog.ts` 和公开 Recommendation Preview evaluator；不拥有任何领域推导规则。
-V1 Catalog 服务返回经过正式 validator 的完整 `InstitutionRecord` 池，Provider 数据位于
-`mock/institution-catalog.mock.ts`，不可导入 `scripts/fixtures/**`。
-旧 `institution.service.ts` / `contracts.ts::InstitutionServiceContract` 暂时只服务现有
-home/preference 的 legacy 兼容路径；新 application consumer 不得依赖旧 DTO。
-本阶段不把新服务接入 Page。详见 `RECOMMENDATION_PREVIEW_INTEGRATION_CONTRACT.md`。
-
-## 纯领域规则
-
-`miniprogram/domain/elder-profile/` 固定承载纯 ADL classifier、正式 ElderProfile derivation、共享 semantic core，以及 Phase 3A-3 的 ephemeral Preview adapter。该目录只能依赖 `types/assessment`、`types/elder-profile` 和同目录纯模块；不得读取 Page、Component、Store、Service、Mock、`wx.*`、Institution 或 Recommendation。
-
-Preview adapter 只接受完整合法的 `AssessmentDraft`，不自行读取 Store，也不持久化 Preview。未来 Profile Page 只能读取 Draft 后调用该 adapter；Phase 3A-3 不修改页面。
-
-## 文件所有权
-
-- `wechat_frontend`：`miniprogram/**`。
-- `backend_domain`：未来 `server/**`。
-- `matching_engine`：`miniprogram/domain/elder-profile/**` 及其独立 runtime fixtures；未来推荐模块仍需主 SOL 另行冻结位置。
-- `qa_reviewer`：只读审查，不拥有功能实现。
-- 主 SOL：跨模块契约、集成和最终验收。
+若本文件与当前 Frozen Contract 或当前正式实现证据冲突，以更高优先级来源为准。

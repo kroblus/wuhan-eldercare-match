@@ -71,3 +71,14 @@
 通常完成意味着：实现请求行为；未破坏相关 Contract/版本边界；运行与改动匹配的验证并处理本次改动造成的失败；剩余外部依赖、人工证据或真实产品决策被明确记录。
 
 最终报告简洁说明 `STATUS / CHANGES / TESTS / RISKS`；不要只回复“完成”。
+
+## 8. Documentation Impact
+
+每个实现或治理任务最终报告：
+
+`DOC_IMPACT = NONE | CURRENT_DOC_UPDATE_REQUIRED | NEW_CONTRACT_REQUIRED | AUDIT_ONLY`
+
+- 普通局部实现没有长期结构变化时为 `NONE`。
+- route、ownership、application boundary、provenance 等长期结构变化时，检查并更新对应 CURRENT 文档。
+- Frozen semantic 变化不得修改旧 Frozen Contract，应报告 `NEW_CONTRACT_REQUIRED` 并走 successor/version bump。
+- Proposal、Audit、Handoff 与 redirect stub 不得更新成 current architecture truth。
