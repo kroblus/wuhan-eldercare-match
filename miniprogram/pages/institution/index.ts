@@ -160,12 +160,14 @@ Page({
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     const guard = getNavigationGuard(this)
     if (!guard.acquire('institution.list.openDetail')) return
+    const intent = item.navigationIntent
     const url = serializeInstitutionDetailRoute(
       {
-        institutionId: item.navigationIntent.institutionId,
-        recordRevision: item.navigationIntent.recordRevision,
+        institutionId: intent.institutionId,
+        recordRevision: intent.recordRevision,
       },
-      'direct_list',
+      intent.source,
+      intent.sourceContextRef,
     )
     if (url === null) {
       guard.release('institution.list.openDetail')

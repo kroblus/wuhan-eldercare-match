@@ -370,7 +370,7 @@ const resultCardBody = functionBody(resultTs, 'onRecommendationCardTap')
 const matrix = Object.freeze([
   ['HOME-CTA', 'home.openInstitutions', 'ready', 'clickable', 'none', 'navigateTo /pages/institution/index', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['HOME-FEATURED', 'home.openInstitution', 'loaded canonical item', 'clickable', 'identity validation', 'direct_link detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
-  ['LIST-CARD', 'institution.list.onCardTap', 'ready canonical item', 'clickable', 'identity serialization', 'direct_list detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
+  ['LIST-CARD', 'institution.list.onCardTap', 'ready canonical item', 'clickable', 'identity serialization', 'direct_list / recommendation detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['RESULT-EXACT', 'recommendation.result.onRecommendationCardTap', 'ready_exact V2 snapshot', 'clickable', 'snapshot identity gate', 'recommendation detail', 'guarded', 'rapid <= 1', 'context discard on fail'],
   ['RESULT-SOFT', 'recommendation.result.onRecommendationCardTap', 'ready_soft_near V2 snapshot', 'clickable', 'snapshot identity gate', 'recommendation detail', 'guarded', 'rapid <= 1', 'context discard on fail'],
   ['RESULT-CONDITIONAL', 'recommendation.result.onRecommendationCardTap', 'ready_conditional V2 snapshot', 'clickable', 'snapshot identity gate', 'recommendation detail', 'guarded', 'rapid <= 1', 'context discard on fail'],
@@ -432,7 +432,8 @@ const main = () => {
     assert.match(listCardBody, /viewModel\.items\.find/)
     assert.match(listCardBody, /item\.navigationIntent/)
     assert.match(listCardBody, /serializeInstitutionDetailRoute/)
-    assert.match(listCardBody, /direct_list/)
+    assert.match(listCardBody, /intent\.source/)
+    assert.match(listCardBody, /intent\.sourceContextRef/)
   })
   run('NAV-006', 'List card has one guarded navigateTo and failure release', () => {
     assert.match(listCardBody, /getNavigationGuard/)

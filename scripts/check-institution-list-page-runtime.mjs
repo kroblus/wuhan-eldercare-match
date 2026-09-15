@@ -119,7 +119,14 @@ const createListSnapshot = async (runtime, records = INSTITUTION_LIST_DETAIL_CUR
   })
   const result = await service.build({ evaluationAsOf: INSTITUTION_LIST_DETAIL_EVALUATION_AS_OF })
   assert.equal(result.ok, true)
-  return result.value
+  return {
+    snapshot: result.value,
+    detailApplication: application.createInstitutionDetailApplicationServiceV12({
+      currentCatalogResolver: currentResolver,
+      historicalRevisionResolver: resolver.createNotConfiguredHistoricalRevisionResolver(),
+      sourceContextRegistry: registry,
+    }),
+  }
 }
 
 const snapshotItems = (snapshot) => [
@@ -154,11 +161,12 @@ const main = async () => {
   const { ts, file: parserFile } = loadWechatTypeScript()
   const runtime = createRuntime(ts)
   const vmModule = runtime.load(path.join(pageRoot, 'list-view-model.ts'))
+  const routeModule = runtime.load(path.join(appRoot, 'services', 'institution-detail-route.ts'))
   const livePageApplication = runtime.load(path.join(appRoot, 'services', 'institution-list-detail-page.ts'))
   const pageSource = readFileSync(path.join(pageRoot, 'index.ts'), 'utf8')
   const wxml = readFileSync(path.join(pageRoot, 'index.wxml'), 'utf8')
   const json = JSON.parse(readFileSync(path.join(pageRoot, 'index.json'), 'utf8'))
-  const snapshot = await createListSnapshot(runtime)
+  const { snapshot, detailApplication } = await createListSnapshot(runtime)
   const view = vmModule.createInstitutionListPageViewModel(snapshot)
 
   await run('LIST-UI-001', 'loading state is explicit', () => {
@@ -202,7 +210,8 @@ const main = async () => {
   await run('LIST-UI-009', 'future intent uses canonical identity and direct_list source', () => {
     assert.ok(view.items.every((item) => item.navigationIntent.institutionId === item.institutionId
       && item.navigationIntent.recordRevision === item.recordRevision
-      && item.navigationIntent.source === 'direct_list'))
+      && item.navigationIntent.source === 'direct_list'
+      && item.navigationIntent.sourceContextRef === null))
   })
   await run('LIST-UI-010', 'development disclosure is snapshot-provided', () => {
     assert.equal(snapshot.dataDisclosure.kind, 'MOCK_DEVELOPMENT_ONLY')
@@ -290,10 +299,11 @@ const main = async () => {
     assert.ok(view.items.every((item) => item.tags.every((tag) => tag.tone === 'neutral')))
     assert.equal(view.items[0].tags.map((tag) => tag.text).join('|'), snapshotItems(snapshot)[0].verifiedDisplayTags.map((tag) => tag.code || tag.fieldPath).join('|'))
   })
-  await run('LIST-UI-019', 'page and WXML expose one canonical direct-detail action', () => {
+  await run('LIST-UI-019', 'page and WXML expose one canonical detail action using the item intent', () => {
     assert.match(pageSource, /onCardTap/)
     assert.match(pageSource, /serializeInstitutionDetailRoute/)
-    assert.match(pageSource, /direct_list/)
+    assert.match(pageSource, /intent\.source/)
+    assert.match(pageSource, /intent\.sourceContextRef/)
     assert.match(pageSource, /wx\.navigateTo/)
     assert.match(wxml, /bindtap="onCardTap"/)
     assert.doesNotMatch(pageSource, /不会打开详情页面|开发验证中/)
@@ -311,10 +321,56 @@ const main = async () => {
     assert.equal(live.value.displayInstitutions.length, 8)
   })
 
-  assert.deepEqual(executed, Array.from({ length: 21 }, (_, index) => `LIST-UI-${String(index + 1).padStart(3, '0')}`))
+  await run('LIST-UI-022', 'recommendation-context list scopes source and opaque ref to frozen candidates', async () => {
+    const sourceItems = snapshotItems(snapshot)
+    const sourceContextRef = 'list-ui-recommendation-context'
+    const recommendationSnapshot = {
+      ...snapshot,
+      source: 'recommendation',
+      sourceContextRef,
+      recommendedCandidates: sourceItems.slice(0, 2),
+      otherCurrentPartners: sourceItems.slice(2),
+      displayInstitutions: sourceItems,
+    }
+    const recommendationView = vmModule.createInstitutionListPageViewModel(recommendationSnapshot)
+    assert.equal(recommendationView.items.length, sourceItems.length)
+    assert.ok(recommendationView.recommendedItems.length > 0)
+    assert.ok(recommendationView.otherItems.length > 0)
+    assert.ok(recommendationView.recommendedItems.every((item) => item.navigationIntent.institutionId === item.institutionId
+      && item.navigationIntent.recordRevision === item.recordRevision
+      && item.navigationIntent.source === 'recommendation'
+      && item.navigationIntent.sourceContextRef === sourceContextRef))
+    assert.ok(recommendationView.otherItems.every((item) => item.navigationIntent.institutionId === item.institutionId
+      && item.navigationIntent.recordRevision === item.recordRevision
+      && item.navigationIntent.source === 'direct_list'
+      && item.navigationIntent.sourceContextRef === null))
+
+    const other = recommendationView.otherItems[0]
+    const parsedOtherRoute = routeModule.parseInstitutionDetailRoute({
+      institutionId: other.navigationIntent.institutionId,
+      recordRevision: String(other.navigationIntent.recordRevision),
+      source: other.navigationIntent.source,
+    })
+    assert.equal(parsedOtherRoute.ok, true)
+    if (!parsedOtherRoute.ok) return
+    assert.equal(parsedOtherRoute.value.source, 'direct')
+    assert.equal(parsedOtherRoute.value.sourceContextRef, null)
+    const otherDetail = await detailApplication.build({
+      identity: parsedOtherRoute.value.identity,
+      source: parsedOtherRoute.value.source,
+      sourceContextRef: parsedOtherRoute.value.sourceContextRef,
+      evaluationAsOf: snapshot.evaluationAsOf,
+    })
+    if (!otherDetail.ok) {
+      assert.notEqual(otherDetail.error.code, 'INSTITUTION_SOURCE_CONTEXT_ERROR')
+    }
+    assert.equal(otherDetail.ok, true)
+  })
+
+  assert.deepEqual(executed, Array.from({ length: 22 }, (_, index) => `LIST-UI-${String(index + 1).padStart(3, '0')}`))
   if (failures.length > 0) throw new Error(`${failures.length} list UI case(s) failed\n${failures.join('\n')}`)
   console.log(`PARSER: WeChat TypeScript 4.1.2 (${parserFile})`)
-  console.log(`LIST_UI_CASES: ${executed.length}/21 PASS`)
+  console.log(`LIST_UI_CASES: ${executed.length}/22 PASS`)
   console.log(`LIST_UI_FIXTURE_RECORDS: ${INSTITUTION_LIST_DETAIL_CURRENT_RECORDS.length}`)
   console.log(`LIST_UI_DATASET_VERSION: ${INSTITUTION_LIST_DETAIL_DATASET_VERSION}`)
   console.log('LIST_UI_RUNTIME = PASS')

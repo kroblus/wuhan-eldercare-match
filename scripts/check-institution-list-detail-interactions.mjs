@@ -69,10 +69,9 @@ const main = () => {
     assert.match(body, /pageState\s*===\s*['"]loading['"]/)
     assert.match(body, /this\.loadList\(this\.data\.sourceContextRef\)/)
   })
-  run('INTERACTION-003', 'List card action serializes canonical direct detail identity', () => {
+  run('INTERACTION-003', 'List card action serializes the item navigation intent', () => {
     const body = functionBody(listTs, 'onCardTap')
     assert.match(body, /serializeInstitutionDetailRoute/)
-    assert.match(body, /direct_list/)
     assert.match(body, /wx\.navigateTo/)
     assert.match(body, /navigationIntent/)
     assert.match(listWxml, /bindtap="onCardTap"/)
@@ -170,10 +169,17 @@ const main = () => {
     assert.equal(/switchTab|reLaunch/.test(listCard + vr), false)
     assert.match(all, /getNavigationGuard/)
   })
+  run('INTERACTION-017', 'List card action forwards source and sourceContextRef from the item intent', () => {
+    const body = functionBody(listTs, 'onCardTap')
+    assert.match(body, /const\s+intent\s*=\s*item\.navigationIntent/)
+    assert.match(body, /intent\.source/)
+    assert.match(body, /intent\.sourceContextRef/)
+    assert.equal(/['"]direct_list['"]\s*,\s*\)/.test(body), false)
+  })
 
-  assert.deepEqual(executed, Array.from({ length: 16 }, (_, index) => `INTERACTION-${String(index + 1).padStart(3, '0')}`))
+  assert.deepEqual(executed, Array.from({ length: 17 }, (_, index) => `INTERACTION-${String(index + 1).padStart(3, '0')}`))
   if (failures.length > 0) throw new Error(`${failures.length} interaction case(s) failed\n${failures.join('\n')}`)
-  console.log(`INTERACTION_CASES: ${executed.length}/16 PASS`)
+  console.log(`INTERACTION_CASES: ${executed.length}/17 PASS`)
   console.log('INSTITUTION_LIST_DETAIL_INTERACTIONS = PASS')
 }
 

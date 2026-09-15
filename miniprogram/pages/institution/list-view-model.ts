@@ -11,7 +11,8 @@ import type { InstitutionTypeCode } from '../../types/institution'
 export interface InstitutionListNavigationIntentViewModel {
   institutionId: string
   recordRevision: number
-  source: Extract<InstitutionRouteSource, 'direct_list'>
+  source: Extract<InstitutionRouteSource, 'direct_list' | 'recommendation'>
+  sourceContextRef: string | null
 }
 
 export type InstitutionListDisplayGroupViewModel =
@@ -128,7 +129,11 @@ const formatTags = (
   tone: 'neutral',
 }))
 
-const formatItem = (item: InstitutionListDisplayItemV12): InstitutionListItemViewModel => {
+const formatItem = (
+  item: InstitutionListDisplayItemV12,
+  source: Extract<InstitutionRouteSource, 'direct_list' | 'recommendation'>,
+  sourceContextRef: string | null,
+): InstitutionListItemViewModel => {
   const name = valueOrStatus(item.name, (value) => value)
   const region = valueOrStatus(item.region, (value) => value.displayName)
   const type = valueOrStatus(item.institutionType, formatTypes)
@@ -171,7 +176,8 @@ const formatItem = (item: InstitutionListDisplayItemV12): InstitutionListItemVie
     navigationIntent: {
       institutionId: item.institutionId,
       recordRevision: item.recordRevision,
-      source: 'direct_list',
+      source,
+      sourceContextRef,
     },
   }
 }
@@ -211,8 +217,13 @@ const errorCopy = (
 export const createInstitutionListPageViewModel = (
   snapshot: InstitutionListApplicationSnapshotV12,
 ): InstitutionListPageViewModelV12 => {
-  const mappedRecommendedItems = snapshot.recommendedCandidates.map(formatItem)
-  const mappedOtherItems = snapshot.otherCurrentPartners.map(formatItem)
+  const candidateSource: Extract<InstitutionRouteSource, 'direct_list' | 'recommendation'> =
+    snapshot.source === 'recommendation' ? 'recommendation' : 'direct_list'
+  const candidateSourceContextRef = candidateSource === 'recommendation' ? snapshot.sourceContextRef : null
+  const mappedRecommendedItems = snapshot.recommendedCandidates.map((item) =>
+    formatItem(item, candidateSource, candidateSourceContextRef))
+  const mappedOtherItems = snapshot.otherCurrentPartners.map((item) =>
+    formatItem(item, 'direct_list', null))
   const items = withGroupHeadings(mappedRecommendedItems.concat(mappedOtherItems))
   const recommendedItems = items.slice(0, mappedRecommendedItems.length)
   const otherItems = items.slice(mappedRecommendedItems.length)
