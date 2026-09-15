@@ -28,6 +28,12 @@ const institutionV12DomainRoot = path.join(institutionDomainRoot, 'v1-2')
 const institutionV121DomainRoot = path.join(institutionDomainRoot, 'v1-2-1')
 const institutionV12EntryPath = path.join(institutionV12DomainRoot, 'index.ts')
 const institutionV121EntryPath = path.join(institutionV121DomainRoot, 'index.ts')
+const consultantDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'consultant')
+const consultantTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'consultant-v1.ts')
+const consultantEntryPath = path.join(consultantDomainRoot, 'index.ts')
+const consultantValidatorPath = path.join(consultantDomainRoot, 'validate-consultant.ts')
+const consultantResolverPath = path.join(consultantDomainRoot, 'resolve-consultant.ts')
+const consultantProjectionPath = path.join(consultantDomainRoot, 'project-consultant.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
@@ -41,6 +47,7 @@ const recommendationV2EntryPath = path.join(recommendationDomainRoot, 'v2', 'ind
 const recommendationV2PreviewEvaluatorPath = path.join(recommendationDomainRoot, 'v2', 'evaluate-recommendation-preview-v2.ts')
 const applicationServiceRoot = path.join(repositoryRoot, 'miniprogram', 'services')
 const applicationMockRoot = path.join(repositoryRoot, 'miniprogram', 'mock')
+const consultantApplicationPath = path.join(applicationServiceRoot, 'consultant-application.ts')
 const integrationTypePaths = [
   path.join(repositoryRoot, 'miniprogram', 'types', 'institution-catalog.ts'),
   path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation-preview.ts'),
@@ -275,7 +282,9 @@ const run = async () => {
   const targetFiles = [
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
     ...await walkTypeScriptFiles(institutionDomainRoot),
+    ...await walkTypeScriptFiles(consultantDomainRoot),
     ...await walkTypeScriptFiles(recommendationDomainRoot),
+    consultantTypePath,
     elderProfileTypePath,
     elderProfileV2TypePath,
     institutionTypePath,
@@ -294,6 +303,8 @@ const run = async () => {
     institutionTypePath, institutionV11TypePath, institutionV12TypePath, institutionV121TypePath,
     institutionV11EntryPath, institutionV11ValidatorPath, institutionV11ProjectionPath,
     institutionV12EntryPath, institutionV121EntryPath,
+    consultantTypePath, consultantEntryPath, consultantValidatorPath,
+    consultantResolverPath, consultantProjectionPath, consultantApplicationPath,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
     recommendationV2PreviewEvaluatorPath,
@@ -431,6 +442,7 @@ const run = async () => {
   console.log(`INSTITUTION_V1_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV11TypePath || fileName.startsWith(`${institutionV11DomainRoot}${path.sep}`)).length}`)
   console.log(`INSTITUTION_V1_2_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV12TypePath || fileName.startsWith(`${institutionV12DomainRoot}${path.sep}`)).length}`)
   console.log(`INSTITUTION_V1_2_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV121TypePath || fileName.startsWith(`${institutionV121DomainRoot}${path.sep}`)).length}`)
+  console.log(`CONSULTANT_TARGETS: ${targetFiles.filter((fileName) => fileName === consultantTypePath || fileName.startsWith(`${consultantDomainRoot}${path.sep}`) || fileName === consultantApplicationPath).length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)
