@@ -2,8 +2,8 @@
 # Main thread = GPT-5.6 Sol MAX.
 # Custom subagents = GPT-5.6 Luna MAX.
 
-model = "gpt-5.6-sol"
-model_reasoning_effort = "max"
+# model = "gpt-5.6-sol"
+# model_reasoning_effort = "max"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
@@ -15,3 +15,15 @@ default_subagent_reasoning_effort = "max"
 
 [sandbox_workspace_write]
 network_access = true
+
+[mcp_servers.wechat-devtools]
+command = "powershell.exe"
+args = [
+    "-NoProfile",
+    "-NonInteractive",
+    "-ExecutionPolicy",
+    "Bypass",
+    "-File",
+    ".codex/wechatide-mcp.ps1"
+]
+env_vars = ["WECHATIDE_MCP_TOKEN"]
