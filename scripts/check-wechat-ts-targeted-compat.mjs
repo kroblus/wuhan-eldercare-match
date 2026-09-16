@@ -83,6 +83,11 @@ const recommendationResultViewModelPath = path.join(repositoryRoot, 'miniprogram
 const recommendationResultV2ViewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'recommendation', 'result-v2-view-model.ts')
 const recommendationResultApplicationPath = path.join(repositoryRoot, 'miniprogram', 'services', 'recommendation-result-application.ts')
 const recommendationResultCompatibilityTargets = [recommendationResultPagePath, recommendationResultViewModelPath, recommendationResultV2ViewModelPath, recommendationResultApplicationPath]
+const consultantB3CompatibilityTargets = [
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'index.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'index-view-model.ts'),
+  path.join(applicationServiceRoot, 'consultant-global-page.ts'),
+]
 const institutionListDetailCompatibilityTargets = [
   path.join(applicationServiceRoot, 'institution-detail-route.ts'),
   path.join(applicationServiceRoot, 'institution-display-projection-v11.ts'),
@@ -277,6 +282,7 @@ const run = async () => {
     assessmentResumePath,
     ...assessmentV2PageTargets,
     ...recommendationResultCompatibilityTargets,
+    ...consultantB3CompatibilityTargets,
     ...institutionListDetailPageCompatibilityTargets,
   ]
   const targetFiles = [
@@ -305,6 +311,7 @@ const run = async () => {
     institutionV12EntryPath, institutionV121EntryPath,
     consultantTypePath, consultantEntryPath, consultantValidatorPath,
     consultantResolverPath, consultantProjectionPath, consultantApplicationPath,
+    ...consultantB3CompatibilityTargets,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
     recommendationV2PreviewEvaluatorPath,
@@ -443,6 +450,7 @@ const run = async () => {
   console.log(`INSTITUTION_V1_2_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV12TypePath || fileName.startsWith(`${institutionV12DomainRoot}${path.sep}`)).length}`)
   console.log(`INSTITUTION_V1_2_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV121TypePath || fileName.startsWith(`${institutionV121DomainRoot}${path.sep}`)).length}`)
   console.log(`CONSULTANT_TARGETS: ${targetFiles.filter((fileName) => fileName === consultantTypePath || fileName.startsWith(`${consultantDomainRoot}${path.sep}`) || fileName === consultantApplicationPath).length}`)
+  console.log(`CONSULTANT_B3_TARGETS: ${consultantB3CompatibilityTargets.length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)

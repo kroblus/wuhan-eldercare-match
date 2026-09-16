@@ -14,7 +14,7 @@ import {
   validateGlobalConsultantSelectionConfigurationV1,
   validatePublicMediaResolutionV1,
   validateSnapshotAsOfV1,
-} from '../domain/consultant'
+} from '../domain/consultant/index'
 import type {
   ConsultantApplicationFailureCauseCodeV1,
   ConsultantApplicationResultV1,
