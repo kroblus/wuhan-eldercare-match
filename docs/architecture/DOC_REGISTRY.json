@@ -192,6 +192,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md",
+      "doc_id": "contract.global_consultant_snapshot.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/ELDER_PROFILE_CONTRACT.md",
       "doc_id": "contract.elder_profile.v1",
       "status": "FROZEN",
@@ -374,6 +384,16 @@
     {
       "path": "docs/architecture/V1_2_B2_IMPLEMENTATION_HANDOFF.md",
       "doc_id": "handoff.v1_2_b2",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B2_1_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b2_1",
       "status": "FROZEN",
       "kind": "HANDOFF",
       "normative": "PHASE_BOUNDARY_ONLY",
