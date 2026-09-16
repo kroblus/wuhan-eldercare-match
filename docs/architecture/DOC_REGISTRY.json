@@ -132,6 +132,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/AI_CONSULTATION_CONTRACT_V1.md",
+      "doc_id": "contract.ai_consultation.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md",
       "doc_id": "contract.anonymous_profile_preview.v1",
       "status": "FROZEN",

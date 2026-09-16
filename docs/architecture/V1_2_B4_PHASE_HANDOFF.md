@@ -1,6 +1,6 @@
 # Phase V1.2-B4 Handoff — AI Consultation Safety & Application Contract Freeze
 
-状态：`FROZEN_PHASE_V1_2_B4_DEFINITION`
+状态：`FROZEN_PHASE_V1_2_B4_DEFINITION_AND_CLOSEOUT`
 
 冻结日期：`2026-09-16`
 
@@ -10,20 +10,22 @@ NEXT_PHASE_NAME = AI Consultation Safety & Application Contract Freeze
 B4_PHASE_KIND = CONTRACT_FREEZE
 B4_PHASE_DEFINITION = PASS
 B4_IMPLEMENTATION_HANDOFF = FROZEN
-PHASE_V1_2_B4 = NOT_STARTED
-AI_CONSULTATION_CONTRACT = NOT_FROZEN
+PHASE_V1_2_B4 = PASS
+AI_CONSULTATION_CONTRACT = FROZEN
 PRE_B4_DEFINITION_HEAD = 990c2b40183ec8b963610a02d6ad2a70dfcac574
 PHASE_V1_2_B3 = PASS
 PRODUCT_DECISIONS_REQUIRED = 0
 PRODUCTION_CODE_CHANGE_BY_DEFINITION_TASK = 0
 RUNTIME_CODE_CHANGE_BY_DEFINITION_TASK = 0
 TEST_CODE_CHANGE_BY_DEFINITION_TASK = 0
-READY_TO_START_V1_2_B4 = TRUE
+READY_TO_START_V1_2_B4 = FALSE
+READY_FOR_B4_SUCCESSOR = TRUE
+B4_CLOSEOUT_SOURCE = AI_CONSULTATION_CONTRACT_V1.md
 ```
 
-本文冻结 B3 之后的下一正式阶段边界、文档交付物与 mandatory Gates。它不是 AI 业务 Contract 本身，也不授权任何
-production、runtime、Backend、模型或 UI 实现。只有未来 B4 按本文完成并通过全部 Contract Freeze Gates 后，才允许把新的
-versioned AI Consultation Contract 标记为 frozen。
+本文冻结 B3 之后的下一正式阶段边界、文档交付物与 mandatory Gates，并在 B4 Contract Freeze 完成后同步 phase
+closeout。它不是 AI 业务 Contract 本身，也不授权任何 production、runtime、Backend、模型或 UI 实现；当前 AI 业务语义与
+最终 Gate closure 的唯一来源是 frozen `AI_CONSULTATION_CONTRACT_V1.md`。
 
 ## 1. Authority and Successor Decision
 
@@ -328,7 +330,7 @@ ANDROID_REAL_DEVICE_GATE = NOT_MANDATORY
 PHASE_V1_2_B4 = PASS
 AI_CONSULTATION_CONTRACT = FROZEN
 BLOCKERS = 0
-READY_FOR_B4_IMPLEMENTATION_SUCCESSOR = TRUE
+READY_FOR_B4_SUCCESSOR = TRUE
 ```
 
 `PASS_WITH_RISKS` 只允许用于 Contract 已足以作为实现 Source of Truth，但仍有不阻止 contract freeze 的后续依赖，例如：
