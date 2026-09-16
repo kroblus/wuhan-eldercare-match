@@ -6,6 +6,8 @@
     <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构</text>
     <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
     <primary-button text="开始养老需求评估" bind:action="startAssessment"></primary-button>
+    <primary-button text="咨询养老助手" variant="secondary" bind:action="openAIConsultation"></primary-button>
+    <view wx:if="{{aiActionError}}" class="home-action-error home-action-error--cta" role="alert">{{aiActionError}}</view>
     <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
     <view wx:if="{{institutionListActionError}}" class="home-action-error home-action-error--cta" role="alert">{{institutionListActionError}}</view>
   </view>

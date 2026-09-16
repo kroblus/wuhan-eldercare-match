@@ -1,0 +1,73 @@
+<navigation-bar title="养老咨询助手" back="{{true}}" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell ai-chat-shell">
+    <view class="page-head">
+      <text class="eyebrow">服务 · 养老咨询</text>
+      <text class="page-title">养老咨询助手</text>
+      <text class="page-description">只解释已经批准的公开资料，不替代医疗、机构或顾问的正式判断。</text>
+    </view>
+
+    <view wx:if="{{viewModel}}" class="ai-chat-card-wrap">
+      <section-card>
+        <text class="section-kicker">{{viewModel.stateTitle}}</text>
+        <text class="ai-chat-state-message">{{viewModel.stateMessage}}</text>
+        <text class="ai-chat-provenance">{{viewModel.provenanceLabel}}</text>
+        <view wx:if="{{viewModel.errorMessage}}" class="ai-chat-error" role="alert">{{viewModel.errorMessage}}</view>
+        <view wx:if="{{viewModel.showUnavailableNotice}}" class="ai-chat-unavailable" role="status">
+          当前尚未接入已批准的 FAQ 或在线模型能力。你仍可以查看页面说明，或直接联系养老顾问。
+        </view>
+      </section-card>
+    </view>
+
+    <view wx:if="{{viewModel && viewModel.hasMessages}}" class="ai-chat-card-wrap">
+      <section-card>
+        <view wx:for="{{viewModel.messages}}" wx:key="messageId" class="ai-chat-message {{item.isUser ? 'ai-chat-message--user' : 'ai-chat-message--assistant'}}">
+          <text class="ai-chat-message__role">{{item.roleLabel}}</text>
+          <text class="ai-chat-message__content">{{item.content}}</text>
+          <view wx:if="{{item.sourceLabels.length}}" class="ai-chat-source-list">
+            <text wx:for="{{item.sourceLabels}}" wx:key="*this" class="ai-chat-source">依据：{{item}}</text>
+          </view>
+          <view wx:if="{{item.handoffExplanation}}" class="ai-chat-handoff-note">
+            <text>{{item.handoffExplanation}}</text>
+          </view>
+        </view>
+      </section-card>
+    </view>
+
+    <view class="ai-chat-card-wrap">
+      <section-card>
+        <text class="section-kicker">想先了解什么？</text>
+        <view class="ai-chat-quick-list">
+          <button
+            wx:for="{{quickQuestions}}"
+            wx:key="*this"
+            class="ai-chat-quick-button"
+            data-question="{{item}}"
+            disabled="{{isSending}}"
+            bindtap="onQuickQuestion"
+          >{{item}}</button>
+        </view>
+        <textarea
+          class="ai-chat-input"
+          value="{{inputValue}}"
+          maxlength="500"
+          auto-height
+          placeholder="{{viewModel ? viewModel.inputPlaceholder : '请输入问题'}}"
+          bindinput="onInput"
+        ></textarea>
+        <view wx:if="{{inputError}}" class="ai-chat-error" role="alert">{{inputError}}</view>
+        <primary-button text="{{isSending ? '正在发送…' : '发送问题'}}" loading="{{isSending}}" disabled="{{!viewModel || !viewModel.canSend}}" bind:action="onSend"></primary-button>
+        <primary-button wx:if="{{viewModel && viewModel.showRetry}}" text="重新尝试" variant="secondary" disabled="{{isSending}}" bind:action="onRetry"></primary-button>
+      </section-card>
+    </view>
+
+    <view class="ai-chat-card-wrap">
+      <section-card>
+        <text class="section-kicker">需要人工协助？</text>
+        <text class="section-subtitle">顾问可以协助解释已有资料、确认需要人工跟进的事项，但不会替代医疗专业判断。</text>
+        <primary-button text="联系养老顾问" variant="quiet" disabled="{{isSending}}" bind:action="openHumanHandoff"></primary-button>
+        <view wx:if="{{actionError}}" class="ai-chat-error" role="alert">{{actionError}}</view>
+      </section-card>
+    </view>
+  </view>
+</page-container>

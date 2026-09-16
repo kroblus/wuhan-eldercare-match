@@ -14,6 +14,7 @@
     "pages/institution/detail",
     "pages/institution/vr",
     "pages/consultant/index",
+    "pages/service/ai-chat/index",
     "pages/appointment/create",
     "pages/appointment/success",
     "pages/mine/index",

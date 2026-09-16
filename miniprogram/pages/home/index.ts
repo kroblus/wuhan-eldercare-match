@@ -18,6 +18,7 @@ interface HomePageData {
   institutionActionError: string
   institutionListActionError: string
   consultantActionError: string
+  aiActionError: string
 }
 
 const loadGenerations = new WeakMap<object, number>()
@@ -73,6 +74,7 @@ Component({
     institutionActionError: '',
     institutionListActionError: '',
     consultantActionError: '',
+    aiActionError: '',
   } as HomePageData,
 
   lifetimes: {
@@ -168,6 +170,13 @@ Component({
       this.setData({ consultantActionError: '' })
       switchToConsultantWithGuard(this, () => {
         this.setData({ consultantActionError: '暂时无法打开养老顾问，请稍后重试。' })
+      })
+    },
+
+    openAIConsultation() {
+      this.setData({ aiActionError: '' })
+      navigateToWithGuard(this, 'home.openAIConsultation', '/pages/service/ai-chat/index', undefined, () => {
+        this.setData({ aiActionError: '暂时无法打开养老咨询助手，请稍后重试。' })
       })
     },
 

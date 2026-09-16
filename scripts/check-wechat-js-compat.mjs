@@ -30,6 +30,12 @@ const a14RequiredSourcePaths = [
   'pages/institution/detail.ts',
   'pages/institution/detail-view-model.ts',
 ]
+const b6RequiredSourcePaths = [
+  'pages/home/index.ts',
+  'pages/service/ai-chat/index.ts',
+  'pages/service/ai-chat/index-view-model.ts',
+  'services/ai-consultation-page.ts',
+]
 
 const walkFiles = async (root, accept = () => true) => {
   const files = []
@@ -379,7 +385,13 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   }
   const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
   const a14RequiredModules = await getRequiredSourceModules(sourceRoot, a14RequiredSourcePaths)
-  const requiredModules = mergeSourceModules(classModules, a13RequiredModules, a14RequiredModules)
+  const b6RequiredModules = await getRequiredSourceModules(sourceRoot, b6RequiredSourcePaths)
+  const requiredModules = mergeSourceModules(
+    classModules,
+    a13RequiredModules,
+    a14RequiredModules,
+    b6RequiredModules,
+  )
   const artifacts = await locateArtifacts(options, configuration, requiredModules)
   if (artifacts.units.length === 0) {
     throw new Error(`no generated JavaScript found under ${artifacts.artifactRoot}`)
@@ -392,6 +404,7 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`CLASS_SOURCE_MODULES: ${classModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`A1_3_REQUIRED_GENERATED_MODULES: ${a13RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`A1_4_REQUIRED_GENERATED_MODULES: ${a14RequiredModules.map((item) => item.moduleName).join(', ')}`)
+  console.log(`B6_REQUIRED_GENERATED_MODULES: ${b6RequiredModules.map((item) => item.moduleName).join(', ')}`)
 
   const passed = verifyCoverage(requiredModules, artifacts.units) && reportClassFields(ts, artifacts.units)
   if (!passed) {
