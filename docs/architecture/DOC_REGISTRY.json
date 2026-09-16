@@ -142,6 +142,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
+      "doc_id": "architecture.ai_provider_dev_testing",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md",
       "doc_id": "contract.anonymous_profile_preview.v1",
       "status": "FROZEN",
