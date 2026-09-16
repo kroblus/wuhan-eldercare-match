@@ -17,6 +17,7 @@ This file routes; it does not define business semantics.
 | Global Consultant selection / contextless public application snapshot | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md`; B2 handoff/runtime only for implementation conformance |
 | Post-A1 V1.2-B1 phase status and handoff | `V1_2_B1_PHASE_HANDOFF.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md` |
 | V1.2-B2.1 phase status and implementation handoff | `V1_2_B2_1_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `V1_2_B2_IMPLEMENTATION_HANDOFF.md` |
+| V1.2-B3 Consultant UI phase status and implementation handoff | `V1_2_B3_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `WECHAT_INTERACTION_CONTRACT.md`; current Product Source Consultant page |
 | Generated JavaScript / class compatibility | `WECHAT_RUNTIME_COMPATIBILITY_POLICY.md` | interaction Contract only when Action/navigation behavior is affected |
 | Mock/synthetic data | `MOCK_DATA_POLICY.md` | affected Institution/Recommendation Contract |
 | Frontend structure/ownership | `FRONTEND_STRUCTURE.md` | affected business Contract |
