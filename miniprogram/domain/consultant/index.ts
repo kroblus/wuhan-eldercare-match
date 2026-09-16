@@ -4,9 +4,20 @@ export {
   deriveConsultantResolutionStatusV1,
   isActiveConsultantProfileV1,
   projectConsultantPhoneV1,
+  projectConsultantPublicProfileV1,
   projectConsultantQrV1,
   serviceStatusToNonAvailablePhoneStatusV1,
 } from './project-consultant'
+export {
+  GLOBAL_CONSULTANT_SELECTION_SOURCE_V1,
+  GLOBAL_CONSULTANT_SNAPSHOT_KIND_V1,
+  resolveGlobalConsultantSelectionV1,
+  validateGlobalConsultantApplicationInputV1,
+  validateGlobalConsultantSelectionConfigurationV1,
+} from './global-consultant'
+export type {
+  GlobalConsultantSelectionResolutionV1,
+} from './global-consultant'
 export { resolveConsultantAssignmentV1 } from './resolve-consultant'
 export type {
   ConsultantAssignmentResolutionStatusV1,

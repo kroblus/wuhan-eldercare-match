@@ -1,13 +1,17 @@
 import {
   deriveConsultantResolutionStatusV1,
+  GLOBAL_CONSULTANT_SELECTION_SOURCE_V1,
+  GLOBAL_CONSULTANT_SNAPSHOT_KIND_V1,
   inspectAssignmentLookupV1,
-  projectConsultantPhoneV1,
-  projectConsultantQrV1,
+  projectConsultantPublicProfileV1,
   resolveConsultantAssignmentV1,
+  resolveGlobalConsultantSelectionV1,
   validateCanonicalInstitutionContextV1,
   validateConsultantProfileV1,
   validateDataProvenanceV1,
   validateDefaultConsultantConfigurationV1,
+  validateGlobalConsultantApplicationInputV1,
+  validateGlobalConsultantSelectionConfigurationV1,
   validatePublicMediaResolutionV1,
   validateSnapshotAsOfV1,
 } from '../domain/consultant'
@@ -18,9 +22,15 @@ import type {
   ConsultantDataProvenanceV1,
   ConsultantPublicMediaResolutionV1,
   ConsultantPublicProfileV1,
+  GlobalConsultantPublicApplicationResultV1,
+  GlobalConsultantPublicApplicationSnapshotV1,
   InstitutionConsultantContactApplicationSnapshotV1,
 } from '../types/consultant-v1'
-import { CONSULTANT_CONTRACT_VERSION_V1 } from '../types/consultant-v1'
+import {
+  CONSULTANT_CONTRACT_VERSION_V1,
+  GLOBAL_CONSULTANT_SELECTION_ROLE_V1,
+  GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_VERSION_V1,
+} from '../types/consultant-v1'
 
 export interface ConsultantApplicationRequestV1 {
   institutionIdentity: unknown
@@ -33,21 +43,43 @@ export interface ConsultantPublicMediaRequestV1 {
   snapshotAsOf: string
 }
 
+export interface GlobalConsultantApplicationRequestV1 {
+  snapshotAsOf: unknown
+}
+
 /**
  * Read-only foundation port. Implementations are deliberately opaque to the
  * application layer: validation occurs at the trust boundary before any
  * value is projected to the public snapshot.
  */
-export interface ConsultantFoundationProviderV1 {
+export interface ConsultantPublicMediaProviderV1 {
+  resolvePublicMedia(input: ConsultantPublicMediaRequestV1): unknown
+}
+
+export interface ConsultantFoundationProviderV1 extends ConsultantPublicMediaProviderV1 {
   readonly dataProvenance: ConsultantDataProvenanceV1
   loadAssignments(context: ConsultantCanonicalInstitutionContextV1): unknown
   loadConsultantProfile(consultantId: string): unknown
   loadDefaultConsultant(): unknown
-  resolvePublicMedia(input: ConsultantPublicMediaRequestV1): unknown
+}
+
+/**
+ * Global configuration is a separate read-only port. It intentionally has no
+ * Institution assignment/default methods, so the global path cannot depend on
+ * or accidentally fall through to the Institution resolver.
+ */
+export interface GlobalConsultantFoundationProviderV1 extends ConsultantPublicMediaProviderV1 {
+  readonly dataProvenance: ConsultantDataProvenanceV1
+  loadGlobalConsultantConfiguration(): unknown
+  loadConsultantProfile(consultantId: string): unknown
 }
 
 export interface ConsultantApplicationServiceV1 {
   resolveForInstitution(input: ConsultantApplicationRequestV1): ConsultantApplicationResultV1
+}
+
+export interface GlobalConsultantApplicationServiceV1 {
+  resolveGlobal(input: GlobalConsultantApplicationRequestV1): GlobalConsultantPublicApplicationResultV1
 }
 
 const failure = (
@@ -79,6 +111,38 @@ const buildSnapshot = (
   },
 })
 
+const globalFailure = (): GlobalConsultantPublicApplicationResultV1 => ({
+  ok: false,
+  error: {
+    kind: 'global_consultant_public_application_failure_v1',
+    status: 'unavailable',
+  },
+})
+
+const buildGlobalSnapshot = (
+  snapshotAsOf: string,
+  dataProvenance: ConsultantDataProvenanceV1,
+  selectionStatus: GlobalConsultantPublicApplicationSnapshotV1['selectionStatus'],
+  resolutionStatus: GlobalConsultantPublicApplicationSnapshotV1['resolutionStatus'],
+  consultant: ConsultantPublicProfileV1 | null,
+): GlobalConsultantPublicApplicationResultV1 => ({
+  ok: true,
+  value: {
+    kind: GLOBAL_CONSULTANT_SNAPSHOT_KIND_V1,
+    contractVersion: GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_VERSION_V1,
+    context: {
+      kind: 'platform_global_consultant',
+      selectionRole: GLOBAL_CONSULTANT_SELECTION_ROLE_V1,
+      selectionSource: GLOBAL_CONSULTANT_SELECTION_SOURCE_V1,
+    },
+    snapshotAsOf,
+    dataProvenance,
+    selectionStatus,
+    resolutionStatus,
+    consultant,
+  },
+})
+
 const isProvider = (value: unknown): value is ConsultantFoundationProviderV1 => {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -90,6 +154,16 @@ const isProvider = (value: unknown): value is ConsultantFoundationProviderV1 => 
     && typeof candidate.resolvePublicMedia === 'function'
 }
 
+const isGlobalProvider = (value: unknown): value is GlobalConsultantFoundationProviderV1 => {
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+  const candidate = value as Record<string, unknown>
+  return typeof candidate.loadGlobalConsultantConfiguration === 'function'
+    && typeof candidate.loadConsultantProfile === 'function'
+    && typeof candidate.resolvePublicMedia === 'function'
+}
+
 const shouldResolveMedia = (
   profile: { serviceStatus: string; enterpriseWechatQr: { sourceState: string; reviewStatus?: string; lifecycleStatus?: string } },
 ): boolean => profile.serviceStatus === 'active'
@@ -98,7 +172,7 @@ const shouldResolveMedia = (
   && profile.enterpriseWechatQr.lifecycleStatus === 'active'
 
 const resolveProfileMedia = (
-  provider: ConsultantFoundationProviderV1,
+  provider: ConsultantPublicMediaProviderV1,
   profile: import('../types/consultant-v1').ConsultantProfileV1,
   snapshotAsOf: string,
 ): { ok: true; value: ConsultantPublicMediaResolutionV1 | null }
@@ -126,19 +200,88 @@ const resolveProfileMedia = (
   }
 }
 
-const createPublicProfile = (
-  profile: import('../types/consultant-v1').ConsultantProfileV1,
-  mediaResolution: ConsultantPublicMediaResolutionV1 | null,
-): ConsultantPublicProfileV1 => {
-  const phone = projectConsultantPhoneV1(profile)
-  const qr = projectConsultantQrV1(profile, mediaResolution)
-  return {
-    consultantId: profile.consultantId,
-    displayName: profile.displayName,
-    serviceStatus: profile.serviceStatus,
-    serviceAreaDisplayName: profile.serviceArea.displayName,
-    phone,
-    enterpriseWechatQr: qr,
+const resolveGlobalConsultant = (
+  provider: GlobalConsultantFoundationProviderV1,
+  input: GlobalConsultantApplicationRequestV1,
+): GlobalConsultantPublicApplicationResultV1 => {
+  const inputValidation = validateGlobalConsultantApplicationInputV1(input)
+  if (!inputValidation.ok || !isGlobalProvider(provider)) {
+    return globalFailure()
+  }
+  const provenanceValidation = validateDataProvenanceV1(provider.dataProvenance)
+  if (!provenanceValidation.ok) {
+    return globalFailure()
+  }
+  let rawConfiguration: unknown
+  try {
+    rawConfiguration = provider.loadGlobalConsultantConfiguration()
+  } catch (_error) {
+    return globalFailure()
+  }
+  const configurationValidation = validateGlobalConsultantSelectionConfigurationV1(rawConfiguration)
+  if (!configurationValidation.ok) {
+    return globalFailure()
+  }
+  const selection = resolveGlobalConsultantSelectionV1(configurationValidation.value)
+  const snapshotAsOf = inputValidation.value.snapshotAsOf
+  if (selection.status !== 'configured' || selection.consultantId === null) {
+    const resolutionStatus = selection.status === 'configured' ? 'missing' : selection.status
+    return buildGlobalSnapshot(
+      snapshotAsOf,
+      provenanceValidation.value,
+      selection.status,
+      resolutionStatus,
+      null,
+    )
+  }
+  let profileRaw: unknown
+  try {
+    profileRaw = provider.loadConsultantProfile(selection.consultantId)
+  } catch (_error) {
+    return globalFailure()
+  }
+  if (profileRaw === null || profileRaw === undefined) {
+    return buildGlobalSnapshot(
+      snapshotAsOf,
+      provenanceValidation.value,
+      'configured',
+      'missing',
+      null,
+    )
+  }
+  const profileValidation = validateConsultantProfileV1(profileRaw)
+  if (!profileValidation.ok || profileValidation.value.consultantId !== selection.consultantId) {
+    return globalFailure()
+  }
+  const profile = profileValidation.value
+  if (profile.serviceStatus === 'inactive' || profile.serviceStatus === 'unknown') {
+    return buildGlobalSnapshot(
+      snapshotAsOf,
+      provenanceValidation.value,
+      'configured',
+      profile.serviceStatus,
+      null,
+    )
+  }
+  const media = resolveProfileMedia(provider, profile, snapshotAsOf)
+  if (!media.ok) {
+    return globalFailure()
+  }
+  try {
+    const publicProfile = projectConsultantPublicProfileV1(profile, media.value)
+    const resolutionStatus = deriveConsultantResolutionStatusV1(
+      publicProfile.phone,
+      publicProfile.enterpriseWechatQr,
+    )
+    return buildGlobalSnapshot(
+      snapshotAsOf,
+      provenanceValidation.value,
+      'configured',
+      resolutionStatus,
+      publicProfile,
+    )
+  } catch (_error) {
+    return globalFailure()
   }
 }
 
@@ -246,7 +389,7 @@ export const createConsultantApplicationServiceV1 = (
       return media
     }
     try {
-      const publicProfile = createPublicProfile(profile, media.value)
+      const publicProfile = projectConsultantPublicProfileV1(profile, media.value)
       const resolutionStatus = deriveConsultantResolutionStatusV1(
         publicProfile.phone,
         publicProfile.enterpriseWechatQr,
@@ -263,6 +406,13 @@ export const createConsultantApplicationServiceV1 = (
       return failure('PROJECTION_FAILURE', 'PUBLIC_SNAPSHOT_INVARIANT_FAILED')
     }
   },
+})
+
+export const createGlobalConsultantApplicationServiceV1 = (
+  provider: GlobalConsultantFoundationProviderV1,
+): GlobalConsultantApplicationServiceV1 => ({
+  resolveGlobal: (input: GlobalConsultantApplicationRequestV1): GlobalConsultantPublicApplicationResultV1 =>
+    resolveGlobalConsultant(provider, input),
 })
 
 export const createConsultantFoundationServiceV1 = createConsultantApplicationServiceV1

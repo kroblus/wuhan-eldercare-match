@@ -8,6 +8,12 @@
 export const CONSULTANT_CONTRACT_VERSION_V1 = 'consultant-permission-contract-v1' as const
 export type ConsultantContractVersionV1 = typeof CONSULTANT_CONTRACT_VERSION_V1
 
+export const GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_VERSION_V1 = 'global-consultant-snapshot-contract-v1' as const
+export type GlobalConsultantSnapshotContractVersionV1 = typeof GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_VERSION_V1
+
+export const GLOBAL_CONSULTANT_SELECTION_ROLE_V1 = 'platform_primary_consultant' as const
+export type GlobalConsultantSelectionRoleV1 = typeof GLOBAL_CONSULTANT_SELECTION_ROLE_V1
+
 export type ConsultantServiceStatusV1 = 'active' | 'inactive' | 'unknown'
 
 export interface ConsultantServiceAreaV1 {
@@ -63,6 +69,17 @@ export interface ConsultantCanonicalInstitutionContextV1 {
 }
 
 export type ConsultantDataProvenanceV1 = 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY'
+
+export type GlobalConsultantSelectionConfigurationV1 =
+  | {
+      role: GlobalConsultantSelectionRoleV1
+      sourceState: 'configured'
+      consultantId: string
+    }
+  | {
+      role: GlobalConsultantSelectionRoleV1
+      sourceState: 'missing' | 'unavailable' | 'unknown'
+    }
 
 export type ConsultantPublicPhoneStatusV1 = 'available' | 'unavailable' | 'unknown' | 'missing'
 
@@ -133,6 +150,44 @@ export interface InstitutionConsultantContactApplicationSnapshotV1 {
   consultant: ConsultantPublicProfileV1 | null
 }
 
+export type GlobalConsultantSelectionStatusV1 =
+  | 'configured'
+  | 'missing'
+  | 'unavailable'
+  | 'unknown'
+
+export type GlobalConsultantResolutionStatusV1 =
+  | 'available'
+  | 'unavailable'
+  | 'inactive'
+  | 'expired'
+  | 'unknown'
+  | 'missing'
+
+export interface GlobalConsultantPublicApplicationSnapshotV1 {
+  kind: 'global_consultant_public_application_snapshot_v1'
+  contractVersion: GlobalConsultantSnapshotContractVersionV1
+  context: {
+    kind: 'platform_global_consultant'
+    selectionRole: GlobalConsultantSelectionRoleV1
+    selectionSource: 'platform_configuration'
+  }
+  snapshotAsOf: string
+  dataProvenance: ConsultantDataProvenanceV1
+  selectionStatus: GlobalConsultantSelectionStatusV1
+  resolutionStatus: GlobalConsultantResolutionStatusV1
+  consultant: ConsultantPublicProfileV1 | null
+}
+
+export interface GlobalConsultantPublicApplicationFailureV1 {
+  kind: 'global_consultant_public_application_failure_v1'
+  status: 'unavailable'
+}
+
+export type GlobalConsultantPublicApplicationResultV1 =
+  | { ok: true; value: GlobalConsultantPublicApplicationSnapshotV1 }
+  | { ok: false; error: GlobalConsultantPublicApplicationFailureV1 }
+
 export type ConsultantDefaultConfigurationV1 =
   | { enabled: false }
   | { enabled: true; consultantId: string }
@@ -157,6 +212,8 @@ export type ConsultantValidationErrorCodeV1 =
   | 'INVALID_MEDIA_RESOLUTION'
   | 'INVALID_SNAPSHOT_AS_OF'
   | 'INVALID_PROVENANCE'
+  | 'INVALID_GLOBAL_CONFIGURATION'
+  | 'INVALID_GLOBAL_REQUEST'
   | 'INVALID_VALUE'
 
 export interface ConsultantValidationIssueV1 {

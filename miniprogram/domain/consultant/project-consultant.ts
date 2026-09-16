@@ -91,6 +91,23 @@ export const projectConsultantQrV1 = (
   return unavailableQr(mediaResolution.status)
 }
 
+/**
+ * Shared public allowlist for both Institution-bound and platform-global
+ * Consultant application snapshots. Context selection is deliberately kept
+ * outside this helper.
+ */
+export const projectConsultantPublicProfileV1 = (
+  profile: ConsultantProfileV1,
+  mediaResolution: ConsultantPublicMediaResolutionV1 | null,
+): import('../../types/consultant-v1').ConsultantPublicProfileV1 => ({
+  consultantId: profile.consultantId,
+  displayName: profile.displayName,
+  serviceStatus: profile.serviceStatus,
+  serviceAreaDisplayName: profile.serviceArea.displayName,
+  phone: projectConsultantPhoneV1(profile),
+  enterpriseWechatQr: projectConsultantQrV1(profile, mediaResolution),
+})
+
 export const deriveConsultantResolutionStatusV1 = (
   phone: ConsultantPublicPhoneProjectionV1,
   qr: ConsultantPublicWechatQrProjectionV1,

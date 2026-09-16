@@ -33,7 +33,8 @@
     "check:recommendation-result-v2-ui-runtime": "node scripts/check-recommendation-result-v2-ui-runtime.mjs",
     "check:profile-result-v2-interactions": "node scripts/check-profile-result-v2-interactions.mjs",
     "check:wechat-ts-targeted-compat": "node scripts/check-wechat-ts-targeted-compat.mjs",
-    "check:consultant-b2-runtime": "node scripts/check-consultant-b2-runtime.mjs"
+    "check:consultant-b2-runtime": "node scripts/check-consultant-b2-runtime.mjs",
+    "check:consultant-b2-1-runtime": "node scripts/check-consultant-b2-1-runtime.mjs"
   },
   "keywords": [],
   "author": "",
