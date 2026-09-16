@@ -34,6 +34,10 @@ const consultantEntryPath = path.join(consultantDomainRoot, 'index.ts')
 const consultantValidatorPath = path.join(consultantDomainRoot, 'validate-consultant.ts')
 const consultantResolverPath = path.join(consultantDomainRoot, 'resolve-consultant.ts')
 const consultantProjectionPath = path.join(consultantDomainRoot, 'project-consultant.ts')
+const aiConsultationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'ai-consultation')
+const aiConsultationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'ai-consultation-v1.ts')
+const aiConsultationServicePath = path.join(repositoryRoot, 'miniprogram', 'services', 'ai-consultation-application.ts')
+const aiConsultationContextPath = path.join(repositoryRoot, 'miniprogram', 'services', 'ai-consultation-context.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
 const recommendationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'recommendation.ts')
 const recommendationEntryPath = path.join(recommendationDomainRoot, 'index.ts')
@@ -289,8 +293,10 @@ const run = async () => {
     ...await walkTypeScriptFiles(elderProfileDomainRoot),
     ...await walkTypeScriptFiles(institutionDomainRoot),
     ...await walkTypeScriptFiles(consultantDomainRoot),
+    ...await walkTypeScriptFiles(aiConsultationDomainRoot),
     ...await walkTypeScriptFiles(recommendationDomainRoot),
     consultantTypePath,
+    aiConsultationTypePath,
     elderProfileTypePath,
     elderProfileV2TypePath,
     institutionTypePath,
@@ -311,6 +317,7 @@ const run = async () => {
     institutionV12EntryPath, institutionV121EntryPath,
     consultantTypePath, consultantEntryPath, consultantValidatorPath,
     consultantResolverPath, consultantProjectionPath, consultantApplicationPath,
+    aiConsultationTypePath, path.join(aiConsultationDomainRoot, 'index.ts'), aiConsultationContextPath, aiConsultationServicePath,
     ...consultantB3CompatibilityTargets,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
