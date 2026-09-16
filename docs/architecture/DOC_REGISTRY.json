@@ -152,6 +152,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/V1_2_B7_FAQ_APPROVAL_RECORD.md",
+      "doc_id": "audit.v1_2_b7_faq_approval_2026_09_17",
+      "status": "FROZEN",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md",
       "doc_id": "contract.anonymous_profile_preview.v1",
       "status": "FROZEN",

@@ -1,9 +1,9 @@
 /**
  * Targeted B7 approved FAQ / knowledge capability gate.
  *
- * The production manifest is intentionally empty until per-entry owner
- * approval evidence is supplied. Positive answer cases inject TEST_ONLY
- * manifests into the Application factory and never enter miniprogram code.
+ * Production positive cases use only the owner-approved manifest. Additional
+ * edge cases inject TEST_ONLY manifests into the Application factory and
+ * never enter the miniprogram production graph.
  */
 import nodeAssert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -86,12 +86,39 @@ const run = async () => {
     assert.equal(new Set(AI_B7_FIXTURE_MANIFEST).size, 16)
   })
 
-  await runCase('B7-PRODUCTION-MANIFEST-EMPTY', () => {
+  await runCase('B7-PRODUCTION-MANIFEST-APPROVED', () => {
     const manifest = providerModule.AI_APPROVED_FAQ_PRODUCTION_MANIFEST_V1
-    assert.equal(manifest.entries.length, 0)
+    const approvalRecord = read('docs/architecture/V1_2_B7_FAQ_APPROVAL_RECORD.md')
+    assert.equal(manifest.entries.length, 11)
+    assert.equal(manifest.entries.filter((entry) => entry.category === 'product_faq').length, 7)
+    assert.equal(manifest.entries.filter((entry) => entry.category === 'visit_faq').length, 4)
+    assert.equal(manifest.entries.every((entry) => entry.approvalStatus === 'approved'), true)
+    assert.equal(manifest.entries.every((entry) => entry.approvalAuthority === 'project_owner'), true)
+    assert.equal(manifest.entries.every((entry) => entry.approvalEvidenceRef === 'b7-faq-approval-2026-09-17'), true)
+    assert.equal(approvalRecord.includes('approvalEvidenceRef = b7-faq-approval-2026-09-17'), true)
+    assert.equal(approvalRecord.includes('approvedFaqCount = 11'), true)
+    assert.equal(manifest.entries.every((entry) => approvalRecord.includes(entry.contentId)), true)
+    manifest.entries.forEach((entry) => {
+      [
+        entry.question,
+        entry.answer,
+        entry.publicLabel,
+        entry.publicVersion,
+        ...entry.aliases,
+      ].forEach((approvedText) => {
+        assert.equal(
+          approvalRecord.includes(approvedText),
+          true,
+          `${entry.contentId} approval evidence must include: ${approvedText}`,
+        )
+      })
+    })
     assert.equal(providerModule.createAIApprovedFaqProviderV1(manifest).ok, true)
     const provider = providerModule.createAIApprovedFaqProviderV1(manifest).provider
-    assert.equal(provider.lookup('怎样开始养老需求评估？').kind, 'no_match')
+    assert.equal(provider.lookup('怎样开始养老需求评估？').kind, 'match')
+    assert.equal(provider.lookup('如何开始需求评估？').kind, 'match')
+    assert.equal(provider.lookup('带看有哪些状态？').kind, 'match')
+    assert.equal(provider.lookup('未批准的实时床位问题').kind, 'no_match')
   })
 
   await runCase('B7-APPROVED-MANIFEST-VALIDATION', () => {
@@ -214,6 +241,38 @@ const run = async () => {
   })
 
   await runCase('B7-B6-APPLICATION-INTEGRATION', async () => {
+    const productionPageApplication = pageModule.createAIConsultationPageApplicationV1()
+    const productionInitial = productionPageApplication.createInitialResult()
+    const productionCanonical = await productionPageApplication.completeSend(
+      productionPageApplication.beginSend(productionInitial, '怎样开始养老需求评估？'),
+    )
+    assert.equal(productionCanonical.ok, true)
+    assert.equal(productionCanonical.value.state, 'answer_ready')
+    assert.equal(productionCanonical.value.responseProvenance, 'approved_faq')
+    assert.equal(productionCanonical.value.messages[productionCanonical.value.messages.length - 1].sourceRefs[0].category, 'product_faq')
+    const productionAlias = await productionPageApplication.completeSend(
+      productionPageApplication.beginSend(productionInitial, '如何开始需求评估？'),
+    )
+    assert.equal(productionAlias.ok, true)
+    assert.equal(productionAlias.value.state, 'answer_ready')
+    const productionVisit = await productionPageApplication.completeSend(
+      productionPageApplication.beginSend(productionInitial, '什么是已完成带看状态？'),
+    )
+    assert.equal(productionVisit.ok, true)
+    assert.equal(productionVisit.value.state, 'answer_ready')
+    assert.equal(productionVisit.value.messages[productionVisit.value.messages.length - 1].sourceRefs[0].category, 'visit_faq')
+    const productionUnknown = await productionPageApplication.completeSend(
+      productionPageApplication.beginSend(productionInitial, '未批准的实时床位问题'),
+    )
+    assert.equal(productionUnknown.ok, true)
+    assert.equal(productionUnknown.value.state, 'knowledge_unavailable')
+    const productionMedical = await productionPageApplication.completeSend(
+      productionPageApplication.beginSend(productionInitial, '我该吃什么药？'),
+    )
+    assert.equal(productionMedical.ok, true)
+    assert.equal(productionMedical.value.state, 'need_human')
+    assert.equal(productionMedical.value.messages[productionMedical.value.messages.length - 1].kind, 'safe_refusal')
+
     const pageApplication = pageModule.createAIConsultationPageApplicationForTestV1(AI_B7_APPROVED_FIXTURE_MANIFEST)
     const initial = pageApplication.createInitialResult()
     const sending = pageApplication.beginSend(initial, '怎样开始养老需求评估？')
@@ -239,7 +298,7 @@ const run = async () => {
     assert.equal(/scripts[\\/]fixtures|ai-b7-fixtures|TEST_ONLY_SYNTHETIC/.test(combined), false)
     assert.equal(/wx\.request|fetch\(|XMLHttpRequest|apiKey|appSecret|Authorization|token\b|provider-sdk/i.test(combined), false)
     assert.equal(/writeRecommendation|rerank|recompute|writeInstitution|writeProfile|createAppointment|createVisit|submitEvaluation/.test(combined), false)
-    assert.equal(providerModule.AI_APPROVED_FAQ_PRODUCTION_MANIFEST_V1.entries.length, 0)
+    assert.equal(providerModule.AI_APPROVED_FAQ_PRODUCTION_MANIFEST_V1.entries.length, 11)
   })
 
   assert.deepEqual(AI_B7_FIXTURE_MANIFEST, Array.from(assertionCounts.keys()))
@@ -253,10 +312,14 @@ const run = async () => {
   console.log(`AI_B7_FIXTURE_POLICY: ${AI_B7_FIXTURE_POLICY}`)
   console.log(`AI_B7_FIXTURE_COUNT: ${AI_B7_FIXTURE_MANIFEST.length}`)
   console.log(`AI_B7_ASSERTION_COUNT: ${assertionCount}`)
-  console.log('AI_B7_APPROVED_PRODUCTION_FAQ_COUNT: 0')
+  console.log('AI_B7_APPROVED_PRODUCTION_FAQ_COUNT: 11')
   console.log('AI_B7_UNAPPROVED_PRODUCTION_FAQ_COUNT: 0')
-  console.log('AI_B7_PRODUCT_FAQ_COUNT: 0')
-  console.log('AI_B7_VISIT_FAQ_COUNT: 0')
+  console.log('AI_B7_PRODUCT_FAQ_COUNT: 7')
+  console.log('AI_B7_VISIT_FAQ_COUNT: 4')
+  console.log('AI_B7_OWNER_APPROVAL_PROVENANCE: PASS')
+  console.log('AI_B7_ALIAS_COLLISION_COUNT: 0')
+  console.log('AI_B7_ALIAS_COLLISION_RECHECK: PASS')
+  console.log('AI_B7_SAFETY_PREFLIGHT_RECHECK: PASS')
   console.log('AI_B7_TEST_ONLY_PRODUCT_FAQ_COUNT: 1')
   console.log('AI_B7_TEST_ONLY_VISIT_FAQ_COUNT: 1')
   console.log('AI_B7_NO_MATCH_CASES: 2')

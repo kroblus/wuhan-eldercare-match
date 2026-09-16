@@ -2,8 +2,8 @@
  * Targeted B6 AI Consultation Page/Application gate.
  *
  * Positive answer/refusal/handoff states are TEST_ONLY public snapshots.  The
- * production page/application facade deliberately has no provider and remains
- * honest about its unavailable capability.
+ * production page/application facade now consumes the approved FAQ limited
+ * mode; unknown questions must still remain honestly unavailable.
  */
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
