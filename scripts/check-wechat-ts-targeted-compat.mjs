@@ -36,6 +36,7 @@ const consultantResolverPath = path.join(consultantDomainRoot, 'resolve-consulta
 const consultantProjectionPath = path.join(consultantDomainRoot, 'project-consultant.ts')
 const aiConsultationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'ai-consultation')
 const aiConsultationTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'ai-consultation-v1.ts')
+const aiConsultationFaqTypePath = path.join(repositoryRoot, 'miniprogram', 'types', 'ai-consultation-faq-v1.ts')
 const aiConsultationServicePath = path.join(repositoryRoot, 'miniprogram', 'services', 'ai-consultation-application.ts')
 const aiConsultationContextPath = path.join(repositoryRoot, 'miniprogram', 'services', 'ai-consultation-context.ts')
 const recommendationDomainRoot = path.join(repositoryRoot, 'miniprogram', 'domain', 'recommendation')
@@ -97,6 +98,11 @@ const aiB6CompatibilityTargets = [
   path.join(repositoryRoot, 'miniprogram', 'pages', 'service', 'ai-chat', 'index-view-model.ts'),
   path.join(applicationServiceRoot, 'ai-consultation-page.ts'),
   path.join(repositoryRoot, 'miniprogram', 'pages', 'home', 'index.ts'),
+]
+const aiB7CompatibilityTargets = [
+  aiConsultationFaqTypePath,
+  path.join(applicationServiceRoot, 'ai-consultation-approved-faq.ts'),
+  path.join(applicationServiceRoot, 'ai-consultation-page.ts'),
 ]
 const institutionListDetailCompatibilityTargets = [
   path.join(applicationServiceRoot, 'institution-detail-route.ts'),
@@ -294,6 +300,7 @@ const run = async () => {
     ...recommendationResultCompatibilityTargets,
     ...consultantB3CompatibilityTargets,
     ...aiB6CompatibilityTargets,
+    ...aiB7CompatibilityTargets,
     ...institutionListDetailPageCompatibilityTargets,
   ]
   const targetFiles = [
@@ -325,8 +332,10 @@ const run = async () => {
     consultantTypePath, consultantEntryPath, consultantValidatorPath,
     consultantResolverPath, consultantProjectionPath, consultantApplicationPath,
     aiConsultationTypePath, path.join(aiConsultationDomainRoot, 'index.ts'), aiConsultationContextPath, aiConsultationServicePath,
+    aiConsultationFaqTypePath,
     ...consultantB3CompatibilityTargets,
     ...aiB6CompatibilityTargets,
+    ...aiB7CompatibilityTargets,
     recommendationTypePath, recommendationEntryPath,
     recommendationV2TypePath, recommendationV2EntryPath,
     recommendationV2PreviewEvaluatorPath,
@@ -467,6 +476,7 @@ const run = async () => {
   console.log(`CONSULTANT_TARGETS: ${targetFiles.filter((fileName) => fileName === consultantTypePath || fileName.startsWith(`${consultantDomainRoot}${path.sep}`) || fileName === consultantApplicationPath).length}`)
   console.log(`CONSULTANT_B3_TARGETS: ${consultantB3CompatibilityTargets.length}`)
   console.log(`AI_B6_TARGETS: ${aiB6CompatibilityTargets.length}`)
+  console.log(`AI_B7_TARGETS: ${aiB7CompatibilityTargets.length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)
   console.log(`APPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: ${applicationTargets.length}`)
   console.log(`INSTITUTION_LIST_DETAIL_A0_2_TARGETS: ${institutionListDetailCompatibilityTargets.length}`)

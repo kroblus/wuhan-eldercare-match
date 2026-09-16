@@ -36,6 +36,13 @@ const b6RequiredSourcePaths = [
   'pages/service/ai-chat/index-view-model.ts',
   'services/ai-consultation-page.ts',
 ]
+const b7RequiredSourcePaths = [
+  'services/ai-consultation-approved-faq.ts',
+  'services/ai-consultation-page.ts',
+  'domain/ai-consultation/lookup-approved-faq.ts',
+  'domain/ai-consultation/validate-approved-faq.ts',
+  'domain/ai-consultation/evaluate-approved-faq-safety.ts',
+]
 
 const walkFiles = async (root, accept = () => true) => {
   const files = []
@@ -386,11 +393,13 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
   const a14RequiredModules = await getRequiredSourceModules(sourceRoot, a14RequiredSourcePaths)
   const b6RequiredModules = await getRequiredSourceModules(sourceRoot, b6RequiredSourcePaths)
+  const b7RequiredModules = await getRequiredSourceModules(sourceRoot, b7RequiredSourcePaths)
   const requiredModules = mergeSourceModules(
     classModules,
     a13RequiredModules,
     a14RequiredModules,
     b6RequiredModules,
+    b7RequiredModules,
   )
   const artifacts = await locateArtifacts(options, configuration, requiredModules)
   if (artifacts.units.length === 0) {
@@ -405,6 +414,7 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`A1_3_REQUIRED_GENERATED_MODULES: ${a13RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`A1_4_REQUIRED_GENERATED_MODULES: ${a14RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`B6_REQUIRED_GENERATED_MODULES: ${b6RequiredModules.map((item) => item.moduleName).join(', ')}`)
+  console.log(`B7_REQUIRED_GENERATED_MODULES: ${b7RequiredModules.map((item) => item.moduleName).join(', ')}`)
 
   const passed = verifyCoverage(requiredModules, artifacts.units) && reportClassFields(ts, artifacts.units)
   if (!passed) {

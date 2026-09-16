@@ -1,20 +1,36 @@
-import { validateAIApplicationResultV1 } from '../domain/ai-consultation/index'
+import {
+  validateAIApplicationResultV1,
+  validateAIConversationV1,
+  evaluateApprovedFaqSafetyPreflightV1,
+} from '../domain/ai-consultation/index'
+import { createAIConsultationApplicationServiceV1 } from './ai-consultation-application'
+import {
+  AI_APPROVED_FAQ_PRODUCTION_MANIFEST_V1,
+  createAIApprovedFaqProviderV1,
+  toAIConsultationContextSourceV1,
+} from './ai-consultation-approved-faq'
+import type { AIApprovedFaqProviderV1 } from './ai-consultation-approved-faq'
 import {
   AI_CONSULTATION_CONTRACT_VERSION_V1,
   AI_CONSULTATION_PUBLIC_SNAPSHOT_KIND_V1,
 } from '../types/ai-consultation-v1'
 import type {
+  AIApprovedFaqManifestV1,
+} from '../types/ai-consultation-faq-v1'
+import type {
   AIConsultationPublicApplicationResultV1,
   AIConsultationPublicApplicationSnapshotV1,
   AIMessagePublicProjectionV1,
+  AIConversationV1,
 } from '../types/ai-consultation-v1'
 
 /**
  * B6 production capability boundary.
  *
- * There is currently no approved FAQ adapter or live Backend provider.  This
- * facade deliberately exposes only the already-frozen public Application
- * result.  It never pretends that an unavailable capability is a provider.
+ * The facade deliberately exposes only the already-frozen public Application
+ * result.  The default production manifest is currently empty because no
+ * per-entry owner approval evidence has been supplied; that keeps the honest
+ * unavailable path until approved content is added.
  */
 export interface AIConsultationPageApplicationV1 {
   createInitialResult(): AIConsultationPublicApplicationResultV1
@@ -115,6 +131,44 @@ const readSnapshot = (
   result: AIConsultationPublicApplicationResultV1,
 ): AIConsultationPublicApplicationSnapshotV1 => result.ok ? result.value : result.error.snapshot
 
+const stateForConversationMessages = (
+  messages: readonly AIMessagePublicProjectionV1[],
+): AIConversationV1['state'] => {
+  if (messages.length === 0) return 'idle'
+  const last = messages[messages.length - 1]
+  if (last.kind === 'answer' || (last.kind === 'safe_refusal' && !last.handoff)) return 'answer_ready'
+  if (last.kind === 'human_handoff' || (last.kind === 'safe_refusal' && Boolean(last.handoff))) return 'need_human'
+  if (last.kind === 'technical_failure') return 'service_error'
+  return 'knowledge_unavailable'
+}
+
+const toConversationBeforeSending = (
+  snapshot: AIConsultationPublicApplicationSnapshotV1,
+): AIConversationV1 | null => {
+  const userIndex = snapshot.messages.length - 1
+  const latest = snapshot.messages[userIndex]
+  if (!latest || latest.role !== 'user' || latest.kind !== 'user_input') return null
+  const messages = snapshot.messages.slice(0, userIndex).map((message) => ({
+    contractVersion: AI_CONSULTATION_CONTRACT_VERSION_V1,
+    messageId: message.messageId,
+    role: message.role,
+    kind: message.kind,
+    content: message.content,
+    sourceRefs: message.sourceRefs,
+    ...(message.handoff ? { handoff: message.handoff } : {}),
+    createdAt: message.createdAt,
+  }))
+  const candidate: AIConversationV1 = {
+    contractVersion: AI_CONSULTATION_CONTRACT_VERSION_V1,
+    ref: { ...snapshot.conversationRef },
+    createdAt: snapshot.conversationCreatedAt,
+    state: stateForConversationMessages(snapshot.messages.slice(0, userIndex)),
+    messages,
+  }
+  const validated = validateAIConversationV1(candidate)
+  return validated.ok ? validated.value : null
+}
+
 const createInitialResult = (): AIConsultationPublicApplicationResultV1 => {
   sessionSequence += 1
   const snapshot: AIConsultationPublicApplicationSnapshotV1 = {
@@ -149,7 +203,7 @@ const beginSend = (
   })
 }
 
-const completeSend = (
+const completeUnavailableSend = (
   sending: AIConsultationPublicApplicationResultV1,
 ): Promise<AIConsultationPublicApplicationResultV1> => {
   const snapshot = readSnapshot(sending)
@@ -189,9 +243,76 @@ const recoverSendFailure = (
   })
 }
 
-export const createAIConsultationPageApplicationV1 = (): AIConsultationPageApplicationV1 => ({
-  createInitialResult,
-  beginSend,
-  completeSend,
-  recoverSendFailure,
-})
+const createPageApplication = (
+  provider: AIApprovedFaqProviderV1 | null,
+): AIConsultationPageApplicationV1 => {
+  const safetyProvider = provider || {
+    responseProvenance: 'approved_faq' as const,
+    requestCandidate() {
+      return { ok: false as const, failure: 'service_error' as const }
+    },
+  }
+  const application = createAIConsultationApplicationServiceV1(safetyProvider)
+
+  const completeSend = (
+    sending: AIConsultationPublicApplicationResultV1,
+  ): Promise<AIConsultationPublicApplicationResultV1> => {
+    const snapshot = readSnapshot(sending)
+    const latest = snapshot.messages[snapshot.messages.length - 1]
+    if (!latest || latest.role !== 'user' || latest.kind !== 'user_input') return completeUnavailableSend(sending)
+    const preflight = evaluateApprovedFaqSafetyPreflightV1(latest.content)
+    const conversation = toConversationBeforeSending(snapshot)
+    if (!conversation) return completeUnavailableSend(sending)
+    if (preflight.kind === 'blocked') {
+      return Promise.resolve(application.consult({
+        conversation,
+        userInput: latest.content,
+        userMessageId: latest.messageId,
+        userMessageCreatedAt: latest.createdAt,
+        responseMessageId: nextId('ai-assistant-message'),
+        responseCreatedAt: now(),
+        policy: preflight.policy,
+        contextSources: [],
+      }))
+    }
+    if (!provider) return completeUnavailableSend(sending)
+    const lookup = provider.lookup(latest.content)
+    if (lookup.kind !== 'match') return completeUnavailableSend(sending)
+    const result = application.consult({
+      conversation,
+      userInput: latest.content,
+      userMessageId: latest.messageId,
+      userMessageCreatedAt: latest.createdAt,
+      responseMessageId: nextId('ai-assistant-message'),
+      responseCreatedAt: now(),
+      policy: {
+        requestCategory: 'allowlisted_explanation',
+        userRequestedHuman: false,
+        consecutiveAllowedKnowledgeInsufficiencyCount: 0,
+        hasSufficientAllowedKnowledge: true,
+      },
+      contextSources: [toAIConsultationContextSourceV1(lookup.entry)],
+    })
+    return Promise.resolve(result)
+  }
+
+  return {
+    createInitialResult,
+    beginSend,
+    completeSend,
+    recoverSendFailure,
+  }
+}
+
+export const createAIConsultationPageApplicationV1 = (): AIConsultationPageApplicationV1 => {
+  const result = createAIApprovedFaqProviderV1(AI_APPROVED_FAQ_PRODUCTION_MANIFEST_V1)
+  return createPageApplication(result.ok ? result.provider : null)
+}
+
+/** Test-only composition seam; production Page code calls the no-argument factory above. */
+export const createAIConsultationPageApplicationForTestV1 = (
+  manifest: AIApprovedFaqManifestV1,
+): AIConsultationPageApplicationV1 => {
+  const result = createAIApprovedFaqProviderV1(manifest)
+  return createPageApplication(result.ok ? result.provider : null)
+}
