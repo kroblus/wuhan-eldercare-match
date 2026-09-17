@@ -16,6 +16,7 @@ This file routes; it does not define business semantics.
 | Consultant / public contact / assignment / permission / privacy | `CONSULTANT_PERMISSION_CONTRACT_V1.md` | Institution V1.2.1 or Recommendation V2 only for an affected isolation boundary |
 | Global Consultant selection / contextless public application snapshot | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md`; B2 handoff/runtime only for implementation conformance |
 | AI consultation / knowledge allowlist / safety / human handoff / application boundary | `AI_CONSULTATION_CONTRACT_V1.md` | current Product Source AI pages; relevant Profile/Recommendation/Institution/Consultant Contract only for an affected read/isolation boundary |
+| Appointment submission / InstitutionVisit identity, lifecycle, permission, phone, persistence boundary | `APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md` | current Product Source Appointment/Visit pages; Institution/Consultant Contract only for canonical identity/contact isolation |
 | Post-A1 V1.2-B1 phase status and handoff | `V1_2_B1_PHASE_HANDOFF.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md` |
 | V1.2-B2.1 phase status and implementation handoff | `V1_2_B2_1_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `V1_2_B2_IMPLEMENTATION_HANDOFF.md` |
 | V1.2-B3 Consultant UI phase status and implementation handoff | `V1_2_B3_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `WECHAT_INTERACTION_CONTRACT.md`; current Product Source Consultant page |

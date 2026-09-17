@@ -142,6 +142,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md",
+      "doc_id": "contract.appointment_institution_visit.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
       "doc_id": "architecture.ai_provider_dev_testing",
       "status": "CURRENT",
