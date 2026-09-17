@@ -37,6 +37,8 @@
     "check:consultant-b2-1-runtime": "node scripts/check-consultant-b2-1-runtime.mjs",
     "check:consultant-b3-runtime": "node scripts/check-consultant-b3-runtime.mjs",
     "check:ai-b5-runtime": "node scripts/check-ai-b5-runtime.mjs",
+    "check:appointment-institution-visit-c2-runtime": "node scripts/check-appointment-institution-visit-c2-runtime.mjs",
+    "check:appointment-institution-visit-c2-compat": "node scripts/check-appointment-institution-visit-c2-compat.mjs",
     "check:ai-b6-runtime": "node scripts/check-ai-b6-runtime.mjs",
     "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs"
   },
