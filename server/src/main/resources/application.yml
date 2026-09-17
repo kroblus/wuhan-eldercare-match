@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: wuhan-eldercare-visit-submission
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+
+c4:
+  persistence:
+    enabled: ${C4_PERSISTENCE_ENABLED:false}
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
