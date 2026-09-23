@@ -120,3 +120,28 @@ C6_IMPLEMENTATION = COMPLETE_PENDING_EXTERNAL_PROVIDER_EVIDENCE
 REAL_PHONE_PROVIDER_EVIDENCE = MISSING
 READY_FOR_C6_SUCCESSOR = FALSE
 ```
+
+## 7. Implementation Evidence — External Phone Provider Gate Pending
+
+The C6 implementation is based on `074b7ddc0e8057c330f53061d935beb4aa4ef451`; the focused native-callback diagnostic and timing regression follow-up is `108a727019fe95fb6301e061c626a636cda99ef4`. The follow-up changes only Mini Program callback handling and its targeted test; Backend source is unchanged. C1/C3 Frozen Contracts, Product Source, C5 authentication semantics, reference adapters, Appointment submission/Page, owner-read, Operations, and VisitEvaluation remain unchanged.
+
+Targeted Java 21 C6/C4/C5 regression passed 46 tests with zero failures/errors. The targeted Mini Program behavior/type check passed with WeChat TypeScript 4.1.2; DevTools compiled the Consultant page and displayed the native `getPhoneNumber` button. Independent diff-driven QA found no remaining source blocker. The C4 integration test proves that a valid fresh phone proof reaches the still-unavailable reference gate, while a repeated proof fails at the contact gate; neither creates a Visit. The Backend started from the implementation source with a real MySQL connection, Flyway schema v2, and the C6 route loaded. Production provider selection follows complete C5/C4 configuration; a real phone exchange has not been proven.
+
+The first authorized DevTools button action reached the callback without a phone code and stopped before C5/C6 requests. A later selector attempt failed because the Consultant page was not current. After navigation, one actual button tap returned success, but callback and network results were not inspected before the Owner stopped phone testing. No raw phone, code, session, provider response, or credential was retained in this handoff. The cause of the missing first code and whether the later tap reached the provider remain unknown.
+
+The Owner reports that Mini Program privacy configuration is under review and has explicitly stopped further phone-related testing. No more authorization clicks, callback inspection, provider requests, or phone-related tests are permitted until the Owner resumes this Gate after review. Automated and static evidence cannot substitute for G13.
+
+```text
+C6_IMPLEMENTATION_SOURCE = 074b7ddc0e8057c330f53061d935beb4aa4ef451
+C6_CALLBACK_FOLLOWUP_SOURCE = 108a727019fe95fb6301e061c626a636cda99ef4
+C6_MANDATORY_GATES = G01..G13
+MANDATORY_GATES = 12/13 PASS
+G01..G12 = PASS
+G13_AUTHORIZED_REAL_PROVIDER = MISSING
+REAL_PHONE_PROVIDER_EVIDENCE = MISSING
+OWNER_PHONE_CAPABILITY = PRIVACY_CONFIGURATION_UNDER_REVIEW
+PHASE_V1_2_C6 = PASS_WITH_RISKS
+C6_IMPLEMENTATION = COMPLETE_PENDING_EXTERNAL_PROVIDER_EVIDENCE
+BLOCKERS = OWNER_PROVIDER_CAPABILITY_REQUIRED
+READY_FOR_C6_SUCCESSOR = FALSE
+```
