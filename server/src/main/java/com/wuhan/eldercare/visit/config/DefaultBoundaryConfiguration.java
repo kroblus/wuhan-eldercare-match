@@ -6,7 +6,6 @@ import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.ServerIdentitySource;
 import com.wuhan.eldercare.visit.application.VisitSubmissionRepository;
 import com.wuhan.eldercare.visit.application.VisitSubmissionService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +41,6 @@ public class DefaultBoundaryConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
-    @ConditionalOnBean(DataSource.class)
     @ConditionalOnMissingBean(VisitSubmissionRepository.class)
     VisitSubmissionRepository jdbcRepository(
             DataSource dataSource,

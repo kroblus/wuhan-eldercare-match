@@ -20,16 +20,19 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class C5RuntimeConfigurationTest {
     @Test
@@ -157,6 +160,41 @@ class C5RuntimeConfigurationTest {
             assertEquals("c4_test_user", dataSource.getUsername());
             assertEquals("", dataSource.getPassword());
         }
+    }
+
+    @Test
+    void persistenceConfigurationCreatesC5RepositoryAndFlywayDefinitionsWithoutDatabaseAccess() {
+        AtomicBoolean jdbcAuthRepositoryDefinition = new AtomicBoolean();
+        AtomicBoolean flywayDefinition = new AtomicBoolean();
+        new ApplicationContextRunner()
+                .withUserConfiguration(C5AuthConfiguration.class, PersistenceConfiguration.class)
+                .withBean(ObjectMapper.class, ObjectMapper::new)
+                .withPropertyValues("c4.persistence.enabled=true", "c5.auth.enabled=true",
+                        "c5.auth.app-id=app-id-test", "c5.auth.app-secret=app-secret-test",
+                        "c5.auth.identity-hash-secret=hash-secret-test",
+                        "C4_MYSQL_URL=jdbc:mysql://localhost:3306/c4_test",
+                        "C4_MYSQL_USERNAME=c4_test_user", "C4_MYSQL_PASSWORD=c4-test-password")
+                .withInitializer(context -> context.addBeanFactoryPostProcessor(beanFactory -> {
+                    BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+                    jdbcAuthRepositoryDefinition.set(registry.containsBeanDefinition(
+                            "jdbcAuthIdentitySessionRepository"));
+                    flywayDefinition.set(registry.containsBeanDefinition("c4Flyway"));
+                    if (flywayDefinition.get()) registry.removeBeanDefinition("c4Flyway");
+                }))
+                .run(context -> {
+                    assertTrue(jdbcAuthRepositoryDefinition.get(),
+                            "C5 JDBC repository must not depend on order-sensitive DataSource conditions");
+                    assertTrue(flywayDefinition.get(), "Flyway definition should be visible before test suppression");
+                    assertNull(context.getStartupFailure());
+                    assertEquals(JdbcAuthIdentitySessionRepository.class,
+                            context.getBean(AuthIdentitySessionRepository.class).getClass());
+                    assertInstanceOf(com.wuhan.eldercare.visit.auth.C5AuthService.class,
+                            context.getBean(com.wuhan.eldercare.visit.auth.C5AuthService.class));
+                    HikariDataSource dataSource = assertInstanceOf(HikariDataSource.class,
+                            context.getBean(DataSource.class));
+                    assertEquals("jdbc:mysql://localhost:3306/c4_test", dataSource.getJdbcUrl());
+                    assertEquals("c4_test_user", dataSource.getUsername());
+                });
     }
 
     private static ApplicationContextRunner runtimeContext(String... properties) {

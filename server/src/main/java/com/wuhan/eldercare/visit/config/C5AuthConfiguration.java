@@ -16,7 +16,6 @@ import com.wuhan.eldercare.visit.auth.UnavailableAuthIdentitySessionRepository;
 import com.wuhan.eldercare.visit.auth.UnavailableWeChatAuthProvider;
 import com.wuhan.eldercare.visit.auth.WeChatAuthProvider;
 import com.wuhan.eldercare.visit.auth.WeChatHttpAuthProvider;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -79,7 +78,6 @@ public class C5AuthConfiguration {
 
     @Bean
     @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
-    @ConditionalOnBean(DataSource.class)
     @ConditionalOnMissingBean(AuthIdentitySessionRepository.class)
     AuthIdentitySessionRepository jdbcAuthIdentitySessionRepository(
             DataSource dataSource,
