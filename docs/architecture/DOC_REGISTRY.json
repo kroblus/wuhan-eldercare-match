@@ -552,6 +552,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/V1_2_C6_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c6",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/DOMAIN_CONTRACT.md",
       "doc_id": "redirect.bootstrap_domain_contract",
       "status": "SUPERSEDED",
