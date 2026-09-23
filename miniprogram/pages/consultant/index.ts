@@ -53,7 +53,8 @@ const phoneEvidenceFailureMessage = (outcome: C6PhoneEvidenceOutcome): string =>
 
 const getPhoneAuthorizationCode = (event: PhoneAuthorizationEvent): string => {
   const detail = event && event.detail
-  return detail && typeof detail.code === 'string' ? detail.code : ''
+  const code = detail && detail.code
+  return typeof code === 'string' ? code : ''
 }
 
 const isAuthorizationDeclined = (event: PhoneAuthorizationEvent): boolean => {
@@ -61,6 +62,31 @@ const isAuthorizationDeclined = (event: PhoneAuthorizationEvent): boolean => {
   if (typeof errMsg !== 'string') return false
   const normalized = errMsg.toLowerCase()
   return normalized.indexOf('deny') >= 0 || normalized.indexOf('cancel') >= 0
+}
+
+const isDevelopmentWechatRuntime = (() => {
+  try {
+    return wx.getAccountInfoSync().miniProgram.envVersion === 'develop'
+  } catch (_error) {
+    return false
+  }
+})()
+
+const logPhoneAuthorizationDiagnostic = (
+  codePresent: boolean,
+  category: 'declined' | 'missing' | null,
+): void => {
+  if (!isDevelopmentWechatRuntime) return
+  try {
+    if (typeof console === 'undefined' || typeof console.log !== 'function') return
+    console.log('C6_PHONE_AUTH_CALLBACK', {
+      callbackReached: true,
+      codePresent,
+      category,
+    })
+  } catch (_error) {
+    // Diagnostics must not affect the native authorization callback path.
+  }
 }
 
 const runPhoneAction = (
@@ -180,6 +206,7 @@ Component({
       const code = getPhoneAuthorizationCode(event)
       if (code.length === 0) {
         const outcome: C6PhoneEvidenceOutcome = isAuthorizationDeclined(event) ? 'declined' : 'missing'
+        logPhoneAuthorizationDiagnostic(false, outcome)
         this.setData({
           phoneAuthorizationLoading: false,
           phoneAuthorizationMessage: phoneEvidenceFailureMessage(outcome),
@@ -187,6 +214,7 @@ Component({
         return
       }
 
+      logPhoneAuthorizationDiagnostic(true, null)
       this.setData({ phoneAuthorizationLoading: true, phoneAuthorizationMessage: '' })
       verifyC6PhoneAuthorization(code, (result) => {
         this.setData({

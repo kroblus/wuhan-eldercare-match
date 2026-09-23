@@ -108,6 +108,26 @@ const createPhoneSuccess = () => ({
 
 const loadPhoneService = (wx) => loadModule(authServicePath, { wx })
 
+const loadConsultantPage = (wx, phoneAuthorizationService, diagnosticConsole = { log() {} }) => {
+  let pageConfig = null
+  loadModule(consultantPagePath, {
+    wx,
+    console: diagnosticConsole,
+    Component: (value) => { pageConfig = value },
+  }, {
+    '../../services/consultant-global-page': { buildGlobalConsultantPageApplicationV1() { return {} } },
+    './index-view-model': { createConsultantPageViewModelV1() { return {} } },
+    '../../utils/navigation-guard': {
+      getNavigationGuard() { return { acquire() { return true }, release() {} } },
+      navigateToWithGuard() {},
+      resetNavigationGuard() {},
+    },
+    '../../services/c6-phone-authorization': phoneAuthorizationService,
+  })
+  assert.ok(pageConfig && pageConfig.methods, 'Consultant page registers the authorization action')
+  return pageConfig
+}
+
 const runPhoneServiceCases = () => {
   const requestCalls = []
   const wx = {
@@ -213,30 +233,19 @@ const runPhoneServiceCases = () => {
 }
 
 const runConsultantPageCases = () => {
-  let pageConfig = null
   let serviceCalls = 0
   let lastPhoneCode = ''
-  const wx = {}
-  loadModule(consultantPagePath, {
-    wx,
-    Component: (value) => { pageConfig = value },
+  const diagnostics = []
+  const wx = { getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }) }
+  const pageConfig = loadConsultantPage(wx, {
+    verifyC6PhoneAuthorization(code, complete) {
+      serviceCalls += 1
+      lastPhoneCode = code
+      complete({ authResolution: 'authenticated', phoneEvidenceOutcome: 'authorized' })
+    },
   }, {
-    '../../services/consultant-global-page': { buildGlobalConsultantPageApplicationV1() { return {} } },
-    './index-view-model': { createConsultantPageViewModelV1() { return {} } },
-    '../../utils/navigation-guard': {
-      getNavigationGuard() { return { acquire() { return true }, release() {} } },
-      navigateToWithGuard() {},
-      resetNavigationGuard() {},
-    },
-    '../../services/c6-phone-authorization': {
-      verifyC6PhoneAuthorization(code, complete) {
-        serviceCalls += 1
-        lastPhoneCode = code
-        complete({ authResolution: 'authenticated', phoneEvidenceOutcome: 'authorized' })
-      },
-    },
+    log(...args) { diagnostics.push(args) },
   })
-  assert.ok(pageConfig && pageConfig.methods, 'Consultant page registers the authorization action')
 
   const makePage = () => {
     const data = { ...pageConfig.data }
@@ -252,6 +261,18 @@ const runConsultantPageCases = () => {
   })
   assert.equal(serviceCalls, 0, 'declined consent makes no C5 or provider request')
   assert.ok(deniedPage.data.phoneAuthorizationMessage.indexOf('尚未授权') >= 0, 'decline is shown as a safe non-success message')
+  assert.equal(diagnostics.length, 1, 'develop diagnostics report the native decline callback once')
+  assert.equal(diagnostics[0][0], 'C6_PHONE_AUTH_CALLBACK', 'diagnostic has a fixed safe label')
+  assert.equal(diagnostics[0][1].callbackReached, true, 'diagnostic reports callback arrival')
+  assert.equal(diagnostics[0][1].codePresent, false, 'decline diagnostic reports only code presence')
+  assert.equal(diagnostics[0][1].category, 'declined', 'decline diagnostic uses a safe category')
+
+  const missingPage = makePage()
+  pageConfig.methods.onPhoneAuthorization.call(missingPage, { detail: {} })
+  assert.equal(serviceCalls, 0, 'missing authorization code makes no C5 or provider request')
+  assert.ok(missingPage.data.phoneAuthorizationMessage.indexOf('未取得') >= 0, 'missing code is shown without raw callback data')
+  assert.equal(diagnostics[1][1].codePresent, false, 'missing diagnostic reports only code presence')
+  assert.equal(diagnostics[1][1].category, 'missing', 'missing callback uses the missing category')
 
   const authorizedPage = makePage()
   pageConfig.methods.onPhoneAuthorization.call(authorizedPage, {
@@ -262,6 +283,71 @@ const runConsultantPageCases = () => {
   assert.equal(authorizedPage.data.phoneAuthorizationLoading, false, 'loading clears after verification')
   assert.ok(authorizedPage.data.phoneAuthorizationMessage.indexOf('没有提交联系申请或预约') >= 0, 'success does not imply contact or Appointment submission')
   assert.ok(authorizedPage.data.phoneAuthorizationMessage.indexOf('unit-phone-code-only') < 0, 'one-time code is absent from user-visible state')
+  assert.equal(diagnostics[2][1].callbackReached, true, 'valid callback is reported as reached')
+  assert.equal(diagnostics[2][1].codePresent, true, 'valid callback diagnostic reports code presence only')
+  assert.equal(diagnostics[2][1].category, null, 'valid callback has no failure category')
+  assert.equal(JSON.stringify(diagnostics).includes('unit-phone-code-only'), false, 'diagnostics never include the callback code')
+
+  const productionDiagnostics = []
+  const productionPageConfig = loadConsultantPage(
+    { getAccountInfoSync: () => ({ miniProgram: { envVersion: 'release' } }) },
+    { verifyC6PhoneAuthorization() { serviceCalls += 1 } },
+    { log(...args) { productionDiagnostics.push(args) } },
+  )
+  const productionPage = makePage()
+  productionPageConfig.methods.onPhoneAuthorization.call(productionPage, { detail: {} })
+  assert.equal(productionDiagnostics.length, 0, 'release runtime emits no callback diagnostics')
+}
+
+const runPhoneAuthorizationBoundaryTimingCase = () => {
+  const requestCalls = []
+  let loginCalls = 0
+  let authRequest = null
+  let phoneRequest = null
+  let codeReads = 0
+  const wx = {
+    getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
+    login(options) {
+      loginCalls += 1
+      options.success({ code: 'unit-login-code-only' })
+    },
+    request(options) {
+      requestCalls.push(options)
+      if (options.url.endsWith('/api/v1/auth/wechat')) {
+        authRequest = options
+        return
+      }
+      phoneRequest = options
+    },
+  }
+  const pageConfig = loadConsultantPage(wx, loadPhoneService(wx))
+  const data = { ...pageConfig.data }
+  const page = { data, setData(update) { Object.assign(data, update) } }
+  const event = { detail: { get code() { codeReads += 1; return 'unit-phone-code-only' } } }
+
+  pageConfig.methods.onPhoneAuthorization.call(page, event)
+  assert.equal(codeReads, 1, 'first native callback reads its local code exactly once')
+  assert.equal(loginCalls, 1, 'valid native callback immediately starts one fresh wx.login')
+  assert.equal(requestCalls.length, 1, 'valid native callback immediately starts one C5 request')
+  assert.ok(authRequest && authRequest.url.endsWith('/api/v1/auth/wechat'), 'first request is C5 authentication')
+  assert.equal(page.data.phoneAuthorizationLoading, true, 'page stays guarded while C5 authentication is pending')
+
+  pageConfig.methods.onPhoneAuthorization.call(page, { detail: { get code() { codeReads += 1; return 'duplicate-code' } } })
+  assert.equal(codeReads, 1, 'in-flight duplicate is rejected before reading another callback code')
+  assert.equal(loginCalls, 1, 'in-flight duplicate does not start another wx.login')
+  assert.equal(requestCalls.length, 1, 'in-flight duplicate does not make another request')
+
+  authRequest.success({ statusCode: 200, data: createAuthSuccess() })
+  assert.equal(requestCalls.length, 2, 'successful C5 authentication starts exactly one C6 verification request')
+  assert.ok(phoneRequest && phoneRequest.url.endsWith('/api/v1/auth/wechat/phone/verify'), 'second request is C6 phone verification')
+  assert.equal(phoneRequest.data.code, 'unit-phone-code-only', 'only the native callback code reaches the C6 request')
+  pageConfig.methods.onPhoneAuthorization.call(page, { detail: { code: 'another-duplicate' } })
+  assert.equal(loginCalls, 1, 'duplicate during C6 verification does not repeat wx.login')
+  assert.equal(requestCalls.length, 2, 'duplicate during C6 verification does not repeat C5 or C6 requests')
+
+  phoneRequest.success({ statusCode: 200, data: createPhoneSuccess() })
+  assert.equal(page.data.phoneAuthorizationLoading, false, 'loading clears after the C6 result')
+  assert.ok(page.data.phoneAuthorizationMessage.includes('没有提交联系申请或预约'), 'result stays purpose-bound and does not imply submission')
 }
 
 const runMarkupChecks = () => {
@@ -276,6 +362,7 @@ const run = () => {
   assertTypeChecks()
   runPhoneServiceCases()
   runConsultantPageCases()
+  runPhoneAuthorizationBoundaryTimingCase()
   runMarkupChecks()
   console.log(`C6_PHONE_AUTHORIZATION_TARGETED_TESTS = PASS (TypeScript ${typescript.version})`)
 }
