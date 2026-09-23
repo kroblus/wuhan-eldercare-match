@@ -54,7 +54,8 @@ public class C5AuthConfiguration {
 
     @Bean
     ProviderSubjectHasher c5ProviderSubjectHasher(Environment environment) {
-        String secret = environment.getProperty("c5.auth.identity-hash-secret");
+        String secret = configuredValue(environment,
+                "C5_AUTH_HASH_SECRET", "c5.auth.identity-hash-secret");
         return secret == null || secret.isBlank()
                 ? (namespace, subject) -> java.util.Optional.empty()
                 : new HmacProviderSubjectHasher(secret);
@@ -64,9 +65,10 @@ public class C5AuthConfiguration {
     WeChatAuthProvider c5WeChatAuthProvider(Environment environment, ObjectMapper objectMapper) {
         boolean enabled = environment.getProperty("c5.auth.enabled", Boolean.class, false);
         boolean persistenceEnabled = environment.getProperty("c4.persistence.enabled", Boolean.class, false);
-        String appId = environment.getProperty("c5.auth.app-id");
-        String appSecret = environment.getProperty("c5.auth.app-secret");
-        String hashSecret = environment.getProperty("c5.auth.identity-hash-secret");
+        String appId = configuredValue(environment, "C5_WECHAT_APP_ID", "c5.auth.app-id");
+        String appSecret = configuredValue(environment, "C5_WECHAT_APP_SECRET", "c5.auth.app-secret");
+        String hashSecret = configuredValue(environment,
+                "C5_AUTH_HASH_SECRET", "c5.auth.identity-hash-secret");
         if (!enabled || !persistenceEnabled || blank(appId) || blank(appSecret) || blank(hashSecret)) {
             return new UnavailableWeChatAuthProvider();
         }
@@ -121,5 +123,11 @@ public class C5AuthConfiguration {
 
     private static boolean blank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private static String configuredValue(Environment environment, String externalName, String propertyName) {
+        // Prefer application.yml's documented external key over relaxed-binding legacy aliases.
+        String externalValue = environment.getProperty(externalName);
+        return externalValue != null ? externalValue : environment.getProperty(propertyName);
     }
 }

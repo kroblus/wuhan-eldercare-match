@@ -418,3 +418,17 @@ READY_FOR_C5_SUCCESSOR = FALSE
 The Backend-only implementation includes WeChat code exchange, durable opaque identity mapping, atomic identity/session issuance, self-owned session expiry/revocation, and the C4 `AuthEvidenceResolver` adapter. Java 21 Backend tests passed (40 tests, 0 failures/errors), including C4 regression. A disposable real MySQL 8 instance passed 6 C5 integration cases: both migrations, repeated identity stability, transaction rollback on session collision, eight concurrent first logins to one identity, and session resolution/revocation. The production dependency graph contains no TEST_ONLY provider or principal fallback. No Mini Program, phone, reference, Appointment Page, or Visit behavior was added.
 
 No authorized WeChat AppID/AppSecret and one-time login evidence were supplied for this run. TEST_ONLY provider behavior does not satisfy Gate 14's external provider requirement. Full `PASS` and successor readiness require an authorized provider exchange and resulting self-owned session resolution against the same implementation source. DevTools and Android remain not required for this Backend-only phase.
+
+## 19. Runtime Configuration Wiring Reconciliation — Provider Gate Still Pending
+
+The configuration repair is based on implementation source `efa4593bd9739dd0fec3e1130a8905abf6ed339d`. `application.yml` already maps the documented external `C5_WECHAT_APP_ID`, `C5_WECHAT_APP_SECRET`, and `C5_AUTH_HASH_SECRET` variables into `c5.auth.*`. The Java configuration now gives those external variables explicit precedence when Spring relaxed environment binding also exposes the older `C5_AUTH_APP_ID`, `C5_AUTH_APP_SECRET`, or `C5_AUTH_IDENTITY_HASH_SECRET` names. The older names remain a fallback when the documented variables are absent. This is one provider/hasher configuration path, not separate credentials for each alias.
+
+`PersistenceConfiguration` already passes `C4_MYSQL_URL`, `C4_MYSQL_USERNAME`, and `C4_MYSQL_PASSWORD` into the production Hikari `DataSource`; no password wiring change was needed. Targeted configuration and C4/C5 boundary tests use synthetic values and do not connect to an Owner database. This reconciliation does not supply real WeChat provider evidence or change the phase result:
+
+```text
+PHASE_V1_2_C5 = PASS_WITH_RISKS
+C5_IMPLEMENTATION = COMPLETE_PENDING_EXTERNAL_PROVIDER_EVIDENCE
+MANDATORY_GATES = 14/15 PASS
+REAL_PROVIDER_EVIDENCE = MISSING
+READY_FOR_C5_SUCCESSOR = FALSE
+```
