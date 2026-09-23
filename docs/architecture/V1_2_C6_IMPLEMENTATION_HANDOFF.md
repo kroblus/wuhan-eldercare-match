@@ -87,3 +87,36 @@ TEST_CODE_CHANGE = 0
 FROZEN_CONTRACT_CHANGE = 0
 PRODUCT_SOURCE_CHANGE = 0
 ```
+
+## 6. Mandatory Gate and status clarification
+
+This section expands Section 5's four completion-evidence groups into checkable implementation Gates. It adds no phone purpose, result status, provider protocol, or public business behavior. All Gates are mandatory for full C6 PASS.
+
+| Gate | Required evidence |
+|---|---|
+| G01 Contract conformance | C1/C3 purpose, contact outcome, draft, no-Visit, and privacy semantics remain unchanged. |
+| G02 Explicit authorization | Phone acquisition follows an explicit Appointment or Consultant-contact action; decline/cancel/missing paths preserve draft. |
+| G03 Purpose and contact validation | Backend validates `appointment_or_consultant_contact` and equality with the authorized private contact value. |
+| G04 Phone is not identity | Phone never becomes principal, session, account-link, ownership, or idempotency authority. |
+| G05 Authenticated boundary | C6 acquisition and consumption respect the C5 authenticated principal/session boundary without changing C5 semantics. |
+| G06 Production provider | A real WeChat phone provider is selected only with complete authorized configuration; production has no test fallback. |
+| G07 Evidence mapping | Provider success/failure maps only to the frozen C3 contact taxonomy; no new stable business result is introduced. |
+| G08 Fail closed | Missing, declined, expired, invalid, repeated, mismatched, and unavailable evidence never authorizes contact or creates a Visit. |
+| G09 Privacy and Secret firewall | Raw provider data, User.phone, proof, credential, and internal locator stay out of public result, route, log, analytics, fixture, and source. |
+| G10 C4 integration and isolation | C4 consumes only verified purpose-bound evidence; reference remains unavailable and phone acquisition creates no Visit. |
+| G11 Targeted regression and compatibility | Direct Backend tests, C4/C5 regression, and necessary Mini Program WeChat runtime checks pass. |
+| G12 Independent targeted QA | Diff-driven QA checks Contract, phone/identity separation, provider/test isolation, privacy, source identity, and scope. |
+| G13 Authorized real provider | Owner-authorized WeChat phone capability demonstrates consent, real provider exchange, Backend verification, required negative paths, and no Visit. |
+
+```text
+FULL_PASS = G01..G13 PASS
+PHASE_V1_2_C6 = PASS                 # only after 13/13 PASS
+C6_IMPLEMENTATION = COMPLETE        # only after 13/13 PASS
+READY_FOR_C6_SUCCESSOR = TRUE       # only after 13/13 PASS
+
+NONFINAL_PROVIDER_PENDING = G01..G12 PASS + G13 MISSING
+PHASE_V1_2_C6 = PASS_WITH_RISKS      # only for this nonfinal condition
+C6_IMPLEMENTATION = COMPLETE_PENDING_EXTERNAL_PROVIDER_EVIDENCE
+REAL_PHONE_PROVIDER_EVIDENCE = MISSING
+READY_FOR_C6_SUCCESSOR = FALSE
+```

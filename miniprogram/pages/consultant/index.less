@@ -93,6 +93,40 @@
   margin-top: @space-2;
 }
 
+.consultant-phone-authorization__explanation,
+.consultant-phone-authorization__message {
+  display: block;
+  margin-top: @space-2;
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.consultant-phone-authorization__button {
+  .touch-target();
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: @space-3;
+  padding: 0 @space-4;
+  border-radius: @radius-pill;
+  background: @color-brand;
+  color: #FFFFFF;
+  font-size: @font-size-body;
+  font-weight: 600;
+  line-height: @touch-target-min;
+}
+
+.consultant-phone-authorization__button::after {
+  border: 0;
+}
+
+.consultant-phone-authorization__button[disabled] {
+  background: #D9D4CE;
+  color: #FFFFFF;
+}
+
 .consultant-contact-row__head {
   display: flex;
   align-items: flex-start;

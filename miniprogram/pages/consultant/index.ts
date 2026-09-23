@@ -9,6 +9,8 @@ import {
   navigateToWithGuard,
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
+import type { C6PhoneAuthorizationResult, C6PhoneEvidenceOutcome } from '../../services/c6-phone-authorization'
+import { verifyC6PhoneAuthorization } from '../../services/c6-phone-authorization'
 
 const APPOINTMENT_URL = '/pages/appointment/create'
 
@@ -21,6 +23,44 @@ interface ConsultantPageData {
   viewModel: ConsultantPageViewModelV1 | null
   actionErrorKey: '' | 'phone' | 'appointment'
   actionErrorMessage: string
+  phoneAuthorizationLoading: boolean
+  phoneAuthorizationMessage: string
+}
+
+interface PhoneAuthorizationEvent {
+  detail?: {
+    code?: unknown
+    errMsg?: unknown
+  }
+}
+
+const phoneAuthorizationMessage = (result: C6PhoneAuthorizationResult): string => {
+  if (result.authResolution !== 'authenticated' || result.phoneEvidenceOutcome === null) {
+    return '暂时无法完成手机号授权核验，请稍后重试。'
+  }
+  if (result.phoneEvidenceOutcome === 'authorized') {
+    return '本次手机号授权已核验。没有提交联系申请或预约，也不会保留可复用凭证。'
+  }
+  return phoneEvidenceFailureMessage(result.phoneEvidenceOutcome)
+}
+
+const phoneEvidenceFailureMessage = (outcome: C6PhoneEvidenceOutcome): string => {
+  if (outcome === 'declined') return '你尚未授权手机号，仍可查看或拨打顾问公开联系方式。'
+  if (outcome === 'missing') return '未取得手机号授权凭证，请重新操作。'
+  if (outcome === 'expired' || outcome === 'invalid') return '手机号授权凭证无效或已失效，请重新授权。'
+  return '暂时无法完成手机号授权核验，请稍后重试。'
+}
+
+const getPhoneAuthorizationCode = (event: PhoneAuthorizationEvent): string => {
+  const detail = event && event.detail
+  return detail && typeof detail.code === 'string' ? detail.code : ''
+}
+
+const isAuthorizationDeclined = (event: PhoneAuthorizationEvent): boolean => {
+  const errMsg = event && event.detail && event.detail.errMsg
+  if (typeof errMsg !== 'string') return false
+  const normalized = errMsg.toLowerCase()
+  return normalized.indexOf('deny') >= 0 || normalized.indexOf('cancel') >= 0
 }
 
 const runPhoneAction = (
@@ -70,6 +110,8 @@ Component({
     viewModel: null,
     actionErrorKey: '',
     actionErrorMessage: '',
+    phoneAuthorizationLoading: false,
+    phoneAuthorizationMessage: '',
   } as ConsultantPageData,
 
   lifetimes: {
@@ -129,6 +171,27 @@ Component({
         this.setData({
           actionErrorKey: 'phone',
           actionErrorMessage: '暂时无法拨打顾问电话，请稍后重试。',
+        })
+      })
+    },
+
+    onPhoneAuthorization(event: PhoneAuthorizationEvent) {
+      if (this.data.phoneAuthorizationLoading) return
+      const code = getPhoneAuthorizationCode(event)
+      if (code.length === 0) {
+        const outcome: C6PhoneEvidenceOutcome = isAuthorizationDeclined(event) ? 'declined' : 'missing'
+        this.setData({
+          phoneAuthorizationLoading: false,
+          phoneAuthorizationMessage: phoneEvidenceFailureMessage(outcome),
+        })
+        return
+      }
+
+      this.setData({ phoneAuthorizationLoading: true, phoneAuthorizationMessage: '' })
+      verifyC6PhoneAuthorization(code, (result) => {
+        this.setData({
+          phoneAuthorizationLoading: false,
+          phoneAuthorizationMessage: phoneAuthorizationMessage(result),
         })
       })
     },

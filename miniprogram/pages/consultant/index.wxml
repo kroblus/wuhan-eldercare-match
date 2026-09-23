@@ -83,6 +83,24 @@
             <text wx:if="{{viewModel.showQrImage}}" class="consultant-qr-hint">可长按识别二维码；页面不会承诺添加一定成功。</text>
             <text wx:else class="consultant-contact-row__unavailable">{{viewModel.qr.statusText}}</text>
           </view>
+
+        </section-card>
+      </view>
+
+      <view class="consultant-card-wrap">
+        <section-card>
+          <text class="section-kicker">顾问联系授权</text>
+          <text class="consultant-phone-authorization__explanation">如果你明确要求养老顾问后续联系，可授权微信手机号。本次只核验授权，不发送联系申请或预约，也不保存可复用凭证；之后正式申请时需要重新授权。</text>
+          <button
+            class="consultant-phone-authorization__button"
+            open-type="getPhoneNumber"
+            disabled="{{phoneAuthorizationLoading}}"
+            loading="{{phoneAuthorizationLoading}}"
+            bindgetphonenumber="onPhoneAuthorization"
+          >
+            {{phoneAuthorizationLoading ? '正在核验授权' : '授权手机号用于后续联系'}}
+          </button>
+          <text wx:if="{{phoneAuthorizationMessage}}" class="consultant-phone-authorization__message" role="status">{{phoneAuthorizationMessage}}</text>
         </section-card>
       </view>
 
