@@ -9,6 +9,14 @@ c4:
   persistence:
     enabled: ${C4_PERSISTENCE_ENABLED:false}
 
+c5:
+  auth:
+    enabled: ${C5_AUTH_ENABLED:false}
+    app-id: ${C5_WECHAT_APP_ID:}
+    app-secret: ${C5_WECHAT_APP_SECRET:}
+    identity-hash-secret: ${C5_AUTH_HASH_SECRET:}
+    session-ttl-seconds: ${C5_SESSION_TTL_SECONDS:7200}
+
 server:
   error:
     include-message: never

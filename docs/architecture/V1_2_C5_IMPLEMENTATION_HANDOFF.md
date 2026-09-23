@@ -402,3 +402,19 @@ PRODUCT_SOURCE_SEMANTIC_CHANGE = 0
 - implementation-local provider protocol、evidence encoding、token format and TTL may not weaken C3 semantics；
 - new account role、cross-provider identity merge、phone identity or Page behavior requires a successor/Contract decision；
 - Frozen C3/C1、C4 persistence truth and Product Source remain unchanged。
+
+## 18. Implementation Evidence — Pending Authorized Provider Gate
+
+This section records the C5 implementation result. Section 16 is the frozen definition snapshot, not the current phase marker.
+
+```text
+PHASE_V1_2_C5 = PASS_WITH_RISKS
+C5_IMPLEMENTATION = COMPLETE_PENDING_EXTERNAL_PROVIDER_EVIDENCE
+MANDATORY_GATES = 14/15 PASS
+REAL_PROVIDER_EVIDENCE = MISSING
+READY_FOR_C5_SUCCESSOR = FALSE
+```
+
+The Backend-only implementation includes WeChat code exchange, durable opaque identity mapping, atomic identity/session issuance, self-owned session expiry/revocation, and the C4 `AuthEvidenceResolver` adapter. Java 21 Backend tests passed (40 tests, 0 failures/errors), including C4 regression. A disposable real MySQL 8 instance passed 6 C5 integration cases: both migrations, repeated identity stability, transaction rollback on session collision, eight concurrent first logins to one identity, and session resolution/revocation. The production dependency graph contains no TEST_ONLY provider or principal fallback. No Mini Program, phone, reference, Appointment Page, or Visit behavior was added.
+
+No authorized WeChat AppID/AppSecret and one-time login evidence were supplied for this run. TEST_ONLY provider behavior does not satisfy Gate 14's external provider requirement. Full `PASS` and successor readiness require an authorized provider exchange and resulting self-owned session resolution against the same implementation source. DevTools and Android remain not required for this Backend-only phase.
