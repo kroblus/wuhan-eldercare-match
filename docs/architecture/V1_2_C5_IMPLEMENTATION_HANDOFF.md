@@ -432,3 +432,31 @@ MANDATORY_GATES = 14/15 PASS
 REAL_PROVIDER_EVIDENCE = MISSING
 READY_FOR_C5_SUCCESSOR = FALSE
 ```
+
+## 20. Real WeChat Provider Runtime Gate — Closeout
+
+This section is the current C5 status. Sections 16, 18, and 19 record earlier definition, implementation, and configuration snapshots. The validated implementation source is `66b22eba6c7eba07518073a888e37693aa51a9e2`; the closeout changes documentation only.
+
+The Owner started the Backend from that source with Java 21 and Maven `spring-boot:run` in the default profile. The startup record shows a live MySQL connection, Flyway validation and application of migrations V1 and V2, and Tomcat on port 8080. The C4 and C5 JDBC repositories and C5 auth service are required by the successful production context startup. Configuration conditions and the authenticated runtime responses establish selection of the production `WeChatHttpAuthProvider`; no TEST_ONLY provider was used.
+
+Two separate fresh `wx.login` codes from the authorized Mini Program each produced the C5 `AUTHENTICATED` result with self-owned session evidence and expiry present. A read-only, bounded MySQL aggregate for those two calls returned two persisted session rows, one distinct internal principal, and one mapped principal; the Owner confirmed no other authentication occurred in the window. The first issued session reached the C4 authenticated path and returned `CONTACT_REQUIRED` because no phone evidence was supplied; no Visit was created. A tampered session returned `AUTH_REQUIRED`. Reusing the second one-time code returned `INVALID / AUTH_EVIDENCE_INVALID` without session evidence. Existing targeted tests cover expiry, revocation, concurrency, and fail-closed configuration semantics; those cases were not rerun against the Owner runtime for this Gate.
+
+Only public-safe result fields and presence booleans were retained from the DevTools calls. Provider identity is hashed before persistence, session evidence is stored only as a digest, and provider errors are mapped to stable public results. Targeted source and default-profile logging review found no application-controlled path that logs the AppSecret, provider response, raw identity, login code, or session evidence. External process, APM, and operating-system log sinks were outside this Gate's inspection boundary. Independent targeted QA reconciled source identity and evidence with no implementation defect found.
+
+```text
+C5_VALIDATED_IMPLEMENTATION_SOURCE = 66b22eba6c7eba07518073a888e37693aa51a9e2
+MYSQL_RUNTIME = PASS
+FLYWAY = PASS
+PRODUCTION_WECHAT_PROVIDER_SELECTED = PASS
+REAL_PROVIDER_EVIDENCE = PASS
+REAL_CODE_EXCHANGE = PASS
+DURABLE_PRINCIPAL_EVIDENCE = PASS
+SELF_OWNED_SESSION_EVIDENCE = PASS
+C4_RESOLVER_EVIDENCE = PASS
+SECRET_FIREWALL = PASS
+MANDATORY_GATES = 15/15 PASS
+PHASE_V1_2_C5 = PASS
+C5_IMPLEMENTATION = COMPLETE
+BLOCKERS = 0
+READY_FOR_C5_SUCCESSOR = TRUE
+```
