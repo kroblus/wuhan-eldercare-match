@@ -162,6 +162,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/VISIT_EVALUATION_NON_SENSITIVE_UI_CONTRACT_V1.md",
+      "doc_id": "contract.visit_evaluation_non_sensitive_ui.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
       "doc_id": "architecture.ai_provider_dev_testing",
       "status": "CURRENT",
