@@ -21,7 +21,8 @@
     "pages/elder/index",
     "pages/elder/detail",
     "pages/assessment/history",
-    "pages/appointment/index"
+    "pages/appointment/index",
+    "pages/visit/evaluation"
   ],
   "window": {
     "navigationBarTextStyle": "black",

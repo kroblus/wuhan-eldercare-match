@@ -1,9 +1,77 @@
-import { registerRoutePage } from '../../utils/route-scaffold'
+import {
+  APPOINTMENT_LIST_FILTERS,
+  createAppointmentListViewModel,
+  filterAppointmentListCards,
+  unavailableAppointmentListViewModel,
+} from './list-view-model'
+import type {
+  AppointmentListFilter,
+  AppointmentListViewModel,
+} from './list-view-model'
+import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import type { InstitutionVisitPublicSnapshotV1 } from '../../types/appointment-institution-visit-v1'
 
-registerRoutePage({
-  title: '我的预约',
-  routeLabel: '我的 · 看院预约',
-  description: '预约列表只展示后端或顾问运营侧返回的真实状态，不由前端自行推断。',
-  nextUrl: '/pages/institution/index',
-  nextLabel: '看看合作机构骨架',
+interface AppointmentListPageData extends AppointmentListViewModel {}
+
+interface AppointmentFilterEvent {
+  currentTarget: { dataset: { filter?: string } }
+}
+
+interface EvaluationActionEvent {
+  currentTarget: { dataset: { visitId?: string } }
+}
+
+const isAppointmentListFilter = (value: string | undefined): value is AppointmentListFilter =>
+  APPOINTMENT_LIST_FILTERS.some((item) => item.key === value)
+
+Page({
+  data: {
+    loadState: 'loading',
+    activeFilter: 'all',
+    filters: APPOINTMENT_LIST_FILTERS,
+    visits: [],
+    visibleVisits: [],
+    errorMessage: '',
+  } as AppointmentListPageData,
+
+  onLoad() {
+    resetNavigationGuard(this)
+    this.setData({ loadState: 'loading', errorMessage: '' })
+
+    // Owner-read remains deferred. Keep production explicitly unavailable until an
+    // authenticated, permission-filtered application provider is connected.
+    this.setData(unavailableAppointmentListViewModel())
+  },
+
+  onShow() {
+    resetNavigationGuard(this)
+  },
+
+  applyApplicationData(visits: readonly InstitutionVisitPublicSnapshotV1[]) {
+    this.setData(createAppointmentListViewModel(visits, this.data.activeFilter))
+  },
+
+  onFilterTap(event: AppointmentFilterEvent) {
+    const filter = event.currentTarget.dataset.filter
+    if (!isAppointmentListFilter(filter)) return
+
+    const visits = this.data.visits
+    this.setData({
+      activeFilter: filter,
+      visibleVisits: filterAppointmentListCards(visits, filter),
+    })
+  },
+
+  openEvaluation(event: EvaluationActionEvent) {
+    const visitId = event.currentTarget.dataset.visitId
+    if (!visitId || !this.data.visibleVisits.some((visit) =>
+      visit.visitId === visitId && visit.showEvaluationAction)) {
+      return
+    }
+
+    const route = `/pages/visit/evaluation?visitId=${encodeURIComponent(visitId)}`
+    navigateToWithGuard(this, 'appointment.openEvaluation', route, undefined, () => {
+      wx.showToast({ title: '暂时无法打开看院评价', icon: 'none' })
+    })
+  },
 })

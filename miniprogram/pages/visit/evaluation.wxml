@@ -1,0 +1,24 @@
+<navigation-bar title="看院评价" back="true" color="#27313D" background="#FFFFFF"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell">
+    <view class="page-head">
+      <text class="eyebrow">预约后续</text>
+      <text class="page-title">看院评价</text>
+      <text class="page-description">评价内容与提交服务尚未开放。</text>
+    </view>
+    <section-card>
+      <state-panel
+        wx:if="{{hasVisitId}}"
+        state="empty"
+        title="评价入口已打开"
+        message="本页面只保留预约记录入口，暂不收集或提交评价。"
+      ></state-panel>
+      <state-panel
+        wx:else
+        state="error"
+        title="未找到预约记录"
+        message="请从已完成的预约记录进入。"
+      ></state-panel>
+    </section-card>
+  </view>
+</page-container>
