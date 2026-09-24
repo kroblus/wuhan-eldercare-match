@@ -50,7 +50,7 @@
           <text class="evaluation-section__title">总体印象</text>
           <text class="evaluation-section__hint">1–5 分</text>
         </view>
-        <text class="evaluation-question">整体印象</text>
+        <text class="evaluation-question">整体印象（必填）</text>
         <view class="rating-options">
           <view
             wx:for="{{overallOptions}}"
@@ -64,8 +64,9 @@
             aria-label="整体印象 {{score.value}} 分"
           >{{score.label}}</view>
         </view>
+        <text wx:if="{{overallRatingValidationMessage}}" class="evaluation-validation">{{overallRatingValidationMessage}}</text>
 
-        <text class="evaluation-question evaluation-question--spaced">后续考虑</text>
+        <text class="evaluation-question evaluation-question--spaced">后续考虑（必填）</text>
         <view class="choice-list">
           <view
             wx:for="{{considerationOptions}}"
@@ -77,6 +78,7 @@
             aria-role="button"
           >{{option.label}}</view>
         </view>
+        <text wx:if="{{considerationValidationMessage}}" class="evaluation-validation">{{considerationValidationMessage}}</text>
       </section-card>
 
       <section-card wx:for="{{ratingSections}}" wx:for-item="section" wx:key="key" extraClass="evaluation-section">
@@ -119,10 +121,23 @@
             aria-role="button"
           >{{option.label}}</view>
         </view>
-        <text class="evaluation-subtitle">费用说明项目</text>
-        <view class="topic-list">
-          <text wx:for="{{feeTopics}}" wx:for-item="topic" wx:key="*this" class="topic-chip">{{topic}}</text>
+        <text class="evaluation-subtitle">各项费用是否得到说明（选填）</text>
+        <view wx:for="{{feeTopicExplanations}}" wx:for-item="topic" wx:key="key" class="evaluation-fee-topic">
+          <text class="evaluation-question">{{topic.label}}</text>
+          <view class="choice-list choice-list--compact">
+            <view
+              wx:for="{{topic.options}}"
+              wx:for-item="option"
+              wx:key="key"
+              class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+              data-topic="{{topic.key}}"
+              data-value="{{option.key}}"
+              bindtap="onFeeTopicTap"
+              aria-role="button"
+            >{{option.label}}</view>
+          </view>
         </view>
+        <text class="evaluation-note">未选择表示未填写；“未确认”表示本次没有确认到说明情况。</text>
       </section-card>
 
       <section-card extraClass="evaluation-section">
@@ -170,7 +185,7 @@
             aria-role="button"
           >{{topic.label}}</view>
         </view>
-        <text class="evaluation-note">“未确认”的互斥行为仅用于本页交互展示，尚未定义为提交数据规则。</text>
+        <text class="evaluation-note">“未确认”与具体交接项目互斥；这些选择只记录本次用户观察。</text>
       </section-card>
 
       <section-card wx:for="{{tagGroups}}" wx:for-item="group" wx:key="key" extraClass="evaluation-section">

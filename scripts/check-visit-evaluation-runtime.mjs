@@ -14,11 +14,19 @@ const pagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'eva
 const viewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation-view-model.ts')
 const applicationPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-application.ts')
 const productionContextProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-context.ts')
-const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath]
+const writeContentPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-write-content.ts')
+const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath, writeContentPath]
 const failures = []
 const cases = []
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
+
+const makeValidDraft = (viewModel) => {
+  const draft = viewModel.createEmptyVisitEvaluationDraft()
+  draft.overallRating = 5
+  draft.consideration = 'willing'
+  return draft
+}
 
 const runCase = async (name, callback) => {
   cases.push(name)
@@ -56,6 +64,7 @@ const run = async () => {
     wx: { showToast() {} },
   })
   const viewModel = runtime.load(viewModelPath)
+  const writeContent = runtime.load(writeContentPath)
   const productionContextModule = runtime.load(productionContextProviderPath)
   runtime.load(applicationPath)
   runtime.load(pagePath)
@@ -71,6 +80,7 @@ const run = async () => {
       viewModelPath,
       applicationPath,
       productionContextProviderPath,
+      writeContentPath,
       path.join(repositoryRoot, 'typings', 'index.d.ts'),
     ], parsedConfig.options)
     const errors = ts.getPreEmitDiagnostics(program)
@@ -89,7 +99,193 @@ const run = async () => {
     assert.equal(ratingView.overallOptions.length, 5)
     assert.equal(ratingView.sections.reduce((sum, section) => sum + section.items.length, 0), 21)
     assert.equal(Object.values(draft.ratings).every((value) => value === null), true)
-    assert.equal(JSON.stringify(viewModel.validateVisitEvaluationDraft(draft)), '[]')
+    const issues = viewModel.validateVisitEvaluationDraft(draft)
+    assert.deepEqual(clone(issues.map((issue) => issue.path).sort()), ['consideration', 'overallRating'])
+    assert.equal(viewModel.createVisitEvaluationFeeTopicViewModel(draft).length, 7)
+  })
+
+  await runCase('CONTRACT_REQUIRED_FIELDS_AND_MINIMAL_OPTIONAL_SUBMISSION', async () => {
+    const draft = viewModel.createEmptyVisitEvaluationDraft()
+    draft.overallRating = 4
+    assert.equal(viewModel.validateVisitEvaluationDraft(draft).some((issue) => issue.path === 'consideration'), true)
+    draft.consideration = 'compare'
+    assert.deepEqual(clone(viewModel.validateVisitEvaluationDraft(draft)), [])
+    const mapped = writeContent.mapVisitEvaluationDraftToWriteContentV1(draft)
+    assert.equal(mapped.kind, 'valid')
+    assert.deepEqual(clone(mapped.content), { overallRating: 4, consideration: 'compare' })
+    assert.equal('ratings' in mapped.content, false)
+    assert.equal('feeTopicExplanations' in mapped.content, false)
+    assert.equal('careProcessObservations' in mapped.content, false)
+  })
+
+  await runCase('CONTRACT_VALIDATION_REJECTS_INVALID_RATINGS_AND_CONSIDERATION', async () => {
+    const draft = makeValidDraft(viewModel)
+    draft.overallRating = 0
+    draft.ratings.hygiene = 6
+    draft.consideration = 'other'
+    const issues = viewModel.validateVisitEvaluationDraft(draft)
+    assert.equal(issues.some((issue) => issue.path === 'overallRating'), true)
+    assert.equal(issues.some((issue) => issue.path === 'ratings.hygiene'), true)
+    assert.equal(issues.some((issue) => issue.path === 'consideration'), true)
+    assert.equal(writeContent.mapVisitEvaluationDraftToWriteContentV1(draft).kind, 'invalid')
+    const invalidFee = makeValidDraft(viewModel)
+    invalidFee.feeTopicExplanations.bed_fee = 'not-a-contract-code'
+    assert.equal(viewModel.validateVisitEvaluationDraft(invalidFee).some((issue) => issue.path === 'feeTopicExplanations.bed_fee'), true)
+  })
+
+  await runCase('PAGE_REQUIRED_ERRORS_BLOCK_TEST_ONLY_SUBMIT_AND_CLEAR_AFTER_FIX', async () => {
+    let submitCalls = 0
+    const page = makePage(pageConfig, makeApplication(runtime, {
+      testOnlyContextProvider: { loadContext: createVisitEvaluationContextFixture },
+      testOnlySubmitProvider: { submit: async () => {
+        submitCalls += 1
+        return { provenance: 'TEST_ONLY', outcome: 'submitted' }
+      } },
+    }))
+    await page.onLoad({ visitId: 'visit-required-validation' })
+    await page.onSubmit()
+    assert.equal(page.data.pageState, 'editing')
+    assert.equal(page.data.overallRatingValidationMessage, '请选择整体印象评分。')
+    assert.equal(page.data.considerationValidationMessage, '请选择后续考虑。')
+    assert.equal(submitCalls, 0)
+    page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'compare' } } })
+    assert.equal(page.data.overallRatingValidationMessage, '')
+    assert.equal(page.data.considerationValidationMessage, '')
+    await page.onSubmit()
+    assert.equal(page.data.pageState, 'submitted')
+    assert.equal(submitCalls, 1)
+  })
+
+  await runCase('PRICING_TOPICS_USE_STABLE_OPTIONAL_CODES_AND_RESTORE_SELECTION', async () => {
+    const page = makePage(pageConfig, makeApplication(runtime, {
+      testOnlyContextProvider: { loadContext: createVisitEvaluationContextFixture },
+    }))
+    await page.onLoad({ visitId: 'visit-fee-topics' })
+    const expectedKeys = ['bed_fee', 'meal_fee', 'care_fee', 'management_fee', 'special_care_fee', 'deposit', 'other_one_time_fee']
+    assert.deepEqual(clone(page.data.feeTopicExplanations.map((topic) => topic.key)), expectedKeys)
+    assert.equal(page.data.feeTopicExplanations.every((topic) => topic.options.every((option) => !option.selected)), true)
+    const answerCodes = ['explained', 'not_explained', 'unconfirmed']
+    for (const topic of page.data.feeTopicExplanations) {
+      for (const answer of answerCodes) {
+        page.onFeeTopicTap({ currentTarget: { dataset: { topic: topic.key, value: answer } } })
+        assert.equal(page.data.draft.feeTopicExplanations[topic.key], answer)
+        assert.equal(page.data.feeTopicExplanations.find((item) => item.key === topic.key)
+          .options.filter((option) => option.selected).length, 1)
+      }
+      page.onFeeTopicTap({ currentTarget: { dataset: { topic: topic.key, value: 'unconfirmed' } } })
+      assert.equal(page.data.draft.feeTopicExplanations[topic.key], '')
+    }
+    const finalAnswers = ['explained', 'not_explained', 'unconfirmed', 'explained', 'not_explained', 'unconfirmed', 'explained']
+    page.data.feeTopicExplanations.forEach((topic, index) => {
+      page.onFeeTopicTap({ currentTarget: { dataset: { topic: topic.key, value: finalAnswers[index] } } })
+    })
+    page.onFeeTopicTap({ currentTarget: { dataset: { topic: 'bed_fee', value: 'explained' } } })
+    assert.equal(page.data.draft.feeTopicExplanations.bed_fee, '')
+    const content = writeContent.mapVisitEvaluationDraftToWriteContentV1({
+      ...makeValidDraft(viewModel),
+      feeTopicExplanations: page.data.draft.feeTopicExplanations,
+    })
+    assert.equal(content.kind, 'valid')
+    assert.deepEqual(clone(content.content.feeTopicExplanations), {
+      meal_fee: 'not_explained',
+      care_fee: 'unconfirmed',
+      management_fee: 'explained',
+      special_care_fee: 'not_explained',
+      deposit: 'unconfirmed',
+      other_one_time_fee: 'explained',
+    })
+  })
+
+  await runCase('UNANSWERED_FEE_CONTAINER_AND_TOPIC_KEYS_REMAIN_ABSENT', async () => {
+    const partial = makeValidDraft(viewModel)
+    delete partial.feeTopicExplanations.bed_fee
+    delete partial.feeTopicExplanations.deposit
+    partial.feeTopicExplanations.meal_fee = 'unconfirmed'
+    const mappedPartial = writeContent.mapVisitEvaluationDraftToWriteContentV1(partial)
+    assert.equal(mappedPartial.kind, 'valid')
+    assert.deepEqual(clone(mappedPartial.content.feeTopicExplanations), { meal_fee: 'unconfirmed' })
+    assert.equal(Object.prototype.hasOwnProperty.call(mappedPartial.content.feeTopicExplanations, 'bed_fee'), false)
+    assert.equal(Object.prototype.hasOwnProperty.call(mappedPartial.content.feeTopicExplanations, 'deposit'), false)
+
+    const noFeeContainer = { ...makeValidDraft(viewModel), feeTopicExplanations: undefined }
+    const mappedWithoutContainer = writeContent.mapVisitEvaluationDraftToWriteContentV1(noFeeContainer)
+    assert.equal(mappedWithoutContainer.kind, 'valid')
+    assert.equal(Object.prototype.hasOwnProperty.call(mappedWithoutContainer.content, 'feeTopicExplanations'), false)
+  })
+
+  await runCase('HANDOVER_UNCONFIRMED_XOR_IS_ENFORCED_BY_VIEW_MODEL_AND_VALIDATOR', async () => {
+    const empty = makeValidDraft(viewModel)
+    const unconfirmed = viewModel.toggleVisitEvaluationHandoverTopic(empty, 'unconfirmed')
+    assert.deepEqual(clone(unconfirmed.handoverTopics), ['unconfirmed'])
+    assert.deepEqual(clone(viewModel.validateVisitEvaluationDraft(unconfirmed)), [])
+    const concrete = viewModel.toggleVisitEvaluationHandoverTopic(unconfirmed, 'follow_up')
+    assert.deepEqual(clone(concrete.handoverTopics), ['follow_up'])
+    const backToUnknown = viewModel.toggleVisitEvaluationHandoverTopic(concrete, 'unconfirmed')
+    assert.deepEqual(clone(backToUnknown.handoverTopics), ['unconfirmed'])
+    const invalid = { ...empty, handoverTopics: ['unconfirmed', 'vital_signs'] }
+    assert.equal(viewModel.validateVisitEvaluationDraft(invalid).some((issue) => issue.path === 'handoverTopics'), true)
+    const noIsNotUnknown = { ...empty, careRecordLearned: 'no', handoverLearned: 'unconfirmed' }
+    const mapped = writeContent.mapVisitEvaluationDraftToWriteContentV1(noIsNotUnknown)
+    assert.equal(mapped.kind, 'valid')
+    assert.deepEqual(clone(mapped.content.careProcessObservations), {
+      careRecordLearned: 'no',
+      handoverLearned: 'unconfirmed',
+    })
+  })
+
+  await runCase('WRITE_CONTENT_NORMALIZES_OPTIONAL_SETS_AND_EXCLUDES_SERVER_AUTHORITY', async () => {
+    const draft = makeValidDraft(viewModel)
+    draft.ratings.hygiene = 3
+    draft.feeExplanationClear = 'clear'
+    draft.feeTopicExplanations.bed_fee = 'explained'
+    draft.careRecordLearned = 'no'
+    draft.handoverTopics = ['follow_up', 'vital_signs']
+    draft.likedTags = ['room', 'care']
+    draft.concernTags = ['care']
+    draft.comment = '记录本次观察'
+    const mapped = writeContent.mapVisitEvaluationDraftToWriteContentV1(draft)
+    assert.equal(mapped.kind, 'valid')
+    assert.deepEqual(clone(mapped.content), {
+      overallRating: 5,
+      consideration: 'willing',
+      ratings: { hygiene: 3 },
+      feeExplanationClear: 'clear',
+      feeTopicExplanations: { bed_fee: 'explained' },
+      careProcessObservations: {
+        careRecordLearned: 'no',
+        handoverTopics: ['follow_up', 'vital_signs'],
+      },
+      likedTags: ['care', 'room'],
+      concernTags: ['care'],
+      comment: '记录本次观察',
+    })
+    const contentKeys = Object.keys(mapped.content)
+    for (const forbidden of [
+      'visitId', 'userId', 'ownerId', 'institutionId', 'institutionRecordRevision',
+      'visitStatus', 'completed', 'evaluationId', 'submittedAt', 'idempotencyKey',
+    ]) assert.equal(contentKeys.includes(forbidden), false)
+  })
+
+  await runCase('TAG_DUPLICATES_ARE_REJECTED_BUT_CROSS_GROUP_REUSE_IS_ALLOWED', async () => {
+    const valid = makeValidDraft(viewModel)
+    valid.likedTags = ['care']
+    valid.concernTags = ['care']
+    assert.deepEqual(clone(viewModel.validateVisitEvaluationDraft(valid)), [])
+    const duplicate = { ...valid, likedTags: ['care', 'care'] }
+    assert.equal(viewModel.validateVisitEvaluationDraft(duplicate).some((issue) => issue.code === 'duplicate_tag'), true)
+    const unknown = { ...valid, concernTags: ['not-a-tag'] }
+    assert.equal(viewModel.validateVisitEvaluationDraft(unknown).some((issue) => issue.code === 'invalid_tag'), true)
+    const overLimit = { ...valid, likedTags: ['care', 'medical', 'room', 'environment'] }
+    assert.equal(viewModel.validateVisitEvaluationDraft(overLimit).some((issue) => issue.code === 'too_many_tags'), true)
+  })
+
+  await runCase('COMMENT_LIMIT_VALIDATES_DIRECT_DRAFT_AND_EMPTY_IS_OPTIONAL', async () => {
+    const empty = makeValidDraft(viewModel)
+    assert.deepEqual(clone(viewModel.validateVisitEvaluationDraft(empty)), [])
+    const tooLong = { ...empty, comment: '字'.repeat(201) }
+    assert.equal(viewModel.validateVisitEvaluationDraft(tooLong).some((issue) => issue.path === 'comment'), true)
+    assert.equal(viewModel.validateVisitEvaluationDraft({ ...empty, comment: '字'.repeat(200) }).length, 0)
   })
 
   await runCase('PRODUCTION_NO_CONTEXT_PROVIDER_FAILS_CLOSED', async () => {
@@ -328,6 +524,7 @@ const run = async () => {
     }))
     await page.onLoad({ visitId: 'visit-test-completed' })
     page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '5' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
     page.onRatingTap({ currentTarget: { dataset: { question: 'hygiene', value: '1' } } })
     page.onRatingTap({ currentTarget: { dataset: { question: 'common_area_use', value: '4' } } })
     page.onRatingTap({ currentTarget: { dataset: { question: 'hygiene', value: '6' } } })
@@ -364,6 +561,8 @@ const run = async () => {
       testOnlyContextProvider: providers.contextProvider,
     }))
     await page.onLoad({ visitId: 'visit-test-completed' })
+    page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '5' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
     const choose = (group, tag) => page.onTagTap({ currentTarget: { dataset: { group, tag } } })
     choose('likedTags', 'care')
     choose('likedTags', 'medical')
@@ -381,6 +580,8 @@ const run = async () => {
       testOnlyContextProvider: { loadContext: createVisitEvaluationContextFixture },
     }))
     await page.onLoad({ visitId: 'visit-test-completed' })
+    page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '5' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
     page.onCommentInput({ detail: { value: '看'.repeat(201) } })
     assert.equal(viewModel.countVisitEvaluationCharacters(page.data.draft.comment), 200)
     assert.equal(page.data.commentRemaining, 0)
@@ -402,6 +603,7 @@ const run = async () => {
     const page = makePage(pageConfig, application)
     await page.onLoad({ visitId: 'visit-test-completed' })
     page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
     const beforeSubmit = clone(page.data.draft)
     const first = page.onSubmit()
     const second = page.onSubmit()
@@ -422,6 +624,7 @@ const run = async () => {
     }))
     await page.onLoad({ visitId: 'visit-test-completed' })
     page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '3' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
     page.onCommentInput({ detail: { value: '保留本地内容' } })
     const originalDraft = clone(page.data.draft)
     await page.onSubmit()
@@ -465,6 +668,12 @@ const run = async () => {
     assert.match(wxml, /最多选择 3 项/)
     assert.match(wxml, /tagFeedbackGroup === group.key/)
     assert.match(wxml, /最多 200 字/)
+    assert.match(wxml, /整体印象（必填）/)
+    assert.match(wxml, /后续考虑（必填）/)
+    assert.match(wxml, /feeTopicExplanations/)
+    assert.match(wxml, /bindtap="onFeeTopicTap"/)
+    assert.match(wxml, /未选择表示未填写/)
+    assert.match(wxml, /“未确认”与具体交接项目互斥/)
     assert.match(wxml, /USER_REPORTED_DATA|个人感受与观察/)
     assert.equal(/bindtap="onSubmit"/.test(wxml), false)
     assert.match(wxml, /pageState === 'not_completed'/)

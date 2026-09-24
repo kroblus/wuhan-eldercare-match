@@ -16,6 +16,15 @@ export type VisitEvaluationTagV1 =
 
 export type VisitEvaluationConsiderationV1 = '' | 'willing' | 'compare' | 'not_considering'
 export type VisitEvaluationObservationAnswerV1 = '' | 'yes' | 'no' | 'unconfirmed'
+export type VisitEvaluationFeeAnswerV1 = '' | 'explained' | 'not_explained' | 'unconfirmed'
+export type VisitEvaluationFeeTopicKeyV1 =
+  | 'bed_fee'
+  | 'meal_fee'
+  | 'care_fee'
+  | 'management_fee'
+  | 'special_care_fee'
+  | 'deposit'
+  | 'other_one_time_fee'
 export type VisitEvaluationHandoverTopicV1 =
   | 'vital_signs'
   | 'abnormal_events'
@@ -106,6 +115,7 @@ export interface VisitEvaluationDraftV1 {
   consideration: VisitEvaluationConsiderationV1
   ratings: Record<VisitEvaluationRatingKeyV1, number | null>
   feeExplanationClear: '' | 'clear' | 'unclear'
+  feeTopicExplanations: Record<VisitEvaluationFeeTopicKeyV1, VisitEvaluationFeeAnswerV1>
   careRecordLearned: VisitEvaluationObservationAnswerV1
   handoverLearned: VisitEvaluationObservationAnswerV1
   handoverTopics: VisitEvaluationHandoverTopicV1[]
@@ -150,6 +160,12 @@ export const VISIT_EVALUATION_OBSERVATION_OPTIONS = [
   { key: 'unconfirmed', label: '未确认' },
 ]
 
+export const VISIT_EVALUATION_FEE_ANSWER_OPTIONS = [
+  { key: 'explained', label: '已说明' },
+  { key: 'not_explained', label: '未说明' },
+  { key: 'unconfirmed', label: '未确认' },
+] as const
+
 export const VISIT_EVALUATION_TAGS: Array<{ key: VisitEvaluationTagV1; label: string }> = [
   { key: 'care', label: '护理' },
   { key: 'medical', label: '医疗' },
@@ -163,8 +179,17 @@ export const VISIT_EVALUATION_TAGS: Array<{ key: VisitEvaluationTagV1; label: st
   { key: 'other', label: '其他' },
 ]
 
-export const VISIT_EVALUATION_FEE_TOPICS = [
-  '床位费', '餐费', '护理费', '管理费', '特殊护理费', '押金', '其他一次性费用',
+export const VISIT_EVALUATION_FEE_TOPICS: Array<{
+  key: VisitEvaluationFeeTopicKeyV1
+  label: string
+}> = [
+  { key: 'bed_fee', label: '床位费' },
+  { key: 'meal_fee', label: '餐费' },
+  { key: 'care_fee', label: '护理费' },
+  { key: 'management_fee', label: '管理费' },
+  { key: 'special_care_fee', label: '特殊护理费' },
+  { key: 'deposit', label: '押金' },
+  { key: 'other_one_time_fee', label: '其他一次性费用' },
 ]
 
 export const VISIT_EVALUATION_HANDOVER_TOPICS: Array<{
@@ -203,11 +228,22 @@ const createEmptyRatings = (): VisitEvaluationDraftV1['ratings'] => ({
   common_area_use: null,
 })
 
+const createEmptyFeeTopicExplanations = (): VisitEvaluationDraftV1['feeTopicExplanations'] => ({
+  bed_fee: '',
+  meal_fee: '',
+  care_fee: '',
+  management_fee: '',
+  special_care_fee: '',
+  deposit: '',
+  other_one_time_fee: '',
+})
+
 export const createEmptyVisitEvaluationDraft = (): VisitEvaluationDraftV1 => ({
   overallRating: null,
   consideration: '',
   ratings: createEmptyRatings(),
   feeExplanationClear: '',
+  feeTopicExplanations: createEmptyFeeTopicExplanations(),
   careRecordLearned: '',
   handoverLearned: '',
   handoverTopics: [],
@@ -221,6 +257,7 @@ export const cloneVisitEvaluationDraft = (draft: VisitEvaluationDraftV1): VisitE
   consideration: draft.consideration,
   ratings: { ...draft.ratings },
   feeExplanationClear: draft.feeExplanationClear,
+  feeTopicExplanations: { ...draft.feeTopicExplanations },
   careRecordLearned: draft.careRecordLearned,
   handoverLearned: draft.handoverLearned,
   handoverTopics: draft.handoverTopics.slice(),
@@ -273,6 +310,21 @@ export const createVisitEvaluationRatingViewModel = (
   }
 }
 
+export const createVisitEvaluationFeeTopicViewModel = (
+  draft: VisitEvaluationDraftV1,
+): Array<{
+  key: VisitEvaluationFeeTopicKeyV1
+  label: string
+  options: VisitEvaluationChoiceViewModel[]
+}> => VISIT_EVALUATION_FEE_TOPICS.map((topic) => ({
+  key: topic.key,
+  label: topic.label,
+  options: createVisitEvaluationChoiceViewModel(
+    VISIT_EVALUATION_FEE_ANSWER_OPTIONS,
+    draft.feeTopicExplanations[topic.key],
+  ),
+}))
+
 export const setVisitEvaluationRating = (
   draft: VisitEvaluationDraftV1,
   question: 'overallRating' | VisitEvaluationRatingKeyV1,
@@ -282,6 +334,19 @@ export const setVisitEvaluationRating = (
   const next = cloneVisitEvaluationDraft(draft)
   if (question === 'overallRating') next.overallRating = value
   else next.ratings[question] = value
+  return next
+}
+
+export const setVisitEvaluationFeeTopic = (
+  draft: VisitEvaluationDraftV1,
+  topic: VisitEvaluationFeeTopicKeyV1,
+  answer: VisitEvaluationFeeAnswerV1,
+): VisitEvaluationDraftV1 | null => {
+  const knownTopic = VISIT_EVALUATION_FEE_TOPICS.some((item) => item.key === topic)
+  const knownAnswer = answer === '' || VISIT_EVALUATION_FEE_ANSWER_OPTIONS.some((item) => item.key === answer)
+  if (!knownTopic || !knownAnswer) return null
+  const next = cloneVisitEvaluationDraft(draft)
+  next.feeTopicExplanations[topic] = answer
   return next
 }
 
@@ -319,11 +384,21 @@ export const toggleVisitEvaluationHandoverTopic = (
 
 export interface VisitEvaluationValidationIssue {
   path: string
-  code: 'invalid_rating' | 'too_many_tags' | 'invalid_tag' | 'invalid_observation' | 'invalid_comment'
+  code:
+    | 'invalid_rating'
+    | 'invalid_consideration'
+    | 'invalid_fee_clarity'
+    | 'invalid_fee_answer'
+    | 'too_many_tags'
+    | 'invalid_tag'
+    | 'duplicate_tag'
+    | 'invalid_observation'
+    | 'invalid_handover_topics'
+    | 'invalid_comment'
 }
 
-const isRating = (value: unknown): value is number | null => value === null
-  || (typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5)
+const isRating = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 5
 
 const isObservationAnswer = (value: unknown): value is VisitEvaluationObservationAnswerV1 =>
   value === '' || value === 'yes' || value === 'no' || value === 'unconfirmed'
@@ -333,27 +408,90 @@ export const validateVisitEvaluationDraft = (
 ): VisitEvaluationValidationIssue[] => {
   const issues: VisitEvaluationValidationIssue[] = []
   if (!isRating(draft.overallRating)) issues.push({ path: 'overallRating', code: 'invalid_rating' })
-  Object.keys(draft.ratings).forEach((key) => {
-    if (!isRating(draft.ratings[key as VisitEvaluationRatingKeyV1])) {
+  const ratingKeys = Object.keys(createEmptyRatings())
+  const ratingValues = draft.ratings && typeof draft.ratings === 'object' && !Array.isArray(draft.ratings)
+    ? draft.ratings as unknown as Record<string, unknown>
+    : {}
+  const suppliedRatingKeys = draft.ratings && typeof draft.ratings === 'object' && !Array.isArray(draft.ratings)
+    ? Object.keys(draft.ratings)
+    : []
+  if (draft.ratings !== undefined && (!draft.ratings || typeof draft.ratings !== 'object' || Array.isArray(draft.ratings))) {
+    issues.push({ path: 'ratings', code: 'invalid_rating' })
+  }
+  suppliedRatingKeys.forEach((key) => {
+    if (!ratingKeys.includes(key)) issues.push({ path: `ratings.${key}`, code: 'invalid_rating' })
+  })
+  ratingKeys.forEach((key) => {
+    const value = ratingValues[key]
+    if (value !== undefined && value !== null && !isRating(value)) {
       issues.push({ path: `ratings.${key}`, code: 'invalid_rating' })
     }
   })
-  if (draft.likedTags.length > VISIT_EVALUATION_MAX_TAGS) issues.push({ path: 'likedTags', code: 'too_many_tags' })
-  if (draft.concernTags.length > VISIT_EVALUATION_MAX_TAGS) issues.push({ path: 'concernTags', code: 'too_many_tags' })
+  const considerationValues = VISIT_EVALUATION_CONSIDERATION_OPTIONS.map((item) => item.key)
+  if (!considerationValues.includes(draft.consideration as Exclude<VisitEvaluationConsiderationV1, ''>)) {
+    issues.push({ path: 'consideration', code: 'invalid_consideration' })
+  }
+
+  if (draft.feeExplanationClear !== '' && draft.feeExplanationClear !== 'clear' && draft.feeExplanationClear !== 'unclear') {
+    issues.push({ path: 'feeExplanationClear', code: 'invalid_fee_clarity' })
+  }
+  const feeTopicKeys = VISIT_EVALUATION_FEE_TOPICS.map((item) => item.key)
+  const feeTopicValues = draft.feeTopicExplanations
+    && typeof draft.feeTopicExplanations === 'object'
+    && !Array.isArray(draft.feeTopicExplanations)
+    ? draft.feeTopicExplanations as unknown as Record<string, unknown>
+    : {}
+  const suppliedFeeTopicKeys = draft.feeTopicExplanations
+    && typeof draft.feeTopicExplanations === 'object'
+    && !Array.isArray(draft.feeTopicExplanations)
+    ? Object.keys(draft.feeTopicExplanations)
+    : []
+  if (draft.feeTopicExplanations !== undefined
+    && (!draft.feeTopicExplanations || typeof draft.feeTopicExplanations !== 'object' || Array.isArray(draft.feeTopicExplanations))) {
+    issues.push({ path: 'feeTopicExplanations', code: 'invalid_fee_answer' })
+  }
+  suppliedFeeTopicKeys.forEach((key) => {
+    if (!feeTopicKeys.includes(key as VisitEvaluationFeeTopicKeyV1)) {
+      issues.push({ path: `feeTopicExplanations.${key}`, code: 'invalid_fee_answer' })
+    }
+  })
+  feeTopicKeys.forEach((key) => {
+    const answer = feeTopicValues[key]
+    if (answer !== undefined && answer !== ''
+      && !VISIT_EVALUATION_FEE_ANSWER_OPTIONS.some((option) => option.key === answer)) {
+      issues.push({ path: `feeTopicExplanations.${key}`, code: 'invalid_fee_answer' })
+    }
+  })
+
+  const likedTags = Array.isArray(draft.likedTags) ? draft.likedTags : []
+  const concernTags = Array.isArray(draft.concernTags) ? draft.concernTags : []
+  if (!Array.isArray(draft.likedTags)) issues.push({ path: 'likedTags', code: 'invalid_tag' })
+  if (!Array.isArray(draft.concernTags)) issues.push({ path: 'concernTags', code: 'invalid_tag' })
+  if (likedTags.length > VISIT_EVALUATION_MAX_TAGS) issues.push({ path: 'likedTags', code: 'too_many_tags' })
+  if (concernTags.length > VISIT_EVALUATION_MAX_TAGS) issues.push({ path: 'concernTags', code: 'too_many_tags' })
   const validTags = VISIT_EVALUATION_TAGS.map((item) => item.key)
-  draft.likedTags.forEach((tag) => {
+  likedTags.forEach((tag) => {
     if (!validTags.includes(tag)) issues.push({ path: 'likedTags', code: 'invalid_tag' })
   })
-  draft.concernTags.forEach((tag) => {
+  concernTags.forEach((tag) => {
     if (!validTags.includes(tag)) issues.push({ path: 'concernTags', code: 'invalid_tag' })
   })
-  if (draft.consideration !== '' && draft.consideration !== 'willing'
-    && draft.consideration !== 'compare' && draft.consideration !== 'not_considering') {
-    issues.push({ path: 'consideration', code: 'invalid_observation' })
-  }
+  if (new Set(likedTags).size !== likedTags.length) issues.push({ path: 'likedTags', code: 'duplicate_tag' })
+  if (new Set(concernTags).size !== concernTags.length) issues.push({ path: 'concernTags', code: 'duplicate_tag' })
+
   if (!isObservationAnswer(draft.careRecordLearned)) issues.push({ path: 'careRecordLearned', code: 'invalid_observation' })
   if (!isObservationAnswer(draft.handoverLearned)) issues.push({ path: 'handoverLearned', code: 'invalid_observation' })
-  if (draft.comment !== truncateVisitEvaluationComment(draft.comment)) {
+  const handoverTopics = Array.isArray(draft.handoverTopics) ? draft.handoverTopics : []
+  const validHandoverTopics = VISIT_EVALUATION_HANDOVER_TOPICS.map((item) => item.key)
+  if (!Array.isArray(draft.handoverTopics)
+    || handoverTopics.some((topic) => !validHandoverTopics.includes(topic))) {
+    issues.push({ path: 'handoverTopics', code: 'invalid_handover_topics' })
+  }
+  if (new Set(handoverTopics).size !== handoverTopics.length
+    || (handoverTopics.includes('unconfirmed') && handoverTopics.length > 1)) {
+    issues.push({ path: 'handoverTopics', code: 'invalid_handover_topics' })
+  }
+  if (typeof draft.comment !== 'string' || draft.comment !== truncateVisitEvaluationComment(draft.comment)) {
     issues.push({ path: 'comment', code: 'invalid_comment' })
   }
   return issues

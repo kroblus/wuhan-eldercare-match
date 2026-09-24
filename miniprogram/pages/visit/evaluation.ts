@@ -1,5 +1,6 @@
 import {
   VISIT_EVALUATION_CONSIDERATION_OPTIONS,
+  VISIT_EVALUATION_FEE_ANSWER_OPTIONS,
   VISIT_EVALUATION_FEE_TOPICS,
   VISIT_EVALUATION_HANDOVER_TOPICS,
   VISIT_EVALUATION_OBSERVATION_OPTIONS,
@@ -8,8 +9,10 @@ import {
   countVisitEvaluationCharacters,
   createEmptyVisitEvaluationDraft,
   createVisitEvaluationChoiceViewModel,
+  createVisitEvaluationFeeTopicViewModel,
   createVisitEvaluationRatingViewModel,
   setVisitEvaluationRating,
+  setVisitEvaluationFeeTopic,
   toggleVisitEvaluationHandoverTopic,
   toggleVisitEvaluationTag,
   truncateVisitEvaluationComment,
@@ -18,6 +21,8 @@ import {
 import type {
   VisitEvaluationConsiderationV1,
   VisitEvaluationDraftV1,
+  VisitEvaluationFeeAnswerV1,
+  VisitEvaluationFeeTopicKeyV1,
   VisitEvaluationHandoverTopicV1,
   VisitEvaluationObservationAnswerV1,
   VisitEvaluationRatingKeyV1,
@@ -66,7 +71,9 @@ interface VisitEvaluationPageData {
   handoverLearnedOptions: Array<{ key: string; label: string; selected: boolean }>
   handoverTopics: Array<{ key: VisitEvaluationHandoverTopicV1; label: string; selected: boolean }>
   feeClarityOptions: Array<{ key: string; label: string; selected: boolean }>
-  feeTopics: string[]
+  feeTopicExplanations: ReturnType<typeof createVisitEvaluationFeeTopicViewModel>
+  overallRatingValidationMessage: string
+  considerationValidationMessage: string
   tagGroups: VisitEvaluationTagGroupViewModel[]
   commentLength: number
   commentRemaining: number
@@ -130,6 +137,11 @@ interface StringActionDataset {
   value?: string
 }
 
+interface FeeTopicActionDataset {
+  topic?: string
+  value?: string
+}
+
 const isSafeVisitId = (value: unknown): value is string => typeof value === 'string'
   && value.trim().length > 0
   && value.length <= 200
@@ -152,6 +164,12 @@ const isHandoverTopic = (value: string): value is VisitEvaluationHandoverTopicV1
   VISIT_EVALUATION_HANDOVER_TOPICS.some((item) => item.key === value)
 
 const isFeeClarity = (value: string): value is 'clear' | 'unclear' => value === 'clear' || value === 'unclear'
+
+const isFeeTopic = (value: string): value is VisitEvaluationFeeTopicKeyV1 =>
+  VISIT_EVALUATION_FEE_TOPICS.some((item) => item.key === value)
+
+const isFeeAnswer = (value: string): value is VisitEvaluationFeeAnswerV1 => value === ''
+  || VISIT_EVALUATION_FEE_ANSWER_OPTIONS.some((item) => item.key === value)
 
 const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluationPageData> => {
   const ratingViewModel = createVisitEvaluationRatingViewModel(draft)
@@ -180,7 +198,7 @@ const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluation
       { key: 'clear', label: '清楚' },
       { key: 'unclear', label: '不清楚' },
     ], draft.feeExplanationClear),
-    feeTopics: VISIT_EVALUATION_FEE_TOPICS.slice(),
+    feeTopicExplanations: createVisitEvaluationFeeTopicViewModel(draft),
     tagGroups: [
       {
         key: 'likedTags',
@@ -323,6 +341,8 @@ const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): 
     tagFeedbackGroup: '',
     tagFeedbackMessage: '',
     validationMessage: '',
+    overallRatingValidationMessage: '',
+    considerationValidationMessage: '',
   })
 }
 
@@ -337,6 +357,8 @@ Page({
     tagFeedbackGroup: '',
     tagFeedbackMessage: '',
     validationMessage: '',
+    overallRatingValidationMessage: '',
+    considerationValidationMessage: '',
     submitButtonText: '提交测试评价',
     ...createFormPatch(createEmptyVisitEvaluationDraft()),
   } as VisitEvaluationPageData,
@@ -397,8 +419,9 @@ Page({
     const value = event.currentTarget.dataset.value || ''
     if ((question !== 'careRecordLearned' && question !== 'handoverLearned') || !isObservationAnswer(value)) return
     const draft = cloneVisitEvaluationDraft(page.data.draft)
-    if (question === 'careRecordLearned') draft.careRecordLearned = value
-    else draft.handoverLearned = value
+    const selected = question === 'careRecordLearned' ? draft.careRecordLearned : draft.handoverLearned
+    if (question === 'careRecordLearned') draft.careRecordLearned = selected === value ? '' : value
+    else draft.handoverLearned = selected === value ? '' : value
     setDraft(page, draft)
   },
 
@@ -408,8 +431,20 @@ Page({
     const value = event.currentTarget.dataset.value || ''
     if (!isFeeClarity(value)) return
     const draft = cloneVisitEvaluationDraft(page.data.draft)
-    draft.feeExplanationClear = value
+    draft.feeExplanationClear = draft.feeExplanationClear === value ? '' : value
     setDraft(page, draft)
+  },
+
+  onFeeTopicTap(event: DatasetEvent<FeeTopicActionDataset>) {
+    const page = this as unknown as EvaluationPageInstance
+    if (page.data.pageState !== 'editing') return
+    const topic = event.currentTarget.dataset.topic || ''
+    const value = event.currentTarget.dataset.value || ''
+    if (!isFeeTopic(topic) || !isFeeAnswer(value) || value === '') return
+    const selected = page.data.draft.feeTopicExplanations[topic]
+    const next = setVisitEvaluationFeeTopic(page.data.draft, topic, selected === value ? '' : value)
+    if (!next) return
+    setDraft(page, next)
   },
 
   onHandoverTopicTap(event: DatasetEvent<StringActionDataset>) {
@@ -453,7 +488,13 @@ Page({
     const validationIssues = validateVisitEvaluationDraft(page.data.draft)
     if (validationIssues.length > 0) {
       page.setData({
-        validationMessage: '评价内容格式有误，请检查评分、标签和补充说明。',
+        validationMessage: '请补全必填项，并检查评分、费用、标签、观察和补充说明。',
+        overallRatingValidationMessage: validationIssues.some((issue) => issue.path === 'overallRating')
+          ? '请选择整体印象评分。'
+          : '',
+        considerationValidationMessage: validationIssues.some((issue) => issue.path === 'consideration')
+          ? '请选择后续考虑。'
+          : '',
         feedbackMessage: '',
       })
       return
