@@ -28,6 +28,26 @@
       bind:action="onRetryContext"
     ></state-panel>
     <state-panel
+      wx:elif="{{pageState === 'auth_required'}}"
+      state="error"
+      title="需要重新验证账号"
+      message="{{contextMessage}}"
+      actionText="重新验证账号"
+      bind:action="onRetryContext"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'already_submitted'}}"
+      state="empty"
+      title="这条预约已提交评价"
+      message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'submission_conflict'}}"
+      state="error"
+      title="提交状态需要确认"
+      message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
       wx:elif="{{pageState === 'unavailable' || pageState === 'load_error'}}"
       state="error"
       title="评价上下文暂不可用"
@@ -56,7 +76,7 @@
             wx:for="{{overallOptions}}"
             wx:for-item="score"
             wx:key="value"
-            class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-question="overallRating"
             data-value="{{score.value}}"
             bindtap="onRatingTap"
@@ -72,7 +92,7 @@
             wx:for="{{considerationOptions}}"
             wx:for-item="option"
             wx:key="key"
-            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-value="{{option.key}}"
             bindtap="onConsiderationTap"
             aria-role="button"
@@ -93,7 +113,7 @@
               wx:for="{{question.options}}"
               wx:for-item="score"
               wx:key="value"
-              class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+              class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
               data-question="{{question.key}}"
               data-value="{{score.value}}"
               bindtap="onRatingTap"
@@ -115,7 +135,7 @@
             wx:for="{{feeClarityOptions}}"
             wx:for-item="option"
             wx:key="key"
-            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-value="{{option.key}}"
             bindtap="onFeeClarityTap"
             aria-role="button"
@@ -129,7 +149,7 @@
               wx:for="{{topic.options}}"
               wx:for-item="option"
               wx:key="key"
-              class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+              class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
               data-topic="{{topic.key}}"
               data-value="{{option.key}}"
               bindtap="onFeeTopicTap"
@@ -151,7 +171,7 @@
             wx:for="{{careRecordOptions}}"
             wx:for-item="option"
             wx:key="key"
-            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-question="careRecordLearned"
             data-value="{{option.key}}"
             bindtap="onObservationTap"
@@ -165,7 +185,7 @@
             wx:for="{{handoverLearnedOptions}}"
             wx:for-item="option"
             wx:key="key"
-            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-question="handoverLearned"
             data-value="{{option.key}}"
             bindtap="onObservationTap"
@@ -179,7 +199,7 @@
             wx:for="{{handoverTopics}}"
             wx:for-item="topic"
             wx:key="key"
-            class="selection-tag {{topic.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="selection-tag {{topic.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-value="{{topic.key}}"
             bindtap="onHandoverTopicTap"
             aria-role="button"
@@ -198,7 +218,7 @@
             wx:for="{{group.items}}"
             wx:for-item="tag"
             wx:key="key"
-            class="selection-tag {{tag.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' ? 'evaluation-control--disabled' : ''}}"
+            class="selection-tag {{tag.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
             data-group="{{group.key}}"
             data-tag="{{tag.key}}"
             bindtap="onTagTap"
@@ -220,13 +240,19 @@
           auto-height="true"
           placeholder="记录其他看院感受（选填）"
           bindinput="onCommentInput"
-          disabled="{{pageState !== 'editing'}}"
+          disabled="{{pageState !== 'editing' && pageState !== 'submit_failed'}}"
         ></textarea>
         <view class="evaluation-comment__count">已输入 {{commentLength}} 字 · 还可输入 {{commentRemaining}} 字</view>
       </section-card>
 
       <view wx:if="{{feedbackMessage}}" class="evaluation-feedback" aria-live="polite">{{feedbackMessage}}</view>
       <view wx:if="{{validationMessage}}" class="evaluation-validation" aria-live="assertive">{{validationMessage}}</view>
+      <view wx:if="{{pageState === 'submitted' && contextMode === 'production'}}" class="evaluation-receipt">
+        <text class="evaluation-receipt__label">评价编号</text>
+        <text class="evaluation-receipt__value">{{serverEvaluationId}}</text>
+        <text class="evaluation-receipt__label">服务端提交时间</text>
+        <text class="evaluation-receipt__value">{{serverSubmittedAt}}</text>
+      </view>
       <view wx:if="{{contextMode === 'test_only'}}" class="evaluation-submit">
         <primary-button
           text="{{submitButtonText}}"
@@ -237,8 +263,15 @@
         ></primary-button>
         <text class="evaluation-submit__hint">提交只用于 TEST_ONLY 交互验证，不会保存真实评价。</text>
       </view>
-      <view wx:else class="evaluation-submit">
-        <text class="evaluation-submit__hint">填写内容仅暂存在当前页面；评价提交服务尚未接入，不会发送或保存。</text>
+      <view wx:elif="{{contextMode === 'production'}}" class="evaluation-submit">
+        <primary-button
+          text="{{submitButtonText}}"
+          variant="primary"
+          disabled="{{pageState === 'submitting' || pageState === 'submitted'}}"
+          loading="{{pageState === 'submitting'}}"
+          bind:action="onSubmit"
+        ></primary-button>
+        <text class="evaluation-submit__hint">评价仅记录本次用户观察，不代表机构核验结论。</text>
       </view>
     </block>
   </view>

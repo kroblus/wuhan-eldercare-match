@@ -29,16 +29,20 @@ import type {
   VisitEvaluationTagV1,
 } from './evaluation-view-model'
 import { createVisitEvaluationUiApplicationV1 } from './visit-evaluation-application'
-import { createProductionVisitEvaluationContextProviderV1 } from './visit-evaluation-production-context'
+import { createProductionVisitEvaluationProvidersV1 } from './visit-evaluation-production-context'
 import type {
   TestOnlyVisitEvaluationContextV1,
 } from './visit-evaluation-application'
 import type { ProductionVisitEvaluationContextV1 } from './visit-evaluation-production-context'
+import type { ProductionVisitEvaluationSubmitResultV1 } from './visit-evaluation-production-submit'
 
 type VisitEvaluationPageState =
   | 'loading_context'
   | 'not_completed'
   | 'denied'
+  | 'auth_required'
+  | 'already_submitted'
+  | 'submission_conflict'
   | 'unavailable'
   | 'load_error'
   | 'editing'
@@ -77,6 +81,8 @@ interface VisitEvaluationPageData {
   tagGroups: VisitEvaluationTagGroupViewModel[]
   commentLength: number
   commentRemaining: number
+  serverEvaluationId: string
+  serverSubmittedAt: string
 }
 
 interface VisitEvaluationRouteData {
@@ -105,6 +111,10 @@ interface EvaluationPageApplication {
     context: TestOnlyVisitEvaluationContextV1,
     draft: VisitEvaluationDraftV1,
   ): Promise<{ kind: 'submitted_test_only' } | { kind: 'submit_failed'; reason: string }>
+  submitProduction(
+    context: ProductionVisitEvaluationContextV1,
+    draft: VisitEvaluationDraftV1,
+  ): Promise<ProductionVisitEvaluationSubmitResultV1 | { kind: 'invalid_draft' }>
 }
 
 interface EvaluationPageInstance {
@@ -171,6 +181,9 @@ const isFeeTopic = (value: string): value is VisitEvaluationFeeTopicKeyV1 =>
 const isFeeAnswer = (value: string): value is VisitEvaluationFeeAnswerV1 => value === ''
   || VISIT_EVALUATION_FEE_ANSWER_OPTIONS.some((item) => item.key === value)
 
+const isDraftEditable = (pageState: VisitEvaluationPageState): boolean =>
+  pageState === 'editing' || pageState === 'submit_failed'
+
 const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluationPageData> => {
   const ratingViewModel = createVisitEvaluationRatingViewModel(draft)
   return {
@@ -226,14 +239,16 @@ const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluation
 
 const getApplication = (page: EvaluationPageInstance): EvaluationPageApplication => {
   if (page._visitEvaluationApplication) return page._visitEvaluationApplication
+  const providers = createProductionVisitEvaluationProvidersV1()
   const application = createVisitEvaluationUiApplicationV1({
-    productionContextProvider: createProductionVisitEvaluationContextProviderV1(),
+    productionContextProvider: providers.contextProvider,
+    productionSubmitProvider: providers.submitProvider,
   })
   page._visitEvaluationApplication = application
   return application
 }
 
-const loadContext = async (page: EvaluationPageInstance, visitId: string): Promise<void> => {
+const loadContext = async (page: EvaluationPageInstance, visitId: string, preserveDraft = false): Promise<void> => {
   if (page._contextLoadLocked) return
   page._contextLoadLocked = true
   page._contextLoadSequence = (page._contextLoadSequence || 0) + 1
@@ -257,7 +272,7 @@ const loadContext = async (page: EvaluationPageInstance, visitId: string): Promi
     if (requestSequence !== page._contextLoadSequence || page.data.visitId !== visitId) return
 
     if (result.kind === 'ready' && result.context.visitId === visitId) {
-      const draft = createEmptyVisitEvaluationDraft()
+      const draft = preserveDraft ? cloneVisitEvaluationDraft(page.data.draft) : createEmptyVisitEvaluationDraft()
       page._visitEvaluationContext = result.context
       page.setData({
         ...createFormPatch(draft),
@@ -266,20 +281,25 @@ const loadContext = async (page: EvaluationPageInstance, visitId: string): Promi
         contextMessage: `开发测试上下文 · ${result.context.institutionId} · ${result.context.institutionRecordRevision}`,
         statusMessage: '开发测试流程不会写入真实评价、机构资料或推荐结果。',
         submitButtonText: '提交测试评价',
+        serverEvaluationId: '',
+        serverSubmittedAt: '',
       })
       return
     }
 
     if (result.kind === 'eligible' && result.context.visitId === visitId && result.context.visitStatus === 'completed') {
-      const draft = createEmptyVisitEvaluationDraft()
+      const draft = preserveDraft ? cloneVisitEvaluationDraft(page.data.draft) : createEmptyVisitEvaluationDraft()
       page._productionVisitEvaluationContext = result.context
       page.setData({
         ...createFormPatch(draft),
         pageState: 'editing',
         contextMode: 'production',
         contextMessage: '已确认该预约属于当前账号，且服务端记录的看院状态为已完成。',
-        statusMessage: '当前可填写本地评价草稿；评价提交服务尚未接入，内容不会发送或保存。',
-        submitButtonText: '',
+        statusMessage: '评价仅记录本次用户观察，不会修改机构核验资料或推荐结果。',
+        submitButtonText: '提交看院评价',
+        feedbackMessage: '',
+        serverEvaluationId: '',
+        serverSubmittedAt: '',
       })
       return
     }
@@ -337,6 +357,8 @@ const loadContext = async (page: EvaluationPageInstance, visitId: string): Promi
 const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): void => {
   page.setData({
     ...createFormPatch(draft),
+    pageState: page.data.pageState === 'submit_failed' ? 'editing' : page.data.pageState,
+    submitButtonText: page.data.contextMode === 'test_only' ? '提交测试评价' : '提交看院评价',
     feedbackMessage: '',
     tagFeedbackGroup: '',
     tagFeedbackMessage: '',
@@ -360,6 +382,8 @@ Page({
     overallRatingValidationMessage: '',
     considerationValidationMessage: '',
     submitButtonText: '提交测试评价',
+    serverEvaluationId: '',
+    serverSubmittedAt: '',
     ...createFormPatch(createEmptyVisitEvaluationDraft()),
   } as VisitEvaluationPageData,
 
@@ -388,12 +412,12 @@ Page({
   async onRetryContext() {
     const page = this as unknown as EvaluationPageInstance
     if (!isSafeVisitId(page.data.visitId) || page._contextLoadLocked) return
-    await loadContext(page, page.data.visitId)
+    await loadContext(page, page.data.visitId, true)
   },
 
   onRatingTap(event: DatasetEvent<RatingActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const question = event.currentTarget.dataset.question || ''
     const value = Number(event.currentTarget.dataset.value)
     if (!isRatingQuestion(question)) return
@@ -404,7 +428,7 @@ Page({
 
   onConsiderationTap(event: DatasetEvent<StringActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const value = event.currentTarget.dataset.value || ''
     if (!isConsideration(value)) return
     const draft = cloneVisitEvaluationDraft(page.data.draft)
@@ -414,7 +438,7 @@ Page({
 
   onObservationTap(event: DatasetEvent<ObservationActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const question = event.currentTarget.dataset.question
     const value = event.currentTarget.dataset.value || ''
     if ((question !== 'careRecordLearned' && question !== 'handoverLearned') || !isObservationAnswer(value)) return
@@ -427,7 +451,7 @@ Page({
 
   onFeeClarityTap(event: DatasetEvent<StringActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const value = event.currentTarget.dataset.value || ''
     if (!isFeeClarity(value)) return
     const draft = cloneVisitEvaluationDraft(page.data.draft)
@@ -437,7 +461,7 @@ Page({
 
   onFeeTopicTap(event: DatasetEvent<FeeTopicActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const topic = event.currentTarget.dataset.topic || ''
     const value = event.currentTarget.dataset.value || ''
     if (!isFeeTopic(topic) || !isFeeAnswer(value) || value === '') return
@@ -449,7 +473,7 @@ Page({
 
   onHandoverTopicTap(event: DatasetEvent<StringActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const value = event.currentTarget.dataset.value || ''
     if (!isHandoverTopic(value)) return
     setDraft(page, toggleVisitEvaluationHandoverTopic(page.data.draft, value))
@@ -457,7 +481,7 @@ Page({
 
   onTagTap(event: DatasetEvent<TagActionDataset>) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const group = event.currentTarget.dataset.group
     const tag = event.currentTarget.dataset.tag || ''
     if ((group !== 'likedTags' && group !== 'concernTags') || !isTag(tag)) return
@@ -475,7 +499,7 @@ Page({
 
   onCommentInput(event: InputEvent) {
     const page = this as unknown as EvaluationPageInstance
-    if (page.data.pageState !== 'editing') return
+    if (!isDraftEditable(page.data.pageState)) return
     const draft = cloneVisitEvaluationDraft(page.data.draft)
     draft.comment = truncateVisitEvaluationComment(typeof event.detail.value === 'string' ? event.detail.value : '')
     setDraft(page, draft)
@@ -484,7 +508,8 @@ Page({
   async onSubmit() {
     const page = this as unknown as EvaluationPageInstance
     if ((page.data.pageState !== 'editing' && page.data.pageState !== 'submit_failed')
-      || page._visitEvaluationSubmitLocked || !page._visitEvaluationContext) return
+      || page._visitEvaluationSubmitLocked
+      || (!page._visitEvaluationContext && !page._productionVisitEvaluationContext)) return
     const validationIssues = validateVisitEvaluationDraft(page.data.draft)
     if (validationIssues.length > 0) {
       page.setData({
@@ -501,33 +526,118 @@ Page({
     }
 
     page._visitEvaluationSubmitLocked = true
-    const context = page._visitEvaluationContext
+    const testContext = page._visitEvaluationContext
+    const productionContext = page._productionVisitEvaluationContext
+    const isTestOnly = Boolean(testContext)
     page.setData({
       pageState: 'submitting',
-      submitButtonText: '正在提交测试评价',
+      submitButtonText: isTestOnly ? '正在提交测试评价' : '正在提交评价',
       validationMessage: '',
       feedbackMessage: '',
     })
     try {
-      const result = await getApplication(page).submit(context, cloneVisitEvaluationDraft(page.data.draft))
-      if (result.kind === 'submitted_test_only') {
+      const application = getApplication(page)
+      if (testContext) {
+        const result = await application.submit(testContext, cloneVisitEvaluationDraft(page.data.draft))
+        if (result.kind === 'submitted_test_only') {
+          page.setData({
+            pageState: 'submitted',
+            submitButtonText: '测试流程已完成',
+            feedbackMessage: '测试提交已完成；内容未写入真实评价，也不是机构确认。',
+          })
+        } else {
+          page.setData({
+            pageState: 'submit_failed',
+            submitButtonText: '重试测试提交',
+            feedbackMessage: '测试提交暂未成功，已保留全部填写内容，可重试。',
+          })
+        }
+        return
+      }
+
+      if (!productionContext) return
+      const result = await application.submitProduction(productionContext, cloneVisitEvaluationDraft(page.data.draft))
+      if (result.kind === 'submitted') {
         page.setData({
           pageState: 'submitted',
-          submitButtonText: '测试流程已完成',
-          feedbackMessage: '测试提交已完成；内容未写入真实评价，也不是机构确认。',
+          submitButtonText: '评价已提交',
+          serverEvaluationId: result.receipt.evaluationId,
+          serverSubmittedAt: result.receipt.submittedAt,
+          feedbackMessage: result.replayed
+            ? '已确认这份评价此前提交成功。'
+            : '看院评价已提交。评价仅代表本次用户观察。',
+        })
+      } else if (result.kind === 'invalid_draft') {
+        page.setData({
+          pageState: 'editing',
+          submitButtonText: '提交看院评价',
+          validationMessage: '请补全必填项，并检查评价内容后重试。',
+        })
+      } else if (result.kind === 'validation_failed') {
+        page.setData({
+          pageState: 'editing',
+          submitButtonText: '提交看院评价',
+          validationMessage: '服务端未接受这些评价内容，请检查表单并修正后重试。',
+          overallRatingValidationMessage: result.fieldErrors.some((issue) => issue.field === 'overallRating')
+            ? '请检查整体印象评分。'
+            : '',
+          considerationValidationMessage: result.fieldErrors.some((issue) => issue.field === 'consideration')
+            ? '请检查后续考虑。'
+            : '',
+        })
+      } else if (result.kind === 'auth_required') {
+        page._productionVisitEvaluationContext = undefined
+        page.setData({
+          pageState: 'auth_required',
+          contextMode: 'none',
+          contextMessage: '当前账号验证已失效。请重新验证账号后继续；本地填写内容会保留。',
+          statusMessage: '',
+        })
+      } else if (result.kind === 'not_found') {
+        page._productionVisitEvaluationContext = undefined
+        page.setData({
+          pageState: 'denied',
+          contextMode: 'none',
+          contextMessage: '无法读取这条预约记录。记录可能不存在，或当前账号无权查看。',
+          statusMessage: '',
+        })
+      } else if (result.kind === 'not_completed') {
+        page._productionVisitEvaluationContext = undefined
+        page.setData({
+          pageState: 'not_completed',
+          contextMode: 'none',
+          contextMessage: '服务端当前记录的预约状态不允许提交看院评价。',
+          statusMessage: '',
+        })
+      } else if (result.kind === 'already_submitted') {
+        page._productionVisitEvaluationContext = undefined
+        page.setData({
+          pageState: 'already_submitted',
+          contextMode: 'none',
+          contextMessage: '这条预约已有已提交的看院评价，不能再次提交。',
+          statusMessage: '',
+        })
+      } else if (result.kind === 'idempotency_conflict') {
+        page.setData({
+          pageState: 'submission_conflict',
+          contextMode: 'none',
+          contextMessage: '本次提交状态与当前草稿不一致。为避免覆盖已提交内容，请返回预约列表后重新进入。',
+          statusMessage: '',
         })
       } else {
         page.setData({
           pageState: 'submit_failed',
-          submitButtonText: '重试测试提交',
-          feedbackMessage: '测试提交暂未成功，已保留全部填写内容，可重试。',
+          submitButtonText: '重试提交评价',
+          feedbackMessage: '暂时无法确认提交结果，已保留全部内容；可用相同内容重试。',
         })
       }
     } catch (_error) {
       page.setData({
         pageState: 'submit_failed',
-        submitButtonText: '重试测试提交',
-        feedbackMessage: '测试提交暂未成功，已保留全部填写内容，可重试。',
+        submitButtonText: isTestOnly ? '重试测试提交' : '重试提交评价',
+        feedbackMessage: isTestOnly
+          ? '测试提交暂未成功，已保留全部填写内容，可重试。'
+          : '暂时无法确认提交结果，已保留全部内容；可用相同内容重试。',
       })
     } finally {
       page._visitEvaluationSubmitLocked = false

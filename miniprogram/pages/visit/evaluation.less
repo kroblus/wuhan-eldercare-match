@@ -198,3 +198,24 @@
   line-height: @line-height-body;
   text-align: center;
 }
+
+.evaluation-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: @space-1;
+  margin-top: @space-3;
+  padding: @space-3;
+  border-radius: @radius-md;
+  background: #F4F1EC;
+}
+
+.evaluation-receipt__label {
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+}
+
+.evaluation-receipt__value {
+  color: @color-text-primary;
+  font-size: @font-size-caption;
+  word-break: break-all;
+}

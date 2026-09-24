@@ -14,8 +14,10 @@ const pagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'eva
 const viewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation-view-model.ts')
 const applicationPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-application.ts')
 const productionContextProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-context.ts')
+const productionSubmitProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-submit.ts')
+const idempotencyPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-idempotency.ts')
 const writeContentPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-write-content.ts')
-const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath, writeContentPath]
+const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath, productionSubmitProviderPath, idempotencyPath, writeContentPath]
 const failures = []
 const cases = []
 
@@ -66,9 +68,34 @@ const run = async () => {
   const viewModel = runtime.load(viewModelPath)
   const writeContent = runtime.load(writeContentPath)
   const productionContextModule = runtime.load(productionContextProviderPath)
+  const productionSubmitModule = runtime.load(productionSubmitProviderPath)
+  const idempotencyModule = runtime.load(idempotencyPath)
   runtime.load(applicationPath)
   runtime.load(pagePath)
   assert.ok(pageConfig)
+
+  const makeProductionContext = (visitId = 'visit-production') => ({
+    provenance: 'PRODUCTION',
+    visitId,
+    institutionId: 'institution-test-001',
+    institutionRecordRevision: 'revision-test-001',
+    visitStatus: 'completed',
+  })
+  const makeSubmissionResult = (outcome, code, receipt = null, authResolution = 'authenticated', fieldErrors = null) => ({
+    contractVersion: 'visit-evaluation-production-write-contract-v1',
+    kind: 'visit_evaluation_submission_result_v1',
+    authResolution,
+    outcome,
+    code,
+    receipt,
+    fieldErrors,
+  })
+  const makeReceipt = (visitId = 'visit-production', evaluationId = 'evaluation-server-001') => ({
+    evaluationId,
+    visitId,
+    state: 'submitted',
+    submittedAt: '2026-09-24T02:00:00Z',
+  })
 
   await runCase('FRONTEND_CONTEXT_TYPES_CHECK_WITH_WECHAT_DECLARATIONS', async () => {
     const configPath = path.join(repositoryRoot, 'tsconfig.json')
@@ -80,6 +107,8 @@ const run = async () => {
       viewModelPath,
       applicationPath,
       productionContextProviderPath,
+      productionSubmitProviderPath,
+      idempotencyPath,
       writeContentPath,
       path.join(repositoryRoot, 'typings', 'index.d.ts'),
     ], parsedConfig.options)
@@ -349,6 +378,389 @@ const run = async () => {
     assert.equal(requests[1].header['X-Auth-Evidence'], 'test-only-session-evidence')
     assert.equal(Object.keys(result.context).sort().join('|'), 'institutionId|institutionRecordRevision|provenance|visitId|visitStatus')
     assert.equal(JSON.stringify(result).includes('session-evidence'), false)
+  })
+
+  await runCase('PRODUCTION_CONTEXT_AND_SUBMIT_REUSE_C5_SESSION_AND_SEND_EXACT_REQUEST', async () => {
+    const requests = []
+    let loginCalls = 0
+    const providers = productionContextModule.createProductionVisitEvaluationProvidersV1({
+      environment: () => 'develop',
+      login: async () => {
+        loginCalls += 1
+        return 'test-only-login-code'
+      },
+      request: async (request) => {
+        requests.push(request)
+        if (request.url.endsWith('/api/v1/auth/wechat')) return {
+          statusCode: 200,
+          data: {
+            contractVersion: 'wechat-authenticated-principal-contract-v1',
+            kind: 'wechat_authentication_result_v1',
+            outcome: 'AUTHENTICATED',
+            code: 'AUTHENTICATED',
+            sessionEvidence: 'test-only-session-evidence',
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          },
+        }
+        if (request.method === 'GET') return {
+          statusCode: 200,
+          data: {
+            contractVersion: 'authenticated-visit-evaluation-context-contract-v1',
+            kind: 'authenticated_visit_evaluation_context_result_v1',
+            authResolution: 'authenticated',
+            availability: 'eligible',
+            context: {
+              visitId: 'visit/production-write',
+              institutionId: 'institution-test-001',
+              institutionRecordRevision: 'revision-test-001',
+              visitStatus: 'completed',
+            },
+          },
+        }
+        return {
+          statusCode: 200,
+          data: makeSubmissionResult('accepted', 'ACCEPTED', makeReceipt('visit/production-write')),
+        }
+      },
+    })
+    const context = await providers.contextProvider.loadContext('visit/production-write')
+    assert.equal(context.kind, 'eligible')
+    const draft = makeValidDraft(viewModel)
+    draft.ratings.hygiene = 4
+    draft.feeTopicExplanations.bed_fee = 'explained'
+    draft.feeTopicExplanations.meal_fee = 'not_explained'
+    draft.feeTopicExplanations.care_fee = 'unconfirmed'
+    draft.feeTopicExplanations.management_fee = 'explained'
+    draft.feeTopicExplanations.special_care_fee = 'not_explained'
+    draft.feeTopicExplanations.deposit = 'unconfirmed'
+    draft.feeTopicExplanations.other_one_time_fee = 'explained'
+    draft.careRecordLearned = 'no'
+    draft.handoverTopics = ['unconfirmed']
+    draft.likedTags = ['care']
+    draft.concernTags = ['care']
+    draft.comment = '仅为测试传输内容'
+    const mapped = writeContent.mapVisitEvaluationDraftToWriteContentV1(draft)
+    assert.equal(mapped.kind, 'valid')
+    const result = await providers.submitProvider.submit({
+      visitId: 'visit/production-write',
+      idempotencyKey: 'test-idempotency-key-001',
+      content: mapped.content,
+    })
+    assert.equal(result.kind, 'submitted')
+    assert.equal(result.replayed, false)
+    assert.equal(loginCalls, 1)
+    assert.equal(requests.length, 3)
+    const getRequest = requests[1]
+    const writeRequest = requests[2]
+    assert.equal(getRequest.header['X-Auth-Evidence'], writeRequest.header['X-Auth-Evidence'])
+    assert.equal(writeRequest.method, 'POST')
+    assert.equal(writeRequest.url, 'http://127.0.0.1:8080/api/v1/visits/visit%2Fproduction-write/evaluation')
+    assert.equal(writeRequest.header['Content-Type'], 'application/json')
+    assert.equal(writeRequest.data.contractVersion, 'visit-evaluation-production-write-contract-v1')
+    assert.equal(writeRequest.data.kind, 'visit_evaluation_submission_request_v1')
+    assert.equal(writeRequest.data.idempotencyKey, 'test-idempotency-key-001')
+    assert.deepEqual(Object.keys(writeRequest.data.feeTopicExplanations).sort(), [
+      'bed_fee', 'care_fee', 'deposit', 'management_fee', 'meal_fee', 'other_one_time_fee', 'special_care_fee',
+    ])
+    assert.equal(writeRequest.data.feeTopicExplanations.meal_fee, 'not_explained')
+    assert.equal(writeRequest.data.feeTopicExplanations.care_fee, 'unconfirmed')
+    assert.equal(writeRequest.data.careProcessObservations.careRecordLearned, 'no')
+    assert.deepEqual(writeRequest.data.likedTags, ['care'])
+    assert.deepEqual(writeRequest.data.concernTags, ['care'])
+    for (const authorityField of ['visitId', 'userId', 'ownerId', 'institutionId', 'institutionRecordRevision',
+      'visitStatus', 'completed', 'evaluationId', 'submittedAt']) {
+      assert.equal(Object.hasOwn(writeRequest.data, authorityField), false, authorityField)
+    }
+    assert.equal(JSON.stringify(result).includes('test-only-session-evidence'), false)
+  })
+
+  await runCase('UNANSWERED_OPTIONAL_PRICING_STAYS_ABSENT_IN_REQUEST_BODY', async () => {
+    const draft = makeValidDraft(viewModel)
+    const mapped = writeContent.mapVisitEvaluationDraftToWriteContentV1(draft)
+    assert.equal(mapped.kind, 'valid')
+    const body = productionSubmitModule.createVisitEvaluationSubmissionBodyV1({
+      visitId: 'visit-production',
+      idempotencyKey: 'test-idempotency-key-002',
+      content: mapped.content,
+    })
+    assert.equal(Object.hasOwn(body, 'feeTopicExplanations'), false)
+    assert.equal(Object.hasOwn(body, 'feeExplanationClear'), false)
+    assert.equal(Object.hasOwn(body, 'userId'), false)
+  })
+
+  await runCase('BACKEND_RESULT_ENVELOPE_MAPS_ALL_STABLE_OUTCOMES', async () => {
+    const parse = productionSubmitModule.readVisitEvaluationSubmissionResultV1
+    const visitId = 'visit-result-mapping'
+    assert.deepEqual(clone(parse(makeSubmissionResult('accepted', 'ACCEPTED', makeReceipt(visitId)), visitId)), {
+      kind: 'submitted', receipt: makeReceipt(visitId), replayed: false,
+    })
+    assert.equal(parse(makeSubmissionResult('replayed', 'REPLAYED', makeReceipt(visitId)), visitId).kind, 'submitted')
+    assert.deepEqual(clone(parse(makeSubmissionResult('rejected', 'VALIDATION_FAILED', null, 'authenticated', [
+      { field: 'overallRating', code: 'INVALID_RATING' },
+    ]), visitId)), { kind: 'validation_failed', fieldErrors: [{ field: 'overallRating', code: 'INVALID_RATING' }] })
+    assert.equal(parse(makeSubmissionResult('rejected', 'VALIDATION_FAILED', null, 'missing', [
+      { field: 'overallRating', code: 'INVALID_RATING' },
+    ]), visitId).kind, 'technical_failure')
+    assert.equal(parse(makeSubmissionResult('rejected', 'ALREADY_SUBMITTED'), visitId).kind, 'already_submitted')
+    assert.equal(parse(makeSubmissionResult('conflict', 'IDEMPOTENCY_CONFLICT'), visitId).kind, 'idempotency_conflict')
+    assert.equal(parse(makeSubmissionResult('rejected', 'AUTH_REQUIRED', null, 'expired'), visitId).kind, 'auth_required')
+    assert.equal(parse(makeSubmissionResult('rejected', 'NOT_FOUND'), visitId).kind, 'not_found')
+    assert.equal(parse(makeSubmissionResult('rejected', 'NOT_COMPLETED'), visitId).kind, 'not_completed')
+    assert.equal(parse(makeSubmissionResult('unavailable', 'SERVICE_UNAVAILABLE'), visitId).kind, 'service_unavailable')
+    assert.equal(parse(makeSubmissionResult('technical_failure', 'TECHNICAL_FAILURE', null, 'technical_failure'), visitId).kind,
+      'technical_failure')
+    assert.equal(parse(makeSubmissionResult('accepted', 'ACCEPTED', makeReceipt('different-visit')), visitId).kind,
+      'technical_failure')
+    assert.equal(parse({ ...makeSubmissionResult('accepted', 'ACCEPTED', makeReceipt(visitId)), unexpected: true }, visitId).kind,
+      'technical_failure')
+  })
+
+  await runCase('PRODUCTION_SUBMIT_ACCEPTS_ONLY_HTTP_200_AND_CLEARS_REJECTED_SESSION', async () => {
+    let clearCalls = 0
+    const provider = productionSubmitModule.createProductionVisitEvaluationSubmitProviderV1({
+      submit: async () => ({
+        statusCode: 200,
+        data: makeSubmissionResult('rejected', 'AUTH_REQUIRED', null, 'invalid'),
+      }),
+      clearSession: () => { clearCalls += 1 },
+    })
+    const request = {
+      visitId: 'visit-provider-map',
+      idempotencyKey: 'test-idempotency-key-003',
+      content: writeContent.mapVisitEvaluationDraftToWriteContentV1(makeValidDraft(viewModel)).content,
+    }
+    assert.equal((await provider.submit(request)).kind, 'auth_required')
+    assert.equal(clearCalls, 1)
+    const notHttpOkProvider = productionSubmitModule.createProductionVisitEvaluationSubmitProviderV1({
+      submit: async () => ({ statusCode: 201, data: makeSubmissionResult('accepted', 'ACCEPTED', makeReceipt('visit-provider-map')) }),
+      clearSession() {},
+    })
+    assert.equal((await notHttpOkProvider.submit(request)).kind, 'technical_failure')
+  })
+
+  await runCase('WECHAT_RANDOM_IDEMPOTENCY_KEY_IS_OPAQUE_AND_BACKEND_VALID', async () => {
+    runtime.context.wx.getRandomValues = ({ length, success }) => {
+      const values = new Uint8Array(length)
+      for (let index = 0; index < length; index += 1) values[index] = index
+      success({ randomValues: values.buffer })
+    }
+    const key = await idempotencyModule.createWeChatVisitEvaluationIdempotencyKeyV1()
+    assert.match(key, /^ve1-[0-9a-f]{32}$/)
+    assert.equal(key.length >= 8 && key.length <= 128, true)
+    assert.equal(/\s|[\u0000-\u001f\u007f]/.test(key), false)
+  })
+
+  await runCase('PRODUCTION_LOCAL_VALIDATION_FAILS_BEFORE_KEY_OR_REQUEST', async () => {
+    let keyCalls = 0
+    let submitCalls = 0
+    const application = makeApplication(runtime, {
+      createIdempotencyKey: async () => { keyCalls += 1; return 'test-key-local-invalid-001' },
+      productionSubmitProvider: { submit: async () => {
+        submitCalls += 1
+        return { kind: 'technical_failure' }
+      } },
+    })
+    const result = await application.submitProduction(makeProductionContext(), viewModel.createEmptyVisitEvaluationDraft())
+    assert.deepEqual(clone(result), { kind: 'invalid_draft' })
+    assert.equal(keyCalls, 0)
+    assert.equal(submitCalls, 0)
+  })
+
+  await runCase('PRODUCTION_RETRY_REUSES_KEY_UNTIL_CONTENT_CHANGES', async () => {
+    const requests = []
+    const keys = ['test-key-logical-attempt-001', 'test-key-logical-attempt-002']
+    const application = makeApplication(runtime, {
+      createIdempotencyKey: async () => keys.shift(),
+      productionSubmitProvider: { submit: async (request) => {
+        requests.push(clone(request))
+        return { kind: 'technical_failure' }
+      } },
+    })
+    const draft = makeValidDraft(viewModel)
+    assert.equal((await application.submitProduction(makeProductionContext('visit-attempt'), draft)).kind, 'technical_failure')
+    assert.equal((await application.submitProduction(makeProductionContext('visit-attempt'), draft)).kind, 'technical_failure')
+    const editedDraft = { ...draft, comment: '内容修改后属于新提交意图' }
+    assert.equal((await application.submitProduction(makeProductionContext('visit-attempt'), editedDraft)).kind, 'technical_failure')
+    assert.deepEqual(requests.map((request) => request.idempotencyKey), [
+      'test-key-logical-attempt-001',
+      'test-key-logical-attempt-001',
+      'test-key-logical-attempt-002',
+    ])
+    assert.deepEqual(clone(requests[0].content), clone(requests[1].content))
+    assert.notDeepEqual(clone(requests[1].content), clone(requests[2].content))
+    assert.notEqual(requests[1].idempotencyKey, requests[2].idempotencyKey)
+  })
+
+  await runCase('PRODUCTION_APPLICATION_SINGLE_FLIGHT_PREVENTS_DUPLICATE_POST', async () => {
+    let releaseSubmit
+    let markSubmitStarted
+    let keyCalls = 0
+    let submitCalls = 0
+    const submitStarted = new Promise((resolve) => { markSubmitStarted = resolve })
+    const application = makeApplication(runtime, {
+      createIdempotencyKey: async () => { keyCalls += 1; return 'test-key-single-flight-001' },
+      productionSubmitProvider: { submit: () => {
+        submitCalls += 1
+        markSubmitStarted()
+        return new Promise((resolve) => { releaseSubmit = resolve })
+      } },
+    })
+    const context = makeProductionContext('visit-production-single-flight')
+    const draft = makeValidDraft(viewModel)
+    const first = application.submitProduction(context, draft)
+    const second = application.submitProduction(context, draft)
+    await submitStarted
+    assert.equal(keyCalls, 1)
+    assert.equal(submitCalls, 1)
+    releaseSubmit({ kind: 'already_submitted' })
+    const results = await Promise.all([first, second])
+    assert.deepEqual(clone(results[0]), { kind: 'already_submitted' })
+    assert.deepEqual(clone(results[1]), { kind: 'already_submitted' })
+    assert.equal(submitCalls, 1)
+  })
+
+  await runCase('MISSING_PRODUCTION_PROVIDER_NEVER_FALLS_BACK_TO_TEST_ONLY', async () => {
+    let keyCalls = 0
+    let testSubmitCalls = 0
+    const application = makeApplication(runtime, {
+      createIdempotencyKey: async () => { keyCalls += 1; return 'test-key-no-provider-001' },
+      testOnlySubmitProvider: { submit: async () => {
+        testSubmitCalls += 1
+        return { provenance: 'TEST_ONLY', outcome: 'submitted' }
+      } },
+    })
+    const result = await application.submitProduction(makeProductionContext(), makeValidDraft(viewModel))
+    assert.deepEqual(clone(result), { kind: 'service_unavailable' })
+    assert.equal(keyCalls, 0)
+    assert.equal(testSubmitCalls, 0)
+  })
+
+  await runCase('PRODUCTION_PAGE_ACCEPTED_AND_REPLAYED_USE_SERVER_RECEIPT', async () => {
+    for (const [outcome, code, replayed] of [
+      ['accepted', 'ACCEPTED', false],
+      ['replayed', 'REPLAYED', true],
+    ]) {
+      const receipt = makeReceipt('visit-production-receipt', `server-${outcome}-evaluation`)
+      receipt.submittedAt = '2026-09-24T03:04:05Z'
+      const application = makeApplication(runtime, {
+        productionContextProvider: { loadContext: async () => ({
+          kind: 'eligible', context: makeProductionContext('visit-production-receipt'),
+        }) },
+        productionSubmitProvider: { submit: async () => ({ kind: 'submitted', receipt, replayed }) },
+        createIdempotencyKey: async () => `test-key-page-${outcome}-001`,
+      })
+      const page = makePage(pageConfig, application)
+      await page.onLoad({ visitId: 'visit-production-receipt' })
+      page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+      page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
+      await page.onSubmit()
+      assert.equal(page.data.pageState, 'submitted')
+      assert.equal(page.data.serverEvaluationId, receipt.evaluationId)
+      assert.equal(page.data.serverSubmittedAt, receipt.submittedAt)
+      assert.match(page.data.feedbackMessage, replayed ? /此前提交成功/ : /已提交/)
+    }
+  })
+
+  await runCase('PRODUCTION_PAGE_DOUBLE_TAP_SENDS_ONE_REQUEST', async () => {
+    let releaseSubmit
+    let markSubmitStarted
+    let requests = 0
+    const submitStarted = new Promise((resolve) => { markSubmitStarted = resolve })
+    const application = makeApplication(runtime, {
+      productionContextProvider: { loadContext: async () => ({
+        kind: 'eligible', context: makeProductionContext('visit-production-double-tap'),
+      }) },
+      productionSubmitProvider: { submit: () => {
+        requests += 1
+        markSubmitStarted()
+        return new Promise((resolve) => { releaseSubmit = resolve })
+      } },
+      createIdempotencyKey: async () => 'test-key-double-tap-001',
+    })
+    const page = makePage(pageConfig, application)
+    await page.onLoad({ visitId: 'visit-production-double-tap' })
+    page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
+    const first = page.onSubmit()
+    const second = page.onSubmit()
+    assert.equal(page.data.pageState, 'submitting')
+    await submitStarted
+    assert.equal(requests, 1)
+    releaseSubmit({ kind: 'technical_failure' })
+    await Promise.all([first, second])
+    assert.equal(page.data.pageState, 'submit_failed')
+    assert.equal(requests, 1)
+  })
+
+  await runCase('PRODUCTION_PAGE_DEFINITIVE_FAILURES_KEEP_DRAFT_AND_STOP_WRITES', async () => {
+    const casesToMap = [
+      ['validation_failed', 'editing'],
+      ['already_submitted', 'already_submitted'],
+      ['idempotency_conflict', 'submission_conflict'],
+      ['not_found', 'denied'],
+      ['not_completed', 'not_completed'],
+    ]
+    for (const [resultKind, expectedState] of casesToMap) {
+      let submits = 0
+      const application = makeApplication(runtime, {
+        productionContextProvider: { loadContext: async () => ({
+          kind: 'eligible', context: makeProductionContext('visit-production-definitive'),
+        }) },
+        productionSubmitProvider: { submit: async () => {
+          submits += 1
+          return resultKind === 'validation_failed'
+            ? { kind: resultKind, fieldErrors: [{ field: 'overallRating', code: 'INVALID_RATING' }] }
+            : { kind: resultKind }
+        } },
+        createIdempotencyKey: async () => `test-key-definitive-${resultKind}`,
+      })
+      const page = makePage(pageConfig, application)
+      await page.onLoad({ visitId: 'visit-production-definitive' })
+      page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+      page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
+      page.onCommentInput({ detail: { value: `retained-${resultKind}` } })
+      const beforeSubmit = clone(page.data.draft)
+      await page.onSubmit()
+      assert.equal(page.data.pageState, expectedState)
+      assert.deepEqual(clone(page.data.draft), beforeSubmit)
+      assert.equal(submits, 1)
+      if (expectedState === 'already_submitted' || expectedState === 'submission_conflict') {
+        await page.onSubmit()
+        assert.equal(submits, 1)
+      }
+    }
+  })
+
+  await runCase('AUTH_REQUIRED_RECHECKS_CONTEXT_WITHOUT_LOSING_DRAFT_OR_PHONE_FLOW', async () => {
+    let contextLoads = 0
+    let submits = 0
+    const application = makeApplication(runtime, {
+      productionContextProvider: { loadContext: async (visitId) => {
+        contextLoads += 1
+        return { kind: 'eligible', context: makeProductionContext(visitId) }
+      } },
+      productionSubmitProvider: { submit: async () => {
+        submits += 1
+        return submits === 1 ? { kind: 'auth_required' } : { kind: 'service_unavailable' }
+      } },
+      createIdempotencyKey: async () => 'test-key-auth-retry-001',
+    })
+    const page = makePage(pageConfig, application)
+    await page.onLoad({ visitId: 'visit-auth-retry' })
+    page.onRatingTap({ currentTarget: { dataset: { question: 'overallRating', value: '4' } } })
+    page.onConsiderationTap({ currentTarget: { dataset: { value: 'willing' } } })
+    page.onCommentInput({ detail: { value: 'retain through auth refresh' } })
+    const draft = clone(page.data.draft)
+    await page.onSubmit()
+    assert.equal(page.data.pageState, 'auth_required')
+    assert.deepEqual(clone(page.data.draft), draft)
+    await page.onRetryContext()
+    assert.equal(contextLoads, 2)
+    assert.equal(page.data.pageState, 'editing')
+    assert.deepEqual(clone(page.data.draft), draft)
+    await page.onSubmit()
+    assert.equal(page.data.pageState, 'submit_failed')
+    assert.equal(submits, 2)
   })
 
   await runCase('PRODUCTION_OWNER_READ_REQUIRES_AUTHENTICATED_C5_SESSION', async () => {
@@ -664,7 +1076,9 @@ const run = async () => {
   await runCase('WXML_SINGLE_ACTION_AND_FIELDS', async () => {
     const wxml = readFileSync(path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation.wxml'), 'utf8')
     assert.match(wxml, /bind:action="onSubmit"/)
-    assert.equal((wxml.match(/bind:action="onSubmit"/g) || []).length, 1)
+    assert.equal((wxml.match(/bind:action="onSubmit"/g) || []).length, 2)
+    assert.match(wxml, /wx:if="\{\{contextMode === 'test_only'\}\}"[\s\S]*?bind:action="onSubmit"/)
+    assert.match(wxml, /wx:elif="\{\{contextMode === 'production'\}\}"[\s\S]*?bind:action="onSubmit"/)
     assert.match(wxml, /最多选择 3 项/)
     assert.match(wxml, /tagFeedbackGroup === group.key/)
     assert.match(wxml, /最多 200 字/)
@@ -673,13 +1087,16 @@ const run = async () => {
     assert.match(wxml, /feeTopicExplanations/)
     assert.match(wxml, /bindtap="onFeeTopicTap"/)
     assert.match(wxml, /未选择表示未填写/)
-    assert.match(wxml, /“未确认”与具体交接项目互斥/)
+    assert.match(wxml, /未确认”与具体交接项目互斥/)
     assert.match(wxml, /USER_REPORTED_DATA|个人感受与观察/)
     assert.equal(/bindtap="onSubmit"/.test(wxml), false)
     assert.match(wxml, /pageState === 'not_completed'/)
     assert.match(wxml, /bind:action="onRetryContext"/)
     assert.match(wxml, /contextMode === 'test_only'/)
-    assert.match(wxml, /评价提交服务尚未接入/)
+    assert.match(wxml, /contextMode === 'production'/)
+    assert.match(wxml, /serverEvaluationId/)
+    assert.match(wxml, /pageState === 'already_submitted'/)
+    assert.match(wxml, /pageState === 'submission_conflict'/)
   })
 
   if (failures.length > 0) {
