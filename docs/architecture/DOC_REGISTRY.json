@@ -172,6 +172,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/AUTHENTICATED_VISIT_EVALUATION_CONTEXT_CONTRACT_V1.md",
+      "doc_id": "contract.authenticated_visit_evaluation_context.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
       "doc_id": "architecture.ai_provider_dev_testing",
       "status": "CURRENT",
