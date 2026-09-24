@@ -8,7 +8,13 @@ import com.wuhan.eldercare.visit.application.VisitSubmissionRepository;
 import com.wuhan.eldercare.visit.application.VisitSubmissionService;
 import com.wuhan.eldercare.visit.application.VisitEvaluationContextRepository;
 import com.wuhan.eldercare.visit.application.VisitEvaluationContextService;
+import com.wuhan.eldercare.visit.application.VisitEvaluationContentNormalizer;
+import com.wuhan.eldercare.visit.application.VisitEvaluationIdentitySource;
+import com.wuhan.eldercare.visit.application.VisitEvaluationSubmissionService;
+import com.wuhan.eldercare.visit.application.VisitEvaluationWriteRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationContextRepository;
+import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationWriteRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.time.Instant;
+import java.time.Clock;
 import java.util.UUID;
 
 @Configuration
@@ -107,5 +114,51 @@ public class DefaultBoundaryConfiguration {
             VisitEvaluationContextRepository repository
     ) {
         return new VisitEvaluationContextService(authEvidenceResolver, repository);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
+    @ConditionalOnMissingBean(VisitEvaluationWriteRepository.class)
+    VisitEvaluationWriteRepository jdbcVisitEvaluationWriteRepository(DataSource dataSource, ObjectMapper objectMapper) {
+        return new JdbcVisitEvaluationWriteRepository(dataSource, objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnMissingBean(VisitEvaluationWriteRepository.class)
+    VisitEvaluationWriteRepository unavailableVisitEvaluationWriteRepository() {
+        return (principal, visitId, keyDigest, fingerprint, content, evaluationId, submittedAt) ->
+                VisitEvaluationWriteRepository.Result.of(VisitEvaluationWriteRepository.Result.Status.UNAVAILABLE);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(VisitEvaluationIdentitySource.class)
+    VisitEvaluationIdentitySource visitEvaluationIdentitySource(Clock c5Clock) {
+        return new VisitEvaluationIdentitySource() {
+            @Override
+            public String newEvaluationId() {
+                return "evaluation_" + UUID.randomUUID();
+            }
+
+            @Override
+            public Instant submittedAt() {
+                return c5Clock.instant();
+            }
+        };
+    }
+
+    @Bean
+    VisitEvaluationContentNormalizer visitEvaluationContentNormalizer(ObjectMapper objectMapper) {
+        return new VisitEvaluationContentNormalizer(objectMapper);
+    }
+
+    @Bean
+    VisitEvaluationSubmissionService visitEvaluationSubmissionService(
+            AuthEvidenceResolver authEvidenceResolver,
+            VisitEvaluationWriteRepository repository,
+            VisitEvaluationContentNormalizer normalizer,
+            VisitEvaluationIdentitySource identitySource
+    ) {
+        return new VisitEvaluationSubmissionService(authEvidenceResolver, repository, normalizer, identitySource);
     }
 }

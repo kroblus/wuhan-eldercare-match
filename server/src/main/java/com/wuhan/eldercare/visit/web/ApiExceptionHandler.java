@@ -22,6 +22,11 @@ public class ApiExceptionHandler {
             return ResponseEntity.status(HttpStatus.OK).body(
                     com.wuhan.eldercare.visit.auth.AuthResultV1.invalid("AUTH_REQUEST_INVALID"));
         }
+        if (isEvaluationSubmissionRequest(request)) {
+            // Parser/unknown-field failures are transport failures for this V1
+            // endpoint. Never return a different contract's JSON envelope.
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
                 BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "VALIDATION_FAILED"));
     }
@@ -32,6 +37,9 @@ public class ApiExceptionHandler {
             return ResponseEntity.status(HttpStatus.OK).body(
                     com.wuhan.eldercare.visit.auth.AuthResultV1.technicalFailure());
         }
+        if (isEvaluationSubmissionRequest(request)) {
+            return ResponseEntity.status(HttpStatus.OK).body(VisitEvaluationSubmissionResultV1.technicalFailure());
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
                 BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE"));
     }
@@ -39,5 +47,10 @@ public class ApiExceptionHandler {
     private static boolean isAuthRequest(HttpServletRequest request) {
         return request != null && request.getRequestURI() != null
                 && request.getRequestURI().startsWith("/api/v1/auth/");
+    }
+
+    private static boolean isEvaluationSubmissionRequest(HttpServletRequest request) {
+        return request != null && "POST".equals(request.getMethod()) && request.getRequestURI() != null
+                && request.getRequestURI().matches("/api/v1/visits/[^/]+/evaluation");
     }
 }
