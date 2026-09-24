@@ -6,6 +6,9 @@ import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.ServerIdentitySource;
 import com.wuhan.eldercare.visit.application.VisitSubmissionRepository;
 import com.wuhan.eldercare.visit.application.VisitSubmissionService;
+import com.wuhan.eldercare.visit.application.VisitEvaluationContextRepository;
+import com.wuhan.eldercare.visit.application.VisitEvaluationContextService;
+import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationContextRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -81,5 +84,28 @@ public class DefaultBoundaryConfiguration {
             VisitSubmissionRepository repository
     ) {
         return new VisitSubmissionService(authEvidenceResolver, contactVerifier, referenceAuthorizer, repository);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
+    @ConditionalOnMissingBean(VisitEvaluationContextRepository.class)
+    VisitEvaluationContextRepository jdbcVisitEvaluationContextRepository(DataSource dataSource) {
+        return new JdbcVisitEvaluationContextRepository(dataSource);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnMissingBean(VisitEvaluationContextRepository.class)
+    VisitEvaluationContextRepository unavailableVisitEvaluationContextRepository() {
+        return (principal, visitId) -> VisitEvaluationContextRepository.Result.unavailable();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(VisitEvaluationContextService.class)
+    VisitEvaluationContextService visitEvaluationContextService(
+            AuthEvidenceResolver authEvidenceResolver,
+            VisitEvaluationContextRepository repository
+    ) {
+        return new VisitEvaluationContextService(authEvidenceResolver, repository);
     }
 }

@@ -24,13 +24,18 @@ import type {
   VisitEvaluationTagV1,
 } from './evaluation-view-model'
 import { createVisitEvaluationUiApplicationV1 } from './visit-evaluation-application'
+import { createProductionVisitEvaluationContextProviderV1 } from './visit-evaluation-production-context'
 import type {
   TestOnlyVisitEvaluationContextV1,
 } from './visit-evaluation-application'
+import type { ProductionVisitEvaluationContextV1 } from './visit-evaluation-production-context'
 
 type VisitEvaluationPageState =
-  | 'loading'
+  | 'loading_context'
+  | 'not_completed'
+  | 'denied'
   | 'unavailable'
+  | 'load_error'
   | 'editing'
   | 'submitting'
   | 'submitted'
@@ -44,6 +49,7 @@ interface VisitEvaluationTagGroupViewModel {
 
 interface VisitEvaluationPageData {
   pageState: VisitEvaluationPageState
+  contextMode: 'none' | 'test_only' | 'production'
   visitId: string
   contextMessage: string
   statusMessage: string
@@ -82,7 +88,12 @@ interface EvaluationPageApplication {
   loadContext(visitId: string): Promise<{
     kind: 'ready'
     context: TestOnlyVisitEvaluationContextV1
-  } | { kind: 'unavailable'; reason: string }>
+  } | {
+    kind: 'eligible'
+    context: ProductionVisitEvaluationContextV1
+  } | {
+    kind: 'not_completed' | 'denied' | 'unavailable' | 'load_error'
+  }>
   submit(
     context: TestOnlyVisitEvaluationContextV1,
     draft: VisitEvaluationDraftV1,
@@ -94,7 +105,10 @@ interface EvaluationPageInstance {
   setData(patch: Partial<VisitEvaluationPageData>): void
   _visitEvaluationApplication?: EvaluationPageApplication
   _visitEvaluationContext?: TestOnlyVisitEvaluationContextV1
+  _productionVisitEvaluationContext?: ProductionVisitEvaluationContextV1
   _visitEvaluationSubmitLocked?: boolean
+  _contextLoadLocked?: boolean
+  _contextLoadSequence?: number
 }
 
 interface RatingActionDataset {
@@ -194,9 +208,112 @@ const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluation
 
 const getApplication = (page: EvaluationPageInstance): EvaluationPageApplication => {
   if (page._visitEvaluationApplication) return page._visitEvaluationApplication
-  const application = createVisitEvaluationUiApplicationV1()
+  const application = createVisitEvaluationUiApplicationV1({
+    productionContextProvider: createProductionVisitEvaluationContextProviderV1(),
+  })
   page._visitEvaluationApplication = application
   return application
+}
+
+const loadContext = async (page: EvaluationPageInstance, visitId: string): Promise<void> => {
+  if (page._contextLoadLocked) return
+  page._contextLoadLocked = true
+  page._contextLoadSequence = (page._contextLoadSequence || 0) + 1
+  const requestSequence = page._contextLoadSequence
+  page._visitEvaluationContext = undefined
+  page._productionVisitEvaluationContext = undefined
+  page.setData({
+    pageState: 'loading_context',
+    contextMode: 'none',
+    visitId,
+    contextMessage: '正在通过当前账号确认这条预约记录。',
+    statusMessage: '',
+    feedbackMessage: '',
+    tagFeedbackGroup: '',
+    tagFeedbackMessage: '',
+    validationMessage: '',
+  })
+
+  try {
+    const result = await getApplication(page).loadContext(visitId)
+    if (requestSequence !== page._contextLoadSequence || page.data.visitId !== visitId) return
+
+    if (result.kind === 'ready' && result.context.visitId === visitId) {
+      const draft = createEmptyVisitEvaluationDraft()
+      page._visitEvaluationContext = result.context
+      page.setData({
+        ...createFormPatch(draft),
+        pageState: 'editing',
+        contextMode: 'test_only',
+        contextMessage: `开发测试上下文 · ${result.context.institutionId} · ${result.context.institutionRecordRevision}`,
+        statusMessage: '开发测试流程不会写入真实评价、机构资料或推荐结果。',
+        submitButtonText: '提交测试评价',
+      })
+      return
+    }
+
+    if (result.kind === 'eligible' && result.context.visitId === visitId && result.context.visitStatus === 'completed') {
+      const draft = createEmptyVisitEvaluationDraft()
+      page._productionVisitEvaluationContext = result.context
+      page.setData({
+        ...createFormPatch(draft),
+        pageState: 'editing',
+        contextMode: 'production',
+        contextMessage: '已确认该预约属于当前账号，且服务端记录的看院状态为已完成。',
+        statusMessage: '当前可填写本地评价草稿；评价提交服务尚未接入，内容不会发送或保存。',
+        submitButtonText: '',
+      })
+      return
+    }
+
+    if (result.kind === 'not_completed') {
+      page.setData({
+        pageState: 'not_completed',
+        contextMode: 'none',
+        contextMessage: '该预约尚未处于已完成状态，暂不能填写看院评价。',
+        statusMessage: '',
+      })
+      return
+    }
+
+    if (result.kind === 'denied') {
+      page.setData({
+        pageState: 'denied',
+        contextMode: 'none',
+        contextMessage: '无法读取这条预约记录。记录可能不存在，或当前账号无权查看。',
+        statusMessage: '',
+      })
+      return
+    }
+
+    if (result.kind === 'load_error') {
+      page.setData({
+        pageState: 'load_error',
+        contextMode: 'none',
+        contextMessage: '读取评价上下文失败，请检查网络后重试。',
+        statusMessage: '',
+      })
+      return
+    }
+
+    page.setData({
+      pageState: 'unavailable',
+      contextMode: 'none',
+      contextMessage: '当前评价上下文服务暂不可用，请稍后重试。',
+      statusMessage: '',
+    })
+  } catch (_error) {
+    if (requestSequence === page._contextLoadSequence && page.data.visitId === visitId) {
+      page.setData({
+        pageState: 'load_error',
+        contextMode: 'none',
+        contextMessage: '读取评价上下文失败，请检查网络后重试。',
+        statusMessage: '',
+      })
+    }
+  } finally {
+    if (requestSequence === page._contextLoadSequence) page._contextLoadLocked = false
+  }
 }
 
 const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): void => {
@@ -211,7 +328,8 @@ const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): 
 
 Page({
   data: {
-    pageState: 'loading',
+    pageState: 'loading_context',
+    contextMode: 'none',
     visitId: '',
     contextMessage: '正在检查预约评价条件。',
     statusMessage: '',
@@ -226,11 +344,15 @@ Page({
   async onLoad(query: VisitEvaluationRouteData) {
     const page = this as unknown as EvaluationPageInstance
     page._visitEvaluationContext = undefined
+    page._productionVisitEvaluationContext = undefined
     page._visitEvaluationSubmitLocked = false
+    page._contextLoadLocked = false
+    page._contextLoadSequence = (page._contextLoadSequence || 0) + 1
     const visitId = query && query.visitId
     if (!isSafeVisitId(visitId)) {
       page.setData({
         pageState: 'unavailable',
+        contextMode: 'none',
         visitId: '',
         contextMessage: '未找到有效的预约记录，请从预约入口返回。',
         statusMessage: '',
@@ -238,35 +360,13 @@ Page({
       return
     }
 
-    page.setData({
-      pageState: 'loading',
-      visitId,
-      contextMessage: '正在检查预约评价条件。',
-      statusMessage: '',
-      feedbackMessage: '',
-      tagFeedbackGroup: '',
-      tagFeedbackMessage: '',
-      validationMessage: '',
-      submitButtonText: '提交测试评价',
-    })
-    const result = await getApplication(page).loadContext(visitId)
-    if (result.kind !== 'ready' || result.context.visitId !== visitId) {
-      page.setData({
-        pageState: 'unavailable',
-        contextMessage: '当前预约评价上下文与提交服务尚未接入，暂不能加载或提交评价。',
-      })
-      return
-    }
+    await loadContext(page, visitId)
+  },
 
-    const draft = createEmptyVisitEvaluationDraft()
-    page._visitEvaluationContext = result.context
-    page.setData({
-      ...createFormPatch(draft),
-      pageState: 'editing',
-      contextMessage: `开发测试上下文 · ${result.context.institutionId} · ${result.context.institutionRecordRevision}`,
-      statusMessage: '开发测试流程不会写入真实评价、机构资料或推荐结果。',
-      submitButtonText: '提交测试评价',
-    })
+  async onRetryContext() {
+    const page = this as unknown as EvaluationPageInstance
+    if (!isSafeVisitId(page.data.visitId) || page._contextLoadLocked) return
+    await loadContext(page, page.data.visitId)
   },
 
   onRatingTap(event: DatasetEvent<RatingActionDataset>) {

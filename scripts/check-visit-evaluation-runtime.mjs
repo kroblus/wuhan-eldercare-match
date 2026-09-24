@@ -13,7 +13,8 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const pagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation.ts')
 const viewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation-view-model.ts')
 const applicationPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-application.ts')
-const productionPaths = [pagePath, viewModelPath, applicationPath]
+const productionContextProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-context.ts')
+const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath]
 const failures = []
 const cases = []
 
@@ -55,9 +56,32 @@ const run = async () => {
     wx: { showToast() {} },
   })
   const viewModel = runtime.load(viewModelPath)
+  const productionContextModule = runtime.load(productionContextProviderPath)
   runtime.load(applicationPath)
   runtime.load(pagePath)
   assert.ok(pageConfig)
+
+  await runCase('FRONTEND_CONTEXT_TYPES_CHECK_WITH_WECHAT_DECLARATIONS', async () => {
+    const configPath = path.join(repositoryRoot, 'tsconfig.json')
+    const configResult = ts.readConfigFile(configPath, (fileName) => readFileSync(fileName, 'utf8'))
+    assert.equal(configResult.error, undefined)
+    const parsedConfig = ts.parseJsonConfigFileContent(configResult.config, ts.sys, repositoryRoot, undefined, configPath)
+    const program = ts.createProgram([
+      pagePath,
+      viewModelPath,
+      applicationPath,
+      productionContextProviderPath,
+      path.join(repositoryRoot, 'typings', 'index.d.ts'),
+    ], parsedConfig.options)
+    const errors = ts.getPreEmitDiagnostics(program)
+      .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
+    const format = (diagnostic) => {
+      if (!diagnostic.file || diagnostic.start === undefined) return ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
+      const location = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+      return `${path.relative(repositoryRoot, diagnostic.file.fileName)}:${location.line + 1}:${location.character + 1} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`
+    }
+    assert.equal(errors.length, 0, errors.map(format).join('\n'))
+  })
 
   await runCase('INITIAL_DRAFT_IS_EMPTY_AND_HAS_ALL_PRODUCT_RATINGS', async () => {
     const draft = viewModel.createEmptyVisitEvaluationDraft()
@@ -72,12 +96,199 @@ const run = async () => {
     const page = makePage(pageConfig)
     await page.onLoad({ visitId: 'visit-test-route-only' })
     assert.equal(page.data.pageState, 'unavailable')
-    assert.match(page.data.contextMessage, /尚未接入/)
+    assert.equal(page.data.contextMode, 'none')
     assert.equal(page.data.draft.overallRating, null)
     assert.equal((await makeApplication(runtime).submit(
       createVisitEvaluationContextFixture(),
       viewModel.createEmptyVisitEvaluationDraft(),
     )).kind, 'submit_failed')
+  })
+
+  await runCase('PRODUCTION_PROVIDER_EXCHANGES_C5_SESSION_THEN_READS_MINIMAL_CONTEXT', async () => {
+    const requests = []
+    const provider = productionContextModule.createProductionVisitEvaluationContextProviderV1({
+      environment: () => 'develop',
+      login: async () => 'test-only-login-code',
+      request: async (request) => {
+        requests.push(request)
+        if (request.method === 'POST') return {
+          statusCode: 200,
+          data: {
+            contractVersion: 'wechat-authenticated-principal-contract-v1',
+            kind: 'wechat_authentication_result_v1',
+            outcome: 'AUTHENTICATED',
+            code: 'AUTHENTICATED',
+            sessionEvidence: 'test-only-session-evidence',
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          },
+        }
+        return {
+          statusCode: 200,
+          data: {
+            contractVersion: 'authenticated-visit-evaluation-context-contract-v1',
+            kind: 'authenticated_visit_evaluation_context_result_v1',
+            authResolution: 'authenticated',
+            availability: 'eligible',
+            context: {
+              visitId: 'visit/owned',
+              institutionId: 'institution-test-001',
+              institutionRecordRevision: 'revision-test-001',
+              visitStatus: 'completed',
+            },
+          },
+        }
+      },
+    })
+    const result = await provider.loadContext('visit/owned')
+    assert.equal(result.kind, 'eligible')
+    assert.equal(result.context.visitId, 'visit/owned')
+    assert.equal(result.context.visitStatus, 'completed')
+    assert.equal(requests.length, 2)
+    assert.equal(requests[0].method, 'POST')
+    assert.equal(requests[0].url, 'http://127.0.0.1:8080/api/v1/auth/wechat')
+    assert.equal(requests[0].data.kind, 'wechat_authentication_request_v1')
+    assert.equal(requests[1].method, 'GET')
+    assert.equal(requests[1].url, 'http://127.0.0.1:8080/api/v1/visits/visit%2Fowned/evaluation-context')
+    assert.equal(requests[1].data, undefined)
+    assert.equal(requests[1].header['X-Auth-Evidence'], 'test-only-session-evidence')
+    assert.equal(Object.keys(result.context).sort().join('|'), 'institutionId|institutionRecordRevision|provenance|visitId|visitStatus')
+    assert.equal(JSON.stringify(result).includes('session-evidence'), false)
+  })
+
+  await runCase('PRODUCTION_OWNER_READ_REQUIRES_AUTHENTICATED_C5_SESSION', async () => {
+    let requests = 0
+    const provider = productionContextModule.createProductionVisitEvaluationContextProviderV1({
+      environment: () => 'develop',
+      login: async () => 'test-only-login-code',
+      request: async () => {
+        requests += 1
+        return {
+          statusCode: 200,
+          data: {
+            contractVersion: 'wechat-authenticated-principal-contract-v1',
+            kind: 'wechat_authentication_result_v1',
+            outcome: 'UNAVAILABLE',
+            code: 'SERVICE_UNAVAILABLE',
+            sessionEvidence: null,
+            expiresAt: null,
+          },
+        }
+      },
+    })
+    assert.equal((await provider.loadContext('visit-no-session')).kind, 'unavailable')
+    assert.equal(requests, 1)
+  })
+
+  await runCase('UNCONFIGURED_RELEASE_BACKEND_DOES_NOT_FABRICATE_OR_REQUEST', async () => {
+    let loginCalls = 0
+    const provider = productionContextModule.createProductionVisitEvaluationContextProviderV1({
+      environment: () => 'release',
+      login: async () => {
+        loginCalls += 1
+        return 'test-only-login-code'
+      },
+      request: async () => { throw new Error('must_not_request') },
+    })
+    assert.equal((await provider.loadContext('visit-release')).kind, 'unavailable')
+    assert.equal(loginCalls, 0)
+  })
+
+  await runCase('PRODUCTION_CONTEXT_STATUS_AUTHORITY_AND_MINIMAL_DENIAL_MAPPING', async () => {
+    const parse = productionContextModule.readProductionVisitEvaluationContextResponseV1
+    const base = {
+      contractVersion: 'authenticated-visit-evaluation-context-contract-v1',
+      kind: 'authenticated_visit_evaluation_context_result_v1',
+      authResolution: 'authenticated',
+      availability: 'eligible',
+      context: {
+        visitId: 'visit-server-status',
+        institutionId: 'institution-test-001',
+        institutionRecordRevision: 'revision-test-001',
+        visitStatus: 'completed',
+      },
+    }
+    assert.equal(parse({ ...base, context: { ...base.context, visitStatus: 'scheduled' } }, 'visit-server-status').kind, 'load_error')
+    assert.equal(parse({ ...base, availability: 'not_completed', context: { ...base.context, visitStatus: 'scheduled' } }, 'visit-server-status').kind, 'not_completed')
+    assert.equal(parse({ ...base, availability: 'not_found', context: null }, 'visit-server-status').kind, 'denied')
+    assert.equal(parse({ ...base, availability: 'not_found', context: { ...base.context, phone: 'must-not-project' } }, 'visit-server-status').kind, 'load_error')
+    for (const authResolution of ['missing', 'expired', 'invalid']) {
+      assert.equal(parse({ ...base, authResolution, availability: null, context: null }, 'visit-server-status').kind, 'denied')
+    }
+    assert.equal(parse({ ...base, authResolution: 'unavailable', availability: null, context: null }, 'visit-server-status').kind, 'unavailable')
+    assert.equal(parse({ ...base, authResolution: 'technical_failure', availability: null, context: null }, 'visit-server-status').kind, 'load_error')
+    assert.equal(parse({ ...base, availability: 'unavailable', context: null }, 'visit-server-status').kind, 'unavailable')
+    assert.equal(parse({ ...base, availability: 'technical_failure', context: { ...base.context, visitStatus: 'completed' } }, 'visit-server-status').kind, 'load_error')
+    assert.equal(parse({ ...base, availability: 'technical_failure', context: null }, 'visit-server-status').kind, 'load_error')
+  })
+
+  await runCase('PRODUCTION_CONTEXT_PAGE_RETRY_AND_TEST_SUBMIT_IS_DISABLED', async () => {
+    let loads = 0
+    let testSubmits = 0
+    const application = makeApplication(runtime, {
+      productionContextProvider: {
+        loadContext: async (visitId) => {
+          loads += 1
+          return loads === 1
+            ? { kind: 'load_error' }
+            : { kind: 'eligible', context: {
+              provenance: 'PRODUCTION',
+              visitId,
+              institutionId: 'institution-test-001',
+              institutionRecordRevision: 'revision-test-001',
+              visitStatus: 'completed',
+            } }
+        },
+      },
+      testOnlySubmitProvider: { submit: async () => {
+        testSubmits += 1
+        return { provenance: 'TEST_ONLY', outcome: 'submitted' }
+      } },
+    })
+    const page = makePage(pageConfig, application)
+    await page.onLoad({ visitId: 'visit-production' })
+    assert.equal(page.data.pageState, 'load_error')
+    assert.equal(page._visitEvaluationContext, undefined)
+    await page.onRetryContext()
+    assert.equal(page.data.pageState, 'editing')
+    assert.equal(page.data.contextMode, 'production')
+    assert.equal(page._visitEvaluationContext, undefined)
+    await page.onSubmit()
+    assert.equal(testSubmits, 0)
+    assert.equal(loads, 2)
+  })
+
+  await runCase('CONTEXT_LOADING_AND_RAPID_RETRY_REQUEST_GUARD', async () => {
+    let releaseLoad
+    let loads = 0
+    const application = makeApplication(runtime, {
+      productionContextProvider: { loadContext: () => {
+        loads += 1
+        return new Promise((resolve) => { releaseLoad = resolve })
+      } },
+    })
+    const page = makePage(pageConfig, application)
+    const firstLoad = page.onLoad({ visitId: 'visit-pending' })
+    assert.equal(page.data.pageState, 'loading_context')
+    await page.onRetryContext()
+    assert.equal(loads, 1)
+    releaseLoad({ kind: 'not_completed' })
+    await firstLoad
+    assert.equal(page.data.pageState, 'not_completed')
+    assert.equal(loads, 1)
+  })
+
+  await runCase('PRODUCTION_NONCOMPLETED_DENIED_AND_UNAVAILABLE_NEVER_ENTER_EDITING', async () => {
+    const states = ['not_completed', 'denied', 'unavailable']
+    for (const result of states) {
+      const application = makeApplication(runtime, {
+        productionContextProvider: { loadContext: async () => ({ kind: result }) },
+      })
+      const page = makePage(pageConfig, application)
+      await page.onLoad({ visitId: 'visit-not-editable', status: 'completed' })
+      assert.notEqual(page.data.pageState, 'editing')
+      assert.equal(page.data.contextMode, 'none')
+      assert.equal(page._productionVisitEvaluationContext, undefined)
+    }
   })
 
   await runCase('CONTEXT_MUST_MATCH_ROUTE_AND_COMPLETED_TEST_FACT', async () => {
@@ -231,9 +442,14 @@ const run = async () => {
     for (const file of productionPaths) {
       const source = readFileSync(file, 'utf8')
       assert.equal(/scripts[\\/]fixtures|TEST_ONLY_SYNTHETIC_VISIT/.test(source), false)
-      assert.equal(/getPhoneNumber|phoneCode|sessionEvidence|Recommendation/i.test(source), false)
+      assert.equal(/getPhoneNumber|phoneCode|Recommendation/i.test(source), false)
       assert.equal(/from ['"]\.\.\/\.\.\/.*(institution|recommendation|backend)/i.test(source), false)
     }
+    const productionContextSource = readFileSync(productionContextProviderPath, 'utf8')
+    assert.equal(/sessionEvidence/.test(productionContextSource), true)
+    assert.equal(/console\.|setStorageSync|setData\(/.test(productionContextSource), false)
+    const pageSource = readFileSync(pagePath, 'utf8')
+    assert.equal(/sessionEvidence|phoneCode|getPhoneNumber/i.test(pageSource), false)
     const fixturePath = path.join(repositoryRoot, 'scripts', 'fixtures', 'visit-evaluation-test-fixtures.mjs')
     assert.ok(readFileSync(fixturePath, 'utf8').includes('TEST_ONLY'))
     const appJson = JSON.parse(readFileSync(path.join(repositoryRoot, 'miniprogram', 'app.json'), 'utf8'))
@@ -251,6 +467,10 @@ const run = async () => {
     assert.match(wxml, /最多 200 字/)
     assert.match(wxml, /USER_REPORTED_DATA|个人感受与观察/)
     assert.equal(/bindtap="onSubmit"/.test(wxml), false)
+    assert.match(wxml, /pageState === 'not_completed'/)
+    assert.match(wxml, /bind:action="onRetryContext"/)
+    assert.match(wxml, /contextMode === 'test_only'/)
+    assert.match(wxml, /评价提交服务尚未接入/)
   })
 
   if (failures.length > 0) {

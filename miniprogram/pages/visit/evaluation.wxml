@@ -8,22 +8,39 @@
     </view>
 
     <state-panel
-      wx:if="{{pageState === 'loading'}}"
+      wx:if="{{pageState === 'loading_context'}}"
       state="loading"
-      title="正在检查预约记录"
-      message="正在确认看院评价所需的记录。"
+      title="正在确认预约"
+      message="正在通过当前账号检查看院评价资格。"
     ></state-panel>
     <state-panel
-      wx:elif="{{pageState === 'unavailable'}}"
-      state="error"
-      title="评价暂不可用"
+      wx:elif="{{pageState === 'not_completed'}}"
+      state="empty"
+      title="暂不能填写看院评价"
       message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'denied'}}"
+      state="error"
+      title="无法读取预约记录"
+      message="{{contextMessage}}"
+      actionText="重新检查"
+      bind:action="onRetryContext"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'unavailable' || pageState === 'load_error'}}"
+      state="error"
+      title="评价上下文暂不可用"
+      message="{{contextMessage}}"
+      actionText="重新加载"
+      bind:action="onRetryContext"
     ></state-panel>
 
     <block wx:else>
       <section-card extraClass="evaluation-context">
-        <tag text="开发测试上下文" tone="development"></tag>
-        <text class="evaluation-context__id">预约记录 {{visitId}}</text>
+        <tag wx:if="{{contextMode === 'test_only'}}" text="开发测试上下文" tone="development"></tag>
+        <tag wx:else text="已核验预约上下文" tone="brand"></tag>
+        <text wx:if="{{contextMode === 'test_only'}}" class="evaluation-context__id">预约记录 {{visitId}}</text>
         <text class="evaluation-context__message">{{statusMessage}}</text>
         <text class="evaluation-context__message">{{contextMessage}}</text>
       </section-card>
@@ -195,7 +212,7 @@
 
       <view wx:if="{{feedbackMessage}}" class="evaluation-feedback" aria-live="polite">{{feedbackMessage}}</view>
       <view wx:if="{{validationMessage}}" class="evaluation-validation" aria-live="assertive">{{validationMessage}}</view>
-      <view class="evaluation-submit">
+      <view wx:if="{{contextMode === 'test_only'}}" class="evaluation-submit">
         <primary-button
           text="{{submitButtonText}}"
           variant="primary"
@@ -204,6 +221,9 @@
           bind:action="onSubmit"
         ></primary-button>
         <text class="evaluation-submit__hint">提交只用于 TEST_ONLY 交互验证，不会保存真实评价。</text>
+      </view>
+      <view wx:else class="evaluation-submit">
+        <text class="evaluation-submit__hint">填写内容仅暂存在当前页面；评价提交服务尚未接入，不会发送或保存。</text>
       </view>
     </block>
   </view>

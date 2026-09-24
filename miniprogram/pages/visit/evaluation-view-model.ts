@@ -261,7 +261,10 @@ export const createVisitEvaluationRatingViewModel = (
     sections: VISIT_EVALUATION_RATING_SECTIONS.map((section) => ({
       key: section.key,
       title: section.title,
-      items: section.items.map((item) => ({
+      items: (section.items as ReadonlyArray<{
+        key: VisitEvaluationRatingKeyV1
+        label: string
+      }>).map((item) => ({
         key: item.key,
         label: item.label,
         options: makeOptions(draft.ratings[item.key]),

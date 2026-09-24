@@ -3,6 +3,11 @@ import {
   validateVisitEvaluationDraft,
 } from './evaluation-view-model'
 import type { VisitEvaluationDraftV1 } from './evaluation-view-model'
+import type {
+  ProductionVisitEvaluationContextProviderV1,
+  ProductionVisitEvaluationContextResultV1,
+  ProductionVisitEvaluationContextV1,
+} from './visit-evaluation-production-context'
 
 export interface TestOnlyVisitEvaluationContextV1 {
   provenance: 'TEST_ONLY'
@@ -28,13 +33,14 @@ export interface TestOnlyEvaluationSubmitProviderV1 {
 }
 
 export interface VisitEvaluationUiApplicationDependenciesV1 {
+  productionContextProvider?: ProductionVisitEvaluationContextProviderV1
   testOnlyContextProvider?: TestOnlyEvaluationContextProviderV1
   testOnlySubmitProvider?: TestOnlyEvaluationSubmitProviderV1
 }
 
 export type VisitEvaluationContextResultV1 =
   | { kind: 'ready'; context: TestOnlyVisitEvaluationContextV1 }
-  | { kind: 'unavailable'; reason: 'provider_missing' | 'context_invalid' }
+  | ProductionVisitEvaluationContextResultV1
 
 export type VisitEvaluationSubmitResultV1 =
   | { kind: 'submitted_test_only' }
@@ -69,22 +75,56 @@ const isTestOnlySuccess = (value: unknown): boolean => isRecord(value)
   && value.provenance === 'TEST_ONLY'
   && value.outcome === 'submitted'
 
+const readProductionContextResult = (
+  value: unknown,
+  visitId: string,
+): ProductionVisitEvaluationContextResultV1 => {
+  if (!isRecord(value)) return { kind: 'load_error' }
+  if (value.kind === 'eligible'
+    && Object.keys(value).sort().join('|') === 'context|kind'
+    && isRecord(value.context)
+    && Object.keys(value.context).sort().join('|') === 'institutionId|institutionRecordRevision|provenance|visitId|visitStatus'
+    && value.context.provenance === 'PRODUCTION'
+    && value.context.visitId === visitId
+    && value.context.visitStatus === 'completed'
+    && isSafeIdentifier(value.context.institutionId)
+    && isSafeIdentifier(value.context.institutionRecordRevision)) {
+    return {
+      kind: 'eligible',
+      context: value.context as unknown as ProductionVisitEvaluationContextV1,
+    }
+  }
+  if (Object.keys(value).sort().join('|') !== 'kind') return { kind: 'load_error' }
+  if (value.kind === 'not_completed'
+    || value.kind === 'denied'
+    || value.kind === 'unavailable'
+    || value.kind === 'load_error') return { kind: value.kind }
+  return { kind: 'load_error' }
+}
+
 export const createVisitEvaluationUiApplicationV1 = (
   dependencies: VisitEvaluationUiApplicationDependenciesV1 = {},
 ) => ({
   async loadContext(visitId: string): Promise<VisitEvaluationContextResultV1> {
     const provider = dependencies.testOnlyContextProvider
-    if (!provider || typeof provider.loadContext !== 'function') {
-      return { kind: 'unavailable', reason: 'provider_missing' }
-    }
-    try {
-      const candidate = await provider.loadContext(visitId)
-      if (!isTestOnlyContextForVisit(candidate, visitId)) {
-        return { kind: 'unavailable', reason: 'context_invalid' }
+    if (provider && typeof provider.loadContext === 'function') {
+      try {
+        const candidate = await provider.loadContext(visitId)
+        if (!isTestOnlyContextForVisit(candidate, visitId)) {
+          return { kind: 'unavailable' }
+        }
+        return { kind: 'ready', context: candidate }
+      } catch (_error) {
+        return { kind: 'unavailable' }
       }
-      return { kind: 'ready', context: candidate }
+    }
+
+    const productionProvider = dependencies.productionContextProvider
+    if (!productionProvider || typeof productionProvider.loadContext !== 'function') return { kind: 'unavailable' }
+    try {
+      return readProductionContextResult(await productionProvider.loadContext(visitId), visitId)
     } catch (_error) {
-      return { kind: 'unavailable', reason: 'context_invalid' }
+      return { kind: 'load_error' }
     }
   },
 
