@@ -182,6 +182,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/VISIT_EVALUATION_PRODUCTION_WRITE_CONTRACT_V1.md",
+      "doc_id": "contract.visit_evaluation_production_write.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
       "doc_id": "architecture.ai_provider_dev_testing",
       "status": "CURRENT",

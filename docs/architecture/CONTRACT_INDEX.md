@@ -20,6 +20,7 @@ This file routes; it does not define business semantics.
 | Authenticated Visit submission / auth evidence / atomic create-or-replay / durable idempotency boundary | `AUTHENTICATED_VISIT_SUBMISSION_PERSISTENCE_CONTRACT_V1.md` | `APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md`; C2 Application ports; Current Product Source login/phone/Appointment pages |
 | VisitEvaluation non-sensitive UI / local draft / TEST_ONLY application states | `VISIT_EVALUATION_NON_SENSITIVE_UI_CONTRACT_V1.md` | Current Product Source VisitEvaluation pages; `APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md` §15 for real creation prerequisites |
 | Authenticated single-Visit owner-read / production Evaluation context | `AUTHENTICATED_VISIT_EVALUATION_CONTEXT_CONTRACT_V1.md` | C1 §7/§10/§15, C3 §4.3 and C5 session boundary only as needed |
+| VisitEvaluation production write / authorization / cardinality / idempotency | `VISIT_EVALUATION_PRODUCTION_WRITE_CONTRACT_V1.md` | Current Product Source Evaluation questions; C1 §15, non-sensitive UI and authenticated context Contracts |
 | Post-A1 V1.2-B1 phase status and handoff | `V1_2_B1_PHASE_HANDOFF.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md` |
 | V1.2-B2.1 phase status and implementation handoff | `V1_2_B2_1_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `V1_2_B2_IMPLEMENTATION_HANDOFF.md` |
 | V1.2-B3 Consultant UI phase status and implementation handoff | `V1_2_B3_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `WECHAT_INTERACTION_CONTRACT.md`; current Product Source Consultant page |
