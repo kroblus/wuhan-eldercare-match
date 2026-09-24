@@ -145,7 +145,7 @@ export const verifyC6PhoneAuthorization = (
           wx.request({
             url: `${origin}${AUTH_ENDPOINT}`,
             method: 'POST',
-            timeout: 15_000,
+            timeout: 15000,
             header: { 'Content-Type': 'application/json' },
             data: {
               contractVersion: AUTH_CONTRACT_VERSION,
@@ -167,7 +167,7 @@ export const verifyC6PhoneAuthorization = (
                 wx.request({
                   url: `${origin}${PHONE_VERIFY_ENDPOINT}`,
                   method: 'POST',
-                  timeout: 15_000,
+                  timeout: 15000,
                   header: {
                     'Content-Type': 'application/json',
                     'X-Auth-Evidence': sessionEvidence,
