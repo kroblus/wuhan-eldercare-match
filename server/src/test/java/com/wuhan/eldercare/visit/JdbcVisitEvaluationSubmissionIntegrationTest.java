@@ -108,10 +108,12 @@ class JdbcVisitEvaluationSubmissionIntegrationTest {
         assertEquals(3, migrationCount());
         insertVisit(PRESERVED_VISIT, "synthetic-migration-owner", "requested", "institution-revision-preserved");
 
-        Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().migrate();
+        Flyway.configure().dataSource(dataSource).locations("classpath:db/migration")
+                .target(MigrationVersion.fromVersion("4")).load().migrate();
         assertEquals(4, migrationCount());
         assertPreservedVisit();
-        Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().migrate();
+        Flyway.configure().dataSource(dataSource).locations("classpath:db/migration")
+                .target(MigrationVersion.fromVersion("4")).load().migrate();
         assertEquals(4, migrationCount(), "second startup must not apply a migration twice");
         assertEquals(0, pendingMigrationCount());
 
@@ -529,7 +531,8 @@ class JdbcVisitEvaluationSubmissionIntegrationTest {
     }
 
     private int pendingMigrationCount() {
-        return Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().info().pending().length;
+        return Flyway.configure().dataSource(dataSource).locations("classpath:db/migration")
+                .target(MigrationVersion.fromVersion("4")).load().info().pending().length;
     }
 
     private String mysqlVersion() throws SQLException {

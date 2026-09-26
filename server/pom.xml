@@ -55,6 +55,28 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- The internal publisher executes these exact pure domain validators.
+                 Keep the source closure in the server artifact; never package mocks. -->
+            <resource>
+                <directory>../miniprogram</directory>
+                <targetPath>institution-validator/miniprogram</targetPath>
+                <includes>
+                    <include>domain/institution/**/*.ts</include>
+                    <include>types/institution*.ts</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>tools</directory>
+                <targetPath>institution-validator/tools</targetPath>
+                <includes>
+                    <include>validate-institution-record.mjs</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

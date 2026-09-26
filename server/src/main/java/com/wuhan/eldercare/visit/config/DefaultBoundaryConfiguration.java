@@ -12,6 +12,14 @@ import com.wuhan.eldercare.visit.application.VisitEvaluationContentNormalizer;
 import com.wuhan.eldercare.visit.application.VisitEvaluationIdentitySource;
 import com.wuhan.eldercare.visit.application.VisitEvaluationSubmissionService;
 import com.wuhan.eldercare.visit.application.VisitEvaluationWriteRepository;
+import com.wuhan.eldercare.visit.institution.application.InstitutionCurrentHeadReader;
+import com.wuhan.eldercare.visit.institution.application.InstitutionHistoricalPublicNameResolver;
+import com.wuhan.eldercare.visit.institution.application.InstitutionRevisionPublisher;
+import com.wuhan.eldercare.visit.institution.application.InstitutionRevisionRepository;
+import com.wuhan.eldercare.visit.institution.application.InstitutionSnapshotValidator;
+import com.wuhan.eldercare.visit.institution.persistence.JdbcInstitutionRevisionRepository;
+import com.wuhan.eldercare.visit.institution.persistence.NodeInstitutionSnapshotValidator;
+import com.wuhan.eldercare.visit.institution.persistence.UnavailableInstitutionRevisionRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationContextRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationWriteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.sql.DataSource;
 import java.time.Instant;
@@ -160,5 +169,51 @@ public class DefaultBoundaryConfiguration {
             VisitEvaluationIdentitySource identitySource
     ) {
         return new VisitEvaluationSubmissionService(authEvidenceResolver, repository, normalizer, identitySource);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(InstitutionSnapshotValidator.class)
+    InstitutionSnapshotValidator frozenInstitutionSnapshotValidator(
+            @Value("${institution.publisher.node-executable:node}") String nodeExecutable,
+            ObjectMapper objectMapper
+    ) {
+        return new NodeInstitutionSnapshotValidator(nodeExecutable, objectMapper);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
+    @ConditionalOnMissingBean(InstitutionRevisionRepository.class)
+    InstitutionRevisionRepository jdbcInstitutionRevisionRepository(
+            DataSource dataSource,
+            ObjectMapper objectMapper,
+            InstitutionSnapshotValidator validator
+    ) {
+        return new JdbcInstitutionRevisionRepository(dataSource, objectMapper, validator);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnMissingBean(InstitutionRevisionRepository.class)
+    InstitutionRevisionRepository unavailableInstitutionRevisionRepository() {
+        return new UnavailableInstitutionRevisionRepository();
+    }
+
+    @Bean
+    InstitutionRevisionPublisher institutionRevisionPublisher(
+            InstitutionRevisionRepository repository
+    ) {
+        return new InstitutionRevisionPublisher(repository, Clock.systemUTC());
+    }
+
+    @Bean
+    InstitutionHistoricalPublicNameResolver institutionHistoricalPublicNameResolver(
+            InstitutionRevisionRepository repository
+    ) {
+        return new InstitutionHistoricalPublicNameResolver(repository);
+    }
+
+    @Bean
+    InstitutionCurrentHeadReader institutionCurrentHeadReader(InstitutionRevisionRepository repository) {
+        return new InstitutionCurrentHeadReader(repository);
     }
 }

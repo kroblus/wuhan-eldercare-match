@@ -1,11 +1,13 @@
 package com.wuhan.eldercare.visit.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wuhan.eldercare.visit.application.VisitEvaluationContextRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationContextRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import javax.sql.DataSource;
+import java.time.Clock;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,7 +15,9 @@ import static org.mockito.Mockito.mock;
 
 class VisitEvaluationContextConfigurationTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(DefaultBoundaryConfiguration.class);
+            .withUserConfiguration(DefaultBoundaryConfiguration.class)
+            .withBean(ObjectMapper.class, ObjectMapper::new)
+            .withBean(Clock.class, Clock::systemUTC);
 
     @Test
     void persistenceEnabledSelectsJdbcOwnerReadRepository() {
