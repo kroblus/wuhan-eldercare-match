@@ -612,6 +612,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/INSTITUTION_VISIT_OPERATIONS_LIFECYCLE_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.institution_visit_operations_lifecycle.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/DOMAIN_CONTRACT.md",
       "doc_id": "redirect.bootstrap_domain_contract",
       "status": "SUPERSEDED",
