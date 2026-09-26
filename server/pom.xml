@@ -77,6 +77,14 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>../miniprogram/domain/appointment-institution-visit</directory>
+                <includes>
+                    <include>lifecycle.ts</include>
+                </includes>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

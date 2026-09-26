@@ -26,7 +26,7 @@ public final class OperationsPrincipalResolver {
             return switch (result.status()) {
                 case ACTIVE -> {
                     try {
-                        yield Resolution.authenticated(new TrustedOperationsPrincipal(result.operationsPrincipalId()));
+                        yield Resolution.authenticated(new TrustedOperationsPrincipal(result.operationsPrincipalId(), digest.get()));
                     } catch (RuntimeException ignored) {
                         yield Resolution.failure(Resolution.Status.TECHNICAL_FAILURE);
                     }

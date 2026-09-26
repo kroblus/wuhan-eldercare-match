@@ -27,6 +27,9 @@ public class ApiExceptionHandler {
             // endpoint. Never return a different contract's JSON envelope.
             return ResponseEntity.badRequest().build();
         }
+        if (isLifecycleMutationRequest(request)) {
+            return ResponseEntity.ok(VisitLifecycleMutationResultV1.validationFailed());
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
                 BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "VALIDATION_FAILED"));
     }
@@ -40,6 +43,9 @@ public class ApiExceptionHandler {
         if (isEvaluationSubmissionRequest(request)) {
             return ResponseEntity.status(HttpStatus.OK).body(VisitEvaluationSubmissionResultV1.technicalFailure());
         }
+        if (isLifecycleMutationRequest(request)) {
+            return ResponseEntity.ok(VisitLifecycleMutationResultV1.technicalFailure());
+        }
         return ResponseEntity.status(HttpStatus.OK).body(
                 BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE"));
     }
@@ -52,5 +58,10 @@ public class ApiExceptionHandler {
     private static boolean isEvaluationSubmissionRequest(HttpServletRequest request) {
         return request != null && "POST".equals(request.getMethod()) && request.getRequestURI() != null
                 && request.getRequestURI().matches("/api/v1/visits/[^/]+/evaluation");
+    }
+
+    private static boolean isLifecycleMutationRequest(HttpServletRequest request) {
+        return request != null && "POST".equals(request.getMethod()) && request.getRequestURI() != null
+                && request.getRequestURI().matches("/api/v1/operations/visits/[^/]+/lifecycle");
     }
 }
