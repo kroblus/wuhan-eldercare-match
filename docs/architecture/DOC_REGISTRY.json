@@ -152,6 +152,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/INSTITUTION_VISIT_OPERATIONS_LIFECYCLE_CONTRACT_V1.md",
+      "doc_id": "contract.institution_visit_operations_lifecycle.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/AUTHENTICATED_VISIT_SUBMISSION_PERSISTENCE_CONTRACT_V1.md",
       "doc_id": "contract.authenticated_visit_submission_persistence.v1",
       "status": "FROZEN",
