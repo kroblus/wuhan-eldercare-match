@@ -244,3 +244,35 @@ PHASE_IMPLEMENTATION = NOT_STARTED
 **Implement Authenticated Elder Record Identity and Responsible User Binding Production Foundation**
 
 实施任务应单独确定实际文件、API 兼容面、新 Flyway 版本和验证命令；不能由本 Handoff 推断出正式 `V1.2-C7` 编号，也不能扩大到 Appointment create/success UI。
+
+## 14. Final Production Foundation Closeout — 2026-09-27
+
+本节是当前 phase lifecycle 与证据状态。前文 `NOT_STARTED`、Governance Snapshot 和 Next Task 记录的是冻结实现定义时的历史状态；本节不修改该定义、Frozen Elder Contract、C1/C3/C5 语义或任何 production/runtime/test/schema source。
+
+```text
+ELDER_RECORD_IDENTITY_RESPONSIBLE_USER_CONTRACT = FROZEN
+ELDER_IMPLEMENTATION_HANDOFF = FROZEN
+CONTRACT_COMMIT = b287db140c1b4dcc758bcf824dcc1ea8cc67e2b8
+HANDOFF_COMMIT = 603e5ea125a58d41f865d07df1a8f589fb519a6f
+TESTED_IMPLEMENTATION_SOURCE = 44e0cca238f6cf6fc78ff5ff2159b9ea9666fdcc
+IMPLEMENTATION_COMMIT = 44e0cca238f6cf6fc78ff5ff2159b9ea9666fdcc
+SOURCE_IDENTITY_RECONCILIATION = PASS
+ELDER_CONTRACT_CONFORMANCE = PASS
+ELDER_HANDOFF_CONFORMANCE = PASS
+ELDER_MANDATORY_GATES = G01-G30 PASS
+ELDER_PRODUCTION_FOUNDATION = PASS_WITH_RISKS
+ELDER_IMPLEMENTATION = COMPLETE
+ELDER_FOUNDATION_PHASE = CLOSED
+BLOCKERS = 0
+READY_FOR_ELDER_FOUNDATION_SUCCESSOR = TRUE
+```
+
+实现 diff `603e5ea..44e0cca` 仅包含 34 个 `server/**` 文件，包括 forward-only V8、Elder identity/application/JDBC、独立 appointment-operational authorization source、只读 `AppointmentReferenceReader` 和定向测试。V1–V7、Frozen Contract 及本 Handoff 的定义正文在实现提交中未修改；实现后没有相关 source/schema/test 变更。预存的七个 `.codex/**` 工作区改动未纳入提交或证据 source。
+
+修复后的同一实现 source 编译通过，九个定向测试类共 31/31 通过。隔离 MySQL Community Server 8.0.34 在 127.0.0.1:33457 上完成 V1→V8 与 V7→V8 各 8/8、重复迁移、旧 Visit 数量和 `elder_id` 原值保留、零 legacy Elder/binding 回填、真实并发唯一绑定、授权/撤销及事务失败检查；只读 port 修复后在最终 source 上复跑 V7→V8 为 8/8，同一数据目录停启后的 elderId 稳定性探针为 1/1。V1→V8 的运行早于最后两项 QA 修复，但其独有的 V1 起始旧 Visit 保留结论依赖未改变的 V1–V8 migration SQL；最终 source 的 V7→V8 复跑覆盖了修复后的 JDBC 与只读 port。因而该 V1 路径证据按未改变的迁移依赖复用，没有把它记为修复后重新执行。
+
+独立只读 QA 最终 PASS；审查中发现的 C3 正式提交意外解锁风险及 unavailable 状态折叠均已在 `44e0cca` 内修复，并由修复后的定向测试覆盖。C3 `ReferenceAuthorizer` 继续 fail closed；Foundation 只提供只读引用前置条件，不创建 Appointment/Visit，不绕过 phone 或 C3 原子提交边界。旧 Appointment owner-read 保留；Operations lifecycle、Evaluation、Recommendation、Institution verified facts 与 TEST_ONLY/production 边界未改变。
+
+非阻断环境残留：合成测试 MySQL 已停机，33457 端口释放；临时数据目录仍在仓库外，递归删除受执行策略阻止。`REAL_PERSONAL_DATA = NOT_USED`，`REAL_PHONE = DEFERRED`，`G13 = NOT_REOPENED`；真实手机号、真实用户 Elder 绑定、正式 Appointment 提交、跨设备及体验版端到端证据均未运行，本 Foundation 的 Mandatory Gates 不要求将其升级为 PASS。
+
+当前下一任务仅为 **Post-Elder-Foundation Successor Discovery**；本文不选择、批准或实施后继功能，也不更新 Drive-only 的 Living Current-State Router。
