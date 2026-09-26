@@ -1,6 +1,8 @@
 package com.wuhan.eldercare.visit.config;
 
 import com.wuhan.eldercare.visit.application.AuthEvidenceResolver;
+import com.wuhan.eldercare.visit.application.AppointmentOwnerReadRepository;
+import com.wuhan.eldercare.visit.application.AppointmentOwnerReadService;
 import com.wuhan.eldercare.visit.application.PurposeBoundContactVerifier;
 import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.ServerIdentitySource;
@@ -21,6 +23,7 @@ import com.wuhan.eldercare.visit.institution.persistence.JdbcInstitutionRevision
 import com.wuhan.eldercare.visit.institution.persistence.NodeInstitutionSnapshotValidator;
 import com.wuhan.eldercare.visit.institution.persistence.UnavailableInstitutionRevisionRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationContextRepository;
+import com.wuhan.eldercare.visit.persistence.JdbcAppointmentOwnerReadRepository;
 import com.wuhan.eldercare.visit.persistence.JdbcVisitEvaluationWriteRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -123,6 +126,29 @@ public class DefaultBoundaryConfiguration {
             VisitEvaluationContextRepository repository
     ) {
         return new VisitEvaluationContextService(authEvidenceResolver, repository);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
+    @ConditionalOnMissingBean(AppointmentOwnerReadRepository.class)
+    AppointmentOwnerReadRepository jdbcAppointmentOwnerReadRepository(DataSource dataSource) {
+        return new JdbcAppointmentOwnerReadRepository(dataSource);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "false", matchIfMissing = true)
+    @ConditionalOnMissingBean(AppointmentOwnerReadRepository.class)
+    AppointmentOwnerReadRepository unavailableAppointmentOwnerReadRepository() {
+        return principal -> AppointmentOwnerReadRepository.Result.unavailable();
+    }
+
+    @Bean
+    AppointmentOwnerReadService appointmentOwnerReadService(
+            AuthEvidenceResolver authEvidenceResolver,
+            AppointmentOwnerReadRepository repository,
+            InstitutionHistoricalPublicNameResolver institutionNameResolver
+    ) {
+        return new AppointmentOwnerReadService(authEvidenceResolver, repository, institutionNameResolver);
     }
 
     @Bean
