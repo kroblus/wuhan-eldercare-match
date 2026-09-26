@@ -11,6 +11,8 @@ public interface InstitutionRevisionRepository {
 
     ExactPublicNameResult resolveExactPublicName(String institutionId, long recordRevision);
 
+    CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(String institutionId, long requestedRevision);
+
     record CurrentHeadResult(Status status, String institutionId, Long recordRevision) {
         public static CurrentHeadResult ready(String institutionId, long revision) {
             return new CurrentHeadResult(Status.READY, institutionId, revision);
@@ -41,5 +43,29 @@ public interface InstitutionRevisionRepository {
         }
 
         public enum Status { READY, UNAVAILABLE, TECHNICAL_FAILURE }
+    }
+
+    /** Current head and its requested exact revision are read in one authoritative SQL statement. */
+    record CurrentAppointmentRevisionResult(Status status, String institutionId, Long currentRevision,
+                                             boolean exactRevisionFound, String recordStatus) {
+        public static CurrentAppointmentRevisionResult ready(String institutionId, long currentRevision,
+                                                              boolean exactRevisionFound, String recordStatus) {
+            return new CurrentAppointmentRevisionResult(Status.READY, institutionId, currentRevision,
+                    exactRevisionFound, recordStatus);
+        }
+
+        public static CurrentAppointmentRevisionResult unavailable() {
+            return new CurrentAppointmentRevisionResult(Status.UNAVAILABLE, null, null, false, null);
+        }
+
+        public static CurrentAppointmentRevisionResult notFound() {
+            return new CurrentAppointmentRevisionResult(Status.NOT_FOUND, null, null, false, null);
+        }
+
+        public static CurrentAppointmentRevisionResult technicalFailure() {
+            return new CurrentAppointmentRevisionResult(Status.TECHNICAL_FAILURE, null, null, false, null);
+        }
+
+        public enum Status { READY, NOT_FOUND, UNAVAILABLE, TECHNICAL_FAILURE }
     }
 }

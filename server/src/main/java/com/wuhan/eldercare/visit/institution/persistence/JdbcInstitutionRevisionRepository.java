@@ -44,6 +44,10 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
             + "WHERE institution_id = ?";
     private static final String FIND_EXACT_REVISION_SQL = "SELECT snapshot_json FROM institution_record_revision_v1 "
             + "WHERE institution_id = ? AND record_revision = ?";
+    private static final String FIND_CURRENT_APPOINTMENT_REVISION_SQL = "SELECT head.record_revision AS current_revision, "
+            + "revision.snapshot_json FROM institution_current_head_v1 head LEFT JOIN institution_record_revision_v1 revision "
+            + "ON revision.institution_id = head.institution_id AND revision.record_revision = ? "
+            + "WHERE head.institution_id = ?";
 
     private final DataSource dataSource;
     private final ObjectMapper objectMapper;
@@ -139,7 +143,7 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
                 return CurrentHeadResult.ready(institutionId, revision);
             }
         } catch (SQLException failure) {
-            return CurrentHeadResult.technicalFailure();
+            return isUnavailable(failure) ? CurrentHeadResult.unavailable() : CurrentHeadResult.technicalFailure();
         }
     }
 
@@ -164,9 +168,45 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
                 return ExactPublicNameResult.ready(institutionId, recordRevision, projection.name());
             }
         } catch (SQLException failure) {
-            return ExactPublicNameResult.technicalFailure();
+            return isUnavailable(failure) ? ExactPublicNameResult.unavailable() : ExactPublicNameResult.technicalFailure();
         } catch (IOException | RuntimeException failure) {
             return ExactPublicNameResult.technicalFailure();
+        }
+    }
+
+    @Override
+    public CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(String institutionId, long requestedRevision) {
+        if (institutionId == null || institutionId.isBlank() || requestedRevision < 1
+                || requestedRevision > MAX_SAFE_REVISION) return CurrentAppointmentRevisionResult.unavailable();
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(FIND_CURRENT_APPOINTMENT_REVISION_SQL)) {
+            statement.setLong(1, requestedRevision);
+            statement.setString(2, institutionId);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) return CurrentAppointmentRevisionResult.notFound();
+                long currentRevision = result.getLong("current_revision");
+                if (result.wasNull() || currentRevision < 1 || currentRevision > MAX_SAFE_REVISION) {
+                    return CurrentAppointmentRevisionResult.technicalFailure();
+                }
+                String snapshotJson = result.getString("snapshot_json");
+                if (snapshotJson == null) return CurrentAppointmentRevisionResult.ready(
+                        institutionId, currentRevision, false, null);
+                JsonNode snapshot = objectMapper.readTree(snapshotJson);
+                if (snapshot == null || !institutionId.equals(snapshot.path("institutionId").asText(null))
+                        || !snapshot.path("recordRevision").canConvertToLong()
+                        || snapshot.path("recordRevision").asLong() != requestedRevision) {
+                    return CurrentAppointmentRevisionResult.technicalFailure();
+                }
+                JsonNode status = snapshot.get("recordStatus");
+                return CurrentAppointmentRevisionResult.ready(institutionId, currentRevision, true,
+                        status != null && status.isTextual() ? status.asText() : null);
+            }
+        } catch (SQLException failure) {
+            return isUnavailable(failure)
+                    ? CurrentAppointmentRevisionResult.unavailable()
+                    : CurrentAppointmentRevisionResult.technicalFailure();
+        } catch (IOException | RuntimeException failure) {
+            return CurrentAppointmentRevisionResult.technicalFailure();
         }
     }
 
@@ -299,7 +339,11 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
             Optional<StoredRevision> existing = findByOperationId(connection, request.operationId());
             if (existing.isEmpty()) return InstitutionPublishResult.of(InstitutionPublishResult.Status.TECHNICAL_FAILURE);
             return resolveReplay(existing.get(), request);
-        } catch (SQLException | IOException failure) {
+        } catch (SQLException failure) {
+            return InstitutionPublishResult.of(isUnavailable(failure)
+                    ? InstitutionPublishResult.Status.UNAVAILABLE
+                    : InstitutionPublishResult.Status.TECHNICAL_FAILURE);
+        } catch (IOException failure) {
             return InstitutionPublishResult.of(InstitutionPublishResult.Status.TECHNICAL_FAILURE);
         }
     }

@@ -14,11 +14,16 @@ public final class UnavailableInstitutionRevisionRepository implements Instituti
 
     @Override
     public CurrentHeadResult currentHead(String institutionId) {
-        return CurrentHeadResult.technicalFailure();
+        return CurrentHeadResult.unavailable();
     }
 
     @Override
     public ExactPublicNameResult resolveExactPublicName(String institutionId, long recordRevision) {
-        return ExactPublicNameResult.technicalFailure();
+        return ExactPublicNameResult.unavailable();
+    }
+
+    @Override
+    public CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(String institutionId, long requestedRevision) {
+        return CurrentAppointmentRevisionResult.unavailable();
     }
 }

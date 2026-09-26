@@ -144,5 +144,10 @@ class AppointmentOwnerReadServiceTest {
             if (failure) return ExactPublicNameResult.technicalFailure();
             return names.getOrDefault(institutionId + ":" + recordRevision, ExactPublicNameResult.unavailable());
         }
+
+        @Override
+        public CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(String institutionId, long requestedRevision) {
+            return CurrentAppointmentRevisionResult.unavailable();
+        }
     }
 }
