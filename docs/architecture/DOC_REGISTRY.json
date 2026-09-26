@@ -622,6 +622,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/OPERATIONS_PRINCIPAL_PER_VISIT_AUTHORIZATION_FOUNDATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.operations_principal_per_visit_authorization_foundation.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/DOMAIN_CONTRACT.md",
       "doc_id": "redirect.bootstrap_domain_contract",
       "status": "SUPERSEDED",
