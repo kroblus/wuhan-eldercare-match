@@ -5,14 +5,18 @@ import {
 import type {
   ProductionVisitEvaluationSubmitProviderV1,
 } from './visit-evaluation-production-submit'
+import {
+  createC5AuthenticatedBackendSessionClientV1,
+  createDefaultWeChatC5BackendTransportV1,
+} from '../../services/c5-authenticated-backend-session'
+import type {
+  C5AuthenticatedBackendSessionV1,
+  WeChatC5BackendTransportV1,
+} from '../../services/c5-authenticated-backend-session'
 
-const AUTH_CONTRACT_VERSION = 'wechat-authenticated-principal-contract-v1'
-const AUTH_REQUEST_KIND = 'wechat_authentication_request_v1'
-const AUTH_RESULT_KIND = 'wechat_authentication_result_v1'
 const CONTEXT_CONTRACT_VERSION = 'authenticated-visit-evaluation-context-contract-v1'
 const CONTEXT_RESULT_KIND = 'authenticated_visit_evaluation_context_result_v1'
 
-const AUTH_ENDPOINT = '/api/v1/auth/wechat'
 const CONTEXT_ENDPOINT = '/api/v1/visits'
 const REQUEST_TIMEOUT_MS = 15000
 
@@ -35,17 +39,7 @@ export type ProductionVisitEvaluationContextResultV1 =
   | { kind: 'unavailable' }
   | { kind: 'load_error' }
 
-export interface WeChatEvaluationContextTransportV1 {
-  environment(): unknown
-  login(): Promise<string>
-  request(input: {
-    url: string
-    method: 'POST' | 'GET'
-    timeout: number
-    header: Record<string, string>
-    data?: Record<string, unknown>
-  }): Promise<{ statusCode: number; data: unknown }>
-}
+export interface WeChatEvaluationContextTransportV1 extends WeChatC5BackendTransportV1 {}
 
 export interface ProductionVisitEvaluationContextProviderV1 {
   loadContext(visitId: string): Promise<ProductionVisitEvaluationContextResultV1>
@@ -79,24 +73,6 @@ const AUTH_RESOLUTIONS: readonly AuthResolution[] = [
 const CONTEXT_AVAILABILITIES: readonly ContextAvailability[] = [
   'eligible', 'not_completed', 'not_found', 'unavailable', 'technical_failure',
 ]
-
-const readSessionEvidence = (value: unknown): string => {
-  if (!isRecord(value) || !hasExactKeys(value, [
-    'contractVersion', 'kind', 'outcome', 'code', 'sessionEvidence', 'expiresAt',
-  ])) return ''
-
-  if (value.contractVersion !== AUTH_CONTRACT_VERSION
-    || value.kind !== AUTH_RESULT_KIND
-    || value.outcome !== 'AUTHENTICATED'
-    || value.code !== 'AUTHENTICATED'
-    || typeof value.sessionEvidence !== 'string'
-    || value.sessionEvidence.trim().length === 0
-    || typeof value.expiresAt !== 'string') return ''
-
-  const expiresAt = Date.parse(value.expiresAt)
-  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return ''
-  return value.sessionEvidence
-}
 
 const readContext = (value: unknown, expectedVisitId: string): {
   visitId: string
@@ -172,104 +148,19 @@ export const readProductionVisitEvaluationContextResponseV1 = (
   }
 }
 
-const createDefaultTransport = (): WeChatEvaluationContextTransportV1 => ({
-  environment: () => wx.getAccountInfoSync().miniProgram.envVersion,
-  login: () => new Promise((resolve, reject) => {
-    wx.login({
-      success: (result) => resolve(result && typeof result.code === 'string' ? result.code : ''),
-      fail: () => reject(new Error('login_unavailable')),
-    })
-  }),
-  request: (input) => new Promise((resolve, reject) => {
-    wx.request({
-      url: input.url,
-      method: input.method,
-      timeout: input.timeout,
-      header: input.header,
-      data: input.data as WechatMiniprogram.IAnyObject | undefined,
-      success: (response) => resolve({ statusCode: response.statusCode, data: response.data }),
-      fail: () => reject(new Error('request_unavailable')),
-    })
-  }),
-})
-
-const resolveBackendOrigin = (environment: unknown): string =>
-  environment === 'develop' ? 'http://127.0.0.1:8080' : ''
-
-interface ActiveEvaluationSessionV1 {
-  origin: string
-  evidence: string
-  expiresAt: number
-}
-
-type SessionAcquireResultV1 =
-  | { kind: 'authenticated'; session: ActiveEvaluationSessionV1 }
-  | { kind: 'unavailable' }
-  | { kind: 'load_error' }
-
 export const createProductionVisitEvaluationProvidersV1 = (
-  transport: WeChatEvaluationContextTransportV1 = createDefaultTransport(),
+  transport: WeChatEvaluationContextTransportV1 = createDefaultWeChatC5BackendTransportV1(),
 ): ProductionVisitEvaluationProvidersV1 => {
-  let activeSession: ActiveEvaluationSessionV1 | null = null
-
-  const clearSession = (): void => {
-    activeSession = null
-  }
-
-  const acquireSession = async (origin: string): Promise<SessionAcquireResultV1> => {
-    if (activeSession && activeSession.origin === origin && activeSession.expiresAt > Date.now()) {
-      return { kind: 'authenticated', session: activeSession }
-    }
-
-    let loginCode = ''
-    try {
-      loginCode = await transport.login()
-    } catch (_error) {
-      return { kind: 'load_error' }
-    }
-    if (typeof loginCode !== 'string' || loginCode.length === 0) return { kind: 'load_error' }
-
-    let authResponse: { statusCode: number; data: unknown }
-    try {
-      authResponse = await transport.request({
-        url: `${origin}${AUTH_ENDPOINT}`,
-        method: 'POST',
-        timeout: REQUEST_TIMEOUT_MS,
-        header: { 'Content-Type': 'application/json' },
-        data: {
-          contractVersion: AUTH_CONTRACT_VERSION,
-          kind: AUTH_REQUEST_KIND,
-          loginCode,
-        },
-      })
-    } catch (_error) {
-      return { kind: 'load_error' }
-    }
-    if (authResponse.statusCode < 200 || authResponse.statusCode >= 300) return { kind: 'load_error' }
-
-    const evidence = readSessionEvidence(authResponse.data)
-    if (!evidence || !isRecord(authResponse.data) || typeof authResponse.data.expiresAt !== 'string') {
-      return { kind: 'unavailable' }
-    }
-    const expiresAt = Date.parse(authResponse.data.expiresAt)
-    if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return { kind: 'unavailable' }
-    activeSession = { origin, evidence, expiresAt }
-    return { kind: 'authenticated', session: activeSession }
-  }
+  const sessionClient = createC5AuthenticatedBackendSessionClientV1(transport)
 
   const contextProvider: ProductionVisitEvaluationContextProviderV1 = {
     async loadContext(visitId: string): Promise<ProductionVisitEvaluationContextResultV1> {
       if (!isSafeIdentifier(visitId)) return { kind: 'unavailable' }
 
-      let origin = ''
-      try {
-        origin = resolveBackendOrigin(transport.environment())
-      } catch (_error) {
-        return { kind: 'unavailable' }
-      }
+      const origin = sessionClient.resolveBackendOrigin()
       if (origin.length === 0) return { kind: 'unavailable' }
 
-      const sessionResult = await acquireSession(origin)
+      const sessionResult = await sessionClient.acquireSession(origin)
       if (sessionResult.kind !== 'authenticated') return { kind: sessionResult.kind }
 
       let contextResponse: { statusCode: number; data: unknown }
@@ -288,16 +179,18 @@ export const createProductionVisitEvaluationProvidersV1 = (
       }
       if (contextResponse.statusCode < 200 || contextResponse.statusCode >= 300) return { kind: 'load_error' }
       if (isRecord(contextResponse.data)
-        && ['missing', 'expired', 'invalid'].includes(String(contextResponse.data.authResolution))) clearSession()
+        && ['missing', 'expired', 'invalid'].includes(String(contextResponse.data.authResolution))) {
+        sessionClient.clearSession()
+      }
       return readProductionVisitEvaluationContextResponseV1(contextResponse.data, visitId)
     },
   }
 
   const submitProvider = createProductionVisitEvaluationSubmitProviderV1({
     submit: async (request) => {
-      const session = activeSession
+      const session = sessionClient.activeSession() as C5AuthenticatedBackendSessionV1 | null
       if (!session || session.expiresAt <= Date.now()) {
-        clearSession()
+        sessionClient.clearSession()
         return null
       }
       return transport.request({
@@ -312,13 +205,13 @@ export const createProductionVisitEvaluationProvidersV1 = (
         data: createVisitEvaluationSubmissionBodyV1(request),
       })
     },
-    clearSession,
+    clearSession: sessionClient.clearSession,
   })
 
   return { contextProvider, submitProvider }
 }
 
 export const createProductionVisitEvaluationContextProviderV1 = (
-  transport: WeChatEvaluationContextTransportV1 = createDefaultTransport(),
+  transport: WeChatEvaluationContextTransportV1 = createDefaultWeChatC5BackendTransportV1(),
 ): ProductionVisitEvaluationContextProviderV1 =>
   createProductionVisitEvaluationProvidersV1(transport).contextProvider

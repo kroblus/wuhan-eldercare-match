@@ -18,6 +18,8 @@
       state="error"
       title="预约列表暂不可用"
       message="{{errorMessage}}"
+      actionText="重试"
+      bind:action="onRetry"
     ></state-panel>
     <state-panel
       wx:elif="{{loadState === 'ready_empty'}}"

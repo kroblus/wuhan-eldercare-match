@@ -1,4 +1,7 @@
-import type { InstitutionVisitPublicSnapshotV1 } from '../../types/appointment-institution-visit-v1'
+import type {
+  AppointmentOwnerReadVisitStatusV1,
+  AppointmentOwnerReadVisitV1,
+} from '../../types/appointment-owner-read-v1'
 
 export type AppointmentListFilter = 'all' | 'awaiting' | 'confirmed' | 'completed' | 'cancelled'
 export type AppointmentListLoadState = 'loading' | 'ready_non_empty' | 'ready_empty' | 'load_error'
@@ -10,7 +13,7 @@ export interface AppointmentListFilterOption {
 
 export interface AppointmentListCardViewModel {
   visitId: string
-  status: InstitutionVisitPublicSnapshotV1['status']
+  status: AppointmentOwnerReadVisitStatusV1
   institutionLabel: string
   visitDate: string
   visitTimePreference: string
@@ -37,7 +40,7 @@ export const APPOINTMENT_LIST_FILTERS: AppointmentListFilterOption[] = [
   { key: 'cancelled', label: '已取消' },
 ]
 
-const STATUS_LABELS: Record<InstitutionVisitPublicSnapshotV1['status'], string> = {
+const STATUS_LABELS: Record<AppointmentOwnerReadVisitStatusV1, string> = {
   requested: '待确认 · 已提交',
   contacting: '待确认 · 顾问联系中',
   scheduled: '已确认',
@@ -46,7 +49,7 @@ const STATUS_LABELS: Record<InstitutionVisitPublicSnapshotV1['status'], string> 
 }
 
 const matchesFilter = (
-  status: InstitutionVisitPublicSnapshotV1['status'],
+  status: AppointmentOwnerReadVisitStatusV1,
   filter: AppointmentListFilter,
 ): boolean => {
   if (filter === 'all') return true
@@ -57,19 +60,21 @@ const matchesFilter = (
 }
 
 export const createAppointmentListViewModel = (
-  visits: readonly InstitutionVisitPublicSnapshotV1[],
+  visits: readonly AppointmentOwnerReadVisitV1[],
   activeFilter: AppointmentListFilter = 'all',
 ): AppointmentListViewModel => {
   const cards = visits.map((visit): AppointmentListCardViewModel => ({
     visitId: visit.visitId,
-    status: visit.status,
-    institutionLabel: '机构资料暂不可用',
+    status: visit.visitStatus,
+    institutionLabel: visit.institutionDisplay.availability === 'ready'
+      ? visit.institutionDisplay.name || '机构资料暂不可用'
+      : '机构资料暂不可用',
     visitDate: visit.visitDate,
     visitTimePreference: visit.visitTimePreference,
     participantLabel: `${visit.participantCount}人同行`,
     pickupLabel: visit.pickupRequested === true ? '已提出接送需求' : '',
-    statusLabel: STATUS_LABELS[visit.status],
-    showEvaluationAction: visit.status === 'completed',
+    statusLabel: STATUS_LABELS[visit.visitStatus],
+    showEvaluationAction: visit.visitStatus === 'completed',
   }))
   const visibleVisits = filterAppointmentListCards(cards, activeFilter)
 
@@ -88,11 +93,13 @@ export const filterAppointmentListCards = (
   activeFilter: AppointmentListFilter,
 ): AppointmentListCardViewModel[] => cards.filter((card) => matchesFilter(card.status, activeFilter))
 
-export const unavailableAppointmentListViewModel = (): AppointmentListViewModel => ({
+export const unavailableAppointmentListViewModel = (
+  errorMessage = '预约列表服务暂不可用，请稍后再试。',
+): AppointmentListViewModel => ({
   loadState: 'load_error',
   activeFilter: 'all',
   filters: APPOINTMENT_LIST_FILTERS,
   visits: [],
   visibleVisits: [],
-  errorMessage: '预约列表服务暂不可用，请稍后再试。',
+  errorMessage,
 })

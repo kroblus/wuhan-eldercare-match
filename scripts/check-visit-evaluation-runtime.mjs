@@ -14,10 +14,11 @@ const pagePath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'eva
 const viewModelPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'evaluation-view-model.ts')
 const applicationPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-application.ts')
 const productionContextProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-context.ts')
+const c5SessionClientPath = path.join(repositoryRoot, 'miniprogram', 'services', 'c5-authenticated-backend-session.ts')
 const productionSubmitProviderPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-production-submit.ts')
 const idempotencyPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-idempotency.ts')
 const writeContentPath = path.join(repositoryRoot, 'miniprogram', 'pages', 'visit', 'visit-evaluation-write-content.ts')
-const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath, productionSubmitProviderPath, idempotencyPath, writeContentPath]
+const productionPaths = [pagePath, viewModelPath, applicationPath, productionContextProviderPath, productionSubmitProviderPath, idempotencyPath, writeContentPath, c5SessionClientPath]
 const failures = []
 const cases = []
 
@@ -1058,11 +1059,14 @@ const run = async () => {
       const source = readFileSync(file, 'utf8')
       assert.equal(/scripts[\\/]fixtures|TEST_ONLY_SYNTHETIC_VISIT/.test(source), false)
       assert.equal(/getPhoneNumber|phoneCode|Recommendation/i.test(source), false)
-      assert.equal(/from ['"]\.\.\/\.\.\/.*(institution|recommendation|backend)/i.test(source), false)
+      assert.equal(/from ['"]\.\.\/\.\.\/.*(institution|recommendation)/i.test(source), false)
     }
     const productionContextSource = readFileSync(productionContextProviderPath, 'utf8')
-    assert.equal(/sessionEvidence/.test(productionContextSource), true)
+    assert.match(productionContextSource, /c5-authenticated-backend-session/)
     assert.equal(/console\.|setStorageSync|setData\(/.test(productionContextSource), false)
+    const c5SessionSource = readFileSync(c5SessionClientPath, 'utf8')
+    assert.equal(/sessionEvidence/.test(c5SessionSource), true)
+    assert.equal(/console\.|setStorageSync|setData\(/.test(c5SessionSource), false)
     const pageSource = readFileSync(pagePath, 'utf8')
     assert.equal(/sessionEvidence|phoneCode|getPhoneNumber/i.test(pageSource), false)
     const fixturePath = path.join(repositoryRoot, 'scripts', 'fixtures', 'visit-evaluation-test-fixtures.mjs')
