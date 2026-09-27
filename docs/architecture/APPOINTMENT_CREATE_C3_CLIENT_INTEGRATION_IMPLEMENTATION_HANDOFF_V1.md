@@ -364,3 +364,91 @@ NEXT_RECOMMENDED_TASK = Implement Appointment Create / C3 Client Integration
 ## 17. Explicit future non-goals
 
 No real phone/provider/privacy certification, real personal-data E2E, FamilyAccount, multi-Elder, Elder management CRUD, Appointment cancellation, Operations lifecycle UI, Evaluation changes, Recommendation changes, Institution verified-fact changes, schema/migration, C3 transactional rewrite, owner-read rewrite, production rollout or successor implementation is included.
+
+## 18. Final Closeout / Source Identity Reconciliation
+
+本节仅记录实现后的证据与阶段状态；上文冻结的语义和 G01–G30 定义保持不变。文首的 `NOT_STARTED` 是冻结 Handoff 时的历史基线，不代表本次 closeout 状态。
+
+```text
+HANDOFF_COMMIT = df66c62eb3d31b46d99e3bf9df0415733f9cbda6
+IMPLEMENTATION_COMMIT = 3a4e670b2726bcc10bdf9c515ad10bdb4db2ab36
+CLOSEOUT_HEAD = commit containing this doc-only section; exact hash is recorded in the closeout return
+TESTED_IMPLEMENTATION_SOURCE = 3a4e670b2726bcc10bdf9c515ad10bdb4db2ab36
+OWNER_ANDROID_17_TESTED_COMMIT = 3a4e670b2726bcc10bdf9c515ad10bdb4db2ab36
+SOURCE_IDENTITY_RECONCILIATION = PASS
+APPOINTMENT_CLIENT_HANDOFF_CONFORMANCE = PASS
+APPOINTMENT_CLIENT_HANDOFF_GATES = G01-G30 PASS
+APPOINTMENT_CREATE_C3_CLIENT_IMPLEMENTATION = COMPLETE
+APPOINTMENT_CREATE_C3_CLIENT_PHASE = CLOSED
+BLOCKERS = 0
+READY_FOR_APPOINTMENT_CLIENT_SUCCESSOR = TRUE
+POST_APPOINTMENT_CLIENT_SUCCESSOR_DISCOVERY = NEXT
+```
+
+`IMPLEMENTATION_COMMIT` 的唯一父提交是 `HANDOFF_COMMIT`。两者之间只有本任务的 Mini Program 页面、客户端服务、类型、定向检查和 `package.json` 变更；没有 Backend、Flyway、V1–V8 schema、Frozen Contract 或 Handoff 语义修改。从实现提交至本节写入前，HEAD 没有后续提交，也没有 runtime/test 工作区修改。七处既有 `.codex/**` 改动继续受保护，未暂存、未纳入实现或本 closeout。实现轮的最终自动化、兼容性、DevTools 和独立 QA 均针对该实现 source；提交前最后仅移除了一个类型文件尾部空行，不改变 runtime 或测试语义。Owner 明确将 Android 17 反馈绑定到此 exact implementation commit。
+
+### Evidence ledger
+
+| Evidence | Result and source boundary |
+|---|---|
+| Appointment Create / C3 targeted runtime | PASS；显式 C5/Elder/C3 链、幂等重放、交互、公开回执 Gate、入口与 Back；`TEST_ONLY_SYNTHETIC`。 |
+| C2 regression | PASS；19 fixtures、98 assertions；production fixture import、fake success、Visit/Recommendation/Institution write 均为 0。 |
+| WeChat compatibility | PASS；WeChat TypeScript 4.1.2 定向编译诊断 0、163 个内存生成模块；最终 DevTools cache 的 158 个生成 JS 模块无不支持的 class field。 |
+| Fresh WeChat DevTools | PASS；机构列表 → 精确详情 → 预约页携带 ID/revision；空表单 inline errors 且未进入 Elder 阶段；顾问无上下文入口进入机构列表；直接打开 Success 显示 unavailable；当前控制台无 runtime error。 |
+| Independent implementation QA | PASS；只读 diff-driven 审查无 Critical、High、Medium findings；核对 C5/Elder、fresh code、unknown retry、public receipt 和 direct Success firewall。 |
+| Android 17 | PASS；`EVIDENCE_SOURCE = PROJECT_OWNER_MANUAL_REAL_DEVICE`。Owner 对上述 exact implementation commit 的冻结人工 checklist 明确反馈“真机测试全都没问题”；涵盖详情入口、滚动/输入/键盘、Back、空表单首错、rapid tap、phone 拒绝/不可用及重试、顾问入口、Success 直达、无假成功、无 crash/重复导航。此项不是 Codex 自动化或真实手机号正向提交证据。 |
+
+G01–G30 按 §15 原定义逐项核对如下；测试、兼容性、DevTools、QA 和 Owner Android 证据均复用，不为 closeout 机械重跑。
+
+| Gate | Reconciled evidence | Result |
+|---|---|---|
+| G01 | Handoff → 实现为直接父子提交，后续无 runtime/test 漂移；证据绑定同一实现 source。 | PASS |
+| G02 | Product 与 C1/C2/C3/C5/C6/Elder 冻结边界沿用；Frozen 文件未改。 | PASS |
+| G03 | C5 唯一责任用户与单 Elder consumer；无家庭、多 Elder 或共享 UI。 | PASS |
+| G04 | 仅 §6 字段、校验及映射；无无来源的接送能力。 | PASS |
+| G05 | 详情实际点击传入 canonical Institution ID 和 revision。 | PASS |
+| G06 | 页面 display/published/cache 不赋予 C3 写权限，服务端仍作最终判断。 | PASS |
+| G07 | 本地有效且显式提交后才 GET Elder；仅 `not_found` 后 POST。 | PASS |
+| G08 | 页面加载、登录、read、preflight、phone callback 均不隐式建档。 | PASS |
+| G09 | Elder ID 来自服务端绑定，只作为 C3 assertion。 | PASS |
+| G10 | 原生新 phone code 与显式用途直接进入 C3。 | PASS |
+| G11 | Appointment 不预调用 `/phone/verify` 消耗同一 code。 | PASS |
+| G12 | 最终明确授权 action 才触发 phone；拒绝/不可用安全失败并保留表单。 | PASS |
+| G13 | 语义 attempt 使用稳定 opaque key；已知结局后才允许新内容生成新 key。 | PASS |
+| G14 | 未知结果保留 key/body，以新 code 重试并接受 C3 exact replay。 | PASS |
+| G15 | 严格解析公开 result/receipt 并核对精确 Institution pair。 | PASS |
+| G16 | 不向客户端公开内部 candidate、owner/contact/auth 或事务细节。 | PASS |
+| G17 | 物理提交后本地校验；无效输入出现行内错误与首错定位，不发请求。 | PASS |
+| G18 | 可恢复失败保留表单与可见重试入口。 | PASS |
+| G19 | 仅有效 accepted/replayed 回执使能一次 Success 导航。 | PASS |
+| G20 | Success 只称“预约申请已提交”，`requested` 不称已确认或已安排。 | PASS |
+| G21 | 单一事件链和异步 guard；rapid tap 无重复动作或导航。 | PASS |
+| G22 | 正向 fixture 仅在测试；production 缺失状态 fail closed。 | PASS |
+| G23 | 无 Lifecycle、Evaluation、Recommendation 写入或语义改动。 | PASS |
+| G24 | 实现提交无 Backend、Flyway 或 schema 变更。 | PASS |
+| G25 | Appointment 定向 runtime 检查真实 handler/交互和传输调用。 | PASS |
+| G26 | TypeScript、JSON/WXML 与生成 JS 兼容性检查通过。 | PASS |
+| G27 | Fresh DevTools 编译与可达负面/恢复路径检查通过。 | PASS |
+| G28 | Owner Android 17 人工真机 checklist 对 exact commit 报告通过。 | PASS |
+| G29 | 仅授权实现文件进入实现提交；`.codex/**` 保持未暂存；无 secret、真实数据或 push。 | PASS |
+| G30 | 独立只读 QA 对最终实现 diff 报告零 Critical/High。 | PASS |
+
+这里的 G13 是本 Handoff 表内“Stable idempotency”；既有真实手机号 Gate `G13 = NOT_REOPENED` 属于另一命名空间。
+
+### External phone and formal submission boundary
+
+```text
+WECHAT_PHONE_CAPABILITY_APPLICATION = PENDING_OFFICIAL_REVIEW
+REAL_PHONE = DEFERRED
+REAL_PHONE_POSITIVE_EVIDENCE = NOT_RUN
+REAL_PHONE_E2E = NOT_RUN
+G13 = NOT_REOPENED
+REAL_PERSONAL_DATA = NOT_USED
+REAL_USER_ELDER_BINDING_E2E = NOT_RUN
+REAL_APPOINTMENT_SUBMISSION = NOT_RUN
+CROSS_DEVICE_E2E = NOT_RUN
+TRIAL_RELEASE_E2E = NOT_RUN
+C3_FORMAL_APPOINTMENT_SUBMISSION = STILL_CLOSED
+```
+
+官方手机号能力申请/审核仍在进行，是当前客户端 implementation closeout 的非阻塞外部依赖。Android 交互 PASS 与 synthetic 运行测试均不代表真实 Provider 正向通过，也不开放正式预约提交。此阶段关闭后仅进入独立的 Post-Appointment-Client Successor Discovery；本节不选择或实现下一产品阶段。
