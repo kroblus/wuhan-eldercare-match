@@ -6,7 +6,14 @@
       <text class="page-title">{{pageTitle}}</text>
       <text class="page-description">{{description}}</text>
     </view>
-    <section-card>
+    <section-card extraClass="mine-appointments-entry">
+      <tag text="服务记录" tone="brand"></tag>
+      <text class="route-card-title">我的预约</text>
+      <text class="route-card-message">查看当前账号的预约记录。身份核验和记录读取在进入预约页后按需进行。</text>
+      <view wx:if="{{appointmentNavigationErrorMessage}}" class="mine-action-error" role="alert">{{appointmentNavigationErrorMessage}}</view>
+      <primary-button text="查看我的预约" bind:action="openAppointments"></primary-button>
+    </section-card>
+    <section-card extraClass="mine-elder-scaffold">
       <tag text="匿名友好" tone="brand"></tag>
       <text class="route-card-title">先浏览，需要保存时再登录</text>
       <text class="route-card-message">当前不展示头像昵称授权按钮，不主动调用微信登录或手机号授权。</text>

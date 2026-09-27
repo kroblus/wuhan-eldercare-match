@@ -1,6 +1,15 @@
-import { registerRoutePage } from '../../utils/route-scaffold'
+import { createRouteScaffoldData } from '../../utils/route-scaffold'
+import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import type { RouteScaffoldData } from '../../utils/route-scaffold'
 
-registerRoutePage({
+const APPOINTMENT_LIST_URL = '/pages/appointment/index'
+const APPOINTMENT_NAVIGATION_ACTION = 'mine.openAppointments'
+
+interface MinePageData extends RouteScaffoldData {
+  appointmentNavigationErrorMessage: string
+}
+
+const routeData = createRouteScaffoldData({
   title: '我的',
   routeLabel: '我的 · 匿名浏览',
   description: '暂不登录也可以浏览首页、机构、图片、VR 和填写评估。',
@@ -8,4 +17,44 @@ registerRoutePage({
   nextLabel: '查看老人档案骨架',
   statusMessage: '登录、手机号授权和历史保存只在对应场景按需触发，不在进入小程序时强制要求。',
   backEnabled: false,
+})
+
+Component({
+  data: {
+    ...routeData,
+    appointmentNavigationErrorMessage: '',
+  } as MinePageData,
+
+  pageLifetimes: {
+    show() {
+      resetNavigationGuard(this)
+    },
+  },
+
+  methods: {
+    navigateNext() {
+      const { nextUrl, nextIsTab } = this.data as MinePageData
+      if (!nextUrl) return
+      if (nextIsTab) {
+        wx.switchTab({ url: nextUrl })
+        return
+      }
+      wx.navigateTo({ url: nextUrl })
+    },
+
+    openAppointments() {
+      this.setData({ appointmentNavigationErrorMessage: '' })
+      navigateToWithGuard(
+        this,
+        APPOINTMENT_NAVIGATION_ACTION,
+        APPOINTMENT_LIST_URL,
+        undefined,
+        () => {
+          this.setData({
+            appointmentNavigationErrorMessage: '暂时无法打开我的预约，请稍后重试。',
+          })
+        },
+      )
+    },
+  },
 })

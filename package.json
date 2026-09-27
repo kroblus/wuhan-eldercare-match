@@ -40,6 +40,7 @@
     "check:appointment-institution-visit-c2-runtime": "node scripts/check-appointment-institution-visit-c2-runtime.mjs",
     "check:appointment-institution-visit-c2-compat": "node scripts/check-appointment-institution-visit-c2-compat.mjs",
     "check:appointment-create-runtime": "node scripts/check-appointment-create-runtime.mjs",
+    "check:mine-appointment-entry-runtime": "node scripts/check-mine-appointment-entry-runtime.mjs",
     "check:ai-b6-runtime": "node scripts/check-ai-b6-runtime.mjs",
     "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs"
   },
