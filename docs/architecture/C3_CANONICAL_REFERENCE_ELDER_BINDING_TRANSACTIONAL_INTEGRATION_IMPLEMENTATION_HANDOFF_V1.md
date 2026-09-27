@@ -146,3 +146,33 @@ C3 §9 的幂等作用域仍为可信 `userId + opaque idempotencyKey + canonica
 ## 10. Handoff pass criteria and next task
 
 本 Handoff 冻结了显式 Elder 建立、canonical reference、事务责任、TOCTOU、联系证据、幂等、失败零写、schema 及测试 Gate；没有改变 Frozen Contract 或打开 Appointment success。下一任务仅为 **Implement C3 Canonical Reference and Elder Binding Transactional Integration**。实现完成也不自动将 `C3_FORMAL_APPOINTMENT_SUBMISSION` 改为 `OPEN`，或把 `REAL_APPOINTMENT_SUBMISSION` 标记为 `PASS`。
+
+## 11. Final Transactional Integration Closeout — 2026-09-27
+
+本节记录当前 phase lifecycle 与证据对账。前文的现状描述和下一任务保留为冻结 Handoff 时的历史快照；本节不改变其实施语义、任何 Frozen Contract 或 production source。
+
+```text
+C3_CANONICAL_REFERENCE_TRANSACTIONAL_INTEGRATION_HANDOFF = FROZEN
+HANDOFF_COMMIT = f9064a0d66f80dddba5fb1f29aa03cd19e62d20d
+TESTED_IMPLEMENTATION_SOURCE = c2b94e5d18311f049c82812f05af355d39320c4f
+IMPLEMENTATION_COMMIT = c2b94e5d18311f049c82812f05af355d39320c4f
+SOURCE_IDENTITY_RECONCILIATION = PASS
+C3_HANDOFF_CONFORMANCE = PASS
+C3_HANDOFF_GATES = G01-G30 PASS
+C3_CANONICAL_TRANSACTIONAL_INTEGRATION = PASS_WITH_RISKS
+C3_TRANSACTIONAL_IMPLEMENTATION = COMPLETE
+C3_TRANSACTIONAL_PHASE = CLOSED
+BLOCKERS = 0
+READY_FOR_C3_SUCCESSOR = TRUE
+C3_FORMAL_APPOINTMENT_SUBMISSION = STILL_CLOSED
+```
+
+`f9064a0d..c2b94e5d` 是直接父子提交，实施 diff 仅有 32 个本任务相关 `server/**` 文件；没有混入文档、小程序、新 Flyway 或 V1–V8 修改。实施提交后没有相关 source/schema/test 改动，暂存集为空；预存的七处 `.codex/**` 改动保持未暂存且不属于测试 source。公开响应私有 candidate 暴露、非事务降级写入、lifecycle 前进后精确重放这三项 QA 问题均在实施提交中修复。
+
+修复后的同一源码通过 54/54 定向回归。隔离 MySQL Community Server 8.0.34 在 127.0.0.1:33458 的最终空库运行完成 V1→V8 迁移 8/8 与事务集成 11/11，覆盖撤销先于新提交时零 Visit、两条属于同一 owner 的 C5 session 并发同 key 恰一 Visit、持久化故障回滚、旧 Visit 保留及零 legacy Elder 回填。跨 owner 的同名 key 由现有 `(user_id, idempotency_key)` 主键和按 owner 限定的查询隔离；该并发测试不冒充跨用户测试。定向测试和最终 MySQL 运行均发生在三项修复之后、实施提交之前；提交后无相关源码改动，故证据绑定 `c2b94e5d`，本 closeout 未机械重跑。
+
+新写入在同一 JDBC 事务内重检 C5、唯一已有 Elder、客户端 `elderId` 相等断言、精确当前且已发布并获显式运营预约授权的机构版本，再原子写入 Visit 与幂等记录；只读 `AppointmentReferenceReader` 的 preflight 不能授权写入。缺少事务能力时失败关闭。用途限定 C6 联系证据是新写入前置条件，外部 provider 交换不在数据库事务内。已提交的同 owner/key/canonical 请求重放原 `visitId` 和提交时 `requested` receipt；它不表示当前 Visit lifecycle。MySQL 用例在 Visit 已成为 `contacting` 后验证重放仍返回原回执，且数据库中的 `contacting` 不被改写。公开 HTTP 仅返回安全 receipt。独立只读 closeout QA 为 PASS_WITH_RISKS，无 Critical/High blocker。
+
+非阻断环境残留：合成 MySQL 服务已停止，33458 无监听；临时数据目录留在仓库外，按执行策略不做破坏性清理。`REAL_PERSONAL_DATA = NOT_USED`、`REAL_PHONE = DEFERRED`、真实电话 `G13 = NOT_REOPENED`；`REAL_PHONE_E2E`、`REAL_USER_ELDER_BINDING_E2E`、`REAL_APPOINTMENT_SUBMISSION`、`CROSS_DEVICE_E2E`、`TRIAL_RELEASE_E2E` 均为 `NOT_RUN`。Synthetic 事务证据不升级真实环境状态，也不打开正式 Appointment 提交。
+
+当前下一任务仅为 **Post-C3-Transactional-Integration Successor Discovery**。本 closeout 不选择或实施后继功能，也不更新 Drive-only 的 Living Current-State Router。
