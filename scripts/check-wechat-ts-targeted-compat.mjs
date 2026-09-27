@@ -93,6 +93,11 @@ const consultantB3CompatibilityTargets = [
   path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'index-view-model.ts'),
   path.join(applicationServiceRoot, 'consultant-global-page.ts'),
 ]
+const appointmentCreateCompatibilityTargets = [
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'appointment', 'create.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'appointment', 'success.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'institution', 'detail.ts'),
+]
 const aiB6CompatibilityTargets = [
   path.join(repositoryRoot, 'miniprogram', 'pages', 'service', 'ai-chat', 'index.ts'),
   path.join(repositoryRoot, 'miniprogram', 'pages', 'service', 'ai-chat', 'index-view-model.ts'),
@@ -299,6 +304,7 @@ const run = async () => {
     ...assessmentV2PageTargets,
     ...recommendationResultCompatibilityTargets,
     ...consultantB3CompatibilityTargets,
+    ...appointmentCreateCompatibilityTargets,
     ...aiB6CompatibilityTargets,
     ...aiB7CompatibilityTargets,
     ...institutionListDetailPageCompatibilityTargets,
@@ -334,6 +340,7 @@ const run = async () => {
     aiConsultationTypePath, path.join(aiConsultationDomainRoot, 'index.ts'), aiConsultationContextPath, aiConsultationServicePath,
     aiConsultationFaqTypePath,
     ...consultantB3CompatibilityTargets,
+    ...appointmentCreateCompatibilityTargets,
     ...aiB6CompatibilityTargets,
     ...aiB7CompatibilityTargets,
     recommendationTypePath, recommendationEntryPath,
@@ -475,6 +482,7 @@ const run = async () => {
   console.log(`INSTITUTION_V1_2_1_TARGETS: ${targetFiles.filter((fileName) => fileName === institutionV121TypePath || fileName.startsWith(`${institutionV121DomainRoot}${path.sep}`)).length}`)
   console.log(`CONSULTANT_TARGETS: ${targetFiles.filter((fileName) => fileName === consultantTypePath || fileName.startsWith(`${consultantDomainRoot}${path.sep}`) || fileName === consultantApplicationPath).length}`)
   console.log(`CONSULTANT_B3_TARGETS: ${consultantB3CompatibilityTargets.length}`)
+  console.log(`APPOINTMENT_CREATE_TARGETS: ${appointmentCreateCompatibilityTargets.length}`)
   console.log(`AI_B6_TARGETS: ${aiB6CompatibilityTargets.length}`)
   console.log(`AI_B7_TARGETS: ${aiB7CompatibilityTargets.length}`)
   console.log(`ELDER_PROFILE_V2_TARGETS: ${targetFiles.filter((fileName) => fileName === elderProfileV2TypePath || fileName.startsWith(`${elderProfileV2DomainRoot}${path.sep}`)).length}`)

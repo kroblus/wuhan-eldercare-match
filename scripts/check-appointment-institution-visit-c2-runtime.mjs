@@ -46,6 +46,27 @@ const runCase = (id, callback) => {
 
 const clone = (value) => JSON.parse(JSON.stringify(value))
 const last = (items) => items[items.length - 1]
+const makeApplicationSubmission = (overrides = {}) => makeSubmissionFixture({
+  institutionRecordRevision: '8',
+  ...overrides,
+})
+const makePublicReceipt = (submission, overrides = {}) => ({
+  contractVersion: 'appointment-institution-visit-contract-v1',
+  kind: 'appointment_submission_receipt_v1',
+  visitId: 'visit-server-generated-001',
+  institutionId: submission.institutionId,
+  institutionRecordRevision: submission.institutionRecordRevision,
+  status: 'requested',
+  acceptedAt: '2026-09-17T08:00:00.000Z',
+  publicMessage: '预约申请已提交',
+  ...overrides,
+})
+const makePublicResult = (submission, outcome = 'accepted', code = 'ACCEPTED', overrides = {}) => ({
+  outcome,
+  code,
+  receipt: outcome === 'accepted' || outcome === 'replayed' ? makePublicReceipt(submission) : null,
+  ...overrides,
+})
 
 const walkTypeScript = (directory) => {
   const result = []
@@ -95,48 +116,35 @@ const run = () => {
     countedAssert.equal(result.value.idempotencyKey, 'idem-c2-001')
   })
 
-  runCase('C2-MISSING-AUTH', () => {
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      submissionPort: { submit: () => { throw new Error('must not call without auth') } },
+  runCase('C2-APPLICATION-VALIDATION', () => {
+    const application = service.createAppointmentVisitApplicationServiceV1()
+    const malformedSubmission = application.submit({
+      submission: { ...makeApplicationSubmission(), userId: 'client-authority-forbidden' },
+      response: makePublicResult(makeApplicationSubmission()),
     })
-    const result = application.submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(result.ok, false)
-    countedAssert.equal(result.error.code, 'AUTH_REQUIRED')
-    countedAssert.equal(result.error.draftAction, 'RETAIN_LOCAL_DRAFT')
-    const missing = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: false, failure: 'missing' }) },
-    }).submit({ submission: makeSubmissionFixture() })
-    const unavailable = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: false, failure: 'unavailable' }) },
-    }).submit({ submission: makeSubmissionFixture() })
-    const failed = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: false, failure: 'failed' }) },
-    }).submit({ submission: makeSubmissionFixture() })
-    const malformed = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: false, failure: 'missing', provider: 'raw' }) },
-    }).submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(missing.error.code, 'AUTH_REQUIRED')
-    countedAssert.equal(unavailable.error.code, 'SERVICE_UNAVAILABLE')
-    countedAssert.equal(failed.error.code, 'SERVICE_UNAVAILABLE')
-    countedAssert.equal(malformed.error.code, 'SERVICE_UNAVAILABLE')
+    const malformedEnvelope = application.submit({
+      submission: makeApplicationSubmission(),
+      response: makePublicResult(makeApplicationSubmission()),
+      candidate: null,
+    })
+    countedAssert.equal(malformedSubmission.kind, 'rejected')
+    countedAssert.equal(malformedSubmission.code, 'VALIDATION_FAILED')
+    countedAssert.equal(malformedEnvelope.kind, 'rejected')
+    countedAssert.equal(malformedEnvelope.code, 'VALIDATION_FAILED')
   })
 
-  runCase('C2-CONTACT-REQUIRED', () => {
-    let authCalls = 0
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => { authCalls += 1; return { ok: true, principal: { userId: 'user-trusted-001' } } } },
+  runCase('C2-CLIENT-SAFE-APPLICATION', () => {
+    const submission = makeApplicationSubmission()
+    const application = service.createAppointmentVisitApplicationServiceV1()
+    const accepted = application.submit({
+      submission,
+      response: makePublicResult(submission),
     })
-    const missingNameFixture = makeSubmissionFixture()
-    const missingPhoneFixture = makeSubmissionFixture()
-    delete missingNameFixture.contactName
-    delete missingPhoneFixture.phone
-    const missingName = application.submit({ submission: missingNameFixture })
-    const missingPhone = application.submit({ submission: missingPhoneFixture })
-    countedAssert.equal(missingName.ok, false)
-    countedAssert.equal(missingName.error.code, 'CONTACT_REQUIRED')
-    countedAssert.equal(missingPhone.ok, false)
-    countedAssert.equal(missingPhone.error.code, 'CONTACT_REQUIRED')
-    countedAssert.equal(authCalls, 0)
+    countedAssert.equal(accepted.kind, 'accepted')
+    countedAssert.equal('visit' in accepted, false)
+    countedAssert.equal('userId' in accepted, false)
+    countedAssert.equal(JSON.stringify(accepted).includes(submission.phone), false)
+    countedAssert.equal(JSON.stringify(accepted).includes(submission.contactName), false)
   })
 
   runCase('C2-REFERENCE-FAIL-CLOSED', () => {
@@ -147,65 +155,60 @@ const run = () => {
   })
 
   runCase('C2-PHONE-NOT-IDENTITY', () => {
-    let submittedPrincipal = null
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
-      submissionPort: { submit: (input) => { submittedPrincipal = input.principal.userId; return { ok: false, failure: 'unavailable' } } },
+    const submission = makeApplicationSubmission({ phone: '13800000000' })
+    const result = service.createAppointmentVisitApplicationServiceV1().submit({
+      submission,
+      response: makePublicResult(submission),
     })
-    const result = application.submit({ submission: makeSubmissionFixture({ phone: '13800000000' }) })
-    countedAssert.equal(result.ok, false)
-    countedAssert.equal(submittedPrincipal, 'user-trusted-001')
-    countedAssert.equal(submittedPrincipal === '13800000000', false)
+    countedAssert.equal(result.kind, 'accepted')
+    countedAssert.equal(JSON.stringify(result).includes('13800000000'), false)
   })
 
   runCase('C2-ACCEPTED-PUBLIC-RESULT', () => {
-    const candidate = makeAcceptedCandidateFixture()
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
-      submissionPort: { submit: () => ({ ok: true, candidate }) },
+    const submission = makeApplicationSubmission()
+    const application = service.createAppointmentVisitApplicationServiceV1()
+    const accepted = application.submit({ submission, response: makePublicResult(submission) })
+    const replayed = application.submit({
+      submission,
+      response: makePublicResult(submission, 'replayed', 'REPLAYED'),
     })
-    const result = application.submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(result.ok, true)
-    countedAssert.equal(result.value.receipt.status, 'requested')
-    countedAssert.equal(result.value.visit.status, 'requested')
-    countedAssert.equal(result.value.receipt.visitId, 'visit-server-generated-001')
-    countedAssert.equal(Object.prototype.hasOwnProperty.call(result.value.visit, 'phone'), false)
-    countedAssert.equal(Object.prototype.hasOwnProperty.call(result.value.visit, 'contactName'), false)
-    countedAssert.equal(JSON.stringify(result).includes('provider'), false)
+    countedAssert.equal(accepted.kind, 'accepted')
+    countedAssert.equal(accepted.replayed, false)
+    countedAssert.equal(JSON.stringify(accepted.receipt), JSON.stringify(makePublicReceipt(submission)))
+    countedAssert.equal(replayed.kind, 'accepted')
+    countedAssert.equal(replayed.replayed, true)
+    countedAssert.equal(replayed.receipt.status, 'requested')
+    countedAssert.equal(replayed.receipt.publicMessage, '预约申请已提交')
   })
 
   runCase('C2-NO-FAKE-SUCCESS', () => {
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
+    const submission = makeApplicationSubmission()
+    const result = service.createAppointmentVisitApplicationServiceV1().submit({
+      submission,
+      response: null,
     })
-    const result = application.submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(result.ok, false)
-    countedAssert.equal(result.error.code, 'SERVICE_UNAVAILABLE')
-    countedAssert.equal('value' in result, false)
-    countedAssert.equal(JSON.stringify(result).includes('visit-server-generated'), false)
+    countedAssert.equal(result.kind, 'outcome_unknown')
+    countedAssert.equal('receipt' in result, false)
   })
 
-  runCase('C2-MALFORMED-CANDIDATE', () => {
-    const application = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
-      submissionPort: { submit: () => ({ ok: true, candidate: { kind: 'accepted_persistence_candidate_v1', visit: { status: 'requested', visitId: 'fake' } } }) },
+  runCase('C2-MALFORMED-PUBLIC-DTO', () => {
+    const submission = makeApplicationSubmission()
+    const application = service.createAppointmentVisitApplicationServiceV1()
+    const candidateEnvelope = application.submit({
+      submission,
+      response: {
+        ...makePublicResult(submission),
+        candidate: { kind: 'accepted_persistence_candidate_v1', visit: makeAcceptedCandidateFixture().visit },
+      },
     })
-    const result = application.submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(result.ok, false)
-    countedAssert.equal(result.error.code, 'TECHNICAL_FAILURE')
-    countedAssert.equal('value' in result, false)
-    const timestampMismatch = service.createAppointmentVisitApplicationServiceV1({
-      authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
-      submissionPort: { submit: () => ({
-        ok: true,
-        candidate: {
-          ...makeAcceptedCandidateFixture(),
-          visit: { ...makeAcceptedCandidateFixture().visit, completedAt: '2026-10-02T10:00:00.000Z' },
-        },
-      }) },
-    }).submit({ submission: makeSubmissionFixture() })
-    countedAssert.equal(timestampMismatch.ok, false)
-    countedAssert.equal(timestampMismatch.error.code, 'TECHNICAL_FAILURE')
+    const mismatch = application.submit({
+      submission,
+      response: makePublicResult(submission, 'accepted', 'ACCEPTED', {
+        receipt: makePublicReceipt(submission, { institutionRecordRevision: '9' }),
+      }),
+    })
+    countedAssert.equal(candidateEnvelope.kind, 'outcome_unknown')
+    countedAssert.equal(mismatch.kind, 'outcome_unknown')
   })
 
   runCase('C2-LIFECYCLE-ALLOWED', () => {
@@ -248,19 +251,29 @@ const run = () => {
     countedAssert.equal(domain.validateAppointmentSubmissionV1(makeSubmissionFixture({ idempotencyKey: '13800000000' })).ok, false)
   })
 
-  runCase('C2-PORT-FAILURE-MAPPING', () => {
-    const failures = ['reference_unavailable', 'idempotency_conflict', 'unavailable', 'technical']
-    const codes = ['REFERENCE_UNAVAILABLE', 'IDEMPOTENCY_CONFLICT', 'SERVICE_UNAVAILABLE', 'TECHNICAL_FAILURE']
-    failures.forEach((portFailure, index) => {
-      const application = service.createAppointmentVisitApplicationServiceV1({
-        authenticatedPrincipalPort: { getPrincipal: () => ({ ok: true, principal: { userId: 'user-trusted-001' } }) },
-        submissionPort: { submit: () => ({ ok: false, failure: portFailure }) },
+  runCase('C2-PUBLIC-ERROR-MAPPING', () => {
+    const submission = makeApplicationSubmission()
+    const cases = [
+      ['rejected', 'AUTH_REQUIRED', 'AUTH_REQUIRED'],
+      ['rejected', 'CONTACT_REQUIRED', 'CONTACT_REQUIRED'],
+      ['rejected', 'VALIDATION_FAILED', 'VALIDATION_FAILED'],
+      ['rejected', 'REFERENCE_UNAVAILABLE', 'REFERENCE_UNAVAILABLE'],
+      ['conflict', 'IDEMPOTENCY_CONFLICT', 'IDEMPOTENCY_CONFLICT'],
+      ['unavailable', 'SERVICE_UNAVAILABLE', 'SERVICE_UNAVAILABLE'],
+    ]
+    cases.forEach(([outcome, wireCode, code]) => {
+      const result = service.createAppointmentVisitApplicationServiceV1().submit({
+        submission,
+        response: makePublicResult(submission, outcome, wireCode),
       })
-      const result = application.submit({ submission: makeSubmissionFixture() })
-      countedAssert.equal(result.ok, false)
-      countedAssert.equal(result.error.code, codes[index])
-      countedAssert.equal(result.error.draftAction, 'RETAIN_LOCAL_DRAFT')
+      countedAssert.equal(result.kind, 'rejected')
+      countedAssert.equal(result.code, code)
     })
+    const technical = service.createAppointmentVisitApplicationServiceV1().submit({
+      submission,
+      response: makePublicResult(submission, 'technical_failure', 'TECHNICAL_FAILURE'),
+    })
+    countedAssert.equal(technical.kind, 'outcome_unknown')
   })
 
   runCase('C2-COMPLETED-PREREQUISITE', () => {

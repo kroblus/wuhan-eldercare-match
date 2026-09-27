@@ -1,1 +1,76 @@
 @import '../../styles/base.less';
+@import '../../styles/tokens.less';
+
+.appointment-success-shell {
+  padding-bottom: @space-5;
+}
+
+.appointment-success-card-wrap {
+  margin-top: @space-3;
+}
+
+.appointment-success-title,
+.appointment-success-institution {
+  display: block;
+  margin-top: @space-3;
+  color: @color-text-primary;
+  font-size: @font-size-body-large;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.appointment-success-institution {
+  color: @color-text-secondary;
+  font-size: @font-size-body;
+}
+
+.appointment-success-facts {
+  margin-top: @space-4;
+  border-top: 1rpx solid @color-border;
+}
+
+.appointment-success-fact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: @space-3;
+  padding: @space-3 0;
+  border-bottom: 1rpx solid @color-border;
+}
+
+.appointment-success-fact__label,
+.appointment-success-fact__value {
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.appointment-success-fact__value {
+  max-width: 62%;
+  color: @color-text-primary;
+  text-align: right;
+}
+
+.appointment-success-note {
+  display: block;
+  margin-top: @space-3;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.appointment-success-error {
+  margin-top: @space-3;
+  padding: @space-3;
+  border-radius: @radius-md;
+  background: #FBE9E7;
+  color: @color-error;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.appointment-success-actions {
+  display: grid;
+  gap: @space-2;
+  margin-top: @space-4;
+}

@@ -1,16 +1,182 @@
-<navigation-bar title="预约看院" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
+<navigation-bar
+  title="预约看院"
+  back="{{true}}"
+  fallbackUrl="/pages/institution/index"
+  color="#27313D"
+  background="#FFFFFF"
+></navigation-bar>
+
+<page-container extraClass="appointment-create-page">
+  <view class="page-shell appointment-create-shell">
     <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
+      <text class="eyebrow">预约 · 看院申请</text>
       <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+      <text class="page-description">{{pageDescription}}</text>
     </view>
-    <section-card>
-      <tag text="真实提交待接入" tone="development"></tag>
-      <text class="route-card-title">先把预约事实和授权边界留清楚</text>
-      <text class="route-card-message">未来提交前会说明隐私用途，并以后端返回的状态为准；当前不展示表单，也不创建预约记录。</text>
-      <state-panel state="development" title="预约提交契约待冻结" message="本页不会无条件跳转到“预约成功”，也不会索取手机号。"></state-panel>
-    </section-card>
+
+    <view wx:if="{{pageState === 'loading'}}" class="appointment-card-wrap">
+      <section-card>
+        <state-panel state="loading" title="正在读取机构资料" message="只读取链接指定的机构版本，不会自动切换版本或创建老人档案。"></state-panel>
+      </section-card>
+    </view>
+
+    <block wx:elif="{{pageState === 'ready' && institution}}">
+      <block wx:if="{{!receiptReady}}">
+        <view id="appointment-field-institution" class="appointment-card-wrap">
+          <section-card>
+            <text class="section-kicker">本次预约机构</text>
+            <text class="appointment-institution-name">{{institution.displayName}}</text>
+            <text class="appointment-field-hint">提交时会再次核验当前机构资料；若资料已变更，请返回机构详情重新确认。</text>
+          </section-card>
+        </view>
+
+        <view class="appointment-card-wrap">
+          <section-card>
+            <text class="section-kicker">看院意向</text>
+
+            <view id="appointment-field-visitDate" class="appointment-field-anchor">
+              <question-section title="预约日期" required="{{true}}" error="{{formErrors.visitDate}}">
+                <picker
+                  mode="date"
+                  value="{{form.visitDate}}"
+                  disabled="{{formLocked}}"
+                  bindchange="onVisitDateChange"
+                >
+                  <view class="appointment-picker {{form.visitDate ? '' : 'is-placeholder'}}">
+                    {{form.visitDate || '请选择日期'}}
+                  </view>
+                </picker>
+              </question-section>
+            </view>
+
+            <view id="appointment-field-visitTimePreference" class="appointment-field-anchor">
+              <question-section title="预约时间偏好" required="{{true}}" hint="例如：上午、下午或方便联系的时段" error="{{formErrors.visitTimePreference}}">
+                <input
+                  class="appointment-input"
+                  value="{{form.visitTimePreference}}"
+                  maxlength="80"
+                  placeholder="请填写时间偏好"
+                  disabled="{{formLocked}}"
+                  bindinput="onVisitTimePreferenceInput"
+                />
+              </question-section>
+            </view>
+
+            <view id="appointment-field-participantCount" class="appointment-field-anchor">
+              <question-section title="参与人数" required="{{true}}" hint="填写本次计划到访的人数，1–1000 人" error="{{formErrors.participantCount}}">
+                <input
+                  class="appointment-input appointment-input--count"
+                  type="number"
+                  value="{{form.participantCount}}"
+                  maxlength="4"
+                  placeholder="请输入人数"
+                  disabled="{{formLocked}}"
+                  bindinput="onParticipantCountInput"
+                />
+              </question-section>
+            </view>
+          </section-card>
+        </view>
+
+        <view class="appointment-card-wrap">
+          <section-card>
+            <text class="section-kicker">预约联系人</text>
+            <text class="section-subtitle">仅用于联系本次预约。填写号码不代表已完成微信手机号授权。</text>
+
+            <view id="appointment-field-contactName" class="appointment-field-anchor">
+              <question-section title="联系人姓名" required="{{true}}" error="{{formErrors.contactName}}">
+                <input
+                  class="appointment-input"
+                  value="{{form.contactName}}"
+                  maxlength="200"
+                  placeholder="请输入联系人姓名"
+                  disabled="{{formLocked}}"
+                  bindinput="onContactNameInput"
+                />
+              </question-section>
+            </view>
+
+            <view id="appointment-field-phone" class="appointment-field-anchor">
+              <question-section title="联系电话" required="{{true}}" hint="提交时还需向微信申请本次预约的一次性手机号授权" error="{{formErrors.phone}}">
+                <input
+                  class="appointment-input"
+                  type="text"
+                  value="{{form.phone}}"
+                  maxlength="32"
+                  placeholder="请输入联系电话"
+                  disabled="{{formLocked}}"
+                  bindinput="onPhoneInput"
+                />
+              </question-section>
+            </view>
+
+            <view id="appointment-field-notes" class="appointment-field-anchor">
+              <question-section title="补充说明" hint="选填，请勿填写健康档案等敏感信息" error="{{formErrors.notes}}">
+                <textarea
+                  class="appointment-textarea"
+                  value="{{form.notes}}"
+                  maxlength="2000"
+                  placeholder="可填写本次看院的补充说明"
+                  disabled="{{formLocked}}"
+                  bindinput="onNotesInput"
+                  auto-height="true"
+                ></textarea>
+              </question-section>
+            </view>
+          </section-card>
+        </view>
+
+        <view wx:if="{{actionMessage}}" class="appointment-action-message appointment-action-message--{{actionMessageTone}}" role="{{actionMessageTone === 'error' ? 'alert' : 'status'}}">
+          {{actionMessage}}
+        </view>
+
+        <view class="appointment-submit-area">
+          <primary-button
+            wx:if="{{!prepared && !terminalConflict}}"
+            text="{{preparingElder ? '正在确认老人档案' : '提交预约申请'}}"
+            loading="{{preparingElder}}"
+            disabled="{{preparingElder || phoneSubmitting || outcomeUnknown}}"
+            bind:action="onPrepareAppointment"
+          ></primary-button>
+
+          <button
+            wx:if="{{prepared && !terminalConflict}}"
+            class="appointment-phone-submit"
+            open-type="getPhoneNumber"
+            disabled="{{phoneSubmitting}}"
+            loading="{{phoneSubmitting}}"
+            bindgetphonenumber="onPhoneAuthorization"
+          >
+            {{phoneSubmitting ? '正在提交预约申请' : (outcomeUnknown ? '重新授权并安全重试' : '授权手机号并提交预约申请')}}
+          </button>
+
+          <view wx:if="{{terminalConflict}}" class="appointment-conflict-help">
+            <text>请使用左上角返回，回到机构详情后重新发起预约。</text>
+          </view>
+
+          <text class="appointment-submit-note">提交仅表示预约申请已送达，不代表机构已确认或安排看院。</text>
+        </view>
+      </block>
+
+      <view wx:else class="appointment-card-wrap">
+        <section-card>
+          <tag text="申请已提交" tone="brand"></tag>
+          <text class="route-card-title">预约申请已提交</text>
+          <text class="route-card-message">结果页暂时无法打开。可以重试查看申请结果，不会重复提交。</text>
+          <primary-button text="重试打开结果页" bind:action="onRetrySuccessNavigation"></primary-button>
+        </section-card>
+      </view>
+    </block>
+
+    <view wx:else class="appointment-card-wrap">
+      <section-card>
+        <state-panel
+          state="error"
+          title="{{pageState === 'route_error' ? '预约入口无效' : '机构资料暂不可用'}}"
+          message="{{pageDescription}}"
+        ></state-panel>
+        <primary-button text="返回合作机构列表" bind:action="onReturnToInstitution"></primary-button>
+      </section-card>
+    </view>
   </view>
 </page-container>

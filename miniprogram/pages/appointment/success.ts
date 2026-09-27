@@ -1,10 +1,133 @@
-import { registerRoutePage } from '../../utils/route-scaffold'
+import {
+  consumeAppointmentSuccessHandoffV1,
+  validateAppointmentCreateSuccessHandoffV1,
+} from '../../services/appointment-create-client'
+import type {
+  AppointmentCreateSuccessHandoffV1,
+} from '../../types/appointment-create-v1'
+import {
+  getNavigationGuard,
+  navigateToWithGuard,
+  resetNavigationGuard,
+} from '../../utils/navigation-guard'
 
-registerRoutePage({
-  title: '预约申请结果',
-  routeLabel: '预约 · 结果骨架',
-  description: '只有真实提交结果返回后才能进入此页；提交申请不等于顾问已经确认接待。',
-  nextUrl: '/pages/appointment/index',
-  nextLabel: '查看我的预约骨架',
-  statusMessage: '状态必须展示为后端或顾问运营侧的业务事实，不由前端自行推断。',
+type SuccessPageState = 'unavailable' | 'ready'
+type SuccessAction = '' | 'consultant' | 'appointments' | 'home' | 'back'
+
+interface AppointmentSuccessPageData {
+  pageState: SuccessPageState
+  handoff: AppointmentCreateSuccessHandoffV1 | null
+  actionErrorKey: SuccessAction
+  actionErrorMessage: string
+}
+
+const PAGE_ACTIONS: Record<'consultant' | 'home', string> = {
+  consultant: '/pages/consultant/index',
+  home: '/pages/home/index',
+}
+
+const hasExactQuery = (query: Record<string, string | undefined>): boolean => {
+  const keys = Object.keys(query).sort()
+  return keys.length === 1 && keys[0] === 'handoffId'
+}
+
+const runTabAction = (
+  instance: WechatMiniprogram.Page.Instance<AppointmentSuccessPageData, WechatMiniprogram.IAnyObject>,
+  action: 'consultant' | 'home',
+): void => {
+  if (instance.data.pageState !== 'ready' || instance.data.handoff === null) return
+  const guard = getNavigationGuard(instance)
+  const key = `appointment.success.${action}`
+  if (!guard.acquire(key)) return
+  let succeeded = false
+  let failureReported = false
+  const fail = (): void => {
+    guard.release(key)
+    if (failureReported) return
+    failureReported = true
+    instance.setData({
+      actionErrorKey: action,
+      actionErrorMessage: action === 'consultant'
+        ? '暂时无法打开养老顾问页面，请稍后重试。'
+        : '暂时无法返回首页，请稍后重试。',
+    })
+  }
+  try {
+    wx.switchTab({
+      url: PAGE_ACTIONS[action],
+      success: () => { succeeded = true },
+      fail,
+      complete: () => { if (!succeeded) fail() },
+    })
+  } catch (_error) {
+    fail()
+  }
+}
+
+Page({
+  data: {
+    pageState: 'unavailable',
+    handoff: null,
+    actionErrorKey: '',
+    actionErrorMessage: '',
+  } as AppointmentSuccessPageData,
+
+  onLoad(query: Record<string, string | undefined>) {
+    if (!hasExactQuery(query) || typeof query.handoffId !== 'string') {
+      this.setData({
+        pageState: 'unavailable',
+        handoff: null,
+        actionErrorKey: '',
+        actionErrorMessage: '',
+      })
+      return
+    }
+    const consumed = consumeAppointmentSuccessHandoffV1(query.handoffId)
+    const handoff = validateAppointmentCreateSuccessHandoffV1(consumed)
+    if (!handoff) {
+      this.setData({
+        pageState: 'unavailable',
+        handoff: null,
+        actionErrorKey: '',
+        actionErrorMessage: '',
+      })
+      return
+    }
+    this.setData({
+      pageState: 'ready',
+      handoff,
+      actionErrorKey: '',
+      actionErrorMessage: '',
+    })
+  },
+
+  onShow() {
+    resetNavigationGuard(this)
+  },
+
+  onContactConsultant() {
+    runTabAction(this, 'consultant')
+  },
+
+  onViewAppointments() {
+    if (this.data.pageState !== 'ready' || this.data.handoff === null) return
+    navigateToWithGuard(this, 'appointment.success.appointments', '/pages/appointment/index', undefined, () => {
+      this.setData({
+        actionErrorKey: 'appointments',
+        actionErrorMessage: '暂时无法打开我的预约，请稍后重试。',
+      })
+    })
+  },
+
+  onReturnHome() {
+    runTabAction(this, 'home')
+  },
+
+  onNavigationFailure() {
+    if (this.data.pageState !== 'ready') return
+    this.setData({
+      actionErrorKey: 'back',
+      actionErrorMessage: '暂时无法返回，请使用下方入口继续。',
+    })
+  },
 })

@@ -439,7 +439,11 @@ const main = async () => {
     assert.equal(INSTITUTION_LIST_DETAIL_FIXTURE_MANIFEST.fixturePolicy, 'TEST_FIXTURE_ONLY')
     assert.equal(Object.keys(view).some((key) => /evaluator|raw|mock|latest/i.test(key)), false)
   })
-  await run('DETAIL-UI-031', 'live page application exact-resolves a canonical development record', async () => {
+  await run('DETAIL-UI-031', 'appointment CTA component is registered on the detail page', () => {
+    assert.match(wxml, /<primary-button\b(?=[^>]*\btext="填写预约申请")(?=[^>]*\bbind:action="onAppointmentTap")[^>]*>/)
+    assert.equal(json.usingComponents['primary-button'], '/components/primary-button/primary-button')
+  })
+  await run('DETAIL-UI-032', 'live page application exact-resolves a canonical development record', async () => {
     const liveList = await livePageApplication.buildInstitutionListPageSnapshot(null)
     assert.equal(liveList.ok, true)
     const liveItem = liveList.value.displayInstitutions[0]
@@ -456,10 +460,10 @@ const main = async () => {
     assert.equal(liveDetail.value.identity.recordRevision, liveItem.recordRevision)
   })
 
-  assert.deepEqual(executed, Array.from({ length: 31 }, (_, index) => `DETAIL-UI-${String(index + 1).padStart(3, '0')}`))
+  assert.deepEqual(executed, Array.from({ length: 32 }, (_, index) => `DETAIL-UI-${String(index + 1).padStart(3, '0')}`))
   if (failures.length > 0) throw new Error(`${failures.length} detail UI case(s) failed\n${failures.join('\n')}`)
   console.log(`PARSER: WeChat TypeScript 4.1.2 (${parserFile})`)
-  console.log(`DETAIL_UI_CASES: ${executed.length}/31 PASS`)
+  console.log(`DETAIL_UI_CASES: ${executed.length}/32 PASS`)
   console.log(`DETAIL_UI_DATASET_VERSION: ${INSTITUTION_LIST_DETAIL_DATASET_VERSION}`)
   console.log('DETAIL_UI_RUNTIME = PASS')
 }

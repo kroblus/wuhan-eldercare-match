@@ -107,8 +107,8 @@
       <view class="consultant-card-wrap">
         <section-card>
           <text class="section-kicker">预约带看</text>
-          <text class="section-subtitle">预约入口仍是流程骨架，不代表机构已经确认预约。</text>
-          <primary-button text="预约带看" bind:action="onAppointmentTap"></primary-button>
+          <text class="section-subtitle">请先从合作机构列表选择具体机构，再从该机构详情填写预约申请。顾问信息不会自动指定机构。</text>
+          <primary-button text="选择合作机构" bind:action="onAppointmentTap"></primary-button>
           <view wx:if="{{actionErrorKey === 'appointment'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         </section-card>
       </view>

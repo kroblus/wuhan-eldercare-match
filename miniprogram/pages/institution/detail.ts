@@ -17,8 +17,13 @@ import type {
 } from './detail-view-model'
 import {
   getNavigationGuard,
+  navigateToWithGuard,
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
+import {
+  discardAppointmentInstitutionDisplaySnapshotV1,
+  recordAppointmentInstitutionDisplaySnapshotV1,
+} from '../../services/appointment-create-client'
 
 type DetailPageState = 'loading' | InstitutionDetailErrorViewModelV12['pageState'] | 'ready'
 
@@ -361,6 +366,36 @@ Page({
         actionErrorMessage: '暂时无法拨打机构电话，请稍后重试。',
       })
     })
+  },
+
+  onAppointmentTap() {
+    const route = routeByPage.get(this)
+    const viewModel = this.data.viewModel
+    if (this.data.pageState !== 'ready' || !route || !viewModel || this.data.isSwitchingRevision) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    const displayName = viewModel.title.trim()
+    if (displayName.length === 0 || displayName === '机构详情' || displayName.length > 200) {
+      this.setData({
+        actionErrorKey: 'appointment',
+        actionErrorMessage: '当前机构名称暂不可用，请返回列表重新选择。',
+      })
+      return
+    }
+    const identity = route.identity
+    recordAppointmentInstitutionDisplaySnapshotV1(
+      identity.institutionId,
+      identity.recordRevision,
+      displayName,
+    )
+    const url = `/pages/appointment/create?institutionId=${encodeURIComponent(identity.institutionId)}&recordRevision=${String(identity.recordRevision)}`
+    const navigationStarted = navigateToWithGuard(this, 'institution.detail.appointment', url, undefined, () => {
+      discardAppointmentInstitutionDisplaySnapshotV1(identity.institutionId, identity.recordRevision)
+      this.setData({
+        actionErrorKey: 'appointment',
+        actionErrorMessage: '暂时无法打开预约申请，请稍后重试。',
+      })
+    })
+    if (!navigationStarted) discardAppointmentInstitutionDisplaySnapshotV1(identity.institutionId, identity.recordRevision)
   },
 
   onBackToList() {

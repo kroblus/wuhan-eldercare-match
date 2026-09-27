@@ -2,6 +2,7 @@
   "usingComponents": {
     "navigation-bar": "/components/navigation-bar/navigation-bar",
     "page-container": "/components/page-container/page-container",
+    "primary-button": "/components/primary-button/primary-button",
     "section-card": "/components/section-card/section-card",
     "state-panel": "/components/state-panel/state-panel",
     "tag": "/components/tag/tag"

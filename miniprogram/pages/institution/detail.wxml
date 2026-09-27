@@ -295,6 +295,15 @@
         </section-card>
       </view>
 
+      <view class="detail-card-wrap">
+        <section-card>
+          <text class="section-kicker">预约看院</text>
+          <text class="section-subtitle">预约申请将按本页显示的机构资料版本提交；是否可受理以服务端结果为准。</text>
+          <primary-button text="填写预约申请" bind:action="onAppointmentTap"></primary-button>
+          <view wx:if="{{actionErrorKey === 'appointment'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </section-card>
+      </view>
+
       <view wx:if="{{viewModel.priceRows.length}}" class="detail-card-wrap">
         <section-card>
           <text class="section-kicker">费用资料</text>

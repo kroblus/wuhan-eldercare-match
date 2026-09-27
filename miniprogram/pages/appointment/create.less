@@ -1,1 +1,138 @@
 @import '../../styles/base.less';
+@import '../../styles/tokens.less';
+
+.appointment-create-shell {
+  padding-bottom: @space-5;
+}
+
+.appointment-card-wrap {
+  margin-top: @space-3;
+}
+
+.appointment-institution-name {
+  display: block;
+  margin-top: @space-2;
+  color: @color-text-primary;
+  font-size: @font-size-body-large;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.appointment-field-hint,
+.section-subtitle,
+.appointment-submit-note {
+  display: block;
+  margin-top: @space-2;
+  color: @color-text-muted;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.appointment-field-anchor {
+  display: block;
+  scroll-margin-top: 48rpx;
+}
+
+.appointment-picker,
+.appointment-input,
+.appointment-textarea {
+  width: 100%;
+  margin-top: @space-2;
+  padding: 0 @space-3;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  background: @color-surface;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  box-sizing: border-box;
+}
+
+.appointment-picker,
+.appointment-input {
+  min-height: @touch-target-min;
+  line-height: @touch-target-min;
+}
+
+.appointment-picker {
+  display: block;
+}
+
+.appointment-picker.is-placeholder {
+  color: @color-text-muted;
+}
+
+.appointment-input--count {
+  width: 300rpx;
+}
+
+.appointment-textarea {
+  min-height: 180rpx;
+  padding-top: @space-3;
+  padding-bottom: @space-3;
+  line-height: @line-height-body;
+}
+
+.appointment-action-message {
+  margin: @space-3 @space-1 0;
+  padding: @space-3;
+  border-radius: @radius-md;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.appointment-action-message--error {
+  background: #FBE9E7;
+  color: @color-error;
+}
+
+.appointment-action-message--info {
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.appointment-submit-area {
+  margin-top: @space-4;
+  padding: 0 @space-1 @space-3;
+}
+
+.appointment-phone-submit {
+  width: 100%;
+  min-height: @touch-target-min;
+  padding: 0 @space-4;
+  border: 0;
+  border-radius: @radius-md;
+  background: @color-brand;
+  color: #FFFFFF;
+  font-size: @font-size-body;
+  font-weight: 700;
+  line-height: @touch-target-min;
+}
+
+.appointment-phone-submit[disabled] {
+  opacity: 0.65;
+}
+
+.appointment-submit-note {
+  text-align: center;
+}
+
+.appointment-conflict-help {
+  padding: @space-3;
+  color: @color-error;
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+}
+
+.route-card-title,
+.route-card-message {
+  display: block;
+  margin-top: @space-3;
+  color: @color-text-primary;
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.route-card-message {
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+}

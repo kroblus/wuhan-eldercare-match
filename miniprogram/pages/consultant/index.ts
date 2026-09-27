@@ -12,7 +12,7 @@ import {
 import type { C6PhoneAuthorizationResult, C6PhoneEvidenceOutcome } from '../../services/c6-phone-authorization'
 import { verifyC6PhoneAuthorization } from '../../services/c6-phone-authorization'
 
-const APPOINTMENT_URL = '/pages/appointment/create'
+const APPOINTMENT_URL = '/pages/institution/index'
 
 interface ConsultantPageData {
   pageTitle: string
@@ -230,7 +230,7 @@ Component({
       navigateToWithGuard(this, 'consultant.appointment', APPOINTMENT_URL, undefined, () => {
         this.setData({
           actionErrorKey: 'appointment',
-          actionErrorMessage: '暂时无法打开预约看院入口，请稍后重试。',
+          actionErrorMessage: '暂时无法打开合作机构列表，请稍后重试。',
         })
       })
     },
