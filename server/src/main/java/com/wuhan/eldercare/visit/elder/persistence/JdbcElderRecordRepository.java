@@ -18,6 +18,7 @@ public final class JdbcElderRecordRepository implements ElderRecordRepository {
             + "(elder_id, responsible_user_id, created_at) VALUES (?, ?, ?)";
     private static final String FIND_BY_OWNER_SQL = "SELECT elder_id, responsible_user_id, created_at "
             + "FROM elder_record_v1 WHERE responsible_user_id = ?";
+    private static final String LOCK_BY_OWNER_SQL = FIND_BY_OWNER_SQL + " FOR UPDATE";
 
     private final DataSource dataSource;
 
@@ -43,6 +44,28 @@ public final class JdbcElderRecordRepository implements ElderRecordRepository {
                     ? Lookup.Status.UNAVAILABLE : Lookup.Status.TECHNICAL_FAILURE);
         }
     }
+
+    @Override
+    public Lookup findByResponsibleUserId(Connection connection, String responsibleUserId) {
+        if (connection == null || responsibleUserId == null || responsibleUserId.isBlank()) {
+            return Lookup.of(Lookup.Status.TECHNICAL_FAILURE);
+        }
+        try (PreparedStatement statement = connection.prepareStatement(LOCK_BY_OWNER_SQL)) {
+            statement.setString(1, responsibleUserId);
+            try (ResultSet rows = statement.executeQuery()) {
+                if (!rows.next()) return Lookup.of(Lookup.Status.NOT_FOUND);
+                ElderRecord record = map(rows);
+                if (rows.next()) return Lookup.of(Lookup.Status.TECHNICAL_FAILURE);
+                return Lookup.found(record);
+            }
+        } catch (SQLException | RuntimeException failure) {
+            return Lookup.of(failure instanceof SQLException sqlFailure && isUnavailable(sqlFailure)
+                    ? Lookup.Status.UNAVAILABLE : Lookup.Status.TECHNICAL_FAILURE);
+        }
+    }
+
+    @Override
+    public boolean supportsTransactionScopedLookup() { return true; }
 
     @Override
     public Establish establish(ElderRecord candidate) {

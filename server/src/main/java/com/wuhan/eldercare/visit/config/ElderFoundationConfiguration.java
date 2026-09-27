@@ -2,6 +2,8 @@ package com.wuhan.eldercare.visit.config;
 
 import com.wuhan.eldercare.visit.application.AuthEvidenceResolver;
 import com.wuhan.eldercare.visit.application.AppointmentReferenceReader;
+import com.wuhan.eldercare.visit.application.ProductionReferenceAuthorizer;
+import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.ProductionAppointmentReferenceReader;
 import com.wuhan.eldercare.visit.elder.application.ElderIdentitySource;
 import com.wuhan.eldercare.visit.elder.application.ElderRecordRepository;
@@ -71,6 +73,14 @@ public class ElderFoundationConfiguration {
             InstitutionRevisionRepository revisions,
             InstitutionAppointmentAuthorizationRepository authorizations) {
         return new InstitutionAppointmentEligibilityResolver(revisions, authorizations);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "true")
+    @ConditionalOnMissingBean(ReferenceAuthorizer.class)
+    ReferenceAuthorizer productionReferenceAuthorizer(ElderRecordService elders,
+            InstitutionAppointmentEligibilityResolver institutions) {
+        return new ProductionReferenceAuthorizer(elders, institutions);
     }
 
     @Bean

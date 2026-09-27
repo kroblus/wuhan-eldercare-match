@@ -1,11 +1,14 @@
 package com.wuhan.eldercare.visit.persistence;
 
 import com.wuhan.eldercare.visit.application.CanonicalPayloadHasher;
+import com.wuhan.eldercare.visit.application.AuthEvidenceResolver;
+import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.ServerIdentitySource;
 import com.wuhan.eldercare.visit.application.VisitSubmissionRepository;
 import com.wuhan.eldercare.visit.domain.PrivateContact;
 import com.wuhan.eldercare.visit.domain.PersistedVisitCandidateV1;
 import com.wuhan.eldercare.visit.domain.SubmissionCommandV1;
+import com.wuhan.eldercare.visit.domain.SubmissionValidation;
 import com.wuhan.eldercare.visit.domain.TrustedPrincipal;
 
 import javax.sql.DataSource;
@@ -17,6 +20,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * The only production persistence implementation in C4. It deliberately uses
@@ -24,6 +28,8 @@ import java.util.Optional;
  * not depend on an ORM's hidden retry behavior.
  */
 public final class JdbcVisitSubmissionRepository implements VisitSubmissionRepository {
+    private static final Set<String> VISIT_LIFECYCLE_STATUSES =
+            Set.of("requested", "contacting", "scheduled", "completed", "cancelled");
     private final DataSource dataSource;
     private final ServerIdentitySource identitySource;
     private final CanonicalPayloadHasher hasher = new CanonicalPayloadHasher();
@@ -33,6 +39,149 @@ public final class JdbcVisitSubmissionRepository implements VisitSubmissionRepos
         this.identitySource = identitySource;
     }
 
+    @Override
+    public boolean hasTransactionalAuthorization() {
+        return true;
+    }
+
+    @Override
+    public Result findCommitted(TrustedPrincipal principal, SubmissionCommandV1 command,
+                               String authEvidence, AuthEvidenceResolver authEvidenceResolver) {
+        if (principal == null || command == null || authEvidenceResolver == null
+                || !authEvidenceResolver.supportsTransactionalResolution()) {
+            return new Result(Result.Status.TECHNICAL_FAILURE, null);
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            Result authFailure = validateSession(connection, principal, authEvidence, authEvidenceResolver);
+            if (authFailure != null) {
+                rollbackQuietly(connection);
+                return authFailure;
+            }
+            Optional<IdempotencyRow> prior = selectIdempotency(connection, principal.userId(), command.idempotencyKey());
+            if (prior.isEmpty()) {
+                connection.commit();
+                return new Result(Result.Status.NO_COMMITTED_RECORD, null);
+            }
+            Result result = resolvePrior(connection, prior.get(), command);
+            connection.commit();
+            return result;
+        } catch (SQLException | RuntimeException failure) {
+            return new Result(failure instanceof SQLException sql && isUnavailable(sql)
+                    ? Result.Status.UNAVAILABLE : Result.Status.TECHNICAL_FAILURE, null);
+        }
+    }
+
+    @Override
+    public Result createOrReplay(TrustedPrincipal principal, SubmissionCommandV1 command, PrivateContact contact,
+                                 String authEvidence, AuthEvidenceResolver authEvidenceResolver,
+                                 ReferenceAuthorizer referenceAuthorizer) {
+        if (principal == null || command == null || contact == null || authEvidenceResolver == null
+                || referenceAuthorizer == null || !authEvidenceResolver.supportsTransactionalResolution()
+                || !referenceAuthorizer.supportsTransactionalAuthorization()) {
+            return new Result(Result.Status.TECHNICAL_FAILURE, null);
+        }
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                Result authFailure = validateSession(connection, principal, authEvidence, authEvidenceResolver);
+                if (authFailure != null) {
+                    rollbackQuietly(connection);
+                    return authFailure;
+                }
+
+                Optional<IdempotencyRow> prior = selectIdempotency(connection, principal.userId(), command.idempotencyKey());
+                if (prior.isPresent()) {
+                    Result replayOrConflict = resolvePrior(connection, prior.get(), command);
+                    connection.commit();
+                    return replayOrConflict;
+                }
+
+                ReferenceAuthorizer.Resolution reference;
+                try {
+                    reference = referenceAuthorizer.authorize(connection, principal, command.elderId(),
+                            command.institutionId(), command.institutionRecordRevision());
+                } catch (RuntimeException ignored) {
+                    rollbackQuietly(connection);
+                    return new Result(Result.Status.TECHNICAL_FAILURE, null);
+                }
+                if (reference == null || reference.status() == null) {
+                    rollbackQuietly(connection);
+                    return new Result(Result.Status.TECHNICAL_FAILURE, null);
+                }
+                if (reference.status() != ReferenceAuthorizer.Authorization.AUTHORIZED) {
+                    rollbackQuietly(connection);
+                    return mapReferenceFailure(reference.status());
+                }
+                SubmissionCommandV1 canonicalCommand = command.withElderId(reference.elderId());
+                if (!contact.contactName().equals(command.contactName()) || !contact.phone().equals(command.phone())
+                        || !SubmissionValidation.PHONE_PURPOSE.equals(command.phonePurpose())) {
+                    rollbackQuietly(connection);
+                    return new Result(Result.Status.TECHNICAL_FAILURE, null);
+                }
+
+                String canonicalHash = hasher.hash(canonicalCommand);
+                String visitId = identitySource.newVisitId();
+                Instant acceptedAt = identitySource.now();
+                insertVisit(connection, visitId, principal, canonicalCommand, contact, acceptedAt);
+                insertIdempotency(connection, principal.userId(), command.idempotencyKey(), canonicalHash, visitId, acceptedAt);
+                connection.commit();
+                return new Result(Result.Status.ACCEPTED,
+                        candidate(visitId, principal, canonicalCommand, contact, acceptedAt));
+            } catch (SQLException exception) {
+                rollbackQuietly(connection);
+                // A competing request may have won the durable key. Resolve it in a fresh C5-checked transaction.
+                if (isDuplicateKey(exception)) {
+                    return findCommitted(principal, command, authEvidence, authEvidenceResolver);
+                }
+                return new Result(isUnavailable(exception)
+                        ? Result.Status.UNAVAILABLE : Result.Status.TECHNICAL_FAILURE, null);
+            } catch (RuntimeException exception) {
+                rollbackQuietly(connection);
+                return new Result(Result.Status.TECHNICAL_FAILURE, null);
+            }
+        } catch (SQLException exception) {
+            return new Result(isUnavailable(exception)
+                    ? Result.Status.UNAVAILABLE : Result.Status.TECHNICAL_FAILURE, null);
+        }
+    }
+
+    private Result validateSession(Connection connection, TrustedPrincipal principal, String authEvidence,
+                                   AuthEvidenceResolver authEvidenceResolver) {
+        AuthEvidenceResolver.Resolution resolution;
+        try {
+            resolution = authEvidenceResolver.resolve(connection, authEvidence);
+        } catch (RuntimeException ignored) {
+            return new Result(Result.Status.TECHNICAL_FAILURE, null);
+        }
+        if (resolution == null || resolution.status() == null) {
+            return new Result(Result.Status.TECHNICAL_FAILURE, null);
+        }
+        return switch (resolution.status()) {
+            case AUTHENTICATED -> resolution.principal() != null
+                    && principal.userId().equals(resolution.principal().userId())
+                    ? null : new Result(Result.Status.AUTH_REQUIRED, null);
+            case MISSING, EXPIRED, INVALID -> new Result(Result.Status.AUTH_REQUIRED, null);
+            case UNAVAILABLE -> new Result(Result.Status.AUTH_UNAVAILABLE, null);
+            case TECHNICAL_FAILURE -> new Result(Result.Status.TECHNICAL_FAILURE, null);
+        };
+    }
+
+    private static Result mapReferenceFailure(ReferenceAuthorizer.Authorization authorization) {
+        return switch (authorization) {
+            case AUTHORIZED -> throw new IllegalArgumentException("authorized is not a failure");
+            case UNAUTHORIZED -> new Result(Result.Status.REFERENCE_REJECTED, null);
+            case INVALID -> new Result(Result.Status.REFERENCE_INVALID, null);
+            case UNAVAILABLE -> new Result(Result.Status.UNAVAILABLE, null);
+            case TECHNICAL_FAILURE -> new Result(Result.Status.TECHNICAL_FAILURE, null);
+        };
+    }
+
+    /**
+     * Low-level persistence seam retained for C4 repository-only integration tests.
+     * The production VisitSubmissionService always uses the transaction-authorized overload above.
+     */
+    @Deprecated(forRemoval = false)
     @Override
     public Result createOrReplay(TrustedPrincipal principal, SubmissionCommandV1 command, PrivateContact contact) {
         String canonicalHash = hasher.hash(command);
@@ -96,15 +245,34 @@ public final class JdbcVisitSubmissionRepository implements VisitSubmissionRepos
         if (!prior.canonicalHash().equals(canonicalHash)) {
             return new Result(Result.Status.CONFLICT, null);
         }
+        return replayCandidate(connection, prior);
+    }
+
+    private Result resolvePrior(Connection connection, IdempotencyRow prior,
+                                SubmissionCommandV1 request) throws SQLException {
         Optional<VisitRow> visit = selectVisit(connection, prior.visitId());
-        if (visit.isEmpty() || !"requested".equals(visit.get().status())) {
+        if (visit.isEmpty() || !VISIT_LIFECYCLE_STATUSES.contains(visit.get().status())) {
+            return new Result(Result.Status.TECHNICAL_FAILURE, null);
+        }
+        VisitRow row = visit.get();
+        if (request.elderId() != null && !request.elderId().equals(row.elderId())) {
+            return new Result(Result.Status.CONFLICT, null);
+        }
+        String canonicalHash = hasher.hash(request, row.elderId());
+        if (!prior.canonicalHash().equals(canonicalHash)) return new Result(Result.Status.CONFLICT, null);
+        return replayCandidate(connection, prior);
+    }
+
+    private Result replayCandidate(Connection connection, IdempotencyRow prior) throws SQLException {
+        Optional<VisitRow> visit = selectVisit(connection, prior.visitId());
+        if (visit.isEmpty() || !VISIT_LIFECYCLE_STATUSES.contains(visit.get().status())) {
             return new Result(Result.Status.TECHNICAL_FAILURE, null);
         }
         VisitRow row = visit.get();
         return new Result(Result.Status.REPLAYED, new PersistedVisitCandidateV1(
                 row.visitId(), row.userId(), row.elderId(), row.institutionId(), row.institutionRecordRevision(),
                 row.visitDate(), row.visitTimePreference(), row.participantCount(), row.pickupRequested(),
-                row.contactName(), row.phone(), row.phonePurpose(), row.status(), row.acceptedAt(), row.notes()));
+                row.contactName(), row.phone(), row.phonePurpose(), "requested", row.acceptedAt(), row.notes()));
     }
 
     private Optional<IdempotencyRow> selectIdempotency(

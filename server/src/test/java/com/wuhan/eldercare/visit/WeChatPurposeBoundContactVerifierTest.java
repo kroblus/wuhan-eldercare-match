@@ -87,10 +87,10 @@ class WeChatPurposeBoundContactVerifierTest {
                     referenceCalls.incrementAndGet();
                     return ReferenceAuthorizer.Authorization.UNAVAILABLE;
                 },
-                (principal, command, contact) -> {
+                new TestOnlyLegacyVisitSubmissionRepositoryAdapter((principal, command, contact) -> {
                     visitCreates.incrementAndGet();
                     return new VisitSubmissionRepository.Result(VisitSubmissionRepository.Result.Status.ACCEPTED, null);
-                });
+                }));
         SubmissionCommandV1 command = new SubmissionCommandV1(
                 SubmissionValidation.CONTRACT_VERSION, SubmissionValidation.KIND,
                 "c6-no-visit-" + UUID.randomUUID(), "institution-test", "revision-test", "elder-test",

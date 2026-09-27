@@ -1,10 +1,18 @@
 package com.wuhan.eldercare.visit.institution.appointment.application;
 
 import java.time.Instant;
+import java.sql.Connection;
 
 /** Operations authorization is stored separately from Institution verified facts. */
 public interface InstitutionAppointmentAuthorizationRepository {
     Lookup latest(String institutionId, long recordRevision);
+
+    /** Locks the exact revision row used by authorization revocation and reads its latest event. */
+    default Lookup latest(Connection connection, String institutionId, long recordRevision) {
+        return latest(institutionId, recordRevision);
+    }
+
+    default boolean supportsTransactionScopedLookup() { return false; }
 
     Apply append(Event event);
 

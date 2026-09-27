@@ -13,6 +13,12 @@ class SubmissionValidationTest {
     }
 
     @Test
+    void elderIdMayBeOmittedAsAnAssertionAndWillBeResolvedByTheBackend() {
+        var command = TestFixtures.command("key-elder-optional").withElderId(null);
+        assertFalse(SubmissionValidation.issues(command).contains("elderId"));
+    }
+
+    @Test
     void invalidPhonePurposeFailsClosed() {
         var command = new com.wuhan.eldercare.visit.domain.SubmissionCommandV1(
                 "appointment-institution-visit-contract-v1", "appointment_submission_v1", "key-1",

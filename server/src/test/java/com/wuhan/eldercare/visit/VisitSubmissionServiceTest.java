@@ -22,6 +22,52 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class VisitSubmissionServiceTest {
     @Test
+    void committedReplayReturnsBeforeContactOrReferenceChecks() {
+        AtomicInteger contactCalls = new AtomicInteger();
+        AtomicInteger referenceCalls = new AtomicInteger();
+        AtomicInteger createCalls = new AtomicInteger();
+        var command = TestFixtures.command("replay-before-contact");
+        TrustedPrincipal owner = new TrustedPrincipal("user-1");
+        PrivateContact persistedContact = new PrivateContact(command.contactName(), command.phone());
+        VisitSubmissionRepository repository = new VisitSubmissionRepository() {
+            @Override
+            public Result createOrReplay(TrustedPrincipal principal,
+                                         com.wuhan.eldercare.visit.domain.SubmissionCommandV1 request,
+                                         PrivateContact contact) {
+                createCalls.incrementAndGet();
+                return new Result(Result.Status.TECHNICAL_FAILURE, null);
+            }
+
+            @Override
+            public Result findCommitted(TrustedPrincipal principal,
+                                        com.wuhan.eldercare.visit.domain.SubmissionCommandV1 request,
+                                        String authEvidence, AuthEvidenceResolver authEvidenceResolver) {
+                return new Result(Result.Status.REPLAYED,
+                        candidate(principal, request, persistedContact));
+            }
+        };
+        VisitSubmissionService service = service(
+                evidence -> AuthEvidenceResolver.Resolution.authenticated(owner),
+                (evidence, purpose, name, phone) -> {
+                    contactCalls.incrementAndGet();
+                    return PurposeBoundContactVerifier.Verification.failure(
+                            PurposeBoundContactVerifier.Verification.Status.EXPIRED);
+                },
+                (principal, elder, institution, revision) -> {
+                    referenceCalls.incrementAndGet();
+                    return ReferenceAuthorizer.Authorization.UNAUTHORIZED;
+                }, repository);
+
+        SubmissionResultV1 result = service.submit(command, "auth", "expired-or-consumed-proof");
+
+        assertEquals(SubmissionResultV1.Outcome.REPLAYED, result.outcome());
+        assertEquals("visit-1", result.receipt().visitId());
+        assertEquals(0, contactCalls.get());
+        assertEquals(0, referenceCalls.get());
+        assertEquals(0, createCalls.get());
+    }
+
+    @Test
     void missingAuthCreatesNoPersistenceAttempt() {
         AtomicInteger calls = new AtomicInteger();
         VisitSubmissionService service = service(
@@ -37,6 +83,38 @@ class VisitSubmissionServiceTest {
         assertEquals(SubmissionResultV1.Outcome.REJECTED, result.outcome());
         assertEquals("AUTH_REQUIRED", result.code());
         assertEquals(0, calls.get());
+    }
+
+    @Test
+    void nonTransactionalRepositoryFailsClosedBeforeContactOrLegacyWrite() {
+        AtomicInteger contactCalls = new AtomicInteger();
+        AtomicInteger referenceCalls = new AtomicInteger();
+        AtomicInteger legacyWrites = new AtomicInteger();
+        VisitSubmissionRepository legacyRepository = (principal, command, contact) -> {
+            legacyWrites.incrementAndGet();
+            return new VisitSubmissionRepository.Result(VisitSubmissionRepository.Result.Status.ACCEPTED,
+                    candidate(principal, command, contact));
+        };
+        VisitSubmissionService service = new VisitSubmissionService(
+                evidence -> AuthEvidenceResolver.Resolution.authenticated(new TrustedPrincipal("user-1")),
+                (evidence, purpose, name, phone) -> {
+                    contactCalls.incrementAndGet();
+                    return PurposeBoundContactVerifier.Verification.authorized(new PrivateContact(name, phone));
+                },
+                (principal, elder, institution, revision) -> {
+                    referenceCalls.incrementAndGet();
+                    return ReferenceAuthorizer.Authorization.AUTHORIZED;
+                },
+                legacyRepository);
+
+        BackendSubmissionResultV1 result = service.submitBackend(
+                TestFixtures.command("legacy-repository-blocked"), "auth", "phone-proof");
+
+        assertEquals(SubmissionResultV1.Outcome.UNAVAILABLE, result.outcome());
+        assertEquals("SERVICE_UNAVAILABLE", result.code());
+        assertEquals(0, contactCalls.get());
+        assertEquals(0, referenceCalls.get());
+        assertEquals(0, legacyWrites.get());
     }
 
     @Test
@@ -146,7 +224,8 @@ class VisitSubmissionServiceTest {
             ReferenceAuthorizer reference,
             VisitSubmissionRepository repository
     ) {
-        return new VisitSubmissionService(auth, contact, reference, repository);
+        return new VisitSubmissionService(auth, contact, reference,
+                new TestOnlyLegacyVisitSubmissionRepositoryAdapter(repository));
     }
 
     private static PersistedVisitCandidateV1 candidate(

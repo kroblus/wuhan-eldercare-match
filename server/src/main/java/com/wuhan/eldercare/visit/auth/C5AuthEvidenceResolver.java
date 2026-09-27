@@ -3,6 +3,7 @@ package com.wuhan.eldercare.visit.auth;
 import com.wuhan.eldercare.visit.application.AuthEvidenceResolver;
 import com.wuhan.eldercare.visit.domain.TrustedPrincipal;
 
+import java.sql.Connection;
 import java.time.Clock;
 
 /** Resolves only self-owned sessions; provider evidence is never accepted here. */
@@ -23,6 +24,12 @@ public final class C5AuthEvidenceResolver implements AuthEvidenceResolver {
 
     @Override
     public Resolution resolve(String opaqueEvidence) {
+        return resolve(null, opaqueEvidence);
+    }
+
+    /** Revalidates C5 evidence inside the C3 write transaction when a connection is supplied. */
+    @Override
+    public Resolution resolve(Connection connection, String opaqueEvidence) {
         if (opaqueEvidence == null || opaqueEvidence.isBlank()) {
             return Resolution.failure(Resolution.Status.MISSING);
         }
@@ -30,7 +37,9 @@ public final class C5AuthEvidenceResolver implements AuthEvidenceResolver {
         if (digest == null || digest.isEmpty()) return Resolution.failure(Resolution.Status.INVALID);
         AuthIdentitySessionRepository.SessionResolution resolution;
         try {
-            resolution = repository.resolveSession(digest.get(), clock.instant());
+            resolution = connection == null
+                    ? repository.resolveSession(digest.get(), clock.instant())
+                    : repository.resolveSession(connection, digest.get(), clock.instant());
         } catch (RuntimeException ignored) {
             return Resolution.failure(Resolution.Status.TECHNICAL_FAILURE);
         }
@@ -48,5 +57,10 @@ public final class C5AuthEvidenceResolver implements AuthEvidenceResolver {
             case UNAVAILABLE -> Resolution.failure(Resolution.Status.UNAVAILABLE);
             case TECHNICAL_FAILURE -> Resolution.failure(Resolution.Status.TECHNICAL_FAILURE);
         };
+    }
+
+    @Override
+    public boolean supportsTransactionalResolution() {
+        return repository.supportsTransactionalSessionResolution();
     }
 }

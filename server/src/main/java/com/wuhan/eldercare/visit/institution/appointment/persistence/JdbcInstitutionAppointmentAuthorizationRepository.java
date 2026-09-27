@@ -16,6 +16,7 @@ public final class JdbcInstitutionAppointmentAuthorizationRepository
         implements InstitutionAppointmentAuthorizationRepository {
     private static final String LATEST_SQL = "SELECT authorization_state FROM institution_appointment_authorization_event_v1 "
             + "WHERE institution_id = ? AND record_revision = ? ORDER BY authorization_sequence DESC LIMIT 1";
+    private static final String LATEST_FOR_UPDATE_SQL = LATEST_SQL + " FOR UPDATE";
     private static final String LOCK_REVISION_SQL = "SELECT record_revision FROM institution_record_revision_v1 "
             + "WHERE institution_id = ? AND record_revision = ? FOR UPDATE";
     private static final String INSERT_SQL = "INSERT INTO institution_appointment_authorization_event_v1 "
@@ -53,6 +54,37 @@ public final class JdbcInstitutionAppointmentAuthorizationRepository
             return Lookup.of(isUnavailable(failure) ? Lookup.Status.UNAVAILABLE : Lookup.Status.TECHNICAL_FAILURE);
         }
     }
+
+    @Override
+    public Lookup latest(Connection connection, String institutionId, long recordRevision) {
+        if (connection == null || institutionId == null || institutionId.isBlank() || recordRevision < 1) {
+            return Lookup.of(Lookup.Status.NOT_CONFIGURED);
+        }
+        try (PreparedStatement lock = connection.prepareStatement(LOCK_REVISION_SQL)) {
+            lock.setString(1, institutionId);
+            lock.setLong(2, recordRevision);
+            try (ResultSet revision = lock.executeQuery()) {
+                if (!revision.next()) return Lookup.of(Lookup.Status.NOT_CONFIGURED);
+            }
+            try (PreparedStatement statement = connection.prepareStatement(LATEST_FOR_UPDATE_SQL)) {
+                statement.setString(1, institutionId);
+                statement.setLong(2, recordRevision);
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) return Lookup.of(Lookup.Status.NOT_CONFIGURED);
+                    return switch (result.getString("authorization_state")) {
+                        case "AUTHORIZED" -> Lookup.of(Lookup.Status.AUTHORIZED);
+                        case "REVOKED" -> Lookup.of(Lookup.Status.REVOKED);
+                        default -> Lookup.of(Lookup.Status.TECHNICAL_FAILURE);
+                    };
+                }
+            }
+        } catch (SQLException | RuntimeException failure) {
+            return Lookup.of(isUnavailable(failure) ? Lookup.Status.UNAVAILABLE : Lookup.Status.TECHNICAL_FAILURE);
+        }
+    }
+
+    @Override
+    public boolean supportsTransactionScopedLookup() { return true; }
 
     @Override
     public Apply append(Event event) {

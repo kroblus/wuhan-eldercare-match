@@ -93,6 +93,38 @@ public final class JdbcAuthIdentitySessionRepository implements AuthIdentitySess
     }
 
     @Override
+    public SessionResolution resolveSession(Connection connection, String sessionDigest, Instant now) {
+        if (connection == null || blank(sessionDigest) || now == null) {
+            return new SessionResolution(SessionResolution.Status.UNKNOWN, null);
+        }
+        String sql = "SELECT user_id, expires_at, revoked_at FROM auth_session_v1 WHERE session_digest = ? FOR UPDATE";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, sessionDigest);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) return new SessionResolution(SessionResolution.Status.UNKNOWN, null);
+                String userId = result.getString("user_id");
+                Timestamp expiresAtValue = result.getTimestamp("expires_at");
+                Timestamp revokedAtValue = result.getTimestamp("revoked_at");
+                if (userId == null || userId.isBlank() || expiresAtValue == null) {
+                    return new SessionResolution(SessionResolution.Status.TECHNICAL_FAILURE, null);
+                }
+                if (revokedAtValue != null) return new SessionResolution(SessionResolution.Status.REVOKED, null);
+                if (!expiresAtValue.toInstant().isAfter(now)) {
+                    return new SessionResolution(SessionResolution.Status.EXPIRED, null);
+                }
+                return new SessionResolution(SessionResolution.Status.ACTIVE, userId);
+            }
+        } catch (SQLException exception) {
+            return new SessionResolution(isUnavailable(exception)
+                    ? SessionResolution.Status.UNAVAILABLE
+                    : SessionResolution.Status.TECHNICAL_FAILURE, null);
+        }
+    }
+
+    @Override
+    public boolean supportsTransactionalSessionResolution() { return true; }
+
+    @Override
     public RevokeResult revokeSession(String sessionDigest, Instant revokedAt) {
         if (blank(sessionDigest) || revokedAt == null) return new RevokeResult(RevokeResult.Status.UNKNOWN);
         String sql = "UPDATE auth_session_v1 SET revoked_at = ? WHERE session_digest = ? AND revoked_at IS NULL";

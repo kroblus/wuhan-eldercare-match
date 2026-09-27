@@ -1,6 +1,7 @@
 package com.wuhan.eldercare.visit.institution.application;
 
 import java.time.Instant;
+import java.sql.Connection;
 
 public interface InstitutionRevisionRepository {
     InstitutionPublishResult publish(
@@ -12,6 +13,14 @@ public interface InstitutionRevisionRepository {
     ExactPublicNameResult resolveExactPublicName(String institutionId, long recordRevision);
 
     CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(String institutionId, long requestedRevision);
+
+    /** Resolves and locks the current head for an appointment write transaction. */
+    default CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(
+            Connection connection, String institutionId, long requestedRevision) {
+        return resolveCurrentAppointmentRevision(institutionId, requestedRevision);
+    }
+
+    default boolean supportsTransactionScopedAppointmentRead() { return false; }
 
     record CurrentHeadResult(Status status, String institutionId, Long recordRevision) {
         public static CurrentHeadResult ready(String institutionId, long revision) {

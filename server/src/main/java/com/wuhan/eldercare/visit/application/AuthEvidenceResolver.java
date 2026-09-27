@@ -2,8 +2,17 @@ package com.wuhan.eldercare.visit.application;
 
 import com.wuhan.eldercare.visit.domain.TrustedPrincipal;
 
+import java.sql.Connection;
+
 public interface AuthEvidenceResolver {
     Resolution resolve(String opaqueEvidence);
+
+    /** Revalidates evidence inside the caller's transaction when supported by the concrete authority. */
+    default Resolution resolve(Connection connection, String opaqueEvidence) {
+        return resolve(opaqueEvidence);
+    }
+
+    default boolean supportsTransactionalResolution() { return false; }
 
     record Resolution(Status status, TrustedPrincipal principal) {
         public enum Status {

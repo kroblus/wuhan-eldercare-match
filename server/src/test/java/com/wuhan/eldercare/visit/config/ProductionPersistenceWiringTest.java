@@ -6,6 +6,7 @@ import com.wuhan.eldercare.visit.application.AuthEvidenceResolver;
 import com.wuhan.eldercare.visit.application.PurposeBoundContactVerifier;
 import com.wuhan.eldercare.visit.application.VisitSubmissionService;
 import com.wuhan.eldercare.visit.application.WeChatPurposeBoundContactVerifier;
+import com.wuhan.eldercare.visit.application.ProductionReferenceAuthorizer;
 import com.wuhan.eldercare.visit.application.VisitSubmissionRepository;
 import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.auth.AuthIdentitySessionRepository;
@@ -70,7 +71,10 @@ class ProductionPersistenceWiringTest {
                             reader);
                     assertTrue(!(reader instanceof ReferenceAuthorizer),
                             "the read-only appointment port must not be injectable as the current C3 gate");
-                    assertEquals(ReferenceAuthorizer.Authorization.UNAVAILABLE,
+                    assertInstanceOf(ProductionReferenceAuthorizer.class,
+                            context.getBean(ReferenceAuthorizer.class),
+                            "persistence-enabled production must wire the transactional canonical authorizer");
+                    assertEquals(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE,
                             context.getBean(ReferenceAuthorizer.class).authorize(
                                     new TrustedPrincipal("synthetic-user"), "elder-1", "institution-1", "1"));
                     assertInstanceOf(C5AuthEvidenceResolver.class, context.getBean(AuthEvidenceResolver.class));
@@ -79,6 +83,19 @@ class ProductionPersistenceWiringTest {
                             context.getBean("c6PhoneAuthorizationProvider"));
                     assertInstanceOf(WeChatPurposeBoundContactVerifier.class,
                             context.getBean(PurposeBoundContactVerifier.class));
+                });
+    }
+
+    @Test
+    void persistenceDisabledReferenceBoundaryRemainsFailClosed() {
+        new ApplicationContextRunner()
+                .withUserConfiguration(C4Application.class)
+                .withPropertyValues("c4.persistence.enabled=false")
+                .run(context -> {
+                    assertNull(context.getStartupFailure());
+                    assertEquals(ReferenceAuthorizer.Authorization.UNAVAILABLE,
+                            context.getBean(ReferenceAuthorizer.class).authorize(
+                                    new TrustedPrincipal("synthetic-user"), "elder-1", "institution-1", "1"));
                 });
     }
 
@@ -119,7 +136,7 @@ class ProductionPersistenceWiringTest {
                             context.getBean(PurposeBoundContactVerifier.class).verify(
                                     "synthetic-phone-code", "appointment_or_consultant_contact",
                                     "Synthetic Contact", "13800000000").status());
-                    assertEquals(ReferenceAuthorizer.Authorization.UNAVAILABLE,
+                    assertEquals(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE,
                             context.getBean(ReferenceAuthorizer.class).authorize(
                                     new TrustedPrincipal("synthetic-user"), "elder-1", "institution-1", "1"));
 
@@ -129,7 +146,7 @@ class ProductionPersistenceWiringTest {
                     assertEquals("SERVICE_UNAVAILABLE", result.code());
                     assertNull(result.candidate());
                     assertEquals(0, visitSubmissionAttempts.get(),
-                            "C3 must stop at the fail-closed reference gate before persistence");
+                            "a custom non-transactional persistence bean must not reach legacy createOrReplay");
                 });
     }
 

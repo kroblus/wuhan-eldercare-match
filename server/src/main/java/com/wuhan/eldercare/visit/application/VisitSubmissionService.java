@@ -46,48 +46,91 @@ public final class VisitSubmissionService {
             return mapAuthFailure(auth.status());
         }
         TrustedPrincipal principal = auth.principal();
+        if (!repository.hasTransactionalAuthorization()) {
+            // A non-transactional persistence bean must never reach the legacy
+            // authorize-then-write path. Fail closed before contact exchange.
+            return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.UNAVAILABLE, "SERVICE_UNAVAILABLE");
+        }
 
-        PurposeBoundContactVerifier.Verification contact;
+        VisitSubmissionRepository.Result prior;
         try {
-            contact = contactVerifier.verify(phoneEvidence, SubmissionValidation.PHONE_PURPOSE,
-                    command.contactName(), command.phone());
+            prior = repository.findCommitted(principal, command, authEvidence, authEvidenceResolver);
         } catch (RuntimeException ignored) {
             return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
         }
-        if (contact == null) return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
+        if (prior == null) return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
+        if (prior.status() != VisitSubmissionRepository.Result.Status.NO_COMMITTED_RECORD) {
+            return mapRepositoryResult(prior, principal, command, null);
+        }
+
+        PurposeBoundContactVerifier.Verification contact;
+        try {
+            // The provider exchange is external and intentionally happens before opening the C3 write transaction.
+            contact = contactVerifier.verify(phoneEvidence, SubmissionValidation.PHONE_PURPOSE,
+                    command.contactName(), command.phone());
+        } catch (RuntimeException ignored) {
+            return replayAfterContactFailure(principal, command, authEvidence,
+                    BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE"));
+        }
+        if (contact == null) return replayAfterContactFailure(principal, command, authEvidence,
+                BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE"));
         if (contact.status() != PurposeBoundContactVerifier.Verification.Status.AUTHORIZED) {
-            return mapContactFailure(contact.status());
+            return replayAfterContactFailure(principal, command, authEvidence, mapContactFailure(contact.status()));
         }
         PrivateContact privateContact = contact.contact();
         if (!command.contactName().equals(privateContact.contactName())
                 || !command.phone().equals(privateContact.phone())) {
-            return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
-        }
-
-        ReferenceAuthorizer.Authorization reference;
-        try {
-            reference = referenceAuthorizer.authorize(principal, command.elderId(), command.institutionId(),
-                    command.institutionRecordRevision());
-        } catch (RuntimeException ignored) {
-            return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
-        }
-        if (reference == null) return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
-        if (reference != ReferenceAuthorizer.Authorization.AUTHORIZED) {
-            return mapReferenceFailure(reference);
+            return replayAfterContactFailure(principal, command, authEvidence,
+                    BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE"));
         }
 
         VisitSubmissionRepository.Result persisted;
         try {
-            persisted = repository.createOrReplay(principal, command, privateContact);
+            persisted = repository.createOrReplay(principal, command, privateContact, authEvidence,
+                    authEvidenceResolver, referenceAuthorizer);
         } catch (RuntimeException ignored) {
             return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
         }
-        if (persisted == null) return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
+        return mapRepositoryResult(persisted, principal, command, privateContact);
+    }
+
+    private BackendSubmissionResultV1 replayAfterContactFailure(
+            TrustedPrincipal principal,
+            SubmissionCommandV1 command,
+            String authEvidence,
+            BackendSubmissionResultV1 fallback
+    ) {
+        try {
+            VisitSubmissionRepository.Result current = repository.findCommitted(
+                    principal, command, authEvidence, authEvidenceResolver);
+            if (current != null && current.status() != VisitSubmissionRepository.Result.Status.NO_COMMITTED_RECORD) {
+                return mapRepositoryResult(current, principal, command, null);
+            }
+        } catch (RuntimeException ignored) {
+            return BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
+        }
+        return fallback;
+    }
+
+    private static BackendSubmissionResultV1 mapRepositoryResult(
+            VisitSubmissionRepository.Result persisted,
+            TrustedPrincipal principal,
+            SubmissionCommandV1 command,
+            PrivateContact privateContact
+    ) {
+        if (persisted == null) return BackendSubmissionResultV1.from(
+                SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
         return switch (persisted.status()) {
             case ACCEPTED -> projectAcceptedCandidate(persisted.candidate(), principal, command, privateContact, false);
             case REPLAYED -> projectAcceptedCandidate(persisted.candidate(), principal, command, privateContact, true);
             case CONFLICT -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.CONFLICT, "IDEMPOTENCY_CONFLICT");
             case UNAVAILABLE -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.UNAVAILABLE, "SERVICE_UNAVAILABLE");
+            case AUTH_REQUIRED -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "AUTH_REQUIRED");
+            case AUTH_UNAVAILABLE -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.UNAVAILABLE, "SERVICE_UNAVAILABLE");
+            case REFERENCE_REJECTED -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "REFERENCE_UNAVAILABLE");
+            case REFERENCE_INVALID -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "VALIDATION_FAILED");
+            case NO_COMMITTED_RECORD -> BackendSubmissionResultV1.from(
+                    SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
             case TECHNICAL_FAILURE -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
         };
     }
@@ -101,15 +144,17 @@ public final class VisitSubmissionService {
     ) {
         if (candidate == null
                 || !principal.userId().equals(candidate.userId())
-                || !command.elderId().equals(candidate.elderId())
+                || (command.elderId() != null && !command.elderId().equals(candidate.elderId()))
                 || !command.institutionId().equals(candidate.institutionId())
                 || !command.institutionRecordRevision().equals(candidate.institutionRecordRevision())
                 || !command.visitDate().equals(candidate.visitDate())
                 || !command.visitTimePreference().equals(candidate.visitTimePreference())
                 || command.participantCount() != candidate.participantCount()
                 || !java.util.Objects.equals(command.pickupRequested(), candidate.pickupRequested())
-                || !contact.contactName().equals(candidate.contactName())
-                || !contact.phone().equals(candidate.phone())
+                || !command.contactName().equals(candidate.contactName())
+                || !command.phone().equals(candidate.phone())
+                || (contact != null && (!contact.contactName().equals(candidate.contactName())
+                || !contact.phone().equals(candidate.phone())))
                 || !command.phonePurpose().equals(candidate.phonePurpose())
                 || !java.util.Objects.equals(command.notes(), candidate.notes())
                 || !"requested".equals(candidate.status())
@@ -142,12 +187,4 @@ public final class VisitSubmissionService {
         };
     }
 
-    private static BackendSubmissionResultV1 mapReferenceFailure(ReferenceAuthorizer.Authorization status) {
-        return switch (status) {
-            case UNAUTHORIZED, INVALID -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.REJECTED, "REFERENCE_UNAVAILABLE");
-            case UNAVAILABLE -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.UNAVAILABLE, "SERVICE_UNAVAILABLE");
-            case TECHNICAL_FAILURE -> BackendSubmissionResultV1.from(SubmissionResultV1.Outcome.TECHNICAL_FAILURE, "TECHNICAL_FAILURE");
-            case AUTHORIZED -> throw new IllegalStateException("authorized is not a failure");
-        };
-    }
 }

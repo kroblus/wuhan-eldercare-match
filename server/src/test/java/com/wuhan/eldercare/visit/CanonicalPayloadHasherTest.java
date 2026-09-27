@@ -48,6 +48,14 @@ class CanonicalPayloadHasherTest {
                         + "\"phoneAuthorization\":\"explicit\"}", command.canonicalMaterial());
     }
 
+    @Test
+    void optionalClientElderAssertionHashesToTheServerResolvedCanonicalIdentity() {
+        CanonicalPayloadHasher hasher = new CanonicalPayloadHasher();
+        var withoutAssertion = TestFixtures.command("key-elder-resolution").withElderId(null);
+        var serverResolved = withoutAssertion.withElderId("elder-server-canonical");
+        assertEquals(hasher.hash(serverResolved), hasher.hash(withoutAssertion, "elder-server-canonical"));
+    }
+
     private static com.wuhan.eldercare.visit.domain.SubmissionCommandV1 command(String institutionId, String revision) {
         return new com.wuhan.eldercare.visit.domain.SubmissionCommandV1(
                 "appointment-institution-visit-contract-v1", "appointment_submission_v1", "collision-key",

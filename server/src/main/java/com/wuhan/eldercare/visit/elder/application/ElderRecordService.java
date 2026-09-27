@@ -5,6 +5,7 @@ import com.wuhan.eldercare.visit.application.ReferenceAuthorizer;
 import com.wuhan.eldercare.visit.domain.TrustedPrincipal;
 import com.wuhan.eldercare.visit.elder.domain.ElderRecord;
 
+import java.sql.Connection;
 /** Resolves C5 identity before every owner-scoped read or explicit establish operation. */
 public final class ElderRecordService {
     private final AuthEvidenceResolver authentication;
@@ -101,6 +102,39 @@ public final class ElderRecordService {
             case NOT_FOUND -> ReferenceAuthorizer.Authorization.UNAUTHORIZED;
             case UNAVAILABLE -> ReferenceAuthorizer.Authorization.UNAVAILABLE;
             case TECHNICAL_FAILURE -> ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE;
+        };
+    }
+
+    /** Resolves the canonical Elder identity from trusted C5 ownership in the caller's transaction. */
+    public ReferenceAuthorizer.Resolution authorizeAssertion(Connection connection, TrustedPrincipal principal,
+                                                               String assertedElderId) {
+        if (connection == null || principal == null || !repository.supportsTransactionScopedLookup()) {
+            return ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE);
+        }
+        ElderRecordRepository.Lookup lookup;
+        try {
+            lookup = repository.findByResponsibleUserId(connection, principal.userId());
+        } catch (RuntimeException ignored) {
+            return ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE);
+        }
+        if (lookup == null || lookup.status() == null) {
+            return ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE);
+        }
+        return switch (lookup.status()) {
+            case FOUND -> {
+                ElderRecord record = lookup.record();
+                if (!principal.userId().equals(record.responsibleUserId())) {
+                    yield ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE);
+                }
+                if (assertedElderId != null && !assertedElderId.isBlank()
+                        && !record.elderId().equals(assertedElderId)) {
+                    yield ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.UNAUTHORIZED);
+                }
+                yield ReferenceAuthorizer.Resolution.authorized(record.elderId());
+            }
+            case NOT_FOUND -> ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.UNAUTHORIZED);
+            case UNAVAILABLE -> ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.UNAVAILABLE);
+            case TECHNICAL_FAILURE -> ReferenceAuthorizer.Resolution.of(ReferenceAuthorizer.Authorization.TECHNICAL_FAILURE);
         };
     }
 

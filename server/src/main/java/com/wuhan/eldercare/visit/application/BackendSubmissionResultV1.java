@@ -4,11 +4,10 @@ import com.wuhan.eldercare.visit.domain.PersistedVisitCandidateV1;
 import com.wuhan.eldercare.visit.domain.SubmissionResultV1;
 
 /**
- * Versioned private Backend -> Application result. The candidate is the
- * complete persisted InstitutionVisit shape required by the C2 firewall.
- * The HTTP controller exposes this only as the private Backend-to-Application
- * transport boundary; {@link #toPublic()} projects only the safe receipt
- * after validation so the candidate never becomes Page state.
+ * Versioned server-internal Backend -> Application result. The candidate is
+ * the complete persisted InstitutionVisit shape required by the C2 firewall.
+ * It must not be serialized by the public HTTP controller or become Page state;
+ * {@link #toPublic()} projects only the safe receipt after candidate validation.
  */
 public record BackendSubmissionResultV1(
         String contractVersion,

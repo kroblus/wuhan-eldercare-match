@@ -56,6 +56,7 @@ public class DefaultBoundaryConfiguration {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "c4.persistence.enabled", havingValue = "false", matchIfMissing = true)
     @ConditionalOnMissingBean(ReferenceAuthorizer.class)
     ReferenceAuthorizer unavailableReferenceAuthorizer() {
         return (principal, elderId, institutionId, revision) -> ReferenceAuthorizer.Authorization.UNAVAILABLE;

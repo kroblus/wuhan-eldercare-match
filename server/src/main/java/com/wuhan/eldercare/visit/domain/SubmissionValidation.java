@@ -41,7 +41,6 @@ public final class SubmissionValidation {
         required(issues, "idempotencyKey", command.idempotencyKey());
         required(issues, "institutionId", command.institutionId());
         required(issues, "institutionRecordRevision", command.institutionRecordRevision());
-        required(issues, "elderId", command.elderId());
         required(issues, "visitDate", command.visitDate());
         required(issues, "visitTimePreference", command.visitTimePreference());
         required(issues, "contactName", command.contactName());
@@ -51,7 +50,7 @@ public final class SubmissionValidation {
         validateIdempotencyKey(issues, command.idempotencyKey());
         validateOpaqueId(issues, "institutionId", command.institutionId());
         validateOpaqueId(issues, "institutionRecordRevision", command.institutionRecordRevision());
-        validateOpaqueId(issues, "elderId", command.elderId());
+        if (command.elderId() != null) validateOpaqueId(issues, "elderId", command.elderId());
         validateDate(issues, command.visitDate());
         validateLength(issues, "visitTimePreference", command.visitTimePreference(), 1, TIME_PREFERENCE_MAX_LENGTH);
         validateLength(issues, "contactName", command.contactName(), 1, CONTACT_NAME_MAX_LENGTH);

@@ -1,8 +1,8 @@
 package com.wuhan.eldercare.visit;
 
 import com.wuhan.eldercare.visit.application.VisitSubmissionService;
-import com.wuhan.eldercare.visit.application.BackendSubmissionResultV1;
-import com.wuhan.eldercare.visit.domain.PersistedVisitCandidateV1;
+import com.wuhan.eldercare.visit.domain.SubmissionResultV1;
+import com.wuhan.eldercare.visit.domain.VisitReceiptV1;
 import com.wuhan.eldercare.visit.web.ApiExceptionHandler;
 import com.wuhan.eldercare.visit.web.VisitSubmissionController;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,17 +53,23 @@ class VisitSubmissionControllerTest {
     }
 
     @Test
-    void acceptedTransportCarriesCandidateForApplicationFirewallOnly() throws Exception {
-        var command = TestFixtures.command("wire-candidate");
-        var candidate = new PersistedVisitCandidateV1(
-                "visit-wire", "user-wire", command.elderId(), command.institutionId(),
-                command.institutionRecordRevision(), command.visitDate(), command.visitTimePreference(),
-                command.participantCount(), command.pickupRequested(), command.contactName(), command.phone(),
-                command.phonePurpose(), "requested", java.time.Instant.parse("2026-09-17T00:00:00Z"), command.notes());
-        when(service.submitBackend(any(), any(), any()))
-                .thenReturn(BackendSubmissionResultV1.accepted(candidate, false));
+    void acceptedHttpResponseContainsOnlyThePublicReceipt() throws Exception {
+        when(service.submit(any(), any(), any())).thenReturn(SubmissionResultV1.accepted(publicReceipt()));
 
-        mockMvc.perform(post("/api/v1/appointment-submissions")
+        assertSafeHttpResponse("accepted", "ACCEPTED");
+        verify(service).submit(any(), any(), any());
+    }
+
+    @Test
+    void replayedHttpResponseContainsOnlyThePublicReceipt() throws Exception {
+        when(service.submit(any(), any(), any())).thenReturn(SubmissionResultV1.replayed(publicReceipt()));
+
+        assertSafeHttpResponse("replayed", "REPLAYED");
+        verify(service).submit(any(), any(), any());
+    }
+
+    private void assertSafeHttpResponse(String outcome, String code) throws Exception {
+        String body = mockMvc.perform(post("/api/v1/appointment-submissions")
                         .header("X-Auth-Evidence", "opaque-auth")
                         .header("X-Phone-Auth-Evidence", "opaque-phone")
                         .contentType("application/json")
@@ -71,19 +79,48 @@ class VisitSubmissionControllerTest {
                                 + "\"idempotencyKey\":\"wire-candidate\","
                                 + "\"institutionId\":\"institution-1\","
                                 + "\"institutionRecordRevision\":\"revision-7\","
-                                + "\"elderId\":\"elder-1\","
+                                + "\"elderId\":\"elder-assertion-secret\","
                                 + "\"visitDate\":\"2026-10-01\","
                                 + "\"visitTimePreference\":\"morning\","
                                 + "\"participantCount\":2,"
                                 + "\"pickupRequested\":false,"
-                                + "\"contactName\":\"张三\","
+                                + "\"contactName\":\"private-contact-name\","
                                 + "\"phone\":\"13800000000\","
                                 + "\"phonePurpose\":\"appointment_or_consultant_contact\","
                                 + "\"phoneAuthorization\":\"explicit\","
-                                + "\"notes\":\"需要无障碍接待\"} "))
+                                + "\"notes\":\"private-notes-secret\"} "))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.outcome", equalTo("accepted")))
-                .andExpect(jsonPath("$.candidate.userId", equalTo("user-wire")))
-                .andExpect(jsonPath("$.candidate.phone", equalTo("13800000000")));
+                .andExpect(jsonPath("$.outcome", equalTo(outcome)))
+                .andExpect(jsonPath("$.code", equalTo(code)))
+                .andExpect(jsonPath("$.candidate").doesNotExist())
+                .andExpect(jsonPath("$.userId").doesNotExist())
+                .andExpect(jsonPath("$.elderId").doesNotExist())
+                .andExpect(jsonPath("$.receipt.userId").doesNotExist())
+                .andExpect(jsonPath("$.receipt.elderId").doesNotExist())
+                .andExpect(jsonPath("$.receipt.contactName").doesNotExist())
+                .andExpect(jsonPath("$.receipt.phone").doesNotExist())
+                .andExpect(jsonPath("$.receipt.phonePurpose").doesNotExist())
+                .andExpect(jsonPath("$.receipt.notes").doesNotExist())
+                .andExpect(jsonPath("$.receipt.visitDate").doesNotExist())
+                .andExpect(jsonPath("$.receipt.visitTimePreference").doesNotExist())
+                .andExpect(jsonPath("$.receipt.participantCount").doesNotExist())
+                .andExpect(jsonPath("$.receipt.pickupRequested").doesNotExist())
+                .andExpect(jsonPath("$.receipt.visitId", equalTo("visit-public")))
+                .andExpect(jsonPath("$.receipt.institutionId", equalTo("institution-1")))
+                .andExpect(jsonPath("$.receipt.institutionRecordRevision", equalTo("revision-7")))
+                .andExpect(jsonPath("$.receipt.status", equalTo("requested")))
+                .andReturn().getResponse().getContentAsString();
+
+        assertFalse(body.contains("user-private"));
+        assertFalse(body.contains("elder-private"));
+        assertFalse(body.contains("elder-assertion-secret"));
+        assertFalse(body.contains("private-contact-name"));
+        assertFalse(body.contains("13800000000"));
+        assertFalse(body.contains("private-notes-secret"));
+    }
+
+    private static VisitReceiptV1 publicReceipt() {
+        return new VisitReceiptV1("visit-public", "institution-1", "revision-7", "requested",
+                java.time.Instant.parse("2026-09-17T00:00:00Z"), "ignored");
     }
 }

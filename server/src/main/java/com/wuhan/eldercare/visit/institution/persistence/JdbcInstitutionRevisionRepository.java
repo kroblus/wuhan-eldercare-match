@@ -48,6 +48,8 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
             + "revision.snapshot_json FROM institution_current_head_v1 head LEFT JOIN institution_record_revision_v1 revision "
             + "ON revision.institution_id = head.institution_id AND revision.record_revision = ? "
             + "WHERE head.institution_id = ?";
+    private static final String LOCK_CURRENT_APPOINTMENT_HEAD_SQL = "SELECT record_revision FROM institution_current_head_v1 "
+            + "WHERE institution_id = ? FOR UPDATE";
 
     private final DataSource dataSource;
     private final ObjectMapper objectMapper;
@@ -209,6 +211,53 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
             return CurrentAppointmentRevisionResult.technicalFailure();
         }
     }
+
+    @Override
+    public CurrentAppointmentRevisionResult resolveCurrentAppointmentRevision(
+            Connection connection, String institutionId, long requestedRevision) {
+        if (connection == null || institutionId == null || institutionId.isBlank() || requestedRevision < 1
+                || requestedRevision > MAX_SAFE_REVISION) return CurrentAppointmentRevisionResult.unavailable();
+        try {
+            long currentRevision;
+            try (PreparedStatement head = connection.prepareStatement(LOCK_CURRENT_APPOINTMENT_HEAD_SQL)) {
+                head.setString(1, institutionId);
+                try (ResultSet result = head.executeQuery()) {
+                    if (!result.next()) return CurrentAppointmentRevisionResult.notFound();
+                    currentRevision = result.getLong("record_revision");
+                    if (result.wasNull() || currentRevision < 1 || currentRevision > MAX_SAFE_REVISION) {
+                        return CurrentAppointmentRevisionResult.technicalFailure();
+                    }
+                }
+            }
+            try (PreparedStatement exact = connection.prepareStatement(FIND_EXACT_REVISION_SQL)) {
+                exact.setString(1, institutionId);
+                exact.setLong(2, requestedRevision);
+                try (ResultSet result = exact.executeQuery()) {
+                    if (!result.next()) {
+                        return CurrentAppointmentRevisionResult.ready(institutionId, currentRevision, false, null);
+                    }
+                    JsonNode snapshot = objectMapper.readTree(result.getString("snapshot_json"));
+                    if (snapshot == null || !institutionId.equals(snapshot.path("institutionId").asText(null))
+                            || !snapshot.path("recordRevision").canConvertToLong()
+                            || snapshot.path("recordRevision").asLong() != requestedRevision) {
+                        return CurrentAppointmentRevisionResult.technicalFailure();
+                    }
+                    JsonNode status = snapshot.get("recordStatus");
+                    return CurrentAppointmentRevisionResult.ready(institutionId, currentRevision, true,
+                            status != null && status.isTextual() ? status.asText() : null);
+                }
+            }
+        } catch (SQLException failure) {
+            return isUnavailable(failure)
+                    ? CurrentAppointmentRevisionResult.unavailable()
+                    : CurrentAppointmentRevisionResult.technicalFailure();
+        } catch (IOException | RuntimeException failure) {
+            return CurrentAppointmentRevisionResult.technicalFailure();
+        }
+    }
+
+    @Override
+    public boolean supportsTransactionScopedAppointmentRead() { return true; }
 
     private long allocateRevision(Connection connection, String institutionId) throws SQLException {
         try (PreparedStatement insert = connection.prepareStatement(INSERT_REVISION_SEQUENCE_SQL)) {

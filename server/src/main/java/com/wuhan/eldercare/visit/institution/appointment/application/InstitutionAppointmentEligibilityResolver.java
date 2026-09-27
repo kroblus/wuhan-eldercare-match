@@ -2,6 +2,8 @@ package com.wuhan.eldercare.visit.institution.appointment.application;
 
 import com.wuhan.eldercare.visit.institution.application.InstitutionRevisionRepository;
 
+import java.sql.Connection;
+
 /** Resolves current exact publication state and separately checks explicit Operations authorization. */
 public final class InstitutionAppointmentEligibilityResolver {
     private static final long MAX_SAFE_REVISION = 9_007_199_254_740_991L;
@@ -19,11 +21,20 @@ public final class InstitutionAppointmentEligibilityResolver {
     }
 
     public Result resolve(String institutionId, String recordRevision) {
+        return resolve(null, institutionId, recordRevision);
+    }
+
+    /** Same eligibility semantics as read-only resolve, using transaction-scoped locked repositories. */
+    public Result resolve(Connection connection, String institutionId, String recordRevision) {
+        if (connection != null && (!revisions.supportsTransactionScopedAppointmentRead()
+                || !authorizations.supportsTransactionScopedLookup())) {
+            return Result.of(Status.TECHNICAL_FAILURE);
+        }
         Long revision = parseRevision(recordRevision);
         if (blank(institutionId) || institutionId.length() > 200 || revision == null) {
             return Result.of(Status.INVALID);
         }
-        CurrentPublished current = currentPublished(institutionId, revision);
+        CurrentPublished current = currentPublished(connection, institutionId, revision);
         if (current.status() != CurrentPublished.Status.READY) {
             return Result.of(switch (current.status()) {
                 case INVALID -> Status.INVALID;
@@ -38,7 +49,9 @@ public final class InstitutionAppointmentEligibilityResolver {
 
         InstitutionAppointmentAuthorizationRepository.Lookup authorization;
         try {
-            authorization = authorizations.latest(institutionId, revision);
+            authorization = connection == null
+                    ? authorizations.latest(institutionId, revision)
+                    : authorizations.latest(connection, institutionId, revision);
         } catch (RuntimeException ignored) {
             return Result.of(Status.TECHNICAL_FAILURE);
         }
@@ -61,9 +74,15 @@ public final class InstitutionAppointmentEligibilityResolver {
     }
 
     private CurrentPublished currentPublished(String institutionId, long requestedRevision) {
+        return currentPublished(null, institutionId, requestedRevision);
+    }
+
+    private CurrentPublished currentPublished(Connection connection, String institutionId, long requestedRevision) {
         InstitutionRevisionRepository.CurrentAppointmentRevisionResult resolved;
         try {
-            resolved = revisions.resolveCurrentAppointmentRevision(institutionId, requestedRevision);
+            resolved = connection == null
+                    ? revisions.resolveCurrentAppointmentRevision(institutionId, requestedRevision)
+                    : revisions.resolveCurrentAppointmentRevision(connection, institutionId, requestedRevision);
         } catch (RuntimeException ignored) {
             return CurrentPublished.of(CurrentPublished.Status.TECHNICAL_FAILURE);
         }

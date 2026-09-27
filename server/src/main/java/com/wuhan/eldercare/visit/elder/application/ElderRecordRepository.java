@@ -2,8 +2,17 @@ package com.wuhan.eldercare.visit.elder.application;
 
 import com.wuhan.eldercare.visit.elder.domain.ElderRecord;
 
+import java.sql.Connection;
+
 public interface ElderRecordRepository {
     Lookup findByResponsibleUserId(String responsibleUserId);
+
+    /** Resolves and locks the sole binding on the caller's transaction. */
+    default Lookup findByResponsibleUserId(Connection connection, String responsibleUserId) {
+        return findByResponsibleUserId(responsibleUserId);
+    }
+
+    default boolean supportsTransactionScopedLookup() { return false; }
 
     Establish establish(ElderRecord candidate);
 

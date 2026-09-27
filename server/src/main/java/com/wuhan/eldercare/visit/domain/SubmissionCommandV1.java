@@ -45,6 +45,13 @@ public record SubmissionCommandV1(
         return pickupRequested != null;
     }
 
+    /** Returns the canonical server-resolved Elder reference while preserving every request field. */
+    public SubmissionCommandV1 withElderId(String canonicalElderId) {
+        return new SubmissionCommandV1(contractVersion, kind, idempotencyKey, institutionId,
+                institutionRecordRevision, canonicalElderId, visitDate, visitTimePreference, participantCount,
+                pickupRequested, contactName, phone, phonePurpose, phoneAuthorization, notes);
+    }
+
     public String canonicalMaterial() {
         // Keep the exact C2 canonical submission order. Optional fields are
         // omitted, just as JSON.stringify omits undefined properties. JSON
