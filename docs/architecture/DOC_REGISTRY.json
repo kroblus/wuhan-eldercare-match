@@ -662,6 +662,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/APPOINTMENT_CREATE_C3_CLIENT_INTEGRATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.appointment_create_c3_client_integration.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/DOMAIN_CONTRACT.md",
       "doc_id": "redirect.bootstrap_domain_contract",
       "status": "SUPERSEDED",
