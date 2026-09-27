@@ -80,6 +80,7 @@ const makeServiceTransport = (options = {}) => {
     requests,
     transport: {
       environment: () => 'develop',
+      developmentBackendOrigin: () => 'http://10.123.45.67:8080',
       login: async () => 'synthetic-login-code',
       request: async (input) => {
         requests.push(input)
@@ -260,6 +261,7 @@ const makePageWx = (responses) => {
   const tabSwitches = []
   const wx = {
     getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
+    getStorageSync: () => 'http://10.123.45.67:8080',
     login: (options) => options.success({ code: 'synthetic-login-code' }),
     request: (options) => {
       requests.push(options)

@@ -68,7 +68,7 @@ const makeAuthResult = () => ({
   expiresAt: new Date(Date.now() + 60000).toISOString(),
 })
 
-const createRuntimeHarness = (getResult) => {
+const createRuntimeHarness = (getResult, developmentOrigin = 'http://10.123.45.67:8080') => {
   const state = { requests: [], loginCalls: 0, authCalls: 0, getCalls: 0 }
   let pageConfig = null
   const { ts } = loadWechatTypeScript()
@@ -76,6 +76,7 @@ const createRuntimeHarness = (getResult) => {
     Page: (config) => { pageConfig = config },
     wx: {
       getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
+      getStorageSync: () => developmentOrigin,
       login: (options) => {
         state.loginCalls += 1
         options.success({ code: 'synthetic-login-code-for-test-only' })
@@ -157,8 +158,8 @@ const run = async () => {
     assert.equal(harness.state.getCalls, 1)
     const authRequest = harness.state.requests[0]
     const listRequest = harness.state.requests[1]
-    assert.equal(authRequest.url, 'http://127.0.0.1:8080/api/v1/auth/wechat')
-    assert.equal(listRequest.url, 'http://127.0.0.1:8080/api/v1/visits')
+    assert.equal(authRequest.url, 'http://10.123.45.67:8080/api/v1/auth/wechat')
+    assert.equal(listRequest.url, 'http://10.123.45.67:8080/api/v1/visits')
     assert.equal(listRequest.method, 'GET')
     assert.equal(listRequest.data, undefined)
     assert.equal(listRequest.header['X-Auth-Evidence'], 'synthetic-session-evidence-for-test-only')
@@ -172,6 +173,16 @@ const run = async () => {
     assert.equal(harness.page.data.loadState, 'ready_empty')
     assert.equal(harness.page.data.visits.length, 0)
     assert.equal(harness.state.getCalls, 1)
+  })
+
+  await runCase('MISSING_DEVELOP_ORIGIN_FAILS_CLOSED_BEFORE_LOGIN_OR_NETWORK', async () => {
+    const harness = createRuntimeHarness(() => makeReadyResult([]), '')
+    await harness.page.onLoad()
+    assert.equal(harness.page.data.loadState, 'load_error')
+    assert.equal(harness.state.loginCalls, 0)
+    assert.equal(harness.state.authCalls, 0)
+    assert.equal(harness.state.getCalls, 0)
+    assert.equal(harness.state.requests.length, 0)
   })
 
   await runCase('AUTH_FAILURE_IS_NOT_EMPTY_AND_RETRY_REACQUIRES_SESSION', async () => {

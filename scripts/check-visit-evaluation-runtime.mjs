@@ -334,6 +334,7 @@ const run = async () => {
     const requests = []
     const provider = productionContextModule.createProductionVisitEvaluationContextProviderV1({
       environment: () => 'develop',
+      developmentBackendOrigin: () => 'http://10.123.45.67:8080',
       login: async () => 'test-only-login-code',
       request: async (request) => {
         requests.push(request)
@@ -371,10 +372,10 @@ const run = async () => {
     assert.equal(result.context.visitStatus, 'completed')
     assert.equal(requests.length, 2)
     assert.equal(requests[0].method, 'POST')
-    assert.equal(requests[0].url, 'http://127.0.0.1:8080/api/v1/auth/wechat')
+    assert.equal(requests[0].url, 'http://10.123.45.67:8080/api/v1/auth/wechat')
     assert.equal(requests[0].data.kind, 'wechat_authentication_request_v1')
     assert.equal(requests[1].method, 'GET')
-    assert.equal(requests[1].url, 'http://127.0.0.1:8080/api/v1/visits/visit%2Fowned/evaluation-context')
+    assert.equal(requests[1].url, 'http://10.123.45.67:8080/api/v1/visits/visit%2Fowned/evaluation-context')
     assert.equal(requests[1].data, undefined)
     assert.equal(requests[1].header['X-Auth-Evidence'], 'test-only-session-evidence')
     assert.equal(Object.keys(result.context).sort().join('|'), 'institutionId|institutionRecordRevision|provenance|visitId|visitStatus')
@@ -386,6 +387,7 @@ const run = async () => {
     let loginCalls = 0
     const providers = productionContextModule.createProductionVisitEvaluationProvidersV1({
       environment: () => 'develop',
+      developmentBackendOrigin: () => 'http://10.123.45.67:8080',
       login: async () => {
         loginCalls += 1
         return 'test-only-login-code'
@@ -455,7 +457,7 @@ const run = async () => {
     const writeRequest = requests[2]
     assert.equal(getRequest.header['X-Auth-Evidence'], writeRequest.header['X-Auth-Evidence'])
     assert.equal(writeRequest.method, 'POST')
-    assert.equal(writeRequest.url, 'http://127.0.0.1:8080/api/v1/visits/visit%2Fproduction-write/evaluation')
+    assert.equal(writeRequest.url, 'http://10.123.45.67:8080/api/v1/visits/visit%2Fproduction-write/evaluation')
     assert.equal(writeRequest.header['Content-Type'], 'application/json')
     assert.equal(writeRequest.data.contractVersion, 'visit-evaluation-production-write-contract-v1')
     assert.equal(writeRequest.data.kind, 'visit_evaluation_submission_request_v1')
@@ -768,6 +770,7 @@ const run = async () => {
     let requests = 0
     const provider = productionContextModule.createProductionVisitEvaluationContextProviderV1({
       environment: () => 'develop',
+      developmentBackendOrigin: () => 'http://10.123.45.67:8080',
       login: async () => 'test-only-login-code',
       request: async () => {
         requests += 1

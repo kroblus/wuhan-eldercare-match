@@ -3,9 +3,11 @@ const AUTH_REQUEST_KIND = 'wechat_authentication_request_v1'
 const AUTH_RESULT_KIND = 'wechat_authentication_result_v1'
 const AUTH_ENDPOINT = '/api/v1/auth/wechat'
 const REQUEST_TIMEOUT_MS = 15000
+export const DEVELOPMENT_BACKEND_ORIGIN_STORAGE_KEY_V1 = '__dev_backend_origin_v1'
 
 export interface WeChatC5BackendTransportV1 {
   environment(): unknown
+  developmentBackendOrigin?(): unknown
   login(): Promise<string>
   request(input: {
     url: string
@@ -58,11 +60,102 @@ const readSessionEvidence = (value: unknown): string => {
   return value.sessionEvidence
 }
 
-export const resolveC5BackendOriginV1 = (environment: unknown): string =>
-  environment === 'develop' ? 'http://127.0.0.1:8080' : ''
+const isValidPort = (value: string | undefined): boolean => {
+  if (value === undefined) return true
+  if (!/^[0-9]{1,5}$/.test(value)) return false
+  const port = Number(value)
+  return port >= 1 && port <= 65535
+}
+
+const parseIpv4 = (host: string): number[] | null => {
+  if (!/^[0-9.]+$/.test(host)) return null
+  const parts = host.split('.')
+  if (parts.length !== 4) return null
+  const octets = parts.map((part) => {
+    if (!/^(0|[1-9][0-9]{0,2})$/.test(part)) return -1
+    const value = Number(part)
+    return value <= 255 ? value : -1
+  })
+  return octets.some((octet) => octet < 0) ? null : octets
+}
+
+const parseIpv6 = (host: string): number[] | null => {
+  if (!host.startsWith('[') || !host.endsWith(']')) return null
+  const address = host.slice(1, -1)
+  if (address.includes('%') || !/^[0-9a-fA-F:]+$/.test(address)) return null
+  const halves = address.split('::')
+  if (halves.length > 2) return null
+  const left = halves[0].length > 0 ? halves[0].split(':') : []
+  const right = halves.length === 2 && halves[1].length > 0 ? halves[1].split(':') : []
+  const groups = [...left, ...right]
+  if (groups.some((group) => group.length < 1 || group.length > 4)) return null
+  if (halves.length === 1 && groups.length !== 8) return null
+  if (halves.length === 2 && groups.length >= 8) return null
+  const parsed = groups.map((group) => parseInt(group, 16))
+  if (halves.length === 1) return parsed
+  const expanded = [...parsed.slice(0, left.length)]
+  for (let index = parsed.length; index < 8; index += 1) expanded.push(0)
+  return [...expanded, ...parsed.slice(left.length)]
+}
+
+const isPrivateIpv4 = (octets: number[]): boolean =>
+  octets[0] === 10
+  || (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31)
+  || (octets[0] === 192 && octets[1] === 168)
+
+const isLoopbackOrUnspecifiedIpv4 = (octets: number[]): boolean =>
+  octets[0] === 127
+  || octets[0] === 0
+
+const isLoopbackOrUnspecifiedIpv6 = (groups: number[]): boolean =>
+  groups.every((group) => group === 0)
+  || (groups.slice(0, 7).every((group) => group === 0) && groups[7] === 1)
+  || (groups.slice(0, 5).every((group) => group === 0) && groups[5] === 0xffff)
+
+const isValidDevelopmentBackendOrigin = (value: unknown): value is string => {
+  if (typeof value !== 'string' || value.length === 0 || value !== value.trim()) return false
+  const match = /^(https?):\/\/(\[[0-9a-fA-F:]+\]|[a-zA-Z0-9.-]+)(?::([0-9]+))?$/.exec(value)
+  if (!match || !isValidPort(match[3])) return false
+
+  const scheme = match[1]
+  const host = match[2]
+  const ipv4 = parseIpv4(host)
+  const ipv6 = parseIpv6(host)
+  const hostname = host.toLowerCase()
+  const domainLabels = hostname.split('.')
+  const isNumericHost = domainLabels.every((label) => /^(?:[0-9]+|0x[0-9a-f]+)$/i.test(label))
+  const isDomain = domainLabels.length >= 2
+    && domainLabels.every((label) => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))
+  if (ipv4 === null && ipv6 === null && !isDomain) return false
+  if (isNumericHost && ipv4 === null) return false
+  if (hostname === 'localhost' || hostname.endsWith('.localhost')) return false
+  if (ipv4 && isLoopbackOrUnspecifiedIpv4(ipv4)) return false
+  if (ipv6 && isLoopbackOrUnspecifiedIpv6(ipv6)) return false
+
+  if (scheme === 'http') {
+    if (match[3] === undefined) return false
+    if (ipv4) return isPrivateIpv4(ipv4)
+    if (ipv6) return (ipv6[0] & 0xfe00) === 0xfc00
+    return hostname.endsWith('.local')
+  }
+
+  return true
+}
+
+export const resolveC5BackendOriginV1 = (environment: unknown, developmentOrigin?: unknown): string =>
+  environment === 'develop' && isValidDevelopmentBackendOrigin(developmentOrigin)
+    ? developmentOrigin
+    : ''
 
 export const createDefaultWeChatC5BackendTransportV1 = (): WeChatC5BackendTransportV1 => ({
   environment: () => wx.getAccountInfoSync().miniProgram.envVersion,
+  developmentBackendOrigin: () => {
+    try {
+      return wx.getStorageSync(DEVELOPMENT_BACKEND_ORIGIN_STORAGE_KEY_V1)
+    } catch (_error) {
+      return ''
+    }
+  },
   login: () => new Promise((resolve, reject) => {
     wx.login({
       success: (result) => resolve(result && typeof result.code === 'string' ? result.code : ''),
@@ -94,7 +187,12 @@ export const createC5AuthenticatedBackendSessionClientV1 = (
   return {
     resolveBackendOrigin(): string {
       try {
-        return resolveC5BackendOriginV1(transport.environment())
+        const environment = transport.environment()
+        if (environment !== 'develop') return ''
+        const developmentOrigin = typeof transport.developmentBackendOrigin === 'function'
+          ? transport.developmentBackendOrigin()
+          : undefined
+        return resolveC5BackendOriginV1(environment, developmentOrigin)
       } catch (_error) {
         return ''
       }
