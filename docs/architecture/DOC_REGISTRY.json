@@ -652,6 +652,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/C3_CANONICAL_REFERENCE_ELDER_BINDING_TRANSACTIONAL_INTEGRATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.c3_canonical_reference_elder_binding_transactional_integration.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/DOMAIN_CONTRACT.md",
       "doc_id": "redirect.bootstrap_domain_contract",
       "status": "SUPERSEDED",
