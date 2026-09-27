@@ -212,6 +212,16 @@
       "archive_target": null
     },
     {
+      "path": "docs/architecture/MY_APPOINTMENTS_CONTACT_CONSULTANT_ACTION_CONTRACT_V1.md",
+      "doc_id": "contract.my_appointments_contact_consultant_action.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "docs/architecture/VISIT_EVALUATION_PRODUCTION_WRITE_CONTRACT_V1.md",
       "doc_id": "contract.visit_evaluation_production_write.v1",
       "status": "FROZEN",
