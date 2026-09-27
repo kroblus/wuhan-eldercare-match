@@ -45,6 +45,10 @@
         </view>
       </scroll-view>
 
+      <view wx:if="{{consultantActionError}}" class="appointment-action-error" role="alert">
+        {{consultantActionError}}
+      </view>
+
       <state-panel
         wx:if="{{visibleVisits.length === 0}}"
         state="empty"
@@ -71,6 +75,12 @@
             <text class="appointment-card__value">{{item.participantLabel}}</text>
           </view>
           <text wx:if="{{item.pickupLabel}}" class="appointment-card__pickup">{{item.pickupLabel}}</text>
+          <primary-button
+            wx:if="{{item.showContactConsultantAction}}"
+            text="联系顾问"
+            variant="secondary"
+            bind:action="openConsultant"
+          ></primary-button>
           <primary-button
             wx:if="{{item.showEvaluationAction}}"
             text="填写看院评价"

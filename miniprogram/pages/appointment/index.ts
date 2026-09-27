@@ -8,7 +8,11 @@ import type {
   AppointmentListFilter,
   AppointmentListViewModel,
 } from './list-view-model'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import {
+  getNavigationGuard,
+  navigateToWithGuard,
+  resetNavigationGuard,
+} from '../../utils/navigation-guard'
 import {
   createProductionAppointmentOwnerReadProviderV1,
 } from '../../services/appointment-owner-read'
@@ -18,7 +22,9 @@ import type {
 } from '../../services/appointment-owner-read'
 import type { AppointmentOwnerReadVisitV1 } from '../../types/appointment-owner-read-v1'
 
-interface AppointmentListPageData extends AppointmentListViewModel {}
+interface AppointmentListPageData extends AppointmentListViewModel {
+  consultantActionError: string
+}
 
 interface AppointmentFilterEvent {
   currentTarget: { dataset: { filter?: string } }
@@ -27,6 +33,8 @@ interface AppointmentFilterEvent {
 interface EvaluationActionEvent {
   currentTarget: { dataset: { visitId?: string } }
 }
+
+const CONSULTANT_TAB_URL = '/pages/consultant/index'
 
 interface AppointmentListPageInstance {
   data: AppointmentListPageData
@@ -72,6 +80,7 @@ Page({
     visits: [],
     visibleVisits: [],
     errorMessage: '',
+    consultantActionError: '',
   } as AppointmentListPageData,
 
   onLoad() {
@@ -113,5 +122,35 @@ Page({
     navigateToWithGuard(this, 'appointment.openEvaluation', route, undefined, () => {
       wx.showToast({ title: '暂时无法打开看院评价', icon: 'none' })
     })
+  },
+
+  openConsultant() {
+    if (!this.data.visibleVisits.some((visit) => visit.showContactConsultantAction)) return
+
+    const guard = getNavigationGuard(this)
+    const action = 'appointment.openConsultant'
+    if (!guard.acquire(action)) return
+
+    let succeeded = false
+    let failureReported = false
+    const fail = () => {
+      guard.release(action)
+      if (failureReported) return
+      failureReported = true
+      this.setData({ consultantActionError: '暂时无法打开养老顾问，请稍后重试。' })
+      wx.showToast({ title: '暂时无法打开养老顾问，请稍后重试。', icon: 'none' })
+    }
+
+    this.setData({ consultantActionError: '' })
+    try {
+      wx.switchTab({
+        url: CONSULTANT_TAB_URL,
+        success: () => { succeeded = true },
+        fail,
+        complete: () => { if (!succeeded) fail() },
+      })
+    } catch (_error) {
+      fail()
+    }
   },
 })

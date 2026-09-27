@@ -20,6 +20,7 @@ export interface AppointmentListCardViewModel {
   participantLabel: string
   pickupLabel: string
   statusLabel: string
+  showContactConsultantAction: boolean
   showEvaluationAction: boolean
 }
 
@@ -48,6 +49,12 @@ const STATUS_LABELS: Record<AppointmentOwnerReadVisitStatusV1, string> = {
   cancelled: '已取消',
 }
 
+const canShowContactConsultantAction = (status: string): boolean =>
+  status === 'requested'
+  || status === 'contacting'
+  || status === 'scheduled'
+  || status === 'completed'
+
 const matchesFilter = (
   status: AppointmentOwnerReadVisitStatusV1,
   filter: AppointmentListFilter,
@@ -73,7 +80,8 @@ export const createAppointmentListViewModel = (
     visitTimePreference: visit.visitTimePreference,
     participantLabel: `${visit.participantCount}人同行`,
     pickupLabel: visit.pickupRequested === true ? '已提出接送需求' : '',
-    statusLabel: STATUS_LABELS[visit.visitStatus],
+    statusLabel: STATUS_LABELS[visit.visitStatus] || '状态暂不可用',
+    showContactConsultantAction: canShowContactConsultantAction(visit.visitStatus),
     showEvaluationAction: visit.visitStatus === 'completed',
   }))
   const visibleVisits = filterAppointmentListCards(cards, activeFilter)
