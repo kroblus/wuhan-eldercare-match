@@ -122,10 +122,13 @@ const runtimeState = {
   pageStack: [],
   navigationCalls: [],
   modalCalls: [],
+  toastCalls: [],
   removeStorageCalls: 0,
   scrollCalls: [],
   setDataCalls: [],
   failNextNavigateTo: false,
+  failNextRedirectTo: false,
+  failNextSwitchTab: false,
 }
 const previousComponent = globalThis.Component
 const previousPage = globalThis.Page
@@ -153,6 +156,9 @@ globalThis.wx = {
   },
   showModal(options) {
     runtimeState.modalCalls.push(options)
+  },
+  showToast(options) {
+    runtimeState.toastCalls.push(options)
   },
   nextTick(callback) {
     callback()
@@ -183,7 +189,26 @@ globalThis.wx = {
     runtimeState.navigationCalls.push({ type: 'navigateBack', options })
   },
   redirectTo(options) {
-    runtimeState.navigationCalls.push({ type: 'redirectTo', options })
+    runtimeState.navigationCalls.push({ type: 'redirectTo', url: options.url, options })
+    if (runtimeState.failNextRedirectTo) {
+      runtimeState.failNextRedirectTo = false
+      if (options.fail) options.fail({ errMsg: 'redirectTo:fail test' })
+      if (options.complete) options.complete({ errMsg: 'redirectTo:fail test' })
+      return
+    }
+    if (options.success) options.success({ errMsg: 'redirectTo:ok' })
+    if (options.complete) options.complete({ errMsg: 'redirectTo:ok' })
+  },
+  switchTab(options) {
+    runtimeState.navigationCalls.push({ type: 'switchTab', url: options.url, options })
+    if (runtimeState.failNextSwitchTab) {
+      runtimeState.failNextSwitchTab = false
+      if (options.fail) options.fail({ errMsg: 'switchTab:fail test' })
+      if (options.complete) options.complete({ errMsg: 'switchTab:fail test' })
+      return
+    }
+    if (options.success) options.success({ errMsg: 'switchTab:ok' })
+    if (options.complete) options.complete({ errMsg: 'switchTab:ok' })
   },
 }
 
@@ -564,10 +589,13 @@ const run = async () => {
     assert.equal(cleared.persistence.ok, true, 'test Draft reset must persist successfully')
     runtimeState.navigationCalls.length = 0
     runtimeState.modalCalls.length = 0
+    runtimeState.toastCalls.length = 0
     runtimeState.removeStorageCalls = 0
     runtimeState.scrollCalls.length = 0
     runtimeState.setDataCalls.length = 0
     runtimeState.failNextNavigateTo = false
+    runtimeState.failNextRedirectTo = false
+    runtimeState.failNextSwitchTab = false
     runtimeState.pageStack = [
       { route: 'pages/assessment/intro' },
       { route: `pages/assessment/${step}` },
@@ -592,16 +620,18 @@ const run = async () => {
     })
   }
 
-  const prepareIntroWithDraft = () => {
+  const prepareIntroWithDraft = (rootStack = false) => {
     resetRuntime('intro')
     seedAnswers({ 'basic.relationship': 'father' })
     runtimeState.navigationCalls.length = 0
     runtimeState.modalCalls.length = 0
     runtimeState.removeStorageCalls = 0
-    runtimeState.pageStack = [
-      { route: 'pages/home/index' },
-      { route: 'pages/assessment/intro' },
-    ]
+    runtimeState.pageStack = rootStack
+      ? [{ route: 'pages/assessment/intro' }]
+      : [
+        { route: 'pages/home/index' },
+        { route: 'pages/assessment/intro' },
+      ]
     const page = mountPage(introDefinition)
     invokePageHandler(page, 'onShow')
     assert.equal(page.data.hasDraft, true, 'Intro must expose Continue and Restart for an incomplete Draft')
@@ -640,7 +670,7 @@ const run = async () => {
 
   runCase(
     'RESTART-001_CONTINUE_EXISTING_DRAFT',
-    'An incomplete Draft exists and the real Intro Continue handler is invoked once',
+    'An incomplete Draft exists with a parent page and Intro continues through navigateTo',
     () => {
       const introWxml = readText('miniprogram/pages/assessment/intro.wxml')
       const continueButton = introWxml.match(/<button[^>]*class="draft-continue"[^>]*>/)?.[0] || ''
@@ -657,6 +687,66 @@ const run = async () => {
         runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
         [{ type: 'navigateTo', url: '/pages/assessment/basic' }],
       )
+      assert.deepEqual(draftStore.getDraft().answers, draftBefore.answers)
+    },
+  )
+
+  runCase(
+    'INTRO_ROOT_CONTINUE_REDIRECT_RETRY',
+    'An incomplete Draft exists on root Intro; failed redirectTo releases the guard, retry succeeds, and Draft remains intact',
+    () => {
+      const page = prepareIntroWithDraft(true)
+      const draftBefore = draftStore.getDraft()
+      runtimeState.failNextRedirectTo = true
+
+      invokePageHandler(page, 'startAssessment')
+      assert.equal(runtimeState.navigationCalls.length, 1)
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'redirectTo', url: '/pages/assessment/basic' }],
+      )
+      assert.deepEqual(runtimeState.toastCalls, [{ title: '暂时无法进入评估，请重试。', icon: 'none' }])
+      assert.deepEqual(draftStore.getDraft().answers, draftBefore.answers)
+
+      invokePageHandler(page, 'startAssessment')
+      assert.equal(runtimeState.navigationCalls.length, 2, 'failed root navigation must release the action guard')
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [
+          { type: 'redirectTo', url: '/pages/assessment/basic' },
+          { type: 'redirectTo', url: '/pages/assessment/basic' },
+        ],
+      )
+      assert.equal(runtimeState.toastCalls.length, 1, 'successful retry must not repeat failure feedback')
+      assert.deepEqual(draftStore.getDraft().answers, draftBefore.answers)
+    },
+  )
+
+  runCase(
+    'INTRO_NESTED_CONTINUE_NAVIGATION_FAILURE_VISIBLE_RETRY',
+    'An incomplete Draft exists on nested Intro; failed navigateTo shows feedback, releases the guard, and retry uses the ordinary stack path',
+    () => {
+      const page = prepareIntroWithDraft(false)
+      const draftBefore = draftStore.getDraft()
+      runtimeState.failNextNavigateTo = true
+
+      invokePageHandler(page, 'startAssessment')
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'navigateTo', url: '/pages/assessment/basic' }],
+      )
+      assert.deepEqual(runtimeState.toastCalls, [{ title: '暂时无法进入评估，请重试。', icon: 'none' }])
+      assert.deepEqual(draftStore.getDraft().answers, draftBefore.answers)
+
+      invokePageHandler(page, 'startAssessment')
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [
+          { type: 'navigateTo', url: '/pages/assessment/basic' },
+          { type: 'navigateTo', url: '/pages/assessment/basic' },
+        ],
+      )
+      assert.equal(runtimeState.toastCalls.length, 1, 'successful nested retry must not repeat failure feedback')
       assert.deepEqual(draftStore.getDraft().answers, draftBefore.answers)
     },
   )
@@ -699,7 +789,7 @@ const run = async () => {
 
   runCase(
     'RESUME_FIRST_INCOMPLETE_V2_QUESTION',
-    'A V2 Draft with all earlier required answers complete resumes at the first missing V2 question step, independent of currentStep',
+    'A root Intro V2 Draft resumes at the first missing V2 question with redirectTo, independent of currentStep',
     () => {
       resetRuntime('intro')
       seedAnswers({
@@ -724,18 +814,36 @@ const run = async () => {
       })
       assert.equal(draftStore.setCurrentStep('budget').persistence.ok, true)
       runtimeState.navigationCalls.length = 0
-      runtimeState.pageStack = [
-        { route: 'pages/home/index' },
-        { route: 'pages/assessment/intro' },
-      ]
+      runtimeState.pageStack = [{ route: 'pages/assessment/intro' }]
       const page = mountPage(introDefinition)
       invokePageHandler(page, 'onShow')
       invokePageHandler(page, 'startAssessment')
       assert.deepEqual(
         runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
-        [{ type: 'navigateTo', url: '/pages/assessment/preference' }],
+        [{ type: 'redirectTo', url: '/pages/assessment/preference' }],
       )
       assert.equal(draftStore.getDraft().currentStep, 'budget')
+    },
+  )
+
+  runCase(
+    'INTRO_ROOT_RESTART_REDIRECT',
+    'Confirming Restart from root Intro clears the incomplete local Draft and replaces Intro with Basic',
+    () => {
+      const page = prepareIntroWithDraft(true)
+      const draftBefore = draftStore.getDraft()
+      invokePageHandler(page, 'restartAssessment')
+      const modal = runtimeState.modalCalls[0]
+
+      modal.success({ confirm: true, cancel: false })
+      modal.complete({})
+
+      assert.notEqual(draftStore.getDraft().localDraftId, draftBefore.localDraftId)
+      assert.deepEqual(draftStore.getDraft().answers, {})
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'redirectTo', url: '/pages/assessment/basic' }],
+      )
     },
   )
 
@@ -860,7 +968,7 @@ const run = async () => {
 
   runCase(
     'NAVIGATION_BAR_BACK_RUNTIME',
-    'A real NavigationBar instance uses navigateBack once for a normal stack and redirectTo once at the root, then emits one non-bubbling back event',
+    'A real NavigationBar instance uses navigateBack for normal stacks, configured root fallback APIs, and emits one non-bubbling back event',
     () => {
       const navigationBar = mountComponent(navigationBarDefinition)
       navigationBar.data.delta = 1
@@ -884,10 +992,44 @@ const run = async () => {
       runtimeState.navigationCalls.length = 0
       navigationBar.events.length = 0
       runtimeState.pageStack = [{ route: 'pages/assessment/intro' }]
+      navigationBar.data.fallbackUrl = '/pages/home/index'
+      navigationBar.data.fallbackIsTab = true
+      const introPage = mountPage(introDefinition)
+      navigationBar.triggerEvent = (name, detail, options) => {
+        navigationBar.events.push({ name, detail, options })
+        if (name === 'navigationfail') {
+          invokePageHandler(introPage, 'onNavigationFailure')
+        }
+      }
+      runtimeState.failNextSwitchTab = true
       navigationBar.back()
       assert.deepEqual(
         runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.options?.url })),
-        [{ type: 'redirectTo', url: '/pages/assessment/intro' }],
+        [{ type: 'switchTab', url: '/pages/home/index' }],
+      )
+      assert.deepEqual(runtimeState.toastCalls, [{ title: '暂时无法返回，请稍后重试。', icon: 'none' }])
+      assert.equal(introPage.handlerCalls.onNavigationFailure, 1)
+      runtimeState.navigationCalls.length = 0
+      navigationBar.back()
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.options?.url })),
+        [{ type: 'switchTab', url: '/pages/home/index' }],
+      )
+      assert.equal(runtimeState.toastCalls.length, 1, 'successful retry must not show another failure toast')
+      assert.deepEqual(navigationBar.events, [
+        { name: 'navigationfail', detail: { action: 'back' }, options: { bubbles: false, composed: false } },
+        { name: 'back', detail: { delta: 1 }, options: { bubbles: false, composed: false } },
+        { name: 'back', detail: { delta: 1 }, options: { bubbles: false, composed: false } },
+      ])
+
+      runtimeState.navigationCalls.length = 0
+      navigationBar.events.length = 0
+      navigationBar.data.fallbackIsTab = false
+      navigationBar.data.fallbackUrl = '/pages/assessment/basic'
+      navigationBar.back()
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.options?.url })),
+        [{ type: 'redirectTo', url: '/pages/assessment/basic' }],
       )
       assert.deepEqual(navigationBar.events, [
         { name: 'back', detail: { delta: 1 }, options: { bubbles: false, composed: false } },
@@ -904,7 +1046,7 @@ const run = async () => {
 
   runCase(
     'NAVIGATION_BAR_ASSESSMENT_FALLBACKS',
-    'Intro and all six Assessment step WXML mounts pass an explicit previous business route to NavigationBar',
+    'Intro and all six Assessment step WXML mounts pass explicit previous business route and Intro marks Home as a tab fallback',
     () => {
       Object.entries(navigationBarFallbacks).forEach(([step, fallbackUrl]) => {
         const wxml = readText(`miniprogram/pages/assessment/${step}.wxml`)
@@ -914,6 +1056,12 @@ const run = async () => {
           new RegExp(`<navigation-bar[^>]*fallbackUrl="${escapedUrl}"`),
           `${step} must declare fallbackUrl`,
         )
+        if (step === 'intro') {
+          assert.match(wxml, /fallbackIsTab="\{\{true\}\}"/, 'Intro Home fallback must use the tab route API')
+          assert.match(wxml, /bind:navigationfail="onNavigationFailure"/, 'Intro must show feedback if Home fallback fails')
+        } else {
+          assert.doesNotMatch(wxml, /fallbackIsTab/, `${step} keeps the ordinary page fallback API`)
+        }
       })
     },
     'structural',

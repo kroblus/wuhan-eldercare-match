@@ -19,6 +19,8 @@ const read = (relativePath) => readFileSync(path.join(root, relativePath), 'utf8
 
 const homeTs = read('miniprogram/pages/home/index.ts')
 const homeWxml = read('miniprogram/pages/home/index.wxml')
+const introWxml = read('miniprogram/pages/assessment/intro.wxml')
+const navigationBarTs = read('miniprogram/components/navigation-bar/navigation-bar.ts')
 const listTs = read('miniprogram/pages/institution/index.ts')
 const listWxml = read('miniprogram/pages/institution/index.wxml')
 const detailTs = read('miniprogram/pages/institution/detail.ts')
@@ -152,6 +154,64 @@ const makeResultSnapshot = () => ({
     },
   },
 })
+
+const runHomeAssessmentEntryHarness = () => {
+  const typescript = loadWechatTypeScript()
+  const guardModule = createRuntime(typescript).load(path.join(root, 'miniprogram', 'utils', 'navigation-guard.ts'))
+  const calls = []
+  const toasts = []
+  let componentConfig = null
+  const wxRuntime = {
+    navigateTo(options) { calls.push({ api: 'navigateTo', options }) },
+    redirectTo(options) { calls.push({ api: 'redirectTo', options }) },
+    reLaunch(options) { calls.push({ api: 'reLaunch', options }) },
+    showToast(options) { toasts.push(options) },
+  }
+  const modulePath = (relativePath) => path.resolve(root, 'miniprogram', relativePath)
+  const overrides = new Map([
+    [modulePath('services/institution-list-detail-page.ts'), { buildInstitutionListPageSnapshot() { return Promise.resolve({ ok: false }) } }],
+    [modulePath('pages/institution/list-view-model.ts'), { createInstitutionListPageViewModel() { return {} } }],
+    [modulePath('utils/navigation-guard.ts'), guardModule],
+    [modulePath('services/institution-detail-route.ts'), { serializeInstitutionDetailRoute() { return null } }],
+  ])
+  const runtime = createRuntime(typescript, {
+    overrides,
+    globals: {
+      Component(config) { componentConfig = config },
+      wx: wxRuntime,
+      getCurrentPages: () => [],
+    },
+  })
+  runtime.load(modulePath('pages/home/index.ts'))
+  assert.ok(componentConfig, 'Home Component configuration was not registered')
+  const page = {
+    data: { ...componentConfig.data },
+    setData(patch) { this.data = { ...this.data, ...patch } },
+  }
+  const startAssessment = componentConfig.methods.startAssessment
+  const guard = guardModule.getNavigationGuard(page)
+
+  startAssessment.call(page)
+  assert.equal(calls.length, 1, 'one Home action must issue one route replacement')
+  assert.equal(calls[0].api, 'reLaunch', 'Home must reset its root page to reserve one stack slot')
+  assert.equal(calls[0].options.url, '/pages/assessment/intro')
+  assert.equal(guard.isLocked('home.startAssessment'), true)
+  calls[0].options.fail({ errMsg: 'reLaunch:fail' })
+  calls[0].options.complete({ errMsg: 'reLaunch:fail' })
+  assert.equal(guard.isLocked('home.startAssessment'), false, 'failed redirect must release the guard')
+  assert.equal(toasts.length, 1, 'failed redirect must provide one visible retry cue')
+
+  startAssessment.call(page)
+  assert.equal(calls.length, 2, 'failed redirect must allow a retry')
+  assert.equal(calls[1].api, 'reLaunch')
+  calls[1].options.success({ errMsg: 'reLaunch:ok' })
+  calls[1].options.complete({ errMsg: 'reLaunch:ok' })
+  assert.equal(guard.isLocked('home.startAssessment'), true, 'successful route replacement keeps the source action locked')
+  componentConfig.pageLifetimes.show.call(page)
+  assert.equal(guard.isLocked('home.startAssessment'), false, 'returning to Home resets its page guard')
+
+  return { reLaunchCount: calls.filter((call) => call.api === 'reLaunch').length, navigateCount: calls.filter((call) => call.api === 'navigateTo').length, toastCount: toasts.length }
+}
 
 const runExecutableNavigationHarness = () => {
   const typescript = loadWechatTypeScript()
@@ -364,11 +424,13 @@ const functionBody = (source, name) => {
 
 const homeListBody = functionBody(homeTs, 'openInstitutions')
 const homeCardBody = functionBody(homeTs, 'openInstitution')
+const homeAssessmentBody = functionBody(homeTs, 'startAssessment')
 const listCardBody = functionBody(listTs, 'onCardTap')
 const resultCardBody = functionBody(resultTs, 'onRecommendationCardTap')
 
 const matrix = Object.freeze([
   ['HOME-CTA', 'home.openInstitutions', 'ready', 'clickable', 'none', 'navigateTo /pages/institution/index', 'guarded', 'rapid <= 1', 'visible fail feedback'],
+  ['HOME-ASSESSMENT-ENTRY', 'home.startAssessment', 'Home root', 'clickable', 'none', 'reLaunch Intro; Intro root Back switches to Home tab', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['HOME-FEATURED', 'home.openInstitution', 'loaded canonical item', 'clickable', 'identity validation', 'direct_link detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['LIST-CARD', 'institution.list.onCardTap', 'ready canonical item', 'clickable', 'identity serialization', 'direct_list / recommendation detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['RESULT-EXACT', 'recommendation.result.onRecommendationCardTap', 'ready_exact V2 snapshot', 'clickable', 'snapshot identity gate', 'recommendation detail', 'guarded', 'rapid <= 1', 'context discard on fail'],
@@ -536,10 +598,21 @@ const main = () => {
     assert.ok(metrics.resolveCount >= 5)
     assert.ok(metrics.clearCount >= 3)
   })
-  assert.equal(executed.length, 23)
+  run('NAV-024', 'Home assessment entry reserves a Detail stack slot and preserves root Back', () => {
+    assert.equal((homeWxml.match(/(?:bind:action|bindtap)="startAssessment"/g) || []).length, 2, 'both Home Assessment actions share the same handler')
+    assert.match(homeAssessmentBody, /navigateToWithGuard/)
+    assert.match(homeAssessmentBody, /wx\.reLaunch/)
+    assert.match(homeAssessmentBody, /无法开始评估/)
+    assert.match(introWxml, /fallbackUrl="\/pages\/home\/index"/)
+    assert.match(introWxml, /fallbackIsTab="\{\{true\}\}"/)
+    assert.match(navigationBarTs, /pages\.length <= 1 && data\.fallbackUrl[\s\S]*data\.fallbackIsTab[\s\S]*wx\.switchTab[\s\S]*wx\.redirectTo/)
+    const metrics = runHomeAssessmentEntryHarness()
+    assert.deepEqual(metrics, { reLaunchCount: 2, navigateCount: 0, toastCount: 1 })
+  })
+  assert.equal(executed.length, 24)
   assert.equal(failures.length, 0, failures.join('\n'))
   console.log(`A0_4_INTERACTION_MATRIX_CASES: ${matrix.length}`)
-  console.log(`A0_4_INTERACTION_CASES: ${executed.length}/23 PASS`)
+  console.log(`A0_4_INTERACTION_CASES: ${executed.length}/24 PASS`)
   console.log('INSTITUTION_NAVIGATION_A0_4_INTERACTIONS = PASS')
 }
 

@@ -55,6 +55,11 @@ Component({
       type: String,
       value: ''
     },
+    // TabBar destinations require switchTab; ordinary pages keep redirectTo.
+    fallbackIsTab: {
+      type: Boolean,
+      value: false
+    },
   },
   /**
    * 组件的初始数据
@@ -113,10 +118,15 @@ Component({
           fail: notifyNavigationFailure,
         })
       } else if (pages.length <= 1 && data.fallbackUrl) {
-        wx.redirectTo({
+        const fallbackOptions = {
           url: data.fallbackUrl,
           fail: notifyNavigationFailure,
-        })
+        }
+        if (data.fallbackIsTab) {
+          wx.switchTab(fallbackOptions)
+        } else {
+          wx.redirectTo(fallbackOptions)
+        }
       }
       this.triggerEvent('back', { delta: data.delta }, { bubbles: false, composed: false })
     }

@@ -139,7 +139,13 @@ Component({
     },
 
     startAssessment() {
-      navigateToWithGuard(this, 'home.startAssessment', '/pages/assessment/intro')
+      navigateToWithGuard(
+        this,
+        'home.startAssessment',
+        '/pages/assessment/intro',
+        (options) => wx.reLaunch(options as WechatMiniprogram.ReLaunchOption),
+        () => wx.showToast({ title: '无法开始评估', icon: 'none' }),
+      )
     },
 
     openInstitutions() {

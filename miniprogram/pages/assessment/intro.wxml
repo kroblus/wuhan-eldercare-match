@@ -1,4 +1,4 @@
-<navigation-bar title="评估说明" back="{{backEnabled}}" fallbackUrl="/pages/home/index" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar title="评估说明" back="{{backEnabled}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#27313D" background="#FFFFFF" bind:navigationfail="onNavigationFailure"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <view class="page-head">

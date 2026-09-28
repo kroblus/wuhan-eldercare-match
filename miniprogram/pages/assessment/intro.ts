@@ -17,6 +17,16 @@ const hasDraftContent = (): boolean => {
   return assessmentDraftStore.hasAnswers() || draft.currentStep !== 'basic'
 }
 
+const navigateFromIntro = (page: object, action: string, url: string): boolean => {
+  const replaceRootIntro = getCurrentPages().length <= 1
+  const navigateTo = replaceRootIntro
+    ? (options: WechatMiniprogram.NavigateToOption) => wx.redirectTo(options as WechatMiniprogram.RedirectToOption)
+    : undefined
+  return navigateToWithGuard(page, action, url, navigateTo, () => {
+    wx.showToast({ title: '暂时无法进入评估，请重试。', icon: 'none' })
+  })
+}
+
 Page({
   data: {
     backEnabled: true,
@@ -66,7 +76,7 @@ Page({
       return
     }
     const targetRoute = getAssessmentResumeRouteV2(assessmentDraftStore.getDraft())
-    navigateToWithGuard(this, 'intro.startAssessment', targetRoute)
+    navigateFromIntro(this, 'intro.startAssessment', targetRoute)
   },
 
   restartAssessment() {
@@ -97,7 +107,7 @@ Page({
           }
 
           this.refreshDraftState()
-          navigateToWithGuard(this, 'intro.restartAssessment', '/pages/assessment/basic')
+          navigateFromIntro(this, 'intro.restartAssessment', '/pages/assessment/basic')
         },
         fail: () => {
           this.setData({
@@ -115,5 +125,9 @@ Page({
         restartError: '无法打开重新开始提示，请重试。',
       })
     }
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请稍后重试。', icon: 'none' })
   },
 })
