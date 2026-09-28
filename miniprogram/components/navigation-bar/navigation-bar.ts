@@ -1,3 +1,5 @@
+const pendingRootTabFallbacks = new WeakSet<object>()
+
 Component({
   options: {
     multipleSlots: true // 在组件定义时的选项中启用多slot支持
@@ -105,7 +107,12 @@ Component({
     back() {
       const data = this.data
       const pages = getCurrentPages()
+      const isRootTabFallback = pages.length <= 1 && Boolean(data.fallbackUrl && data.fallbackIsTab)
+      let failureReported = false
       const notifyNavigationFailure = () => {
+        if (failureReported) return
+        failureReported = true
+        if (isRootTabFallback) pendingRootTabFallbacks.delete(this)
         this.triggerEvent(
           'navigationfail',
           { action: 'back' },
@@ -123,7 +130,19 @@ Component({
           fail: notifyNavigationFailure,
         }
         if (data.fallbackIsTab) {
-          wx.switchTab(fallbackOptions)
+          if (pendingRootTabFallbacks.has(this)) return
+          pendingRootTabFallbacks.add(this)
+          let succeeded = false
+          try {
+            wx.switchTab({
+              url: data.fallbackUrl,
+              success: () => { succeeded = true },
+              fail: notifyNavigationFailure,
+              complete: () => { if (!succeeded) notifyNavigationFailure() },
+            })
+          } catch (_error) {
+            notifyNavigationFailure()
+          }
         } else {
           wx.redirectTo(fallbackOptions)
         }

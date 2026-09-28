@@ -66,7 +66,7 @@ const runBack = (
         complete: () => { if (!succeeded) fail() },
       })
     } else {
-      wx.redirectTo({
+      wx.switchTab({
         url: '/pages/home/index',
         success: () => { succeeded = true },
         fail,

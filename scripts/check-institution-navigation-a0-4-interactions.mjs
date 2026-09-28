@@ -213,6 +213,188 @@ const runHomeAssessmentEntryHarness = () => {
   return { reLaunchCount: calls.filter((call) => call.api === 'reLaunch').length, navigateCount: calls.filter((call) => call.api === 'navigateTo').length, toastCount: toasts.length }
 }
 
+const runInstitutionRootBackHarness = () => {
+  const typescript = loadWechatTypeScript()
+  const componentCalls = []
+  let componentConfig = null
+  let componentPages = []
+  let throwNextComponentSwitchTab = false
+  const componentRuntime = createRuntime(typescript, {
+    globals: {
+      Component(config) { componentConfig = config },
+      getCurrentPages: () => componentPages,
+      wx: {
+        navigateBack(options) { componentCalls.push({ api: 'navigateBack', options }) },
+        redirectTo(options) { componentCalls.push({ api: 'redirectTo', options }) },
+        switchTab(options) {
+          componentCalls.push({ api: 'switchTab', options })
+          if (throwNextComponentSwitchTab) {
+            throwNextComponentSwitchTab = false
+            throw new Error('switchTab synchronous failure')
+          }
+        },
+      },
+    },
+  })
+  componentRuntime.load(path.join(root, 'miniprogram', 'components', 'navigation-bar', 'navigation-bar.ts'))
+  assert.ok(componentConfig, 'navigation-bar Component configuration was not registered')
+
+  const rootTab = {
+    data: { delta: 1, fallbackUrl: '/pages/home/index', fallbackIsTab: true },
+    events: [],
+    triggerEvent(name, detail, options) { this.events.push({ name, detail, options }) },
+  }
+  componentPages = []
+  componentConfig.methods.back.call(rootTab)
+  componentConfig.methods.back.call(rootTab)
+  assert.equal(componentCalls.length, 1, 'rapid root Tab Back taps must issue one navigation call')
+  assert.equal(componentCalls[0].api, 'switchTab')
+  assert.equal(componentCalls[0].options.url, '/pages/home/index')
+  assert.equal(componentCalls.filter((call) => call.api === 'redirectTo').length, 0)
+  assert.equal(componentCalls.filter((call) => call.api === 'navigateTo').length, 0)
+  componentCalls[0].options.fail({ errMsg: 'switchTab:fail' })
+  componentCalls[0].options.complete({ errMsg: 'switchTab:fail' })
+  assert.equal(rootTab.events.filter((event) => event.name === 'navigationfail').length, 1, 'fail and complete must report one retry cue')
+
+  componentConfig.methods.back.call(rootTab)
+  assert.equal(componentCalls.length, 2, 'switchTab failure must release the root action lock')
+  componentCalls[1].options.complete({ errMsg: 'switchTab:complete' })
+  assert.equal(rootTab.events.filter((event) => event.name === 'navigationfail').length, 2, 'complete without success must release and report failure once')
+
+  componentConfig.methods.back.call(rootTab)
+  assert.equal(componentCalls.length, 3, 'complete without success must permit retry')
+  componentCalls[2].options.success({ errMsg: 'switchTab:ok' })
+  componentCalls[2].options.complete({ errMsg: 'switchTab:ok' })
+  componentConfig.methods.back.call(rootTab)
+  assert.equal(componentCalls.length, 3, 'success must keep rapid duplicate root navigation locked')
+
+  const syncFailureRoot = {
+    data: { delta: 1, fallbackUrl: '/pages/home/index', fallbackIsTab: true },
+    events: [],
+    triggerEvent(name, detail, options) { this.events.push({ name, detail, options }) },
+  }
+  throwNextComponentSwitchTab = true
+  componentConfig.methods.back.call(syncFailureRoot)
+  assert.equal(componentCalls.length, 4, 'synchronous switchTab exception must be reported')
+  assert.equal(syncFailureRoot.events.filter((event) => event.name === 'navigationfail').length, 1)
+  componentConfig.methods.back.call(syncFailureRoot)
+  assert.equal(componentCalls.length, 5, 'synchronous switchTab exception must release the lock for retry')
+  componentCalls[4].options.success({ errMsg: 'switchTab:ok' })
+  componentCalls[4].options.complete({ errMsg: 'switchTab:ok' })
+
+  componentPages = [{ route: 'pages/home/index' }, { route: 'pages/institution/index' }]
+  const withParent = {
+    data: { delta: 1, fallbackUrl: '/pages/home/index', fallbackIsTab: true },
+    events: [],
+    triggerEvent(name, detail, options) { this.events.push({ name, detail, options }) },
+  }
+  componentConfig.methods.back.call(withParent)
+  assert.equal(componentCalls.at(-1).api, 'navigateBack', 'valid parent must retain navigateBack even with a Tab fallback declaration')
+
+  componentPages = []
+  const ordinaryRoot = {
+    data: { delta: 1, fallbackUrl: '/pages/assessment/preference', fallbackIsTab: false },
+    events: [],
+    triggerEvent(name, detail, options) { this.events.push({ name, detail, options }) },
+  }
+  componentConfig.methods.back.call(ordinaryRoot)
+  assert.equal(componentCalls.at(-1).api, 'redirectTo', 'non-Tab root fallbacks must preserve redirectTo')
+
+  const pageCalls = []
+  const guardModule = createRuntime(typescript).load(path.join(root, 'miniprogram', 'utils', 'navigation-guard.ts'))
+  let pageConfig = null
+  let pageStack = []
+  let authOrNetworkCalls = 0
+  let throwNextPageSwitchTab = false
+  const modulePath = (relativePath) => path.resolve(root, 'miniprogram', relativePath)
+  const overrides = new Map([
+    [modulePath('services/institution-list-detail-page.ts'), {
+      buildInstitutionListPageSnapshot() { return Promise.resolve({ ok: false }) },
+    }],
+    [modulePath('pages/institution/list-view-model.ts'), {
+      createInstitutionListErrorViewModel() { return {} },
+      createInstitutionListLoadingViewModel() { return {} },
+      createInstitutionListPageViewModel() { return {} },
+    }],
+    [modulePath('utils/navigation-guard.ts'), guardModule],
+    [modulePath('services/institution-detail-route.ts'), { serializeInstitutionDetailRoute() { return null } }],
+  ])
+  const pageRuntime = createRuntime(typescript, {
+    overrides,
+    globals: {
+      Page(config) { pageConfig = config },
+      getCurrentPages: () => pageStack,
+      wx: {
+        navigateBack(options) { pageCalls.push({ api: 'navigateBack', options }) },
+        redirectTo(options) { pageCalls.push({ api: 'redirectTo', options }) },
+        switchTab(options) {
+          pageCalls.push({ api: 'switchTab', options })
+          if (throwNextPageSwitchTab) {
+            throwNextPageSwitchTab = false
+            throw new Error('switchTab synchronous failure')
+          }
+        },
+        request() { authOrNetworkCalls += 1 },
+        login() { authOrNetworkCalls += 1 },
+        getPhoneNumber() { authOrNetworkCalls += 1 },
+      },
+    },
+  })
+  pageRuntime.load(modulePath('pages/institution/index.ts'))
+  assert.ok(pageConfig, 'Institution List Page configuration was not registered')
+  const page = {
+    ...pageConfig,
+    data: { ...pageConfig.data, viewModel: { pageState: 'empty' } },
+    setData(patch) { this.data = { ...this.data, ...patch } },
+  }
+  const originalViewModel = page.data.viewModel
+  pageStack = [{ route: 'pages/home/index' }, { route: 'pages/institution/index' }]
+  page.onBackToHome()
+  assert.equal(pageCalls.length, 1)
+  assert.equal(pageCalls[0].api, 'navigateBack', 'empty/error Back with a parent must navigateBack')
+  pageCalls[0].options.fail({ errMsg: 'navigateBack:fail' })
+  assert.equal(page.data.actionErrorMessage, '暂时无法返回，请稍后重试。', 'parent failure must retain visible retry feedback')
+  page.onShow()
+
+  pageStack = [{ route: 'pages/institution/index' }]
+  page.onBackToHome()
+  page.onBackToHome()
+  assert.equal(pageCalls.length, 2, 'rapid root empty/error Back actions must issue one call')
+  assert.equal(pageCalls[1].api, 'switchTab')
+  assert.equal(pageCalls[1].options.url, '/pages/home/index')
+  assert.equal(pageCalls.filter((call) => call.api === 'redirectTo').length, 0, 'Institution List root must not redirectTo Home Tab')
+  pageCalls[1].options.fail({ errMsg: 'switchTab:fail' })
+  pageCalls[1].options.complete({ errMsg: 'switchTab:fail' })
+  assert.equal(page.data.actionErrorMessage, '暂时无法返回，请稍后重试。')
+  assert.equal(page.data.viewModel, originalViewModel, 'Back must not mutate Institution List data')
+  page.onBackToHome()
+  assert.equal(pageCalls.length, 3, 'root switchTab failure must release the page guard for retry')
+  assert.equal(pageCalls[2].api, 'switchTab')
+  pageCalls[2].options.success({ errMsg: 'switchTab:ok' })
+  pageCalls[2].options.complete({ errMsg: 'switchTab:ok' })
+  page.onShow()
+  throwNextPageSwitchTab = true
+  page.onBackToHome()
+  assert.equal(pageCalls.length, 4, 'synchronous root switchTab exception must be attempted once')
+  assert.equal(page.data.actionErrorMessage, '暂时无法返回，请稍后重试。', 'synchronous switchTab exception must provide visible retry feedback')
+  page.onBackToHome()
+  assert.equal(pageCalls.length, 5, 'synchronous root switchTab exception must release the page guard')
+  assert.equal(pageCalls[4].api, 'switchTab')
+  pageCalls[4].options.success({ errMsg: 'switchTab:ok' })
+  pageCalls[4].options.complete({ errMsg: 'switchTab:ok' })
+  assert.equal(authOrNetworkCalls, 0, 'Back must not call auth, phone, or network APIs')
+
+  return {
+    componentRootTabCalls: componentCalls.filter((call) => call.api === 'switchTab').length,
+    componentParentBackCalls: componentCalls.filter((call) => call.api === 'navigateBack').length,
+    componentNonTabRedirectCalls: componentCalls.filter((call) => call.api === 'redirectTo').length,
+    pageRootTabCalls: pageCalls.filter((call) => call.api === 'switchTab').length,
+    pageParentBackCalls: pageCalls.filter((call) => call.api === 'navigateBack').length,
+    pageHomeRedirectCalls: pageCalls.filter((call) => call.api === 'redirectTo').length,
+    authOrNetworkCalls,
+  }
+}
+
 const runExecutableNavigationHarness = () => {
   const typescript = loadWechatTypeScript()
   const domainRuntime = createRuntime(typescript)
@@ -609,10 +791,24 @@ const main = () => {
     const metrics = runHomeAssessmentEntryHarness()
     assert.deepEqual(metrics, { reLaunchCount: 2, navigateCount: 0, toastCount: 1 })
   })
-  assert.equal(executed.length, 24)
+  run('NAV-025', 'Institution List root Back uses Home Tab and preserves parent/failure semantics', () => {
+    assert.match(listWxml, /fallbackUrl="\/pages\/home\/index"/)
+    assert.match(listWxml, /fallbackIsTab="\{\{true\}\}"/)
+    const metrics = runInstitutionRootBackHarness()
+    assert.deepEqual(metrics, {
+      componentRootTabCalls: 5,
+      componentParentBackCalls: 1,
+      componentNonTabRedirectCalls: 1,
+      pageRootTabCalls: 4,
+      pageParentBackCalls: 1,
+      pageHomeRedirectCalls: 0,
+      authOrNetworkCalls: 0,
+    })
+  })
+  assert.equal(executed.length, 25)
   assert.equal(failures.length, 0, failures.join('\n'))
   console.log(`A0_4_INTERACTION_MATRIX_CASES: ${matrix.length}`)
-  console.log(`A0_4_INTERACTION_CASES: ${executed.length}/24 PASS`)
+  console.log(`A0_4_INTERACTION_CASES: ${executed.length}/25 PASS`)
   console.log('INSTITUTION_NAVIGATION_A0_4_INTERACTIONS = PASS')
 }
 

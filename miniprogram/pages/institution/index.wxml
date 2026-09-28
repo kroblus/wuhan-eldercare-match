@@ -2,6 +2,7 @@
   title="合作机构列表"
   back="{{true}}"
   fallbackUrl="/pages/home/index"
+  fallbackIsTab="{{true}}"
   color="#27313D"
   background="#FFFFFF"
   bind:navigationfail="onNavigationFailure"
