@@ -484,6 +484,16 @@
     {
       "path": "docs/architecture/WECHAT_INTERACTION_CONTRACT.md",
       "doc_id": "contract.wechat_interaction.v1",
+      "status": "SUPERSEDED",
+      "kind": "CONTRACT",
+      "normative": false,
+      "owner": "wechat_frontend",
+      "superseded_by": "docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md",
+      "doc_id": "contract.wechat_interaction.v2",
       "status": "FROZEN",
       "kind": "CONTRACT",
       "normative": true,

@@ -5,7 +5,7 @@ description: Use for Mini Program actions, validation, navigation, disabled/load
 
 # WeChat interaction
 
-Read `docs/architecture/WECHAT_INTERACTION_CONTRACT.md`.
+Read `docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md`.
 
 Derive behavior from that Contract; do not create a second interaction spec. Preserve its single-action chain, validation timing, Draft/error/navigation rules. If the change also touches class syntax, `wx.*`, generated JS or shared event propagation, additionally use `wechat-runtime-compat`.
 

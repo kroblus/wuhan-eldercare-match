@@ -7,7 +7,7 @@
 工程证据，不能单独替代人工真机证据。
 
 公共组件 Action、导航、disabled/loading 与失败反馈的业务交互语义只以
-`WECHAT_INTERACTION_CONTRACT.md` 为准；本文不维护第二份交互 Contract。
+`WECHAT_INTERACTION_CONTRACT_V2.md` 为准；本文不维护第二份交互 Contract。
 
 ## 1. Generated JavaScript 风险
 

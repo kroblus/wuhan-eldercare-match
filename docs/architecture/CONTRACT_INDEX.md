@@ -8,7 +8,7 @@ This file routes; it does not define business semantics.
 |---|---|---|
 | Current product scope | `docs/product/README.md` + current V1.2 product PDF | relevant architecture Contract |
 | Assessment V2 schema/validation | `ASSESSMENT_CONTRACT_V2.md` | migration Contract; interaction Contract |
-| Assessment actions/navigation | `WECHAT_INTERACTION_CONTRACT.md` | Assessment V2; WeChat Skills |
+| Assessment actions/navigation | `WECHAT_INTERACTION_CONTRACT_V2.md` | Assessment V2; WeChat Skills |
 | ElderProfile V2 | `ELDER_PROFILE_CONTRACT_V2.md` | Assessment V2; Preview V2 |
 | Recommendation V2 | `RECOMMENDATION_CONTRACT_V2.md` + `RECOMMENDATION_RULE_CONTRACT_V2.md` | ElderProfile/Institution only when dependency changes |
 | Institution current schema/contact/address/Geo/public content | `INSTITUTION_CONTRACT_V1_2_1.md` | V1.2/V1.1 only for explicit compatibility/projection paths |
@@ -30,7 +30,7 @@ This file routes; it does not define business semantics.
 | VisitEvaluation production write / authorization / cardinality / idempotency | `VISIT_EVALUATION_PRODUCTION_WRITE_CONTRACT_V1.md` | Current Product Source Evaluation questions; C1 §15, non-sensitive UI and authenticated context Contracts |
 | Post-A1 V1.2-B1 phase status and handoff | `V1_2_B1_PHASE_HANDOFF.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md` |
 | V1.2-B2.1 phase status and implementation handoff | `V1_2_B2_1_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `V1_2_B2_IMPLEMENTATION_HANDOFF.md` |
-| V1.2-B3 Consultant UI phase status and implementation handoff | `V1_2_B3_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `WECHAT_INTERACTION_CONTRACT.md`; current Product Source Consultant page |
+| V1.2-B3 Consultant UI phase status and implementation handoff | `V1_2_B3_IMPLEMENTATION_HANDOFF.md` | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md`; `WECHAT_INTERACTION_CONTRACT_V2.md`; current Product Source Consultant page |
 | V1.2-B4 AI Contract Freeze phase definition and handoff | `V1_2_B4_PHASE_HANDOFF.md` | `AI_CONSULTATION_CONTRACT_V1.md`; current Product Source AI pages |
 | V1.2-B5 AI Domain/Application Foundation phase definition and implementation handoff | `V1_2_B5_IMPLEMENTATION_HANDOFF.md` | `AI_CONSULTATION_CONTRACT_V1.md`; `FRONTEND_STRUCTURE.md`; `MOCK_DATA_POLICY.md` |
 | Generated JavaScript / class compatibility | `WECHAT_RUNTIME_COMPATIBILITY_POLICY.md` | interaction Contract only when Action/navigation behavior is affected |
