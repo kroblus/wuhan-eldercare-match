@@ -1,4 +1,5 @@
 import {
+  createC5AuthenticatedJsonHeadersV1,
   createC5AuthenticatedBackendSessionClientV1,
   createDefaultWeChatC5BackendTransportV1,
 } from './c5-authenticated-backend-session'
@@ -267,11 +268,6 @@ export const validateAppointmentCreateSuccessHandoffV1 = (
   }
 }
 
-const elderHeaders = (session: C5AuthenticatedBackendSessionV1): Record<string, string> => ({
-  Accept: 'application/json',
-  'X-Auth-Evidence': session.evidence,
-})
-
 const getUsableSession = async (
   sessionClient: ReturnType<typeof createC5AuthenticatedBackendSessionClientV1>,
 ): Promise<{ kind: 'ready'; session: C5AuthenticatedBackendSessionV1 } | { kind: 'auth_required' } | { kind: 'unavailable' }> => {
@@ -340,7 +336,7 @@ export const createProductionAppointmentCreateClientV1 = (
           url: `${sessionResult.session.origin}${ELDER_ENDPOINT}`,
           method: 'GET',
           timeout: REQUEST_TIMEOUT_MS,
-          header: elderHeaders(sessionResult.session),
+          header: createC5AuthenticatedJsonHeadersV1(sessionResult.session),
         })
       } catch (_error) {
         return { kind: 'unavailable' }
@@ -361,7 +357,7 @@ export const createProductionAppointmentCreateClientV1 = (
           url: `${sessionResult.session.origin}${ELDER_ENDPOINT}`,
           method: 'POST',
           timeout: REQUEST_TIMEOUT_MS,
-          header: elderHeaders(sessionResult.session),
+          header: createC5AuthenticatedJsonHeadersV1(sessionResult.session),
         })
       } catch (_error) {
         return { kind: 'unavailable' }

@@ -40,6 +40,7 @@
     "check:appointment-institution-visit-c2-runtime": "node scripts/check-appointment-institution-visit-c2-runtime.mjs",
     "check:appointment-institution-visit-c2-compat": "node scripts/check-appointment-institution-visit-c2-compat.mjs",
     "check:appointment-create-runtime": "node scripts/check-appointment-create-runtime.mjs",
+    "check:elder-read-only-diagnostic": "node scripts/check-elder-read-only-diagnostic-runtime.mjs",
     "check:c5-development-backend-origin": "node scripts/check-c5-development-backend-origin.mjs",
     "check:appointment-contact-consultant-runtime": "node scripts/check-appointment-contact-consultant-runtime.mjs",
     "check:mine-appointment-entry-runtime": "node scripts/check-mine-appointment-entry-runtime.mjs",

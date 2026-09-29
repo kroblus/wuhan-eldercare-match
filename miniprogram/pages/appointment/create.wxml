@@ -30,6 +30,25 @@
           </section-card>
         </view>
 
+        <view wx:if="{{showElderReadOnlyDiagnostic}}" class="appointment-card-wrap">
+          <section-card>
+            <text class="section-kicker">开发诊断 · 只读</text>
+            <text class="appointment-field-hint">仅检查当前登录账号的老人档案绑定状态，不创建档案或提交预约。</text>
+            <primary-button
+              text="{{elderDiagnosticState === 'loading' ? '正在只读检查' : '只读检查老人绑定'}}"
+              variant="quiet"
+              loading="{{elderDiagnosticState === 'loading'}}"
+              disabled="{{elderDiagnosticState === 'loading'}}"
+              bind:action="onReadOnlyElderDiagnostic"
+            ></primary-button>
+            <text wx:if="{{elderDiagnosticState === 'exists'}}" class="route-card-message">老人档案已绑定</text>
+            <text wx:elif="{{elderDiagnosticState === 'not_found'}}" class="route-card-message">当前账号暂无老人档案</text>
+            <text wx:elif="{{elderDiagnosticState === 'auth_unavailable'}}" class="route-card-message">登录状态暂不可用</text>
+            <text wx:elif="{{elderDiagnosticState === 'service_unavailable'}}" class="route-card-message">服务暂不可用</text>
+            <text wx:elif="{{elderDiagnosticState === 'malformed'}}" class="route-card-message">读取结果异常</text>
+          </section-card>
+        </view>
+
         <view class="appointment-card-wrap">
           <section-card>
             <text class="section-kicker">看院意向</text>

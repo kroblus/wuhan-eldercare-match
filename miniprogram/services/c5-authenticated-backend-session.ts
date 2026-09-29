@@ -36,6 +36,13 @@ export interface C5AuthenticatedBackendSessionClientV1 {
   clearSession(): void
 }
 
+export const createC5AuthenticatedJsonHeadersV1 = (
+  session: C5AuthenticatedBackendSessionV1,
+): Record<string, string> => ({
+  Accept: 'application/json',
+  'X-Auth-Evidence': session.evidence,
+})
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 

@@ -11,6 +11,14 @@ import {
   validateAppointmentCreateFormV1,
 } from '../../services/appointment-create-client'
 import type { AppointmentCreateClientV1, AppointmentElderPrepareResultV1 } from '../../services/appointment-create-client'
+import {
+  createElderRecordReadOnlyDiagnosticClientV1,
+  isElderRecordDiagnosticDevelopRuntimeV1,
+} from '../../services/elder-record-read-only-diagnostic'
+import type {
+  ElderRecordReadOnlyDiagnosticClientV1,
+  ElderRecordReadOnlyDiagnosticResultV1,
+} from '../../services/elder-record-read-only-diagnostic'
 import type {
   AppointmentCreateFieldV1,
   AppointmentCreateFormErrorsV1,
@@ -20,6 +28,7 @@ import type {
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 type AppointmentCreatePageState = 'loading' | 'ready' | 'route_error' | 'institution_unavailable'
+type ElderDiagnosticPageState = 'idle' | 'loading' | ElderRecordReadOnlyDiagnosticResultV1['kind']
 
 interface AppointmentCreatePageData {
   pageState: AppointmentCreatePageState
@@ -39,6 +48,8 @@ interface AppointmentCreatePageData {
   formLocked: boolean
   receiptReady: boolean
   successNavigationFailed: boolean
+  showElderReadOnlyDiagnostic: boolean
+  elderDiagnosticState: ElderDiagnosticPageState
 }
 
 interface AppointmentInputEvent {
@@ -55,6 +66,8 @@ interface AppointmentPagePrivateState {
   terminalConflict: boolean
   successHandoffId: string | null
   navigationPending: boolean
+  elderReadOnlyDiagnosticClient: ElderRecordReadOnlyDiagnosticClientV1
+  elderReadOnlyDiagnosticRunning: boolean
 }
 
 const pagePrivateState = new WeakMap<object, AppointmentPagePrivateState>()
@@ -70,6 +83,8 @@ const createPrivateState = (): AppointmentPagePrivateState => ({
   terminalConflict: false,
   successHandoffId: null,
   navigationPending: false,
+  elderReadOnlyDiagnosticClient: createElderRecordReadOnlyDiagnosticClientV1(),
+  elderReadOnlyDiagnosticRunning: false,
 })
 
 const getPrivateState = (instance: object): AppointmentPagePrivateState => {
@@ -279,6 +294,8 @@ Page({
     formLocked: false,
     receiptReady: false,
     successNavigationFailed: false,
+    showElderReadOnlyDiagnostic: isElderRecordDiagnosticDevelopRuntimeV1(),
+    elderDiagnosticState: 'idle',
   } as AppointmentCreatePageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -307,6 +324,23 @@ Page({
         actionMessageTone: 'error',
       })
     })
+  },
+
+  async onReadOnlyElderDiagnostic() {
+    if (!isElderRecordDiagnosticDevelopRuntimeV1()) return
+    const state = getPrivateState(this)
+    if (state.elderReadOnlyDiagnosticRunning) return
+
+    state.elderReadOnlyDiagnosticRunning = true
+    try {
+      this.setData({ elderDiagnosticState: 'loading' })
+      const result = await state.elderReadOnlyDiagnosticClient.resolveCurrentElderRecordReadOnly()
+      this.setData({ elderDiagnosticState: result.kind })
+    } catch (_error) {
+      this.setData({ elderDiagnosticState: 'service_unavailable' })
+    } finally {
+      state.elderReadOnlyDiagnosticRunning = false
+    }
   },
 
   onVisitDateChange(event: AppointmentInputEvent) {
