@@ -13,4 +13,12 @@
 Main session 的模型与 reasoning 属于当前 session、配置和 runtime selection，不是 Agent Engineering
 架构常量。Subagent runtime defaults 以当前 `.codex/config.toml` 为准，本文不重复写死模型名称。
 
+## Scoped Ownership Overrides
+
+V2.1 允许项目负责人针对明确阶段或任务设置 scoped ownership override；root `AGENTS.md` 是 ownership rule 的主要治理真相。当前 Warm Swiss UI 重构阶段采用 `UI_IMPLEMENTATION_OWNER = MAIN_SESSION_ONLY`，在该 scope 内优先于普通 specialist ownership 和 delegate-before-deep-read，由 Main session 自己读取必要视觉基线与相关 Contract 并完成 UI implementation。
+
+此例外只覆盖 Warm Swiss UI scope，不删除 `wechat_frontend`、不禁用其他 specialist、不关闭 Agent Engineering，不修改 Frozen Contract、Skills、MCP 或 risk-based QA 原则。scope 外保持普通专项 ownership；阶段结束后恢复普通 V2.1 specialist routing。
+
+Main session model 与 reasoning 仍由当前 runtime/session 选择，此 ownership override 不记录或冻结模型名称，也不修改 `.codex/config.toml` 的 subagent defaults。
+
 V2.1 的一次性迁移记录已归档，仅在审查历史迁移时显式读取，不是日常任务前置材料。

@@ -11,6 +11,7 @@ Main-session model and reasoning are selected by the current session/runtime. Su
 2. Use specialist ownership to reduce duplicated context; a model name does not replace domain routing.
 3. Do not silently change repository runtime defaults as part of an unrelated feature or documentation task.
 4. When comparing model configurations, keep the code baseline and task scope stable and record the runtime selection with the result.
+5. Task-scoped / phase-scoped ownership overrides declared in root `AGENTS.md` take precedence over ordinary specialist delegation. When Warm Swiss UI Refactor is Main-only (`MAIN_SESSION_ONLY`), do not automatically delegate to `wechat_frontend` merely because the task involves WXML, Less, pages, components or frontend work. Model selection does not replace domain routing.
 
 ## Quota rules
 

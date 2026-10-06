@@ -26,6 +26,20 @@
 
 主会话负责跨域架构、任务拆分、Contract 冲突、集成与最终验收。不要为了多 Agent 机械启动全部子 Agent。
 
+### Warm Swiss UI Refactor — Main Session Exclusive Ownership
+
+满足以下任一条件即进入 Warm Swiss UI Refactor scope：明确要求 Warm Swiss UI；明确要求 UI 重构 / 视觉重构；明确引用 `docs/ui/warm-swiss-v1/**`；或主要目标是按照冻结视觉基线修改 layout / typography / spacing / color / border / WXML presentation / Less / WXSS / visual components / page composition。
+
+- `UI_IMPLEMENTATION_OWNER = MAIN_SESSION_ONLY`。UI 分析、视觉判断、页面布局与 composition、Typography / Spacing / Colors / Borders、WXML presentation、Less / WXSS visual styling、visual component composition、Design Token 应用、UI consistency decisions，以及为视觉实现所必需的轻量前端 TS adaptation，均由 Main session 独占完成，不得委派给 `wechat_frontend` 或任何其他 subagent。
+- 此 scoped rule 在 Warm Swiss UI scope 内优先于下方普通 specialist ownership 和 **delegate before deep-read**。Main session 自己 deep-read 必要视觉基线与相关 Contract，并自己完成 UI implementation。
+- Main session 仍可按触发条件自行读取并应用 `wechat-interaction`、`wechat-runtime-compat`、`recommendation-v2` 等 Repo Skills。**Skill != subagent**；使用 Skill 不等于委派 UI implementation。
+- 不因 UI 重构自动启动 `qa_reviewer`。仅在项目负责人明确要求，或确实存在高风险、需要独立验收时，才允许在主实现完成后进行 **READ-ONLY review**；不得修改 UI、重新设计 UI 或接管实现。
+- `matching_engine` / `backend_domain` 仍可处理真正独立的非 UI 领域任务，但不得承担 Warm Swiss scope 内的 UI implementation。
+- `docs/ui/warm-swiss-v1/` 中的冻结视觉 PDF 是 `FROZEN_VISUAL_IMPLEMENTATION_BASELINE`，仅负责视觉风格、布局、间距、排版、组件展示与页面 composition；Frozen Contract 始终高于视觉基线。
+- Warm Swiss UI Refactor scope 结束后恢复普通 V2.1 specialist routing；此例外不禁用全局 subagent，也不将 scope 外的普通微信前端任务永久交给 Main session。
+
+### 普通 specialist ownership
+
 - `wechat_frontend`：页面、组件、前端 application/view-model/state/integration。
 - `backend_domain`：`server/**`、API、持久化、认证与服务端领域边界。
 - `matching_engine`：Assessment 派生、ElderProfile、Recommendation 等纯领域规则/runtime。
