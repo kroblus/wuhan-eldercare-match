@@ -1,104 +1,74 @@
-<navigation-bar
-  title="合作机构列表"
-  back="{{true}}"
-  fallbackUrl="/pages/home/index"
-  fallbackIsTab="{{true}}"
-  color="#27313D"
-  background="#FFFFFF"
-  bind:navigationfail="onNavigationFailure"
-></navigation-bar>
-
+<navigation-bar warmSwiss="{{true}}" title="合作机构" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#111827" background="#FBFAF7" bind:navigationfail="onNavigationFailure"></navigation-bar>
 <page-container extraClass="institution-list-page">
   <view class="page-shell institution-list-shell">
     <view class="page-head institution-list-head">
-      <text class="eyebrow">机构 · 武汉合作机构</text>
       <text class="page-title">{{viewModel ? viewModel.title : '合作机构列表'}}</text>
       <text class="page-description">{{viewModel ? viewModel.description : '正在读取当前合作机构资料。'}}</text>
       <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
-
-    <view wx:if="{{pageState === 'loading'}}" class="list-card-wrap">
-      <section-card>
-        <state-panel state="loading" title="正在读取合作机构资料" message="正在通过当前资料目录整理可展示内容。"></state-panel>
-      </section-card>
+    <view wx:if="{{pageState === 'loading'}}" class="directory-state" role="status">
+      <text class="directory-state__label">资料读取中</text>
+      <text class="directory-state__title">正在读取合作机构资料</text>
+      <text class="directory-state__message">正在通过当前资料目录整理可展示内容。</text>
     </view>
-
     <block wx:elif="{{viewModel}}">
       <view wx:if="{{viewModel.hasDisclosure}}" class="mock-disclosure">
-        <tag text="开发演示数据" tone="development"></tag>
+        <text class="mock-disclosure__label">开发演示数据</text>
         <text class="mock-disclosure__title">本页只用于功能演示</text>
         <text class="mock-disclosure__message">{{viewModel.disclosure}}</text>
       </view>
-
-      <view wx:if="{{viewModel.pageState === 'ready'}}" class="list-card-wrap">
-        <section-card>
+      <view wx:if="{{viewModel.pageState === 'ready'}}" class="institution-directory">
+        <view class="directory-heading">
           <text class="section-kicker">当前可展示资料</text>
-          <text class="section-subtitle">资料按当前应用快照展示，页面不会自行筛选、排序或推断护理能力。</text>
-          <view
-            wx:for="{{viewModel.items}}"
-            wx:key="key"
-            class="institution-card"
-            data-item-key="{{item.key}}"
-            data-institution-id="{{item.navigationIntent.institutionId}}"
-            data-record-revision="{{item.navigationIntent.recordRevision}}"
-            data-route-source="{{item.navigationIntent.source}}"
-            bindtap="onCardTap"
-          >
-            <text wx:if="{{item.showGroupHeading}}" class="institution-group-heading">{{item.groupLabel}}</text>
-            <view wx:if="{{item.hasCover}}" class="institution-cover-wrap">
-              <image class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
+          <text class="directory-count">共 {{viewModel.items.length}} 条</text>
+        </view>
+        <view wx:for="{{viewModel.items}}" wx:key="key" class="institution-card" data-item-key="{{item.key}}" data-institution-id="{{item.navigationIntent.institutionId}}" data-record-revision="{{item.navigationIntent.recordRevision}}" data-route-source="{{item.navigationIntent.source}}" bindtap="onCardTap" role="button" aria-label="查看{{item.name}}详情">
+          <text wx:if="{{item.showGroupHeading}}" class="institution-group-heading">{{item.groupLabel}}</text>
+          <view class="institution-row">
+            <text class="institution-number">{{index > 8 ? '' : '0'}}{{index + 1}}</text>
+            <view class="institution-cover-wrap">
+              <image wx:if="{{item.hasCover}}" class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
+              <view wx:else class="institution-cover institution-cover--empty"><text>暂无机构图片</text></view>
             </view>
-            <view wx:else class="institution-cover institution-cover--empty">
-              <text>暂无机构图片</text>
-            </view>
-            <view class="institution-card__head">
-              <view class="institution-card__identity">
-                <text class="institution-name">{{item.name}}</text>
-                <text wx:if="{{item.nameStatus !== '已核验'}}" class="fact-status">{{item.nameStatus}}</text>
-              </view>
-              <view class="institution-region">
-                <text class="institution-region__value">{{item.region}}</text>
-                <text class="institution-region__status">{{item.regionStatus}}</text>
-              </view>
-            </view>
-            <view class="institution-meta">
-              <view class="institution-meta__item">
+            <view class="institution-card__body">
+              <text class="institution-name">{{item.name}}</text>
+              <text class="fact-status {{item.nameStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.nameStatus}}</text>
+              <view class="institution-meta">
+                <text class="institution-meta__value">{{item.region}}</text>
+                <text class="fact-status {{item.regionStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.regionStatus}}</text>
                 <text class="institution-meta__value">{{item.type}}</text>
-                <text class="institution-meta__status">{{item.typeStatus}}</text>
+                <text class="fact-status {{item.typeStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.typeStatus}}</text>
               </view>
-              <view class="institution-meta__item">
-                <text class="institution-meta__value">{{item.price}}</text>
-                <text class="institution-meta__status">{{item.priceStatus}}</text>
+              <view class="institution-fee">
+                <text class="institution-fee__label">参考月费</text>
+                <text class="institution-fee__value">{{item.price}}</text>
+                <text class="fact-status {{item.priceStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.priceStatus}}</text>
               </view>
-              <text class="institution-meta__item">{{item.vrLabel}}</text>
-              <text class="institution-meta__item institution-meta__item--placement">{{item.placementLabel}}</text>
+              <view wx:if="{{item.tags.length}}" class="tag-list">
+                <text wx:for="{{item.tags}}" wx:key="text" class="institution-tag">{{item.text}}</text>
+              </view>
+              <text class="institution-vr institution-vr--{{item.vrState}}">{{item.vrLabel}}</text>
+              <text class="institution-placement">{{item.placementLabel}}</text>
+              <text class="institution-card__footer">查看机构详情 →</text>
             </view>
-            <view wx:if="{{item.tags.length}}" class="tag-list tag-list--compact">
-              <tag wx:for="{{item.tags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
-            </view>
-            <view class="institution-card__footer">
-              <text class="development-boundary">查看机构详情</text>
-            </view>
-            <view wx:if="{{actionErrorKey === item.key}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
           </view>
-        </section-card>
+          <view wx:if="{{actionErrorKey === item.key}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </view>
       </view>
-
-      <view wx:if="{{viewModel.pageState === 'empty'}}" class="list-card-wrap">
-        <section-card>
-          <state-panel state="empty" title="{{viewModel.emptyTitle}}" message="{{viewModel.emptyMessage}}"></state-panel>
+      <view wx:if="{{viewModel.pageState === 'empty'}}" class="directory-state" role="status">
+        <text class="directory-state__label">暂无资料</text>
+        <text class="directory-state__title">{{viewModel.emptyTitle}}</text>
+        <text class="directory-state__message">{{viewModel.emptyMessage}}</text>
+        <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
+      </view>
+      <view wx:if="{{viewModel.pageState !== 'ready' && viewModel.pageState !== 'empty'}}" class="directory-state directory-state--error" role="alert">
+        <text class="directory-state__label">暂时无法读取</text>
+        <text class="directory-state__title">{{viewModel.errorTitle}}</text>
+        <text class="directory-state__message">{{viewModel.errorMessage}}</text>
+        <view class="error-actions">
+          <button wx:if="{{viewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button>
           <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
-        </section-card>
-      </view>
-
-      <view wx:if="{{viewModel.pageState !== 'ready' && viewModel.pageState !== 'empty'}}" class="list-card-wrap">
-        <section-card>
-          <state-panel state="error" title="{{viewModel.errorTitle}}" message="{{viewModel.errorMessage}}"></state-panel>
-          <view class="error-actions">
-            <button wx:if="{{viewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button>
-            <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
-          </view>
-        </section-card>
+        </view>
       </view>
     </block>
   </view>

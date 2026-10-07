@@ -1,129 +1,90 @@
-<navigation-bar title="养老顾问" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
+<navigation-bar warmSwiss="{{true}}" title="养老顾问" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="consultant-page">
   <view class="page-shell consultant-shell">
-    <view class="page-head">
+    <view class="page-head consultant-head">
       <text class="eyebrow">{{routeLabel}}</text>
       <text class="page-title">{{pageTitle}}</text>
       <text class="page-description">{{description}}</text>
     </view>
 
-    <view wx:if="{{pageState === 'loading'}}" class="consultant-card-wrap">
-      <section-card>
-        <state-panel state="loading" title="正在读取顾问公开资料" message="只展示已获授权的公开信息，不会请求你的手机号。"></state-panel>
-      </section-card>
+    <view wx:if="{{pageState === 'loading'}}" class="consultant-status" role="status">
+      <text class="consultant-state-title">正在读取顾问公开资料</text>
+      <text class="consultant-state-message">只展示已获授权的公开信息，不会请求你的手机号。</text>
     </view>
-
     <block wx:elif="{{viewModel}}">
-      <view wx:if="{{!viewModel.showIdentity}}" class="consultant-card-wrap">
-        <section-card>
-          <state-panel
-            state="{{viewModel.pageState === 'failure' ? 'error' : 'empty'}}"
-            title="{{viewModel.stateTitle}}"
-            message="{{viewModel.stateMessage}}"
-            actionText="{{viewModel.showReloadAction ? '重新加载' : ''}}"
-            bind:action="onRetry"
-          ></state-panel>
-        </section-card>
-      </view>
-
-      <view wx:if="{{viewModel.showIdentity}}" class="consultant-card-wrap">
-        <section-card>
-          <tag text="平台顾问" tone="brand"></tag>
-          <text class="consultant-identity-name">{{viewModel.displayName}}</text>
-          <text class="consultant-identity-role">{{viewModel.roleLabel}} · {{viewModel.serviceArea}}</text>
+      <view class="consultant-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>当前顾问资料</text></view>
+        <view class="consultant-status consultant-status--{{viewModel.pageState}}" role="{{viewModel.pageState === 'failure' ? 'alert' : 'status'}}">
+          <view wx:if="{{viewModel.showIdentity}}" class="consultant-identity">
+            <text class="consultant-identity-label">平台顾问</text>
+            <text class="consultant-identity-name">{{viewModel.displayName}}</text>
+            <text class="consultant-identity-role">{{viewModel.roleLabel}} · {{viewModel.serviceArea}}</text>
+          </view>
           <text class="consultant-state-title">{{viewModel.stateTitle}}</text>
           <text class="consultant-state-message">{{viewModel.stateMessage}}</text>
-        </section-card>
-      </view>
-
-      <view class="consultant-card-wrap">
-        <section-card>
-          <text class="section-kicker">顾问能帮助什么</text>
-          <text class="consultant-service-description">{{viewModel.serviceDescription}}</text>
-          <view class="consultant-service-list">
-            <text class="consultant-service-item">解读老人画像与照护需求</text>
-            <text class="consultant-service-item">解释推荐结果与机构差异</text>
-            <text class="consultant-service-item">协助确认最新床位与价格信息</text>
-            <text class="consultant-service-item">协助预约带看</text>
-            <text class="consultant-service-item">跟进入住沟通</text>
+          <view wx:if="{{viewModel.showReloadAction}}" class="consultant-reload">
+            <primary-button warmSwiss="{{true}}" text="重新加载" variant="quiet" bind:action="onRetry"></primary-button>
           </view>
-        </section-card>
-      </view>
-
-      <view wx:if="{{viewModel.showContactSection}}" class="consultant-card-wrap">
-        <section-card>
+        </view>
+        <view wx:if="{{viewModel.showContactSection}}" class="consultant-contact">
           <text class="section-kicker">联系养老顾问</text>
           <text class="section-subtitle">以下是平台顾问联系方式，不是养老机构官方电话。</text>
-
           <view class="consultant-contact-row">
             <view class="consultant-contact-row__head">
               <text class="consultant-contact-row__label">{{viewModel.phone.label}}</text>
               <text class="consultant-contact-row__status">{{viewModel.phone.statusText}}</text>
             </view>
             <text wx:if="{{viewModel.phone.displayValue}}" class="consultant-contact-row__value">{{viewModel.phone.displayValue}}</text>
-            <primary-button
-              wx:if="{{viewModel.showPhoneAction}}"
-              text="拨打养老顾问电话"
-              bind:action="onPhoneTap"
-            ></primary-button>
+            <view wx:if="{{viewModel.showPhoneAction}}" class="consultant-contact-action">
+              <primary-button warmSwiss="{{true}}" text="拨打养老顾问电话" variant="quiet" bind:action="onPhoneTap"></primary-button>
+            </view>
             <text wx:else class="consultant-contact-row__unavailable">暂不提供拨打入口</text>
             <view wx:if="{{actionErrorKey === 'phone'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
           </view>
-
           <view class="consultant-contact-row consultant-contact-row--qr">
             <text class="consultant-contact-row__label">{{viewModel.qr.label}}</text>
-            <image
-              wx:if="{{viewModel.showQrImage}}"
-              class="consultant-qr-image"
-              src="{{viewModel.qr.publicImageUrl}}"
-              mode="aspectFit"
-              show-menu-by-longpress="{{viewModel.qr.allowLongPress}}"
-              aria-label="企业微信养老顾问二维码"
-            ></image>
+            <image wx:if="{{viewModel.showQrImage}}" class="consultant-qr-image" src="{{viewModel.qr.publicImageUrl}}" mode="aspectFit" show-menu-by-longpress="{{viewModel.qr.allowLongPress}}" aria-label="企业微信养老顾问二维码"></image>
             <text wx:if="{{viewModel.showQrImage}}" class="consultant-qr-hint">可长按识别二维码；页面不会承诺添加一定成功。</text>
             <text wx:else class="consultant-contact-row__unavailable">{{viewModel.qr.statusText}}</text>
           </view>
-
-        </section-card>
+        </view>
       </view>
 
-      <view class="consultant-card-wrap">
-        <section-card>
-          <text class="section-kicker">顾问联系授权</text>
-          <text class="consultant-phone-authorization__explanation">如果你明确要求养老顾问后续联系，可授权微信手机号。本次只核验授权，不发送联系申请或预约，也不保存可复用凭证；之后正式申请时需要重新授权。</text>
-          <button
-            class="consultant-phone-authorization__button"
-            open-type="getPhoneNumber"
-            disabled="{{phoneAuthorizationLoading}}"
-            loading="{{phoneAuthorizationLoading}}"
-            bindgetphonenumber="onPhoneAuthorization"
-          >
-            {{phoneAuthorizationLoading ? '正在核验授权' : '授权手机号用于后续联系'}}
-          </button>
-          <text wx:if="{{phoneAuthorizationMessage}}" class="consultant-phone-authorization__message" role="status">{{phoneAuthorizationMessage}}</text>
-        </section-card>
+      <view class="consultant-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>顾问能帮助什么</text></view>
+        <text class="consultant-service-description">{{viewModel.serviceDescription}}</text>
+        <view class="consultant-service-list">
+          <text class="consultant-service-item">解读老人画像与照护需求</text>
+          <text class="consultant-service-item">解释推荐结果与机构差异</text>
+          <text class="consultant-service-item">协助确认最新床位与价格信息</text>
+          <text class="consultant-service-item">协助预约带看</text>
+          <text class="consultant-service-item">跟进入住沟通</text>
+        </view>
       </view>
 
-      <view class="consultant-card-wrap">
-        <section-card>
-          <text class="section-kicker">预约带看</text>
-          <text class="section-subtitle">请先从合作机构列表选择具体机构，再从该机构详情填写预约申请。顾问信息不会自动指定机构。</text>
-          <primary-button text="选择合作机构" bind:action="onAppointmentTap"></primary-button>
-          <view wx:if="{{actionErrorKey === 'appointment'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        </section-card>
+      <view class="consultant-section">
+        <view class="ws-section-heading"><text class="ws-section-number">03</text><text>顾问联系授权</text></view>
+        <text class="consultant-phone-authorization__explanation">如果你明确要求养老顾问后续联系，可授权微信手机号。本次只核验授权，不发送联系申请或预约，也不保存可复用凭证；之后正式申请时需要重新授权。</text>
+        <button class="consultant-phone-authorization__button" open-type="getPhoneNumber" disabled="{{phoneAuthorizationLoading}}" loading="{{phoneAuthorizationLoading}}" bindgetphonenumber="onPhoneAuthorization">
+          {{phoneAuthorizationLoading ? '正在核验授权' : '授权手机号用于后续联系'}}
+        </button>
+        <text wx:if="{{phoneAuthorizationMessage}}" class="consultant-phone-authorization__message" role="status">{{phoneAuthorizationMessage}}</text>
+      </view>
+
+      <view class="consultant-section consultant-selection">
+        <view class="ws-section-heading"><text class="ws-section-number">04</text><text>预约带看</text></view>
+        <text class="section-subtitle">请先从合作机构列表选择具体机构，再从该机构详情填写预约申请。顾问信息不会自动指定机构。</text>
+        <view class="consultant-selection__action">
+          <primary-button warmSwiss="{{true}}" text="选择合作机构" bind:action="onAppointmentTap"></primary-button>
+        </view>
+        <view wx:if="{{actionErrorKey === 'appointment'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
       </view>
     </block>
 
-    <view wx:else class="consultant-card-wrap">
-      <section-card>
-        <state-panel
-          state="error"
-          title="顾问资料暂时不可用"
-          message="当前无法安全读取顾问公开资料，请稍后重试。"
-          actionText="重试"
-          bind:action="onRetry"
-        ></state-panel>
-      </section-card>
+    <view wx:else class="consultant-status consultant-status--failure" role="alert">
+      <text class="consultant-state-title">顾问资料暂时不可用</text>
+      <text class="consultant-state-message">当前无法安全读取顾问公开资料，请稍后重试。</text>
+      <view class="consultant-reload"><primary-button warmSwiss="{{true}}" text="重试" variant="quiet" bind:action="onRetry"></primary-button></view>
     </view>
   </view>
 </page-container>

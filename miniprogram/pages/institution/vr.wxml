@@ -1,17 +1,37 @@
-<navigation-bar title="VR 看院" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
+<navigation-bar warmSwiss="{{true}}" title="VR 看院" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="vr-page">
+  <view class="page-shell vr-shell">
+    <view class="page-head vr-head">
       <text class="page-title">{{pageTitle}}</text>
       <text class="page-description">{{description}}</text>
+      <text class="vr-development">开发 Mock 结构 · VR 内容模块</text>
     </view>
-    <section-card>
-      <tag text="开发 Mock 结构" tone="development"></tag>
-      <tag text="VR 内容模块" tone="brand"></tag>
-      <text class="route-card-title">足不出户，先在线逛一遍</text>
-      <state-panel state="empty" title="暂无真实 VR 内容" message="当前没有可访问的真实 VR 地址或场景，暂不展示虚构 Viewer。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+    <view class="vr-section">
+      <view class="ws-section-heading">
+        <text class="ws-section-number">01</text>
+        <text class="vr-section__title">当前 VR 内容</text>
+      </view>
+      <view class="vr-empty" role="status">
+        <text class="vr-empty__label">暂未开放查看</text>
+        <text class="vr-empty__title">暂无真实 VR 内容</text>
+        <text class="vr-empty__message">当前没有可访问的真实 VR 地址或场景，暂不展示虚构 Viewer。</text>
+      </view>
+    </view>
+    <view class="vr-section">
+      <view class="ws-section-heading">
+        <text class="ws-section-number">02</text>
+        <text class="vr-section__title">关于 VR 资料</text>
+      </view>
+      <text class="vr-note">VR 用于辅助了解机构环境；实际环境与服务情况仍需进一步确认。</text>
+    </view>
+    <view wx:if="{{showNext}}" class="vr-section vr-service">
+      <view class="ws-section-heading">
+        <text class="ws-section-number">03</text>
+        <text class="vr-section__title">进一步了解</text>
+      </view>
+      <view class="vr-service__action">
+        <primary-button warmSwiss="{{true}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+      </view>
+    </view>
   </view>
 </page-container>
