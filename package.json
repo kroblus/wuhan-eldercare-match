@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:warm-swiss-ui0-runtime": "node scripts/check-warm-swiss-ui0-runtime.mjs",
     "check:doc-governance": "node scripts/check-doc-governance.mjs",
     "check:wechat-js-compat": "node scripts/check-wechat-js-compat.mjs",
     "check:wechat-js-compat:self-test": "node scripts/check-wechat-js-compat.mjs --self-test",

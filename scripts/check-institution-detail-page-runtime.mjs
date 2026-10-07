@@ -440,7 +440,7 @@ const main = async () => {
     assert.equal(Object.keys(view).some((key) => /evaluator|raw|mock|latest/i.test(key)), false)
   })
   await run('DETAIL-UI-031', 'appointment CTA component is registered on the detail page', () => {
-    assert.match(wxml, /<primary-button\b(?=[^>]*\btext="填写预约申请")(?=[^>]*\bbind:action="onAppointmentTap")[^>]*>/)
+    assert.match(wxml, /<primary-button\b(?=[^>]*\btext="预约看院 →")(?=[^>]*\bbind:action="onAppointmentTap")[^>]*>/)
     assert.equal(json.usingComponents['primary-button'], '/components/primary-button/primary-button')
   })
   await run('DETAIL-UI-032', 'live page application exact-resolves a canonical development record', async () => {
