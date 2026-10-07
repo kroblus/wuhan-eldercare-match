@@ -29,22 +29,28 @@
     "navigationStyle": "custom"
   },
   "tabBar": {
-    "color": "#6D737B",
-    "selectedColor": "#B86B45",
+    "color": "#6B7280",
+    "selectedColor": "#D9572A",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/index",
-        "text": "首页"
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/consultant/index",
-        "text": "养老顾问"
+        "text": "养老顾问",
+        "iconPath": "assets/tabbar/consultant.png",
+        "selectedIconPath": "assets/tabbar/consultant-active.png"
       },
       {
         "pagePath": "pages/mine/index",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "assets/tabbar/mine.png",
+        "selectedIconPath": "assets/tabbar/mine-active.png"
       }
     ]
   },

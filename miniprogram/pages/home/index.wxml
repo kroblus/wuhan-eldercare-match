@@ -1,68 +1,55 @@
-<navigation-bar title="武汉养老机构精准匹配" back="{{false}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-
+<navigation-bar warmSwiss="{{true}}" title="武汉养老机构精准匹配" back="{{false}}" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="home-page">
   <view class="home-hero">
-    <tag text="武汉本地 · 精选机构池" tone="brand"></tag>
-    <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构</text>
+    <text class="home-brand-note">武汉本地养老机构匹配服务</text>
+    <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构。</text>
     <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
-    <primary-button text="开始养老需求评估" bind:action="startAssessment"></primary-button>
-    <primary-button text="咨询养老助手" variant="secondary" bind:action="openAIConsultation"></primary-button>
-    <view wx:if="{{aiActionError}}" class="home-action-error home-action-error--cta" role="alert">{{aiActionError}}</view>
-    <button class="home-secondary-button" bindtap="openInstitutions">先看看合作机构</button>
-    <view wx:if="{{institutionListActionError}}" class="home-action-error home-action-error--cta" role="alert">{{institutionListActionError}}</view>
+    <primary-button warmSwiss="{{true}}" text="开始养老需求评估 →" block="{{false}}" bind:action="startAssessment"></primary-button>
+    <view aria-role="button" class="home-link" bindtap="openInstitutions">查看合作机构 →</view>
+    <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
   </view>
 
-    <section-card extraClass="home-section">
-      <view class="section-heading">
-        <view>
-          <text class="section-heading__title">当前机构资料示例</text>
-          <text class="section-heading__note">先浏览当前可读取的基础资料，再了解机构详情</text>
-        </view>
-        <tag text="开发 Mock" tone="development"></tag>
-      </view>
+  <view class="home-section">
+    <view class="ws-section-heading"><text class="ws-section-number">01</text><text>3–5 分钟了解老人需求</text></view>
+    <text class="section-heading__note">帮助我们更准确地理解照护需求</text>
+    <view class="home-editorial-row"><text>健康情况</text><text>慢性病、近期风险、身体状况</text></view>
+    <view class="home-editorial-row"><text>生活能力</text><text>日常起居与生活自理程度</text></view>
+    <view class="home-editorial-row"><text>认知与护理</text><text>认知状态与特殊护理需求</text></view>
+    <view class="home-editorial-row"><text>养老偏好</text><text>居住环境与服务偏好</text></view>
+    <view class="home-editorial-row"><text>预算与入住计划</text><text>预算范围与入住时间</text></view>
+    <primary-button warmSwiss="{{true}}" text="3–5 分钟完成评估 →" variant="quiet" bind:action="startAssessment"></primary-button>
+  </view>
 
-      <view wx:if="{{showMockDisclosure}}" class="home-mock-disclosure">
-        <text>{{mockDisclosure}}</text>
-      </view>
-      <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取机构资料" message="仅加载当前本地开发目录"></state-panel>
-      <state-panel wx:elif="{{loadError}}" state="error" title="机构资料暂时不可用" message="当前本地开发目录未能读取。" actionText="重新加载" bind:action="retryLoad"></state-panel>
-      <state-panel wx:elif="{{empty}}" state="empty" title="当前暂无可展示的合作机构资料" message="资料补充后，这里会展示基础机构信息。"></state-panel>
-      <block wx:else>
-        <view
-          wx:for="{{institutions}}"
-          wx:key="key"
-          class="institution-preview"
-          data-item-key="{{item.key}}"
-          data-institution-id="{{item.navigationIntent.institutionId}}"
-          data-record-revision="{{item.navigationIntent.recordRevision}}"
-          bindtap="openInstitution"
-        >
-          <view wx:if="{{item.hasCover}}" class="institution-preview__media institution-preview__media--image">
-            <image src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
-          </view>
-          <view wx:else class="institution-preview__media">
-            <text>暂无机构图片</text>
-          </view>
-          <view class="institution-preview__body">
-            <view class="institution-preview__title-row">
-              <text class="institution-preview__title">{{item.name}}</text>
-              <tag text="{{item.placementLabel}}" tone="development"></tag>
-            </view>
-            <text class="institution-preview__meta">区域：{{item.region}}（{{item.regionStatus}}）</text>
-            <text class="institution-preview__meta">类型：{{item.type}}（{{item.typeStatus}}）</text>
-            <text class="institution-preview__meta">参考费用：{{item.price}}（{{item.priceStatus}}）</text>
-            <text class="institution-preview__meta">{{item.vrLabel}}</text>
-          </view>
+  <view class="home-section">
+    <view class="ws-section-heading"><text class="ws-section-number">02</text><text>{{showMockDisclosure ? '当前合作机构资料示例' : '精选合作机构'}}</text></view>
+    <text class="section-heading__note">先浏览当前可读取的基础资料，再了解机构详情</text>
+    <view wx:if="{{showMockDisclosure}}" class="home-mock-disclosure"><tag text="开发 Mock" tone="development"></tag><text>{{mockDisclosure}}</text></view>
+    <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取机构资料" message="仅加载当前本地开发目录"></state-panel>
+    <state-panel wx:elif="{{loadError}}" state="error" title="机构资料暂时不可用" message="当前本地开发目录未能读取。" actionText="重新加载" bind:action="retryLoad"></state-panel>
+    <state-panel wx:elif="{{empty}}" state="empty" title="当前暂无可展示的合作机构资料" message="资料补充后，这里会展示基础机构信息。"></state-panel>
+    <block wx:else>
+      <view wx:for="{{institutions}}" wx:key="key" class="institution-preview" data-item-key="{{item.key}}" data-institution-id="{{item.navigationIntent.institutionId}}" data-record-revision="{{item.navigationIntent.recordRevision}}" bindtap="openInstitution" aria-role="button" aria-label="查看{{item.name}}资料">
+        <view wx:if="{{item.hasCover}}" class="institution-preview__media"><image src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image></view>
+        <view wx:else class="institution-preview__media"><text>暂无机构图片</text></view>
+        <view class="institution-preview__body">
+          <text class="institution-preview__title">{{item.name}}</text>
+          <tag text="{{item.placementLabel}}" tone="development"></tag>
+          <text class="institution-preview__meta">区域：{{item.region}}（{{item.regionStatus}}）</text>
+          <text class="institution-preview__meta">类型：{{item.type}}（{{item.typeStatus}}）</text>
+          <text class="institution-preview__meta institution-preview__fee">参考费用：<text>{{item.price}}</text><text class="institution-preview__status">（{{item.priceStatus}}）</text></text>
+          <text class="institution-preview__meta">{{item.vrLabel}}</text>
         </view>
-      </block>
-      <view wx:if="{{institutionActionError}}" class="home-action-error" role="alert">{{institutionActionError}}</view>
-    </section-card>
+        <text class="home-chevron" aria-hidden="true">›</text>
+      </view>
+    </block>
+    <view wx:if="{{institutionActionError}}" class="home-action-error" role="alert">{{institutionActionError}}</view>
+  </view>
 
-  <section-card extraClass="home-section home-section--guide">
-    <text class="guide-title">不知道该怎么选？</text>
-    <text class="guide-description">完成几步简短评估，先了解老人更需要哪类照护，再看机构。</text>
-    <primary-button text="3～5 分钟完成评估" variant="secondary" bind:action="startAssessment"></primary-button>
-    <primary-button text="咨询养老顾问" variant="quiet" bind:action="openConsultant"></primary-button>
+  <view class="home-section home-section--guide">
+    <view class="ws-section-heading"><text class="ws-section-number">03</text><text>需要帮助？</text></view>
+    <view aria-role="button" class="home-navigation-row" bindtap="openConsultant"><view><text class="home-navigation-row__title">养老顾问</text><text class="section-heading__note">人工协助解读评估结果与机构选择</text></view><text class="home-chevron">›</text></view>
     <view wx:if="{{consultantActionError}}" class="home-action-error" role="alert">{{consultantActionError}}</view>
-  </section-card>
+    <view aria-role="button" class="home-navigation-row" bindtap="openAIConsultation"><view><text class="home-navigation-row__title">养老咨询助手</text><text class="section-heading__note">了解流程、常见问题与基础信息</text></view><text class="home-chevron">›</text></view>
+    <view wx:if="{{aiActionError}}" class="home-action-error" role="alert">{{aiActionError}}</view>
+  </view>
 </page-container>

@@ -194,6 +194,10 @@ type FactLike = {
 }
 
 const CODE_LABELS: Record<string, string> = {
+  less_than_one_year: '不足 1 年',
+  one_to_three_years: '1–3 年',
+  three_to_five_years: '3–5 年',
+  five_years_or_more: '5 年及以上',
   active_aging: '活力养老',
   medical_nursing_integrated: '医养结合',
   disability_care: '失能照护',

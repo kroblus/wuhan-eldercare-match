@@ -1,4 +1,4 @@
-<view class="question-section">
+<view class="question-section {{warmSwiss ? 'is-warm-swiss' : ''}}">
   <view class="question-section__heading">
     <text class="question-section__title">{{title}}</text>
     <text wx:if="{{required}}" class="question-section__required">必填</text>

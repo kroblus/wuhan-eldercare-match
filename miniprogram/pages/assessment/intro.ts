@@ -36,11 +36,12 @@ Page({
     restartError: '',
     restartPending: false,
     overviewItems: [
-      { index: '01', title: '基本情况', description: '先了解老人年龄、关系和目前生活状态。' },
-      { index: '02', title: '身体与生活能力', description: '从健康和日常场景了解照护需要。' },
-      { index: '03', title: '认知与照护需求', description: '识别认知、夜间和特殊护理线索。' },
-      { index: '04', title: '养老偏好', description: '了解家庭更在意的服务与区域。' },
-      { index: '05', title: '预算与入住计划', description: '帮助后续解释推荐范围和差异。' },
+      { index: '01', title: '基本情况', description: '年龄、居住状态、主要照护者等。' },
+      { index: '02', title: '健康情况', description: '慢性病、康复需求和近期健康风险。' },
+      { index: '03', title: '生活自理', description: '进食、行走、洗澡、如厕等。' },
+      { index: '04', title: '认知与护理', description: '认知状态和已明确的特殊护理需求。' },
+      { index: '05', title: '养老偏好', description: '机构类型、居住环境和服务偏好等。' },
+      { index: '06', title: '预算与计划', description: '预算范围、入住时间和其他考虑。' },
     ],
   } as AssessmentIntroData,
 

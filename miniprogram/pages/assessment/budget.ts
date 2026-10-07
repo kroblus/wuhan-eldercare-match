@@ -28,6 +28,7 @@ type BudgetQuestionValueMap = Pick<AssessmentAnswerValueMapV2, BudgetQuestionId>
 
 interface AssessmentBudgetData {
   backEnabled: boolean
+  warmSwissHeaderHeight: number
   monthlyRange: MonthlyRangeV2 | ''
   upfrontCostAcceptance: UpfrontCostAcceptanceV2 | ''
   moveInTiming: MoveInTimingV2 | ''
@@ -111,6 +112,7 @@ const hasBudgetAnswers = (answers: DraftAnswers): boolean =>
 Page({
   data: {
     backEnabled: true,
+    warmSwissHeaderHeight: 0,
     monthlyRange: '',
     upfrontCostAcceptance: '',
     moveInTiming: '',
@@ -131,6 +133,14 @@ Page({
     saveStatus: '选择后会尝试保存到本机开发态草稿',
     persistenceFailed: false,
   } as AssessmentBudgetData,
+
+  onLoad() {
+    // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
+    const system = wx.getSystemInfoSync()
+    this.setData({
+      warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+    })
+  },
 
   onShow() {
     resetNavigationGuard(this)

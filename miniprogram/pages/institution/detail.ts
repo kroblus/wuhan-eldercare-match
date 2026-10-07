@@ -398,6 +398,37 @@ Page({
     if (!navigationStarted) discardAppointmentInstitutionDisplaySnapshotV1(identity.institutionId, identity.recordRevision)
   },
 
+  // Platform consultant entry uses the existing global Tab. It does not select
+  // an institution-assigned consultant or invent an official contact source.
+  onConsultantTap() {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    const guard = getNavigationGuard(this)
+    const action = 'institution.detail.consultant'
+    if (!guard.acquire(action)) return
+    let succeeded = false
+    let reported = false
+    const fail = () => {
+      guard.release(action)
+      if (reported) return
+      reported = true
+      this.setData({
+        actionErrorKey: 'consultant',
+        actionErrorMessage: '暂时无法打开养老顾问，请稍后重试。',
+      })
+    }
+    try {
+      wx.switchTab({
+        url: '/pages/consultant/index',
+        success: () => { succeeded = true },
+        fail,
+        complete: () => { if (!succeeded) fail() },
+      })
+    } catch (_error) {
+      fail()
+    }
+  },
+
   onBackToList() {
     runBack(this, () => {
       this.setData({

@@ -1,55 +1,56 @@
-<navigation-bar title="老人基本情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/intro" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="老人基本情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/intro" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
-    <progress-header current="1" total="6" label="评估 · 第 1 步"></progress-header>
-    <view class="page-head assessment-head">
-      <text class="page-title">先从老人现在的生活情况说起</text>
-      <text class="page-description">不需要一次想全，已填内容会自动保存在本机，之后回来可以继续。</text>
-    </view>
-
+    <progress-header warmSwiss="{{true}}" current="1" total="6" label="养老需求评估"></progress-header>
+    <text class="basic-intro">先了解老人的基本生活情况。已填内容会保存在本机，回来可以继续。</text>
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
-    <section-card extraClass="assessment-form-card">
-      <view id="{{relationshipAnchorId}}" class="question-anchor">
-        <question-section title="老人与您的关系" required="{{true}}" error="{{relationshipError}}">
-          <single-choice options="{{relationshipOptions}}" value="{{relationship}}" bindchange="onRelationshipChange"></single-choice>
+    <view class="basic-section">
+      <view class="ws-section-heading"><text class="ws-section-number">01</text><text>您与老人是什么关系？</text></view>
+      <view id="{{relationshipAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+        <question-section warmSwiss="{{true}}" title="老人与您的关系" required="{{true}}" error="{{relationshipError}}">
+          <single-choice warmSwiss="{{true}}" options="{{relationshipOptions}}" value="{{relationship}}" bindchange="onRelationshipChange"></single-choice>
         </question-section>
       </view>
+    </view>
 
-      <question-section title="老人姓名" hint="选填，仅用于家庭档案识别">
-        <input class="text-input" value="{{elderName}}" maxlength="20" placeholder="例如：王奶奶" bindinput="onNameInput" />
+    <view class="basic-section">
+      <view class="ws-section-heading"><text class="ws-section-number">02</text><text>老人基本信息</text></view>
+      <question-section warmSwiss="{{true}}" title="老人姓名" hint="选填，仅用于家庭档案识别">
+        <input class="text-input" value="{{elderName}}" maxlength="20" placeholder="请输入老人姓名" bindinput="onNameInput" />
       </question-section>
-
-      <view id="{{genderAnchorId}}" class="question-anchor">
-        <question-section title="性别" required="{{true}}" error="{{genderError}}">
-          <single-choice options="{{genderOptions}}" value="{{gender}}" bindchange="onGenderChange"></single-choice>
+      <view id="{{genderAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+        <question-section warmSwiss="{{true}}" title="性别" required="{{true}}" error="{{genderError}}">
+          <single-choice warmSwiss="{{true}}" options="{{genderOptions}}" value="{{gender}}" bindchange="onGenderChange"></single-choice>
         </question-section>
       </view>
-
-      <view id="{{ageAnchorId}}" class="question-anchor">
-        <question-section title="年龄" required="{{true}}" hint="请输入 50–110 岁的整数" error="{{ageError}}">
-          <input class="text-input age-input" type="number" value="{{ageInput}}" maxlength="3" placeholder="例如：78" bindinput="onAgeInput" />
+      <view id="{{ageAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+        <question-section warmSwiss="{{true}}" title="年龄" required="{{true}}" hint="请输入 50–110 岁的整数" error="{{ageError}}">
+          <view class="age-field"><input class="text-input age-input" type="number" value="{{ageInput}}" maxlength="3" placeholder="例如：78" bindinput="onAgeInput" /><text>岁</text></view>
         </question-section>
       </view>
+    </view>
 
-      <question-section title="目前居住状态" hint="选填，帮助顾问理解当前生活环境">
-        <single-choice options="{{livingStatusOptions}}" value="{{livingStatus}}" bindchange="onLivingStatusChange"></single-choice>
+    <view class="basic-section">
+      <view class="ws-section-heading"><text class="ws-section-number">03</text><text>居住与照护情况</text></view>
+      <question-section warmSwiss="{{true}}" title="目前居住状态" hint="选填，帮助顾问理解当前生活环境">
+        <single-choice warmSwiss="{{true}}" options="{{livingStatusOptions}}" value="{{livingStatus}}" bindchange="onLivingStatusChange"></single-choice>
       </question-section>
-
-      <question-section title="主要照护者" hint="选填，可以先跳过">
-        <single-choice options="{{caregiverOptions}}" value="{{primaryCaregiver}}" bindchange="onCaregiverChange"></single-choice>
+      <question-section warmSwiss="{{true}}" title="主要照护者" hint="选填，选择一位主要照护者">
+        <single-choice warmSwiss="{{true}}" options="{{caregiverOptions}}" value="{{primaryCaregiver}}" bindchange="onCaregiverChange"></single-choice>
       </question-section>
+    </view>
 
-      <question-section title="是否有养老机构入住经历" hint="选填，帮助了解过去的照护体验">
-        <single-choice options="{{experienceOptions}}" value="{{hasInstitutionExperience}}" bindchange="onExperienceChange"></single-choice>
+    <view class="basic-section basic-section--last">
+      <view class="ws-section-heading"><text class="ws-section-number">04</text><text>是否有养老机构入住经历</text></view>
+      <question-section warmSwiss="{{true}}" title="养老机构入住经历" hint="选填，帮助了解过去的照护体验">
+        <single-choice warmSwiss="{{true}}" options="{{experienceOptions}}" value="{{hasInstitutionExperience}}" bindchange="onExperienceChange"></single-choice>
       </question-section>
-
-      <question-section wx:if="{{hasInstitutionExperience === 'true'}}" title="离开上一家机构的主要原因" hint="可多选，选择您认为重要的原因">
-        <multi-choice options="{{exitReasonOptions}}" values="{{institutionExitReasons}}" bindchange="onExitReasonChange"></multi-choice>
+      <question-section warmSwiss="{{true}}" wx:if="{{hasInstitutionExperience === 'true'}}" title="离开上一家机构的主要原因" hint="可多选，选择您认为重要的原因">
+        <multi-choice warmSwiss="{{true}}" options="{{exitReasonOptions}}" values="{{institutionExitReasons}}" bindchange="onExitReasonChange"></multi-choice>
       </question-section>
-    </section-card>
-
+    </view>
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

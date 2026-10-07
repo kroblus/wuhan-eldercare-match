@@ -16,6 +16,7 @@ import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigatio
 type ChoiceOption = { value: string; label: string }
 
 interface AssessmentBasicData {
+  warmSwissHeaderHeight: number
   backEnabled: boolean
   relationship: BasicRelationship | ''
   elderName: string
@@ -101,6 +102,7 @@ const ageAnchorId = getAssessmentQuestionAnchorId('basic.age')
 
 Page({
   data: {
+    warmSwissHeaderHeight: 0,
     backEnabled: true,
     relationship: '',
     elderName: '',
@@ -125,6 +127,15 @@ Page({
     ageError: '',
     saveStatus: '填写后会尝试保存到本机开发态草稿',
   } as AssessmentBasicData,
+
+  onLoad() {
+    // Same safe-top/header measurement as NavigationBar. Only the visual
+    // anchor box changes; question IDs and the first-error scroll stay intact.
+    const system = wx.getSystemInfoSync()
+    this.setData({
+      warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+    })
+  },
 
   onShow() {
     resetNavigationGuard(this)

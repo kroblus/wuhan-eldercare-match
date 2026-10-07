@@ -1,5 +1,6 @@
 Component({
   properties: {
+    warmSwiss: { type: Boolean, value: false },
     current: {
       type: Number,
       value: 1,

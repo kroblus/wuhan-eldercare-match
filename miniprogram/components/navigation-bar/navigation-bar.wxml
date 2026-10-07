@@ -1,4 +1,5 @@
-<view class="weui-navigation-bar {{extClass}}">
+<view class="weui-navigation-bar {{extClass}} {{warmSwiss ? 'is-warm-swiss' : ''}}">
+  <view wx:if="{{warmSwiss}}" class="weui-navigation-bar__placeholder {{ios ? 'ios' : 'android'}}" style="{{safeAreaTop}};"></view>
   <view class="weui-navigation-bar__inner {{ios ? 'ios' : 'android'}}" style="color: {{color}}; background: {{background}}; {{displayStyle}}; {{innerPaddingRight}}; {{safeAreaTop}};">
 
     <!-- 左侧按钮 -->

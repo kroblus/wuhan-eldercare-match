@@ -1,5 +1,9 @@
 Component({
   properties: {
+    warmSwiss: { type: Boolean, value: false },
+    // Opt-in layout only; selection values and the change event stay unchanged.
+    fullWidthOptions: { type: Object, value: {} },
+    singleColumn: { type: Boolean, value: false },
     options: {
       type: Array,
       value: [],

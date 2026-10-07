@@ -1,5 +1,7 @@
 Component({
   properties: {
+    warmSwiss: { type: Boolean, value: false },
+    wideNext: { type: Boolean, value: false },
     nextText: {
       type: String,
       value: '下一步',

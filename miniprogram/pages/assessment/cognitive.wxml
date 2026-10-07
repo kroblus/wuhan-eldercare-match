@@ -1,39 +1,42 @@
-<navigation-bar title="认知与特殊护理" back="{{backEnabled}}" fallbackUrl="/pages/assessment/adl" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="认知与特殊护理" back="{{backEnabled}}" fallbackUrl="/pages/assessment/adl" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
-    <progress-header current="4" total="6" label="评估 · 第 4 步"></progress-header>
-    <view class="page-head assessment-head">
-      <text class="page-title">再了解一些认知和照护需要</text>
-      <text class="page-description">请选择老人目前有的情况和明确需要的照护。可以多选，不确定时请选择“暂不确定”。</text>
-    </view>
+    <progress-header warmSwiss="{{true}}" current="4" total="6" label="养老需求评估"></progress-header>
+    <text class="assessment-intro">请选择您已了解的认知情况与明确的特殊护理需求。不确定时可以选择“暂不确定”。</text>
 
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
-    <section-card extraClass="assessment-form-card">
-      <view id="{{symptomsAnchorId}}" class="question-anchor">
-        <question-section
-          title="认知与精神状态"
-          hint="可多选；选择“无以上情况”或“暂不确定”时，会自动清除同题其他选项"
-          required="{{true}}"
-          error="{{symptomsError}}"
-        >
-          <multi-choice options="{{symptomsOptions}}" values="{{symptoms}}" bindchange="onSymptomsChange"></multi-choice>
-        </question-section>
+    <view class="assessment-form">
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>认知相关情况</text></view>
+        <view id="{{symptomsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="认知与精神状态"
+            hint="可多选；选择“无以上情况”或“暂不确定”时，会自动清除同题其他选项"
+            required="{{true}}"
+            error="{{symptomsError}}"
+          >
+            <multi-choice warmSwiss="{{true}}" fullWidthOptions="{{ {diagnosed_dementia: true, none: true, unknown: true} }}" options="{{symptomsOptions}}" values="{{symptoms}}" bindchange="onSymptomsChange"></multi-choice>
+          </question-section>
+        </view>
       </view>
 
-      <view id="{{specialCareNeedsAnchorId}}" class="question-anchor">
-        <question-section
-          title="特殊护理需求"
-          hint="可多选；选择“无以上特殊护理需求”或“暂不确定”时，会自动清除同题其他选项"
-          required="{{true}}"
-          error="{{specialCareNeedsError}}"
-        >
-          <multi-choice options="{{specialCareNeedsOptions}}" values="{{specialCareNeeds}}" bindchange="onSpecialCareNeedsChange"></multi-choice>
-        </question-section>
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>特殊护理需求</text></view>
+        <view id="{{specialCareNeedsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="特殊护理需求"
+            hint="可多选；选择“无以上特殊护理需求”或“暂不确定”时，会自动清除同题其他选项"
+            required="{{true}}"
+            error="{{specialCareNeedsError}}"
+          >
+            <multi-choice warmSwiss="{{true}}" fullWidthOptions="{{ {none: true, unknown: true} }}" options="{{specialCareNeedsOptions}}" values="{{specialCareNeeds}}" bindchange="onSpecialCareNeedsChange"></multi-choice>
+          </question-section>
+        </view>
       </view>
-    </section-card>
+    </view>
 
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="上一步" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

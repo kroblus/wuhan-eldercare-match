@@ -17,6 +17,9 @@ const buildRenderedOptions = (
 
 Component({
   properties: {
+    warmSwiss: { type: Boolean, value: false },
+    // Opt-in layout only; selection values and the change/limit events stay unchanged.
+    fullWidthOptions: { type: Object, value: {} },
     options: {
       type: Array,
       value: [],

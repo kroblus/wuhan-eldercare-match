@@ -1,8 +1,8 @@
-<view class="multi-choice">
+<view class="multi-choice {{warmSwiss ? 'is-warm-swiss' : ''}}">
   <view
     wx:for="{{renderedOptions}}"
     wx:key="value"
-    class="multi-choice__item {{item.selected ? 'is-selected' : ''}}"
+    class="multi-choice__item {{item.selected ? 'is-selected' : ''}} {{warmSwiss && fullWidthOptions[item.value] ? 'is-full-width' : ''}}"
     data-value="{{item.value}}"
     bindtap="onSelect"
   >

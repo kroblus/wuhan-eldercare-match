@@ -32,6 +32,7 @@ type RegionCatalogStatus = 'loading' | 'ready' | 'empty' | 'error'
 
 interface AssessmentPreferenceData {
   backEnabled: boolean
+  warmSwissHeaderHeight: number
   careType: PreferredCareTypeV2 | ''
   roomType: RoomType | ''
   mealSchedule: MealSchedule | ''
@@ -179,6 +180,7 @@ const withNoPreference = (options: readonly InstitutionRegionCatalogOption[]): I
 Page({
   data: {
     backEnabled: true,
+    warmSwissHeaderHeight: 0,
     careType: '',
     roomType: '',
     mealSchedule: '',
@@ -211,6 +213,14 @@ Page({
     activityPreferenceAnchorId,
     prioritiesAnchorId,
   } as AssessmentPreferenceData,
+
+  onLoad() {
+    // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
+    const system = wx.getSystemInfoSync()
+    this.setData({
+      warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+    })
+  },
 
   onShow() {
     resetNavigationGuard(this)

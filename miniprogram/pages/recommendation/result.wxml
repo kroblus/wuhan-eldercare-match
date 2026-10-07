@@ -1,212 +1,122 @@
-<navigation-bar
-  title="评估结果与机构推荐"
-  back="{{backEnabled}}"
-  fallbackUrl="/pages/assessment/profile"
-  color="#27313D"
-  background="#FFFFFF"
-  bind:navigationfail="onBackNavigationFailure"
-></navigation-bar>
-
+<navigation-bar title="推荐结果" warmSwiss="{{true}}" back="{{backEnabled}}" fallbackUrl="/pages/assessment/profile" color="#111827" background="#FBFAF7" bind:navigationfail="onBackNavigationFailure"></navigation-bar>
+<template name="adjust-needs-action">
+  <view class="adjust-needs-action">
+    <view wx:if="{{actionErrorKey === 'adjust'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+    <primary-button warmSwiss="{{true}}" text="调整老人需求" variant="{{variant}}" bind:action="onAdjustNeeds"></primary-button>
+  </view>
+</template>
 <page-container extraClass="recommendation-page">
-  <view class="page-shell recommendation-shell">
-    <view class="page-head recommendation-head">
-      <text class="eyebrow">{{eyebrow}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+  <view class="recommendation-shell">
+    <view class="recommendation-head">
+      <text class="result-intro">根据当前老人需求画像，整理候选机构与需要进一步确认的信息。</text>
       <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
-
     <view wx:if="{{viewModel && viewModel.hasMockDisclosure}}" class="mock-disclosure">
-      <tag text="开发演示数据" tone="development"></tag>
-      <text class="mock-disclosure__title">本页只用于功能演示</text>
+      <text class="mock-disclosure__title">开发演示数据 · 本页只用于功能演示</text>
       <text class="mock-disclosure__message">以下机构、价格与护理能力均为功能测试示例，不代表真实合作机构信息。</text>
       <text class="mock-disclosure__source">数据集：{{viewModel.datasetLabel}}</text>
     </view>
-
-    <view wx:if="{{pageState === 'loading'}}" class="result-card-wrap">
-      <section-card>
-        <state-panel state="loading" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
-      </section-card>
+    <view wx:if="{{pageState === 'loading'}}" class="result-state">
+      <state-panel state="loading" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
     </view>
-
     <block wx:elif="{{viewModel}}">
-      <view class="result-card-wrap">
-        <section-card extraClass="summary-card">
-          <text class="section-kicker">综合建议</text>
-          <text class="summary-title">{{viewModel.headline}}</text>
-          <text class="summary-message">{{viewModel.summary}}</text>
-          <view wx:if="{{viewModel.focusTags.length}}" class="tag-list">
-            <tag wx:for="{{viewModel.focusTags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
-          </view>
-          <view wx:if="{{viewModel.resultAdvisories && viewModel.resultAdvisories.length}}" class="result-advisory-list">
-            <text wx:for="{{viewModel.resultAdvisories}}" wx:key="*this" class="result-advisory-line">{{item}}</text>
-          </view>
-        </section-card>
+      <view class="result-summary">
+        <text wx:if="{{viewModel.state === 'ready_exact' || viewModel.state === 'ready_soft_near'}}" class="candidate-count">找到 <text class="candidate-count__number">{{viewModel.cards.length}}</text> 家候选机构</text>
+        <text class="summary-title {{viewModel.state === 'ready_exact' || viewModel.state === 'ready_soft_near' ? 'summary-title--with-count' : ''}}">{{viewModel.headline}}</text>
+        <text class="summary-message">{{viewModel.summary}}</text>
+        <view wx:if="{{viewModel.focusTags.length}}" class="focus-list">
+          <text wx:for="{{viewModel.focusTags}}" wx:key="text" class="focus-item">{{item.text}}</text>
+        </view>
+        <view wx:if="{{viewModel.resultAdvisories && viewModel.resultAdvisories.length}}" class="result-advisory-list">
+          <text wx:for="{{viewModel.resultAdvisories}}" wx:key="*this" class="result-advisory-line">{{item}}</text>
+        </view>
       </view>
-
-      <view wx:if="{{viewModel.state === 'ready_exact' || viewModel.state === 'ready_soft_near'}}" class="result-card-wrap">
-        <section-card>
-          <text class="section-kicker">推荐机构</text>
-          <text class="section-subtitle">推荐理由来自本次评估与结构化机构资料；请把卡片内容作为看院前的参考。</text>
-          <view
-            wx:for="{{viewModel.cards}}"
-            wx:key="institutionId"
-            class="institution-card"
-            data-institution-id="{{item.institutionId}}"
-            data-record-revision="{{item.recordRevision}}"
-            bindtap="onRecommendationCardTap"
-          >
-            <view wx:if="{{item.hasCover}}" class="institution-cover-wrap">
-              <image class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
-            </view>
-            <view wx:else class="institution-cover institution-cover--empty">
-              <text>暂无机构图片</text>
-            </view>
-            <view class="institution-card__head">
+      <view wx:if="{{viewModel.state === 'ready_exact' || viewModel.state === 'ready_soft_near'}}" class="result-section">
+        <text class="section-subtitle">推荐理由来自本次评估与结构化机构资料；请作为看院前的参考。</text>
+        <view wx:for="{{viewModel.cards}}" wx:for-index="institutionIndex" wx:key="institutionId" class="institution-card" data-institution-id="{{item.institutionId}}" data-record-revision="{{item.recordRevision}}" bindtap="onRecommendationCardTap">
+          <view class="institution-heading">
+            <text class="institution-number">{{institutionIndex < 9 ? '0' : ''}}{{institutionIndex + 1}}</text>
+            <view class="institution-heading__copy">
               <text class="institution-name">{{item.name}}</text>
-              <text class="institution-region">{{item.region}}</text>
-            </view>
-            <view class="institution-meta">
-              <text class="institution-meta__item">{{item.type}}</text>
-              <text class="institution-meta__item">{{item.price}}</text>
+              <text class="institution-region">{{item.region}} / {{item.type}}</text>
+              <text class="institution-price">参考费用：{{item.price}}</text>
               <text wx:if="{{item.vrLabel}}" class="institution-meta__item">{{item.vrLabel}}</text>
             </view>
-            <view wx:if="{{item.tags.length}}" class="tag-list tag-list--compact">
-              <tag wx:for="{{item.tags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
-            </view>
-            <view wx:if="{{item.compactFacts && item.compactFacts.length}}" class="compact-fact-list">
-              <view wx:for="{{item.compactFacts}}" wx:key="key" class="compact-fact compact-fact--{{item.tone}}">
-                <text class="compact-fact__mark">•</text>
-                <text class="compact-fact__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.reasons.length}}" class="detail-list">
-              <text class="detail-list__title">为什么推荐</text>
-              <view wx:for="{{item.reasons}}" wx:key="key" class="detail-line detail-line--{{item.tone}}">
-                <text class="detail-line__mark">•</text>
-                <text class="detail-line__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.differences.length}}" class="difference-list">
-              <text class="detail-list__title">主要差异</text>
-              <view wx:for="{{item.differences}}" wx:key="key" class="detail-line detail-line--{{item.tone}}">
-                <text class="detail-line__mark">•</text>
-                <text class="detail-line__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.advisories.length}}" class="advisory-list">
-              <text wx:for="{{item.advisories}}" wx:key="*this" class="advisory-line">{{item}}</text>
-            </view>
-            <view class="institution-card__footer">
-              <text class="development-boundary">{{item.detailLabel}}</text>
-            </view>
-            <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
           </view>
-          <view class="list-boundary" bindtap="onRecommendationListTap" role="button">
-            <text>{{viewModel.actions ? viewModel.actions.listLabel : '合作机构列表接入中'}}</text>
+          <view wx:if="{{item.tags.length}}" class="institution-status">
+            <text wx:for="{{item.tags}}" wx:key="text" class="institution-status__item">{{item.text}}</text>
           </view>
-          <view wx:if="{{actionErrorKey === 'recommendation-list'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        </section-card>
+          <view class="institution-decision-body">
+            <view class="institution-media">
+              <image wx:if="{{item.hasCover}}" class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
+              <view wx:else class="institution-cover institution-cover--empty"><text>暂无机构图片</text></view>
+            </view>
+            <view class="institution-explanation">
+              <view wx:if="{{item.reasons.length}}" class="detail-list">
+                <text class="detail-list__title">推荐理由</text>
+                <view wx:for="{{item.reasons}}" wx:key="key" class="detail-line detail-line--{{item.tone}}"><text class="detail-line__mark">{{item.tone === 'positive' ? '✓' : '·'}}</text><text class="detail-line__text">{{item.text}}</text></view>
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{item.differences.length}}" class="difference-list">
+            <text class="detail-list__title">主要差异 / 需要确认</text>
+            <view wx:for="{{item.differences}}" wx:key="key" class="detail-line detail-line--{{item.tone}}"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view>
+          </view>
+          <view wx:if="{{item.compactFacts && item.compactFacts.length}}" class="compact-fact-list">
+            <text class="detail-list__title">生活适配资料</text>
+            <view wx:for="{{item.compactFacts}}" wx:key="key" class="compact-fact compact-fact--{{item.tone}}"><text class="compact-fact__mark">·</text><text class="compact-fact__text">{{item.text}}</text></view>
+          </view>
+          <view wx:if="{{item.advisories.length}}" class="advisory-list"><text wx:for="{{item.advisories}}" wx:key="*this" class="advisory-line">{{item}}</text></view>
+          <view class="institution-card__footer"><text class="development-boundary">{{item.detailLabel}} →</text></view>
+          <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </view>
       </view>
 
-      <view wx:if="{{viewModel.state === 'ready_conditional' || viewModel.conditionalCards.length}}" class="result-card-wrap">
-        <section-card>
-          <text class="section-kicker section-kicker--warning">需要机构进一步评估的候选</text>
-          <text class="section-subtitle">以下候选不能直接视为已匹配，请先向机构确认护理条件。</text>
-          <view
-            wx:for="{{viewModel.conditionalCards}}"
-            wx:key="institutionId"
-            class="institution-card institution-card--conditional"
-            data-institution-id="{{item.institutionId}}"
-            data-record-revision="{{item.recordRevision}}"
-            bindtap="onRecommendationCardTap"
-          >
-            <view class="institution-card__head">
-              <text class="institution-name">{{item.name}}</text>
-              <text class="institution-region">{{item.region}}</text>
-            </view>
-            <view class="institution-meta">
-              <text class="institution-meta__item">{{item.type}}</text>
-              <text class="institution-meta__item">{{item.price}}</text>
-              <text class="institution-meta__item">条件候选</text>
-            </view>
-            <view wx:if="{{item.tags.length}}" class="tag-list tag-list--compact">
-              <tag wx:for="{{item.tags}}" wx:key="text" text="{{item.text}}" tone="{{item.tone}}"></tag>
-            </view>
-            <view wx:if="{{item.compactFacts && item.compactFacts.length}}" class="compact-fact-list">
-              <view wx:for="{{item.compactFacts}}" wx:key="key" class="compact-fact compact-fact--{{item.tone}}">
-                <text class="compact-fact__mark">•</text>
-                <text class="compact-fact__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.reasons.length}}" class="detail-list">
-              <text class="detail-list__title">需要确认</text>
-              <view wx:for="{{item.reasons}}" wx:key="key" class="detail-line detail-line--{{item.tone}}">
-                <text class="detail-line__mark">•</text>
-                <text class="detail-line__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.differences.length}}" class="difference-list">
-              <text class="detail-list__title">主要差异</text>
-              <view wx:for="{{item.differences}}" wx:key="key" class="detail-line detail-line--{{item.tone}}">
-                <text class="detail-line__mark">•</text>
-                <text class="detail-line__text">{{item.text}}</text>
-              </view>
-            </view>
-            <view wx:if="{{item.advisories.length}}" class="advisory-list">
-              <text wx:for="{{item.advisories}}" wx:key="*this" class="advisory-line">{{item}}</text>
-            </view>
-            <view class="institution-card__footer">
-              <text class="development-boundary">{{item.detailLabel}}</text>
-            </view>
-            <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error action-error--card" role="alert">{{actionErrorMessage}}</view>
+      <view wx:if="{{viewModel.state === 'ready_conditional' || viewModel.conditionalCards.length}}" class="result-section conditional-section">
+        <text class="section-kicker">需要机构进一步评估的候选</text>
+        <text class="section-subtitle">以下候选不能直接视为已匹配，请先向机构确认护理条件。</text>
+        <view wx:for="{{viewModel.conditionalCards}}" wx:for-index="institutionIndex" wx:key="institutionId" class="institution-card institution-card--conditional" data-institution-id="{{item.institutionId}}" data-record-revision="{{item.recordRevision}}" bindtap="onRecommendationCardTap">
+          <view class="institution-heading">
+            <text class="institution-number">{{institutionIndex < 9 ? '0' : ''}}{{institutionIndex + 1}}</text>
+            <view class="institution-heading__copy"><text class="institution-name">{{item.name}}</text><text class="institution-region">{{item.region}} / {{item.type}}</text><text class="institution-price">参考费用：{{item.price}}</text></view>
           </view>
-        </section-card>
+          <text class="institution-status__item">条件候选 · 需机构评估</text>
+          <view wx:if="{{item.tags.length}}" class="institution-status"><text wx:for="{{item.tags}}" wx:key="text" class="institution-status__item">{{item.text}}</text></view>
+          <view wx:if="{{item.reasons.length}}" class="detail-list"><text class="detail-list__title">需要确认</text><view wx:for="{{item.reasons}}" wx:key="key" class="detail-line"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view></view>
+          <view wx:if="{{item.differences.length}}" class="difference-list"><text class="detail-list__title">主要差异</text><view wx:for="{{item.differences}}" wx:key="key" class="detail-line"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view></view>
+          <view wx:if="{{item.compactFacts && item.compactFacts.length}}" class="compact-fact-list"><text class="detail-list__title">生活适配资料</text><view wx:for="{{item.compactFacts}}" wx:key="key" class="compact-fact"><text class="compact-fact__mark">·</text><text class="compact-fact__text">{{item.text}}</text></view></view>
+          <view wx:if="{{item.advisories.length}}" class="advisory-list"><text wx:for="{{item.advisories}}" wx:key="*this" class="advisory-line">{{item}}</text></view>
+          <view class="institution-card__footer"><text class="development-boundary">{{item.detailLabel}} →</text></view>
+          <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        </view>
       </view>
 
-      <view wx:if="{{viewModel.state === 'no_safe_recommendation'}}" class="result-card-wrap">
-        <section-card>
-          <state-panel state="empty" title="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED' ? '还需要补充或确认老人信息' : '当前还没有可直接确认的安全推荐'}}" message="{{viewModel.summary}}"></state-panel>
-          <text class="no-safe-note">{{viewModel.noSafeMessage}}</text>
-          <view class="list-boundary" bindtap="onRecommendationListTap" role="button">
-            <text>{{viewModel.actions ? viewModel.actions.listLabel : '合作机构列表接入中'}}</text>
-          </view>
-          <view wx:if="{{actionErrorKey === 'recommendation-list'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        </section-card>
+      <view wx:if="{{viewModel.state === 'no_safe_recommendation'}}" class="result-section no-safe-section" aria-label="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED' ? '还需要补充或确认老人信息' : '当前还没有可直接确认的安全推荐'}}">
+        <text class="no-safe-note">{{viewModel.noSafeMessage}}</text>
+        <template wx:if="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED'}}" is="adjust-needs-action" data="{{actionErrorKey, actionErrorMessage, variant: 'primary'}}" />
       </view>
-
-      <view class="result-card-wrap">
-        <section-card>
-          <text class="section-kicker">看院建议</text>
-          <text class="section-subtitle">以下是通用的实地确认清单，不代表任何机构已经提供这些服务。</text>
-          <view class="visit-advice-list">
-            <view wx:for="{{viewModel.visitAdvice}}" wx:key="*this" class="visit-advice-line">
-              <text class="visit-advice-line__mark">{{index + 1}}</text>
-              <text class="visit-advice-line__text">{{item}}</text>
-            </view>
-          </view>
-        </section-card>
+      <view class="result-section visit-section">
+        <text class="section-kicker">看院建议</text>
+        <text class="section-subtitle">以下是通用的实地确认清单，不代表任何机构已经提供这些服务。</text>
+        <view class="visit-advice-list"><view wx:for="{{viewModel.visitAdvice}}" wx:key="*this" class="visit-advice-line"><text class="visit-advice-line__mark">{{index + 1}}</text><text class="visit-advice-line__text">{{item}}</text></view></view>
       </view>
-
       <view class="result-actions">
-        <view wx:if="{{actionErrorKey === 'adjust'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        <primary-button text="调整老人需求" variant="secondary" bind:action="onAdjustNeeds"></primary-button>
+        <button class="list-boundary" bindtap="onRecommendationListTap"><text>{{viewModel.actions ? viewModel.actions.listLabel : '合作机构列表接入中'}}</text><text>→</text></button>
+        <view wx:if="{{actionErrorKey === 'recommendation-list'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <template wx:if="{{viewModel.state !== 'no_safe_recommendation' || viewModel.emptyReason !== 'ELDER_READINESS_BLOCKED'}}" is="adjust-needs-action" data="{{actionErrorKey, actionErrorMessage, variant: 'secondary'}}" />
         <view wx:if="{{actionErrorKey === 'consultant'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        <primary-button text="咨询养老顾问" variant="primary" bind:action="onConsultant"></primary-button>
+        <primary-button warmSwiss="{{true}}" text="咨询养老顾问" variant="primary" bind:action="onConsultant"></primary-button>
       </view>
     </block>
-
-    <view wx:else class="result-card-wrap">
-      <section-card>
-        <state-panel state="error" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
-        <view class="result-actions result-actions--error">
-          <primary-button text="重新生成推荐" bind:action="onRetry"></primary-button>
-          <view wx:if="{{actionErrorKey === 'adjust'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-          <primary-button text="调整老人需求" variant="secondary" bind:action="onAdjustNeeds"></primary-button>
-          <view wx:if="{{actionErrorKey === 'consultant'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-          <primary-button text="咨询养老顾问" variant="quiet" bind:action="onConsultant"></primary-button>
-        </view>
-      </section-card>
+    <view wx:else class="result-state">
+      <state-panel state="error" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+      <view class="result-actions result-actions--error">
+        <primary-button warmSwiss="{{true}}" text="重新生成推荐" bind:action="onRetry"></primary-button>
+        <view wx:if="{{actionErrorKey === 'adjust'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <primary-button warmSwiss="{{true}}" text="调整老人需求" variant="secondary" bind:action="onAdjustNeeds"></primary-button>
+        <view wx:if="{{actionErrorKey === 'consultant'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <primary-button warmSwiss="{{true}}" text="咨询养老顾问" variant="quiet" bind:action="onConsultant"></primary-button>
+      </view>
     </view>
   </view>
 </page-container>

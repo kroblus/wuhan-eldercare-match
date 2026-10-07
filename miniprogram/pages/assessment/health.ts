@@ -20,6 +20,7 @@ type ChoiceOption = { value: string; label: string }
 
 interface AssessmentHealthData {
   backEnabled: boolean
+  warmSwissHeaderHeight: number
   conditions: HealthCondition[]
   recentEvents: HealthRecentEvent[]
   rehabilitationNeed: RehabilitationNeed | ''
@@ -115,6 +116,7 @@ const hasHealthAnswers = (
 Page({
   data: {
     backEnabled: true,
+    warmSwissHeaderHeight: 0,
     conditions: [],
     recentEvents: [],
     rehabilitationNeed: '',
@@ -139,6 +141,14 @@ Page({
     chewingAbilityAnchorId,
     swallowingAbilityAnchorId,
   } as AssessmentHealthData,
+
+  onLoad() {
+    // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
+    const system = wx.getSystemInfoSync()
+    this.setData({
+      warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+    })
+  },
 
   onShow() {
     resetNavigationGuard(this)

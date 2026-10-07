@@ -43,3 +43,22 @@
   background: #D9D4CE;
   color: #FFFFFF;
 }
+
+.primary-button.is-warm-swiss {
+  min-height: @ws-primary-height;
+  border-radius: @ws-radius;
+  font-size: @ws-cta;
+  line-height: @line-height-tight;
+  padding-top: @space-2;
+  padding-bottom: @space-2;
+  white-space: normal;
+}
+.is-warm-swiss.primary-button--primary { background: @ws-accent; }
+.is-warm-swiss.primary-button--secondary,
+.is-warm-swiss.primary-button--quiet {
+  min-height: @ws-secondary-height;
+  border: @ws-rule-width solid @ws-border;
+  background: transparent;
+  color: @ws-ink;
+}
+.is-warm-swiss.is-disabled { background: @color-border; color: @color-text-muted; }

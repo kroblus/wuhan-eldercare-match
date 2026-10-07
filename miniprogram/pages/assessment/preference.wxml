@@ -1,96 +1,111 @@
-<navigation-bar title="养老需求与偏好" back="{{backEnabled}}" fallbackUrl="/pages/assessment/cognitive" color="#27313D" background="#FFFFFF"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="养老需求与偏好" back="{{backEnabled}}" fallbackUrl="/pages/assessment/cognitive" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
-    <progress-header current="5" total="6" label="评估 · 第 5 步"></progress-header>
-    <view class="page-head assessment-head">
-      <text class="page-title">说说家里最在意什么</text>
-      <text class="page-description">没有标准答案，按家里真实的考虑选择即可。你的偏好会帮助我们解释推荐差异。</text>
-    </view>
+    <progress-header warmSwiss="{{true}}" current="5" total="6" label="养老需求评估"></progress-header>
+    <text class="assessment-intro">按家庭真实的考虑选择，这些偏好将作为后续匹配与沟通参考。</text>
 
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
-    <section-card extraClass="assessment-form-card">
-      <view id="{{careTypeAnchorId}}" class="question-anchor">
-        <question-section
-          title="更希望选择哪类养老方式"
-          hint="每项都有一句说明，选择最接近家里期待的方向"
-          required="{{true}}"
-          error="{{careTypeError}}"
-        >
-          <single-choice options="{{careTypeOptions}}" value="{{careType}}" bindchange="onCareTypeChange"></single-choice>
-        </question-section>
-      </view>
-
-      <view id="{{roomTypeAnchorId}}" class="question-anchor">
-        <question-section
-          title="更倾向哪种房型"
-          hint="按家庭目前的居住期待选择；不特别要求时可选择“不限制”"
-          required="{{true}}"
-          error="{{roomTypeError}}"
-        >
-          <single-choice options="{{roomTypeOptions}}" value="{{roomType}}" bindchange="onRoomTypeChange"></single-choice>
-        </question-section>
-      </view>
-
-      <view id="{{mealScheduleAnchorId}}" class="question-anchor">
-        <question-section
-          title="膳食安排更关注什么"
-          hint="按家庭目前的用餐期待选择；不特别要求时可选择“不特别要求”"
-          required="{{true}}"
-          error="{{mealScheduleError}}"
-        >
-          <single-choice options="{{mealScheduleOptions}}" value="{{mealSchedule}}" bindchange="onMealScheduleChange"></single-choice>
-        </question-section>
-      </view>
-
-      <view id="{{activityPreferenceAnchorId}}" class="question-anchor">
-        <question-section
-          title="活动和社交偏好"
-          hint="按家庭目前的活动期待选择；不特别在意时可选择“不特别在意”"
-          required="{{true}}"
-          error="{{activityPreferenceError}}"
-        >
-          <single-choice options="{{activityPreferenceOptions}}" value="{{activityPreference}}" bindchange="onActivityPreferenceChange"></single-choice>
-        </question-section>
-      </view>
-
-      <view id="{{prioritiesAnchorId}}" class="question-anchor">
-        <question-section
-          title="选择机构时最关注什么"
-          hint="最多选择 3 项，可随时取消已经选中的内容"
-          required="{{true}}"
-          error="{{prioritiesError}}"
-        >
-          <multi-choice
-            options="{{priorityOptions}}"
-            values="{{priorities}}"
-            max="{{priorityMax}}"
-            bindchange="onPrioritiesChange"
-            bindlimit="onPriorityLimit"
-          ></multi-choice>
-          <text wx:if="{{priorityLimitMessage}}" class="inline-hint inline-hint--warning" role="alert">{{priorityLimitMessage}}</text>
-        </question-section>
-      </view>
-
-      <question-section
-        title="希望所在区域"
-        hint="只展示当前已核验合作机构实际存在的区域；不想限制时可选择“不限制”"
-      >
-        <single-choice
-          wx:if="{{regionCatalogStatus === 'ready' || regionCatalogStatus === 'empty'}}"
-          options="{{regionOptions}}"
-          value="{{regionCode}}"
-          bindchange="onRegionChange"
-        ></single-choice>
-        <text wx:if="{{regionStatusMessage}}" class="inline-hint">{{regionStatusMessage}}</text>
-        <view wx:if="{{regionError}}" class="region-error" role="alert">
-          <text class="region-error__message">{{regionError}}</text>
-          <button class="region-error__retry" bindtap="onRetryRegionCatalog">重试</button>
+    <view class="assessment-form">
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>机构照护类型</text></view>
+        <view id="{{careTypeAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="更希望选择哪类养老方式"
+            hint="每项都有一句说明，选择最接近家里期待的方向"
+            required="{{true}}"
+            error="{{careTypeError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{careTypeOptions}}" value="{{careType}}" bindchange="onCareTypeChange"></single-choice>
+          </question-section>
         </view>
-      </question-section>
-    </section-card>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>房型偏好</text></view>
+        <view id="{{roomTypeAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="更倾向哪种房型"
+            hint="按家庭目前的居住期待选择；不特别要求时可选择“不限制”"
+            required="{{true}}"
+            error="{{roomTypeError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{roomTypeOptions}}" value="{{roomType}}" bindchange="onRoomTypeChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">03</text><text>餐食安排</text></view>
+        <view id="{{mealScheduleAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="膳食安排更关注什么"
+            hint="按家庭目前的用餐期待选择；不特别要求时可选择“不特别要求”"
+            required="{{true}}"
+            error="{{mealScheduleError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{mealScheduleOptions}}" value="{{mealSchedule}}" bindchange="onMealScheduleChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">04</text><text>活动偏好</text></view>
+        <view id="{{activityPreferenceAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="活动和社交偏好"
+            hint="按家庭目前的活动期待选择；不特别在意时可选择“不特别在意”"
+            required="{{true}}"
+            error="{{activityPreferenceError}}"
+          >
+            <single-choice warmSwiss="{{true}}" singleColumn="{{true}}" options="{{activityPreferenceOptions}}" value="{{activityPreference}}" bindchange="onActivityPreferenceChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">05</text><text>最关注什么</text><text class="selection-count">已选 {{priorities.length}} / {{priorityMax}}</text></view>
+        <view id="{{prioritiesAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="选择机构时最关注什么"
+            hint="请选择 1–3 项，可随时取消已经选中的内容"
+            required="{{true}}"
+            error="{{prioritiesError}}"
+          >
+            <multi-choice warmSwiss="{{true}}"
+              options="{{priorityOptions}}"
+              values="{{priorities}}"
+              max="{{priorityMax}}"
+              bindchange="onPrioritiesChange"
+              bindlimit="onPriorityLimit"
+            ></multi-choice>
+            <text wx:if="{{priorityLimitMessage}}" class="inline-hint inline-hint--warning" role="alert">{{priorityLimitMessage}}</text>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">06</text><text>区域偏好</text></view>
+        <question-section warmSwiss="{{true}}"
+          title="希望所在区域"
+          hint="只展示当前已核验合作机构实际存在的区域；不想限制时可选择“不限制”"
+        >
+          <single-choice warmSwiss="{{true}}"
+            wx:if="{{regionCatalogStatus === 'ready' || regionCatalogStatus === 'empty'}}"
+            options="{{regionOptions}}"
+            value="{{regionCode}}"
+            bindchange="onRegionChange"
+          ></single-choice>
+          <text wx:if="{{regionStatusMessage}}" class="inline-hint">{{regionStatusMessage}}</text>
+          <view wx:if="{{regionError}}" class="region-error" role="alert">
+            <text class="region-error__message">{{regionError}}</text>
+            <button class="region-error__retry" bindtap="onRetryRegionCatalog">重试</button>
+          </view>
+        </question-section>
+      </view>
+    </view>
 
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="上一步" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

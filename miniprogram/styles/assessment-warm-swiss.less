@@ -1,0 +1,16 @@
+@import './base.less';
+@import './mixins.less';
+
+// MASTER-B page composition, using the UI-0 scale and footer reserve.
+// Imported only by the five UI-1 Assessment pages.
+page { .ws-page-surface(); }
+.page-container.assessment-page { .ws-footer-safe(); }
+.page-shell { padding-top: @space-3; padding-bottom: 0; }
+.assessment-intro { display: block; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.assessment-section { margin-top: @space-4; padding-top: @space-4; border-top: @ws-rule-width solid @ws-border; }
+.question-anchor { display: block; }
+.form-error { margin-top: @space-2; color: @color-error; font-size: @ws-helper; line-height: @line-height-body; }
+.save-status { display: block; margin-top: @space-4; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.inline-hint { display: block; margin-top: @space-2; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.inline-hint--warning { color: @color-warning; }
+.privacy-note { display: block; margin-top: @space-4; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }

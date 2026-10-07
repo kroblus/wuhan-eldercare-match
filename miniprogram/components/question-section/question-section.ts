@@ -1,5 +1,6 @@
 Component({
   properties: {
+    warmSwiss: { type: Boolean, value: false },
     title: {
       type: String,
       value: '',

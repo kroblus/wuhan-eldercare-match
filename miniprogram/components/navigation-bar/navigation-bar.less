@@ -27,6 +27,16 @@
   box-sizing: border-box;
 }
 
+// Preserve the existing measured safe-top height while the header stays visible.
+.is-warm-swiss .weui-navigation-bar__placeholder {
+  height: calc(var(--height) + env(safe-area-inset-top));
+  box-sizing: border-box;
+}
+.is-warm-swiss .weui-navigation-bar__inner {
+  position: fixed;
+  z-index: 30;
+}
+
 .weui-navigation-bar__left {
   position: relative;
   padding-left: var(--left);

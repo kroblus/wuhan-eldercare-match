@@ -8,6 +8,7 @@ Component({
    * 组件的属性列表
    */
   properties: {
+    warmSwiss: { type: Boolean, value: false },
     extClass: {
       type: String,
       value: ''

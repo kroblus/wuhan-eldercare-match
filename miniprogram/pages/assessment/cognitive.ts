@@ -15,6 +15,7 @@ type CognitiveQuestionId = 'cognitive.symptoms' | 'cognitive.specialCareNeeds'
 
 interface AssessmentCognitiveData {
   backEnabled: boolean
+  warmSwissHeaderHeight: number
   symptoms: CognitiveSymptomV2[]
   specialCareNeeds: CognitiveSpecialCareNeedV2[]
   symptomsOptions: ChoiceOption[]
@@ -70,6 +71,7 @@ const readMultiAnswer = <K extends CognitiveQuestionId>(answers: DraftAnswers, q
 Page({
   data: {
     backEnabled: true,
+    warmSwissHeaderHeight: 0,
     symptoms: [],
     specialCareNeeds: [],
     symptomsOptions,
@@ -82,6 +84,14 @@ Page({
     saveStatus: '选择后会尝试保存到本机开发态草稿',
     persistenceFailed: false,
   } as AssessmentCognitiveData,
+
+  onLoad() {
+    // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
+    const system = wx.getSystemInfoSync()
+    this.setData({
+      warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+    })
+  },
 
   onShow() {
     resetNavigationGuard(this)
