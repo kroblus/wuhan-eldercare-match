@@ -31,6 +31,7 @@ type AppointmentCreatePageState = 'loading' | 'ready' | 'route_error' | 'institu
 type ElderDiagnosticPageState = 'idle' | 'loading' | ElderRecordReadOnlyDiagnosticResultV1['kind']
 
 interface AppointmentCreatePageData {
+  warmSwissHeaderHeight: number
   pageState: AppointmentCreatePageState
   pageTitle: string
   pageDescription: string
@@ -270,6 +271,7 @@ const resolveInstitutionDisplayName = async (
 
 Page({
   data: {
+    warmSwissHeaderHeight: 44,
     pageState: 'loading',
     pageTitle: '预约看院',
     pageDescription: '正在读取本次选择的机构资料。',
@@ -299,6 +301,13 @@ Page({
   } as AppointmentCreatePageData,
 
   onLoad(query: Record<string, string | undefined>) {
+    // Match the existing Warm Swiss header; only the visual anchor box changes.
+    if (typeof wx.getSystemInfoSync === 'function') {
+      const system = wx.getSystemInfoSync()
+      this.setData({
+        warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+      })
+    }
     const state = createPrivateState()
     pagePrivateState.set(this, state)
     const parsed = parseInstitutionDetailRouteQuery(query)

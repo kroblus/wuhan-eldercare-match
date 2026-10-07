@@ -1,14 +1,15 @@
 <navigation-bar
+  warmSwiss="{{true}}"
   title="预约看院"
   back="{{true}}"
   fallbackUrl="/pages/institution/index"
-  color="#27313D"
-  background="#FFFFFF"
+  color="#111827"
+  background="#FBFAF7"
 ></navigation-bar>
 
 <page-container extraClass="appointment-create-page">
   <view class="page-shell appointment-create-shell">
-    <view class="page-head">
+    <view class="page-head appointment-head">
       <text class="eyebrow">预约 · 看院申请</text>
       <text class="page-title">{{pageTitle}}</text>
       <text class="page-description">{{pageDescription}}</text>
@@ -24,9 +25,13 @@
       <block wx:if="{{!receiptReady}}">
         <view id="appointment-field-institution" class="appointment-card-wrap">
           <section-card>
-            <text class="section-kicker">本次预约机构</text>
+            <view class="ws-section-heading"><text class="ws-section-number">01</text><text>本次看院</text></view>
             <text class="appointment-institution-name">{{institution.displayName}}</text>
             <text class="appointment-field-hint">提交时会再次核验当前机构资料；若资料已变更，请返回机构详情重新确认。</text>
+            <view class="appointment-elder-summary">
+              <text class="appointment-summary-label">老人档案</text>
+              <text class="appointment-summary-value">{{prepared ? '当前账号绑定档案已准备好' : '提交时确认当前账号绑定档案'}}</text>
+            </view>
           </section-card>
         </view>
 
@@ -34,7 +39,7 @@
           <section-card>
             <text class="section-kicker">开发诊断 · 只读</text>
             <text class="appointment-field-hint">仅检查当前登录账号的老人档案绑定状态，不创建档案或提交预约。</text>
-            <primary-button
+            <primary-button warmSwiss="{{true}}"
               text="{{elderDiagnosticState === 'loading' ? '正在只读检查' : '只读检查老人绑定'}}"
               variant="quiet"
               loading="{{elderDiagnosticState === 'loading'}}"
@@ -51,10 +56,11 @@
 
         <view class="appointment-card-wrap">
           <section-card>
-            <text class="section-kicker">看院意向</text>
+            <view class="ws-section-heading"><text class="ws-section-number">02</text><text>看院时间</text></view>
+            <text class="appointment-field-hint">填写希望到访的日期与时间，具体安排需进一步确认。</text>
 
-            <view id="appointment-field-visitDate" class="appointment-field-anchor">
-              <question-section title="预约日期" required="{{true}}" error="{{formErrors.visitDate}}">
+            <view id="appointment-field-visitDate" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor">
+              <question-section warmSwiss="{{true}}" title="预约日期" required="{{true}}" error="{{formErrors.visitDate}}">
                 <picker
                   mode="date"
                   value="{{form.visitDate}}"
@@ -68,8 +74,8 @@
               </question-section>
             </view>
 
-            <view id="appointment-field-visitTimePreference" class="appointment-field-anchor">
-              <question-section title="预约时间偏好" required="{{true}}" hint="例如：上午、下午或方便联系的时段" error="{{formErrors.visitTimePreference}}">
+            <view id="appointment-field-visitTimePreference" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor">
+              <question-section warmSwiss="{{true}}" title="预约时间偏好" required="{{true}}" hint="例如：上午、下午或方便联系的时段" error="{{formErrors.visitTimePreference}}">
                 <input
                   class="appointment-input"
                   value="{{form.visitTimePreference}}"
@@ -81,8 +87,14 @@
               </question-section>
             </view>
 
-            <view id="appointment-field-participantCount" class="appointment-field-anchor">
-              <question-section title="参与人数" required="{{true}}" hint="填写本次计划到访的人数，1–1000 人" error="{{formErrors.participantCount}}">
+          </section-card>
+        </view>
+
+        <view class="appointment-card-wrap">
+          <section-card>
+            <view class="ws-section-heading"><text class="ws-section-number">03</text><text>参与人数</text></view>
+            <view id="appointment-field-participantCount" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor">
+              <question-section warmSwiss="{{true}}" title="参与人数" required="{{true}}" hint="填写本次计划到访的人数，1–1000 人" error="{{formErrors.participantCount}}">
                 <input
                   class="appointment-input appointment-input--count"
                   type="number"
@@ -99,11 +111,11 @@
 
         <view class="appointment-card-wrap">
           <section-card>
-            <text class="section-kicker">预约联系人</text>
+            <view class="ws-section-heading"><text class="ws-section-number">04</text><text>联系信息</text></view>
             <text class="section-subtitle">仅用于联系本次预约。填写号码不代表已完成微信手机号授权。</text>
 
-            <view id="appointment-field-contactName" class="appointment-field-anchor">
-              <question-section title="联系人姓名" required="{{true}}" error="{{formErrors.contactName}}">
+            <view id="appointment-field-contactName" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor">
+              <question-section warmSwiss="{{true}}" title="联系人姓名" required="{{true}}" error="{{formErrors.contactName}}">
                 <input
                   class="appointment-input"
                   value="{{form.contactName}}"
@@ -115,8 +127,8 @@
               </question-section>
             </view>
 
-            <view id="appointment-field-phone" class="appointment-field-anchor">
-              <question-section title="联系电话" required="{{true}}" hint="提交时还需向微信申请本次预约的一次性手机号授权" error="{{formErrors.phone}}">
+            <view id="appointment-field-phone" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor appointment-phone-field">
+              <question-section warmSwiss="{{true}}" title="联系电话" required="{{true}}" hint="提交时还需向微信申请本次预约的一次性手机号授权" error="{{formErrors.phone}}">
                 <input
                   class="appointment-input"
                   type="text"
@@ -129,8 +141,13 @@
               </question-section>
             </view>
 
-            <view id="appointment-field-notes" class="appointment-field-anchor">
-              <question-section title="补充说明" hint="选填，请勿填写健康档案等敏感信息" error="{{formErrors.notes}}">
+            <view class="appointment-phone-status" role="status">
+              <text class="appointment-phone-status__title">{{phoneSubmitting ? '正在提交本次申请' : (prepared ? '等待本次预约手机号授权' : '提交前需完成手机号授权')}}</text>
+              <text class="appointment-field-hint">手机号仅用于本次预约联系，不作为登录身份。填写联系电话后，仍需在提交时通过微信授权。</text>
+            </view>
+
+            <view id="appointment-field-notes" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: calc(32rpx - {{warmSwissHeaderHeight}}px);" class="appointment-field-anchor">
+              <question-section warmSwiss="{{true}}" title="补充说明" hint="选填，请勿填写健康档案等敏感信息" error="{{formErrors.notes}}">
                 <textarea
                   class="appointment-textarea"
                   value="{{form.notes}}"
@@ -149,10 +166,11 @@
           {{actionMessage}}
         </view>
 
+        <text class="appointment-submit-note">提交仅表示预约申请已送达，不代表机构已确认或安排看院。</text>
         <view class="appointment-submit-area">
-          <primary-button
+          <primary-button warmSwiss="{{true}}"
             wx:if="{{!prepared && !terminalConflict}}"
-            text="{{preparingElder ? '正在确认老人档案' : '提交预约申请'}}"
+            text="{{preparingElder ? '正在确认老人档案' : '提交预约'}}"
             loading="{{preparingElder}}"
             disabled="{{preparingElder || phoneSubmitting || outcomeUnknown}}"
             bind:action="onPrepareAppointment"
@@ -166,14 +184,13 @@
             loading="{{phoneSubmitting}}"
             bindgetphonenumber="onPhoneAuthorization"
           >
-            {{phoneSubmitting ? '正在提交预约申请' : (outcomeUnknown ? '重新授权并安全重试' : '授权手机号并提交预约申请')}}
+            {{phoneSubmitting ? '正在提交预约申请' : (outcomeUnknown ? '重新授权并安全重试' : '授权手机号并提交预约')}}
           </button>
 
           <view wx:if="{{terminalConflict}}" class="appointment-conflict-help">
             <text>请使用左上角返回，回到机构详情后重新发起预约。</text>
           </view>
 
-          <text class="appointment-submit-note">提交仅表示预约申请已送达，不代表机构已确认或安排看院。</text>
         </view>
       </block>
 
@@ -182,7 +199,7 @@
           <tag text="申请已提交" tone="brand"></tag>
           <text class="route-card-title">预约申请已提交</text>
           <text class="route-card-message">结果页暂时无法打开。可以重试查看申请结果，不会重复提交。</text>
-          <primary-button text="重试打开结果页" bind:action="onRetrySuccessNavigation"></primary-button>
+          <primary-button warmSwiss="{{true}}" text="重试打开结果页" bind:action="onRetrySuccessNavigation"></primary-button>
         </section-card>
       </view>
     </block>
@@ -194,7 +211,7 @@
           title="{{pageState === 'route_error' ? '预约入口无效' : '机构资料暂不可用'}}"
           message="{{pageDescription}}"
         ></state-panel>
-        <primary-button text="返回合作机构列表" bind:action="onReturnToInstitution"></primary-button>
+        <primary-button warmSwiss="{{true}}" text="返回合作机构列表" bind:action="onReturnToInstitution"></primary-button>
       </section-card>
     </view>
   </view>

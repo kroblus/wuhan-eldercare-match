@@ -5,6 +5,7 @@ import {
 import type {
   AppointmentCreateSuccessHandoffV1,
 } from '../../types/appointment-create-v1'
+import { formatTime } from '../../utils/util'
 import {
   getNavigationGuard,
   navigateToWithGuard,
@@ -17,6 +18,7 @@ type SuccessAction = '' | 'consultant' | 'appointments' | 'home' | 'back'
 interface AppointmentSuccessPageData {
   pageState: SuccessPageState
   handoff: AppointmentCreateSuccessHandoffV1 | null
+  acceptedAtDisplay: string
   actionErrorKey: SuccessAction
   actionErrorMessage: string
 }
@@ -68,6 +70,7 @@ Page({
   data: {
     pageState: 'unavailable',
     handoff: null,
+    acceptedAtDisplay: '',
     actionErrorKey: '',
     actionErrorMessage: '',
   } as AppointmentSuccessPageData,
@@ -77,6 +80,7 @@ Page({
       this.setData({
         pageState: 'unavailable',
         handoff: null,
+        acceptedAtDisplay: '',
         actionErrorKey: '',
         actionErrorMessage: '',
       })
@@ -88,6 +92,7 @@ Page({
       this.setData({
         pageState: 'unavailable',
         handoff: null,
+        acceptedAtDisplay: '',
         actionErrorKey: '',
         actionErrorMessage: '',
       })
@@ -96,6 +101,7 @@ Page({
     this.setData({
       pageState: 'ready',
       handoff,
+      acceptedAtDisplay: formatTime(new Date(handoff.receipt.acceptedAt)),
       actionErrorKey: '',
       actionErrorMessage: '',
     })

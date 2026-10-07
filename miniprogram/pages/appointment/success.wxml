@@ -1,24 +1,30 @@
 <navigation-bar
+  warmSwiss="{{true}}"
   title="预约申请结果"
   back="{{true}}"
   fallbackUrl="/pages/appointment/index"
-  color="#27313D"
-  background="#FFFFFF"
+  color="#111827"
+  background="#FBFAF7"
   bind:navigationfail="onNavigationFailure"
 ></navigation-bar>
 
 <page-container extraClass="appointment-success-page">
   <view class="page-shell appointment-success-shell">
-    <view class="page-head">
+    <view class="page-head appointment-success-head">
       <text class="eyebrow">预约 · 提交回执</text>
-      <text class="page-title">预约申请结果</text>
+      <text class="page-title">{{pageState === 'ready' && handoff ? handoff.receipt.publicMessage : '预约申请结果'}}</text>
       <text class="page-description">本页仅展示本次提交回执和用户填写的预约意向，不代表机构已确认或安排看院。</text>
     </view>
 
-    <view wx:if="{{pageState === 'ready' && handoff}}" class="appointment-success-card-wrap">
-      <section-card>
-        <tag text="申请已提交" tone="brand"></tag>
-        <text class="appointment-success-title">{{handoff.receipt.publicMessage}}</text>
+    <block wx:if="{{pageState === 'ready' && handoff}}">
+      <view class="appointment-success-status" role="status">
+        <text class="appointment-success-status__label">当前状态</text>
+        <text class="appointment-success-status__value">{{handoff.receipt.publicMessage}}</text>
+        <text class="appointment-success-note">申请已经送达，仍需顾问或机构进一步确认看院安排。</text>
+      </view>
+
+      <view class="appointment-success-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>本次申请</text></view>
         <text class="appointment-success-institution">{{handoff.summary.institutionName}}</text>
         <view class="appointment-success-facts">
           <view class="appointment-success-fact">
@@ -35,29 +41,30 @@
           </view>
           <view class="appointment-success-fact">
             <text class="appointment-success-fact__label">服务端接收时间</text>
-            <text class="appointment-success-fact__value">{{handoff.receipt.acceptedAt}}</text>
+            <text class="appointment-success-fact__value">{{acceptedAtDisplay}}</text>
           </view>
         </view>
         <text class="appointment-success-note">以上日期、时间和人数是本次提交的意向。当前进度请以“我的预约”中的最新信息为准。</text>
-      </section-card>
+      </view>
+
+      <view class="appointment-success-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>接下来</text></view>
+        <text class="appointment-success-next">看院时间、机构接待安排与必要补充信息，需要进一步沟通确认。</text>
+      </view>
 
       <view wx:if="{{actionErrorMessage}}" class="appointment-success-error" role="alert">{{actionErrorMessage}}</view>
 
       <view class="appointment-success-actions">
-        <primary-button text="联系养老顾问" bind:action="onContactConsultant"></primary-button>
-        <primary-button variant="secondary" text="查看我的预约" bind:action="onViewAppointments"></primary-button>
-        <primary-button variant="quiet" text="返回首页" bind:action="onReturnHome"></primary-button>
+        <primary-button warmSwiss="{{true}}" text="联系养老顾问" bind:action="onContactConsultant"></primary-button>
+        <primary-button warmSwiss="{{true}}" variant="secondary" text="查看我的预约" bind:action="onViewAppointments"></primary-button>
+        <primary-button warmSwiss="{{true}}" variant="quiet" text="返回首页" bind:action="onReturnHome"></primary-button>
       </view>
-    </view>
+    </block>
 
-    <view wx:else class="appointment-success-card-wrap">
-      <section-card>
-        <state-panel
-          state="error"
-          title="预约结果暂不可用"
-          message="当前页面没有可验证的一次性提交回执。请从“我的预约”查看服务端记录；本页不会根据链接参数显示提交成功。"
-        ></state-panel>
-      </section-card>
+    <view wx:else class="appointment-success-unavailable">
+      <text class="appointment-success-unavailable__title">预约结果暂不可用</text>
+      <text class="appointment-success-note">当前页面没有可验证的一次性提交回执。请从“我的预约”查看服务端记录；本页不会根据链接参数显示提交成功。</text>
+      <text class="appointment-success-note">可使用左上角返回。</text>
     </view>
   </view>
 </page-container>
