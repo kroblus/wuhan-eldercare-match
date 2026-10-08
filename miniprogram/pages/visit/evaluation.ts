@@ -120,6 +120,7 @@ interface EvaluationPageApplication {
 interface EvaluationPageInstance {
   data: VisitEvaluationPageData
   setData(patch: Partial<VisitEvaluationPageData>): void
+  selectComponent?(selector: string): WechatMiniprogram.Component.TrivialInstance | null
   _visitEvaluationApplication?: EvaluationPageApplication
   _visitEvaluationContext?: TestOnlyVisitEvaluationContextV1
   _productionVisitEvaluationContext?: ProductionVisitEvaluationContextV1
@@ -368,6 +369,38 @@ const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): 
   })
 }
 
+// Presentation only: reveal the existing inline error below the fixed navigation bar.
+const revealEvaluationError = (page: EvaluationPageInstance): void => {
+  if (typeof wx.nextTick !== 'function' || typeof wx.createSelectorQuery !== 'function'
+    || typeof wx.pageScrollTo !== 'function') return
+  const selector = page.data.overallRatingValidationMessage
+    ? '#evaluation-overall'
+    : page.data.considerationValidationMessage ? '#evaluation-intent' : '#evaluation-confirmation'
+  wx.nextTick(() => {
+    const query = wx.createSelectorQuery()
+    query.select(selector).boundingClientRect()
+    query.selectViewport().scrollOffset()
+    query.exec((results) => {
+      const target = results[0] as { top: number } | null
+      const viewport = results[1] as { scrollTop: number } | null
+      if (!target || !viewport) return
+      const scroll = (navigationHeight: number) => wx.pageScrollTo({
+          scrollTop: Math.max(0, target.top + viewport.scrollTop - navigationHeight - 16),
+          duration: 200,
+          fail: () => { /* Inline errors remain available if scrolling is unsupported. */ },
+        })
+      const navigation = page.selectComponent && page.selectComponent('#evaluation-navigation')
+      if (!navigation) return
+      wx.createSelectorQuery().in(navigation)
+        .select('.weui-navigation-bar__inner').boundingClientRect()
+        .exec((rectangles) => {
+          const rectangle = rectangles[0] as { height: number } | null
+          if (rectangle) scroll(rectangle.height)
+        })
+    })
+  })
+}
+
 Page({
   data: {
     pageState: 'loading_context',
@@ -522,6 +555,7 @@ Page({
           : '',
         feedbackMessage: '',
       })
+      revealEvaluationError(page)
       return
     }
 
@@ -573,6 +607,7 @@ Page({
           submitButtonText: '提交看院评价',
           validationMessage: '请补全必填项，并检查评价内容后重试。',
         })
+        revealEvaluationError(page)
       } else if (result.kind === 'validation_failed') {
         page.setData({
           pageState: 'editing',
@@ -585,6 +620,7 @@ Page({
             ? '请检查后续考虑。'
             : '',
         })
+        revealEvaluationError(page)
       } else if (result.kind === 'auth_required') {
         page._productionVisitEvaluationContext = undefined
         page.setData({
