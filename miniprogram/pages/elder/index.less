@@ -1,1 +1,21 @@
 @import '../../styles/base.less';
+
+page { .ws-page-surface(); }
+.elder-directory-shell { padding-top: @space-3; padding-bottom: @space-5; }
+.elder-directory-head { padding: @space-3 0 @ws-section-gap; }
+.elder-directory-eyebrow { display: block; margin-bottom: @space-2; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.elder-directory-title { display: block; color: @ws-ink; font-size: @ws-hero-title; font-weight: 700; line-height: @line-height-tight; word-break: break-word; }
+.elder-directory-description { display: block; margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; }
+.elder-directory-status { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
+.elder-directory-status-label { display: block; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.elder-directory-status .state-panel { align-items: flex-start; padding: @space-3 0 0; text-align: left; }
+.elder-directory-page .state-panel__mark { display: none; }
+.elder-directory-status .state-panel__title { color: @ws-ink; font-size: @ws-section-title; line-height: @line-height-tight; }
+.elder-directory-status .state-panel__message { margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; word-break: break-word; }
+.elder-directory-note { padding-top: @ws-section-gap; }
+.elder-directory-section-heading { .ws-section-heading(); }
+.elder-directory-number { flex-shrink: 0; color: @ws-accent; font-size: @ws-body; font-weight: 600; }
+.elder-directory-section-title { color: @ws-ink; font-size: @ws-section-title; font-weight: 600; word-break: break-word; }
+.elder-directory-copy { display: block; margin: @space-3 0 0 @space-6; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.elder-directory-note primary-button { display: block; margin-top: @space-3; margin-left: @space-6; }
+.elder-directory-page .elder-directory-action .primary-button { justify-content: flex-start; padding: @space-2 0; border: 0; border-bottom: @ws-rule-width solid @ws-border; border-radius: 0; color: @ws-accent; text-align: left; font-size: @ws-helper; }

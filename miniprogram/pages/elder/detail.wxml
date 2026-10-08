@@ -1,17 +1,22 @@
-<navigation-bar title="老人档案详情" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar warmSwiss="{{true}}" title="老人档案详情" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="elder-detail-page">
+  <view class="elder-detail-shell">
+    <view class="elder-detail-head">
+      <text class="elder-detail-eyebrow">我的 · 档案详情</text>
+      <text class="elder-detail-title">{{pageTitle}}</text>
+      <text class="elder-detail-description">老人资料与评估记录说明</text>
     </view>
-    <section-card>
-      <tag text="档案详情骨架" tone="development"></tag>
-      <text class="route-card-title">画像摘要和评估历史入口已预留</text>
-      <text class="route-card-message">后续会展示基本情况、健康、自理、认知照护、偏好、预算和最近评估时间。</text>
-      <state-panel state="empty" title="暂时没有可展示的老人档案" message="完成一次真实评估并保存后，这里才会显示档案详情。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+    <view class="elder-detail-status" role="status">
+      <text class="elder-detail-status-label">档案状态</text>
+      <state-panel state="empty" title="档案详情暂不可用" message="老人资料与评估记录暂不可查看。当前页面不代表已读取或已保存的个人档案。"></state-panel>
+    </view>
+    <view class="elder-detail-history">
+      <view class="elder-detail-section-heading">
+        <text class="elder-detail-number">01</text>
+        <text class="elder-detail-section-title">关于评估记录</text>
+      </view>
+      <text class="elder-detail-copy">已完成的评估保留各自的历史版本。重新评估应创建新的记录，不覆盖旧评估或推荐结果。</text>
+      <primary-button wx:if="{{showNext}}" class="elder-detail-action" text="查看评估记录说明" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+    </view>
   </view>
 </page-container>

@@ -1,15 +1,22 @@
-<navigation-bar title="老人档案" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar warmSwiss="{{true}}" title="老人档案" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="elder-directory-page">
+  <view class="elder-directory-shell">
+    <view class="elder-directory-head">
+      <text class="elder-directory-eyebrow">我的 · 老人档案</text>
+      <text class="elder-directory-title">{{pageTitle}}</text>
+      <text class="elder-directory-description">了解老人档案与评估记录。</text>
     </view>
-    <section-card>
-      <tag text="档案列表骨架" tone="development"></tag>
-      <state-panel state="empty" title="还没有建立老人档案" message="完成一次养老需求评估后，未来会自动生成老人档案；当前不创建虚拟老人。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+    <view class="elder-directory-status" role="status">
+      <text class="elder-directory-status-label">档案服务</text>
+      <state-panel state="empty" title="暂时无法查看老人档案" message="当前页面暂不提供已保存档案的读取，不能据此判断是否已有档案。"></state-panel>
+    </view>
+    <view class="elder-directory-note">
+      <view class="elder-directory-section-heading">
+        <text class="elder-directory-number">01</text>
+        <text class="elder-directory-section-title">档案与评估</text>
+      </view>
+      <text class="elder-directory-copy">填写需求评估不会在这里自动建立老人档案。档案资料与已完成的评估记录需分别保存和读取。</text>
+      <primary-button wx:if="{{showNext}}" class="elder-directory-action" text="查看档案详情说明" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+    </view>
   </view>
 </page-container>

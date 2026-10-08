@@ -1,24 +1,39 @@
-<navigation-bar title="我的" back="{{backEnabled}}" color="#27313D" background="#FFFFFF"></navigation-bar>
-<page-container extraClass="route-page">
-  <view class="page-shell">
-    <view class="page-head">
-      <text class="eyebrow">{{routeLabel}}</text>
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
+<navigation-bar warmSwiss="{{true}}" title="" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="mine-page">
+  <view class="mine-shell">
+    <view class="mine-head">
+      <text class="mine-eyebrow">匿名浏览</text>
+      <text class="mine-title">{{pageTitle}}</text>
+      <text class="mine-description">老人档案与个人服务记录</text>
     </view>
-    <section-card extraClass="mine-appointments-entry">
-      <tag text="服务记录" tone="brand"></tag>
-      <text class="route-card-title">我的预约</text>
-      <text class="route-card-message">查看当前账号的预约记录。身份核验和记录读取在进入预约页后按需进行。</text>
-      <view wx:if="{{appointmentNavigationErrorMessage}}" class="mine-action-error" role="alert">{{appointmentNavigationErrorMessage}}</view>
-      <primary-button text="查看我的预约" bind:action="openAppointments"></primary-button>
-    </section-card>
-    <section-card extraClass="mine-elder-scaffold">
-      <tag text="匿名友好" tone="brand"></tag>
-      <text class="route-card-title">先浏览，需要保存时再登录</text>
-      <text class="route-card-message">当前不展示头像昵称授权按钮，不主动调用微信登录或手机号授权。</text>
-      <state-panel state="empty" title="还没有老人档案" message="完成一次养老需求评估后，未来可以在这里管理档案。"></state-panel>
-    </section-card>
-    <primary-button wx:if="{{showNext}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
+    <view class="mine-identity">
+      <text class="mine-section-title">先浏览，按需确认身份</text>
+      <text class="mine-copy">暂不登录也可以浏览机构、图片、VR 和填写评估。查看需要身份确认的记录时，将在对应服务中按需进行。</text>
+    </view>
+    <view class="mine-service mine-elder-scaffold">
+      <view class="mine-section-heading">
+        <text class="mine-number">01</text>
+        <text class="mine-section-title">老人档案</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">档案资料暂不可读取。当前入口提供档案说明，不展示已保存的老人资料。</text>
+        <primary-button wx:if="{{showNext}}" class="mine-entry-action" text="查看老人档案" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+      </view>
+    </view>
+    <view class="mine-service mine-appointments-entry">
+      <view class="mine-section-heading">
+        <text class="mine-number">02</text>
+        <text class="mine-section-title">我的预约</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">查看当前账号的预约记录。身份确认与记录读取在进入预约页后进行。</text>
+        <view wx:if="{{appointmentNavigationErrorMessage}}" class="mine-action-error" role="alert">{{appointmentNavigationErrorMessage}}</view>
+        <primary-button class="mine-entry-action" text="查看我的预约" variant="quiet" warmSwiss="{{true}}" bind:action="openAppointments"></primary-button>
+      </view>
+    </view>
+    <view class="mine-help">
+      <text class="mine-section-title">需要帮助？</text>
+      <text class="mine-copy">可通过底部「养老顾问」了解服务。</text>
+    </view>
   </view>
 </page-container>

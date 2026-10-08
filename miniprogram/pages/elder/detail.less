@@ -1,1 +1,21 @@
 @import '../../styles/base.less';
+
+page { .ws-page-surface(); }
+.elder-detail-shell { padding-top: @space-3; padding-bottom: @space-5; }
+.elder-detail-head { padding: @space-3 0 @ws-section-gap; }
+.elder-detail-eyebrow { display: block; margin-bottom: @space-2; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.elder-detail-title { display: block; color: @ws-ink; font-size: @ws-hero-title; font-weight: 700; line-height: @line-height-tight; word-break: break-word; }
+.elder-detail-description { display: block; margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; }
+.elder-detail-status { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
+.elder-detail-status-label { display: block; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.elder-detail-status .state-panel { align-items: flex-start; padding: @space-3 0 0; text-align: left; }
+.elder-detail-page .state-panel__mark { display: none; }
+.elder-detail-status .state-panel__title { color: @ws-ink; font-size: @ws-section-title; line-height: @line-height-tight; }
+.elder-detail-status .state-panel__message { margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; word-break: break-word; }
+.elder-detail-history { padding-top: @ws-section-gap; }
+.elder-detail-section-heading { .ws-section-heading(); }
+.elder-detail-number { flex-shrink: 0; color: @ws-accent; font-size: @ws-body; font-weight: 600; }
+.elder-detail-section-title { color: @ws-ink; font-size: @ws-section-title; font-weight: 600; word-break: break-word; }
+.elder-detail-copy { display: block; margin: @space-3 0 0 @space-6; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.elder-detail-history primary-button { display: block; margin-top: @space-3; margin-left: @space-6; }
+.elder-detail-page .elder-detail-action .primary-button { justify-content: flex-start; padding: @space-2 0; border: 0; border-bottom: @ws-rule-width solid @ws-border; border-radius: 0; color: @ws-accent; text-align: left; font-size: @ws-helper; }
