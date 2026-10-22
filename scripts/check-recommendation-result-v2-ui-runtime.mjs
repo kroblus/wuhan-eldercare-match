@@ -548,7 +548,7 @@ const main = async () => {
     c.equal(vm.emptyReason, 'ELDER_READINESS_BLOCKED')
     c.equal(vm.cards.length, 0)
     c.equal(vm.conditionalCards.length, 0)
-    c.ok(vm.headline.includes('补充或确认老人信息'))
+    c.ok(vm.headline.includes('照护事项仍需确认'))
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
   await run('RESULT-UI-V2-005', 'other no-safe state explains hard conflict without pretending empty data', async (c) => {

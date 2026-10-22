@@ -26,5 +26,6 @@ jobs:
       - run: npm run check:institution-detail-v1-2-1-interactions
       - run: npm run check:institution-vr-runtime
       - run: npm run check:v1-9-assessment-recommendation -- --source-only
+      - run: npm run check:profile-clarification-guidance
       # Production/demo WXML + Less builds require installed WeChat DevTools.
       # They remain local gates; this workflow does not claim to run them.

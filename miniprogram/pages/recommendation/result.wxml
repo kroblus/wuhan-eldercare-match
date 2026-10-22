@@ -83,7 +83,7 @@
           <view wx:if="{{actionErrorKey === 'recommendation-detail'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         </view>
       </view>
-      <view wx:if="{{viewModel.state === 'no_safe_recommendation'}}" class="result-section no-safe-section" aria-label="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED' ? '还需要补充或确认老人信息' : '当前还没有可直接确认的安全推荐'}}">
+      <view wx:if="{{viewModel.state === 'no_safe_recommendation'}}" class="result-section no-safe-section" aria-label="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED' ? '部分照护事项仍需确认' : '当前还没有可直接确认的安全推荐'}}">
         <text class="no-safe-note">{{viewModel.noSafeMessage}}</text>
         <template wx:if="{{viewModel.emptyReason === 'ELDER_READINESS_BLOCKED'}}" is="adjust-needs-action" data="{{actionErrorKey, actionErrorMessage, variant: 'primary'}}" />
       </view>

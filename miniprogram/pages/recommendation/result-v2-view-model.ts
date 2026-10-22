@@ -443,8 +443,8 @@ export const createRecommendationResultViewModelV2 = (
     headline = '需要进一步评估的机构'
     summary = '这些机构尚不能直接视为满足全部护理需求，需要机构进一步确认。'
   } else if (state.emptyReason === 'ELDER_READINESS_BLOCKED') {
-    headline = '还需要补充或确认老人信息'
-    summary = '还需要补充或确认部分照护信息，完成后才能继续判断机构是否适合。当前未生成机构推荐卡片。'
+    headline = '部分照护事项仍需确认'
+    summary = '问卷已填写完成，但部分照护事项仍需核实，确认后才能继续判断机构是否适合。当前未生成机构推荐卡片。'
   } else if (semantics.noExactMatch !== undefined) {
     headline = '当前还没有可直接确认的安全推荐'
     summary = NO_EXACT_LABELS[semantics.noExactMatch.reasonCode]
@@ -471,7 +471,7 @@ export const createRecommendationResultViewModelV2 = (
     datasetLabel: snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? '虚构机构演示目录' : '公开机构资料',
     emptyReason: state.emptyReason,
     noSafeMessage: state.emptyReason === 'ELDER_READINESS_BLOCKED'
-      ? '请返回画像补充或确认信息。' : state.state === 'no_safe_recommendation'
+      ? '请返回画像查看具体待确认事项；若回答不准确再修改，重复提交相同答案不会改变这些条件。' : state.state === 'no_safe_recommendation'
         ? '未确认不代表机构不提供相关服务。可以先浏览已收录机构，查看公开资料，再向机构核实；普通目录不是推荐名单。' : '',
     actions: {
       canRetry: false,
