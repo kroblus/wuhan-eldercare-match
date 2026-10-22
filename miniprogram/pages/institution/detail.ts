@@ -8,6 +8,8 @@ import {
 } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
+import { readInstitutionSourceNotes } from '../../runtime/institution-source-notes'
+import { createDetailReading } from './detail-reading'
 import {
   createInstitutionDetailErrorViewModel,
   createInstitutionDetailPageViewModel,
@@ -39,6 +41,8 @@ interface InstitutionDetailPageData {
   expandedSections: Record<string, boolean>
   coverLoadFailed: boolean
   canRequestService: boolean
+  reading: ReturnType<typeof createDetailReading> | null
+  sourceNotes: ReturnType<typeof readInstitutionSourceNotes>
 }
 
 const routeByPage = new WeakMap<object, InstitutionDetailRoute>()
@@ -202,6 +206,7 @@ Page({
     expandedSections: {},
     coverLoadFailed: false,
     canRequestService: true,
+    reading: null, sourceNotes: [],
   } as InstitutionDetailPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -238,6 +243,7 @@ Page({
       isSwitchingRevision: false,
       expandedSections: {},
       coverLoadFailed: false,
+      reading: null, sourceNotes: [],
     })
     buildInstitutionDetailPageSnapshot(route).then((result) => {
       if (!isCurrentGeneration(this, generation)) return
@@ -246,6 +252,8 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
+          reading: createDetailReading(viewModel),
+          sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           actionErrorKey: '',
           actionErrorMessage: '',
@@ -334,6 +342,8 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
+          reading: createDetailReading(viewModel),
+          sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           isSwitchingRevision: false,
           actionErrorKey: '',

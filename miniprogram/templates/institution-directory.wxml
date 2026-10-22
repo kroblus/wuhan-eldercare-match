@@ -1,49 +1,25 @@
 <template name="directory-controls">
-        <view class="directory-search">
-          <input aria-label="按机构名称搜索" placeholder="输入机构名称" value="{{keyword}}" bindinput="onSearchInput" confirm-type="search" />
-          <view wx:if="{{hasMetadataFilters}}" class="directory-filters">
-            <picker range="{{natureOptions}}" range-key="label" value="{{natureIndex}}" bindchange="onNatureChange"><view class="directory-filter">{{natureOptions[natureIndex].label}} ▾</view></picker>
-            <picker range="{{districtOptions}}" range-key="label" value="{{districtIndex}}" bindchange="onDistrictChange"><view class="directory-filter">{{districtOptions[districtIndex].label}} ▾</view></picker>
-          </view>
-          <button wx:if="{{keyword || natureIndex || districtIndex}}" class="secondary-action" bindtap="clearSearch">清除搜索条件</button>
-        </view>
+  <view class="directory-search">
+    <view class="directory-input-wrap">
+      <input aria-label="搜索养老机构名称" placeholder="搜索养老机构名称" value="{{keyword}}" bindinput="onSearchInput" confirm-type="search" adjust-position="{{true}}" cursor-spacing="32" />
+      <button wx:if="{{keyword}}" class="directory-clear" bindtap="clearKeyword" aria-label="清除机构名称">清除</button>
+    </view>
+    <view wx:if="{{hasMetadataFilters}}" class="directory-filters">
+      <picker range="{{districtOptions}}" range-key="label" value="{{districtIndex}}" bindchange="onDistrictChange" aria-label="选择武汉区域"><view class="directory-filter {{districtIndex ? 'is-selected' : ''}}"><text>{{districtOptions[districtIndex].label}}</text><text class="directory-arrow" aria-hidden="true">⌄</text></view></picker>
+      <picker range="{{natureOptions}}" range-key="label" value="{{natureIndex}}" bindchange="onNatureChange" aria-label="选择机构性质"><view class="directory-filter {{natureIndex ? 'is-selected' : ''}}"><text>{{natureOptions[natureIndex].label}}</text><text class="directory-arrow" aria-hidden="true">⌄</text></view></picker>
+    </view>
+  </view>
 </template>
 <template name="directory-results">
-        <view class="directory-heading">
-          <text class="section-kicker">当前可展示资料</text>
-          <text class="directory-count">共 {{visibleItems.length}} 条</text>
-        </view>
-        <text wx:if="{{!visibleItems.length}}" class="directory-search-empty">没有符合条件的机构，试试其他名称或筛选条件。</text>
-        <view wx:for="{{visibleItems}}" wx:key="key" class="institution-card" data-item-key="{{item.key}}" data-institution-id="{{item.navigationIntent.institutionId}}" data-record-revision="{{item.navigationIntent.recordRevision}}" data-route-source="{{item.navigationIntent.source}}" bindtap="onCardTap" role="button" aria-label="查看{{item.name}}详情">
-          <text wx:if="{{item.showGroupHeading}}" class="institution-group-heading">{{item.groupLabel}}</text>
-          <view class="institution-row">
-            <text class="institution-number">{{index > 8 ? '' : '0'}}{{index + 1}}</text>
-            <view class="institution-cover-wrap">
-              <image wx:if="{{item.hasCover}}" class="institution-cover" src="{{item.coverUrl}}" mode="aspectFill" aria-label="{{item.name}}封面"></image>
-              <view wx:else class="institution-cover institution-cover--empty"><text>暂无机构图片</text></view>
-            </view>
-            <view class="institution-card__body">
-              <text class="institution-name">{{item.name}}</text>
-              <text class="fact-status {{item.nameStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.nameStatus}}</text>
-              <view class="institution-meta">
-                <text class="institution-meta__value">{{item.region}}</text>
-                <text class="fact-status {{item.regionStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.regionStatus}}</text>
-                <text class="institution-meta__value">{{item.type}}</text>
-                <text class="fact-status {{item.typeStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.typeStatus}}</text>
-              </view>
-              <view class="institution-fee">
-                <text class="institution-fee__label">参考月费</text>
-                <text class="institution-fee__value">{{item.price}}</text>
-                <text class="fact-status {{item.priceStatus === '已核验' ? 'fact-status--verified' : ''}}">{{item.priceStatus}}</text>
-              </view>
-              <view wx:if="{{item.tags.length}}" class="tag-list">
-                <text wx:for="{{item.tags}}" wx:key="text" class="institution-tag">{{item.text}}</text>
-              </view>
-              <text class="institution-vr institution-vr--{{item.vrState}}">{{item.vrLabel}}</text>
-              <text class="institution-placement">{{item.placementLabel}}</text>
-              <text class="institution-card__footer">查看机构详情 →</text>
-            </view>
-          </view>
-          <view wx:if="{{actionErrorKey === item.key}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
-        </view>
+  <view class="directory-heading"><view class="directory-heading__title"><text class="section-kicker">养老机构</text><text class="directory-count">{{visibleItems.length}}家</text></view><button wx:if="{{keyword || natureIndex || districtIndex}}" class="browse-button browse-button--link directory-reset" bindtap="clearSearch">清除筛选</button></view>
+  <view wx:if="{{!visibleItems.length}}" class="directory-search-empty"><text class="directory-empty-title">没有找到符合条件的机构</text><text>试试其他名称或筛选条件。</text><button class="browse-button" bindtap="clearSearch">清除筛选</button></view>
+  <view wx:for="{{visibleItems}}" wx:key="key" class="institution-card" data-item-key="{{item.key}}" data-institution-id="{{item.navigationIntent.institutionId}}" data-record-revision="{{item.navigationIntent.recordRevision}}" data-route-source="{{item.navigationIntent.source}}" bindtap="onCardTap" role="button" aria-label="查看{{item.card.title}}详情">
+    <text wx:if="{{item.showGroupHeading && item.recommendationGroup !== 'other'}}" class="institution-group-heading">{{item.groupLabel}}</text>
+    <view class="institution-card__head"><text class="institution-name">{{item.card.title}}</text><text wx:if="{{item.card.isDemo}}" class="institution-demo-label">演示机构</text></view>
+    <text class="institution-region">{{item.card.region}}</text>
+    <text wx:if="{{item.card.feature}}" class="institution-feature">{{item.card.feature}}</text>
+    <text class="institution-price">{{item.card.price}}</text>
+    <view class="institution-card__footer"><text>查看详情</text></view>
+    <view wx:if="{{actionErrorKey === item.key}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+  </view>
 </template>

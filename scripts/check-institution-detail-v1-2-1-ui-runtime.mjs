@@ -389,9 +389,9 @@ const main = async () => {
     assert.match(wxml, /护理管理与交接/)
     assert.match(wxml, /<button wx:if="\{\{viewModel\.location\.mapAction\.available\}\}"[^>]*bindtap="onMapTap"/)
     assert.match(wxml, /item\.callAction\.available/)
-    assert.match(wxml, /section\.key === 'team'/)
+    assert.match(wxml, /section\.key === 'care'/)
     assert.match(wxml, /expandedSections\[section\.key\]/)
-    assert.match(wxml, /开发演示数据/)
+    assert.match(wxml, /演示资料，非真实机构信息/)
   })
   run('DETAIL-V121-UI-036', 'WXML never puts phone/address/care facts into list-style card bindings', () => {
     assert.equal(wxml.includes('displayInstitutions'), false)

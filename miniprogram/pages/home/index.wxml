@@ -1,43 +1,30 @@
 <import src="../../templates/institution-directory.wxml" />
 <navigation-bar warmSwiss="{{true}}" title="武汉养老" back="{{false}}"></navigation-bar>
 <page-container extraClass="home-page">
-  <view class="home-hero">
-    <text class="home-brand-note">武汉 · 为家人做一份安心的选择</text>
-    <text class="home-hero__title">合适的照护，<text class="home-hero__accent">从这里找起。</text></text>
-    <text class="home-hero__description">先浏览机构，再慢慢了解。无需登录或先做评估。</text>
-  </view>
-  <view class="home-mock-disclosure" wx:if="{{showMockDisclosure}}" role="status">
-    <tag text="合成演示数据" tone="development"></tag><text>{{mockDisclosure}}</text>
-  </view>
+  <view class="home-hero"><text class="home-hero__title">找到适合家人的养老机构</text><text class="home-hero__description">按名称、区域和机构性质查找，也可以先浏览。</text></view>
   <view class="home-search" aria-label="查找武汉养老机构">
     <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters}}" />
   </view>
-  <view class="home-reading" aria-label="养老服务内容">
-    <button class="home-reading__entry" data-topic="policy" bindtap="openReading"><text class="home-reading__number">01 / 政策</text><text class="home-reading__title">养老补贴</text><text class="home-reading__note">查政策与官方渠道 ↗</text></button>
-    <button class="home-reading__entry" data-topic="education" bindtap="openReading"><text class="home-reading__number">02 / 了解</text><text class="home-reading__title">养老科普</text><text class="home-reading__note">看照护与选院要点 ↗</text></button>
-    <button class="home-reading__entry" data-topic="admission" bindtap="openReading"><text class="home-reading__number">03 / 准备</text><text class="home-reading__title">入住指南</text><text class="home-reading__note">一步步做好准备 ↗</text></button>
-  </view>
-  <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
-  <view class="home-section">
-    <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取机构资料" message="按当前目录整理可展示的资料"></state-panel>
-    <state-panel wx:elif="{{loadError}}" state="error" title="机构资料暂时不可用" message="请稍后重试。" actionText="重新加载" bind:action="retryLoad"></state-panel>
-    <state-panel wx:elif="{{empty}}" state="empty" title="当前目录暂无机构资料" message="资料补充后会在这里展示，不以演示资料填充。"></state-panel>
-    <block wx:else>
-      <template is="directory-results" data="{{visibleItems: institutions, actionErrorKey: actionErrorKey, actionErrorMessage: institutionActionError}}" />
-    </block>
-    <text class="home-footnote">目录顺序不代表推荐排名。参考月费与接收条件，请向机构核实。</text>
-    <button class="home-link" bindtap="openInstitutions">打开独立机构目录 →</button>
+  <!-- demo-home-entry -->
+  <view class="home-results">
+    <state-panel wx:if="{{isLoading}}" state="loading" title="正在查找机构"></state-panel>
+    <state-panel wx:elif="{{loadError}}" state="error" title="暂时无法读取机构资料" message="请稍后再试。" actionText="重新加载" bind:action="retryLoad"></state-panel>
+    <state-panel wx:elif="{{empty}}" state="empty" title="当前还没有机构资料" message="资料补充后会在这里展示。"></state-panel>
+    <block wx:else><template is="directory-results" data="{{visibleItems: institutions, keyword: keyword, natureIndex: natureIndex, districtIndex: districtIndex, actionErrorKey: actionErrorKey, actionErrorMessage: institutionActionError}}" /></block>
+    <button class="browse-button browse-button--link home-directory-link" bindtap="openInstitutions">浏览机构目录</button>
     <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
   </view>
   <view class="home-assessment">
-    <text class="home-assessment__title">还不确定需要哪种照护？</text>
-    <text class="home-hero__description">用已有需求评估，梳理照护、偏好与预算。</text>
-    <primary-button warmSwiss="{{true}}" text="开始养老需求评估 →" bind:action="startAssessment"></primary-button>
+    <text class="home-section-title">不确定哪种养老机构适合家人？</text><text class="home-description">先了解老人的照护需求，再看看适合的机构。</text>
+    <primary-button browsing="{{true}}" warmSwiss="{{true}}" text="开始需求评估" bind:action="startAssessment"></primary-button>
   </view>
-  <view class="home-help">
-    <button class="home-link" bindtap="openConsultant">养老顾问 →</button>
-    <view wx:if="{{consultantActionError}}" class="home-action-error" role="alert">{{consultantActionError}}</view>
-    <button class="home-link" bindtap="openAIConsultation">养老常见问题 →</button>
-    <view wx:if="{{aiActionError}}" class="home-action-error" role="alert">{{aiActionError}}</view>
+  <view class="home-reading">
+    <text class="home-section-title">养老实用信息</text>
+    <button class="home-reading__entry" data-topic="policy" bindtap="openReading"><text class="home-reading__title">养老补贴</text><text class="home-description">了解武汉养老相关政策</text></button>
+    <button class="home-reading__entry" data-topic="education" bindtap="openReading"><text class="home-reading__title">养老科普</text><text class="home-description">学习照护与选择机构的常识</text></button>
+    <button class="home-reading__entry" data-topic="admission" bindtap="openReading"><text class="home-reading__title">入住指南</text><text class="home-description">了解参观、费用和入住准备</text></button>
+    <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
   </view>
+  <view class="home-help"><button class="browse-button browse-button--link" bindtap="openConsultant">养老顾问</button><button class="browse-button browse-button--link" bindtap="openAIConsultation">养老常见问题</button></view>
+  <view wx:if="{{consultantActionError || aiActionError}}" class="home-action-error" role="alert">{{consultantActionError || aiActionError}}</view>
 </page-container>

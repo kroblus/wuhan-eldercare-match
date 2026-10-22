@@ -1,5 +1,6 @@
 Component({
   properties: {
+    browsing: { type: Boolean, value: false },
     warmSwiss: { type: Boolean, value: false },
     text: {
       type: String,

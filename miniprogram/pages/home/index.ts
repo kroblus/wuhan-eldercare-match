@@ -33,6 +33,7 @@ interface HomePageData {
 
 const loadGenerations = new WeakMap<object, number>()
 const homeLoadsInFlight = new WeakSet<object>()
+const homeReloadRequested = new WeakSet<object>()
 const homeDirectories = new WeakMap<object, readonly InstitutionListItemViewModel[]>()
 
 const nextGeneration = (instance: object): number => {
@@ -99,12 +100,14 @@ Component({
     detached() {
       nextGeneration(this)
       homeDirectories.delete(this)
+      homeReloadRequested.delete(this)
     },
   },
 
   pageLifetimes: {
     show() {
       resetNavigationGuard(this)
+      this.loadInstitutions()
     },
   },
 
@@ -128,6 +131,7 @@ Component({
     clearSearch() {
       this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
     },
+    clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
     onCardTap(event: WechatMiniprogram.BaseEvent) { this.openInstitution(event) },
     openReading(event: WechatMiniprogram.BaseEvent) {
       const topic = event.currentTarget.dataset.topic
@@ -138,7 +142,7 @@ Component({
       })
     },
     loadInstitutions() {
-      if (homeLoadsInFlight.has(this)) return
+      if (homeLoadsInFlight.has(this)) { homeReloadRequested.add(this); return }
       homeLoadsInFlight.add(this)
       const generation = nextGeneration(this)
       this.setData({
@@ -151,6 +155,7 @@ Component({
       buildInstitutionListPageSnapshot(null).then((result) => {
         homeLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
+        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         if (!result.ok) {
           this.setData({
             isLoading: false,
@@ -177,6 +182,7 @@ Component({
       }).catch(() => {
         homeLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
+        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         this.setData({
           isLoading: false,
           loadError: true,

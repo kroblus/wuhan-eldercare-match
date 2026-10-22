@@ -1,16 +1,13 @@
 @import '../../styles/tokens.less';
-.demo-tools { margin: @space-4 @space-5; padding: @space-4; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; line-height: 1.75; }
-text { display: block; overflow-wrap: break-word; margin-top: @space-2; }
-.demo-title { font-size: 20px; font-weight: 600; }
-button,.picker { margin-top: @space-3; padding: 12px; min-height: 48px; white-space: normal; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; line-height: 1.6; }
-button::after { border: 0; }
-button.primary { background: @ws-accent; color: @ws-surface; }
-button[disabled] { background: @color-disabled-surface; color: @color-disabled-text; }
-.simulation { margin-top: @space-4; padding-top: @space-3; border-top: 1px solid @ws-border; }
-.error { color: @color-error; }
-
-.demo-tools--compact { margin: 16px; padding: 12px; font-size: 14px; }
-.demo-tools--compact .demo-title { font-size: 14px; margin: 0; }
-.demo-tools--compact .demo-load-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.demo-tools--compact .demo-load-actions button { flex: 1; min-width: 110px; margin: 8px 0 0; padding: 8px; font-size: 14px; }
-.demo-tools--compact > button { font-size: 14px; padding: 8px; }
+@import '../../styles/browse-buttons.less';
+.demo-home { margin: 4px 0 10px; }
+.demo-home__notice { display: block; color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.65; margin-bottom: 8px; }
+.demo-tools { margin: 24px 0; padding: 20px 16px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; line-height: 1.75; }
+.demo-tools text { display: block; margin-top: 8px; overflow-wrap: anywhere; }
+.demo-title { color: @ws-ink; font-size: 20px; font-weight: 600; }
+.demo-load-actions, .demo-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.demo-load-actions .browse-button, .demo-links .browse-button { flex: 1 1 130px; }
+.simulation { margin-top: 20px; padding-top: 16px; border-top: 1px solid @ws-border; }
+.simulation .browse-button { margin-top: 12px; }
+.picker { min-height: 48px; margin-top: 12px; padding: 12px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; overflow-wrap: anywhere; }
+.error { color: @color-error; font-size: 16px; line-height: 1.65; }

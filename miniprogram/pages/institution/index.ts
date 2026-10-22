@@ -182,6 +182,7 @@ Page({
   clearSearch() {
     this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
   },
+  clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
 
   onRetry() {
     if (this.data.pageState === 'loading') return

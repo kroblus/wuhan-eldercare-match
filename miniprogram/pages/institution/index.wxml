@@ -3,8 +3,8 @@
 <page-container extraClass="institution-list-page">
   <view class="page-shell institution-list-shell">
     <view class="page-head institution-list-head">
-      <text class="page-title">{{viewModel ? viewModel.title : '合作机构列表'}}</text>
-      <text class="page-description">{{viewModel ? viewModel.description : '正在读取当前合作机构资料。'}}参考月费不是最终报价，具体项目与费用需向机构确认。</text>
+      <text class="page-title">{{sourceContextRef ? '推荐机构资料' : '养老机构'}}</text>
+      <text class="page-description">{{sourceContextRef && viewModel ? viewModel.description : '按名称、区域和机构性质查找。'}}</text>
       <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
     <view wx:if="{{pageState === 'loading'}}" class="directory-state" role="status">
@@ -14,13 +14,11 @@
     </view>
     <block wx:elif="{{viewModel}}">
       <view wx:if="{{viewModel.hasDisclosure}}" class="mock-disclosure">
-        <text class="mock-disclosure__label">开发演示数据</text>
-        <text class="mock-disclosure__title">本页只用于功能演示</text>
-        <text class="mock-disclosure__message">{{viewModel.disclosure}}</text>
+        <text>演示资料，非真实机构信息。</text>
       </view>
       <view wx:if="{{viewModel.pageState === 'ready'}}" class="institution-directory">
         <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters}}" />
-        <template is="directory-results" data="{{visibleItems: visibleItems, actionErrorKey: actionErrorKey, actionErrorMessage: actionErrorMessage}}" />
+        <template is="directory-results" data="{{visibleItems: visibleItems, keyword: keyword, natureIndex: natureIndex, districtIndex: districtIndex, actionErrorKey: actionErrorKey, actionErrorMessage: actionErrorMessage}}" />
       </view>
       <view wx:if="{{viewModel.pageState === 'empty'}}" class="directory-state" role="status">
         <text class="directory-state__label">暂无资料</text>

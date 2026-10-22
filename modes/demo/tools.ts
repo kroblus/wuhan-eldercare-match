@@ -11,11 +11,10 @@ Component({
       if (index >= 0) { this.setData({ selectedIndex: index }); this.refresh() }
     } },
   },
-  data: { expanded: false, ready: false, loading: false, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '', ratingIndex: 3, ratings: ['1 分','2 分','3 分','4 分','5 分'] },
+  data: { confirming: false, ready: false, loading: false, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '', ratingIndex: 3, ratings: ['1 分','2 分','3 分','4 分','5 分'] },
   lifetimes: { attached() { this.refresh() } },
   pageLifetimes: { show() { resetNavigationGuard(this); this.refresh() } },
   methods: {
-    toggleExpanded() { this.setData({ expanded: !this.data.expanded }) },
     refresh() {
       const state = readDemo(), selected = directory[this.data.selectedIndex]
       const flow = state.flows.find(f => f.institutionId === selected.institutionId)
@@ -24,15 +23,25 @@ Component({
         serviceState: flow ? flow.state : '' })
     },
     async load() {
-      if (this.data.loading) return
+      if (this.data.loading || this.data.confirming) return
       this.setData({ loading: true, error: '' })
       try { await loadDemo(); this.refresh(); this.triggerEvent('changed', {}, { bubbles: false, composed: false }) }
       catch (_) { this.refresh(); this.setData({ error: '演示资料加载失败，请重试。' }) }
       finally { this.setData({ loading: false }) }
     },
     reset() {
-      if (this.data.loading) return
-      resetDemo(); this.refresh(); this.triggerEvent('changed', {}, { bubbles: false, composed: false })
+      if (this.data.loading || this.data.confirming) return
+      const expectedEpoch = readDemo().epoch
+      this.setData({ confirming: true, error: '' })
+      const fail = () => this.setData({ confirming: false, error: '暂时无法确认重置，请重试。' })
+      try {
+        wx.showModal({ title: '重置演示记录', content: '重置后将清除本次演示记录，是否继续？', confirmText: '重置', cancelText: '取消',
+          success: result => {
+            if (!result.confirm) return
+            if (readDemo().epoch !== expectedEpoch) { this.setData({ error: '演示记录已更新，请重新确认。' }); return }
+            resetDemo(); this.refresh(); this.triggerEvent('changed', {}, { bubbles: false, composed: false })
+          }, fail, complete: () => this.setData({ confirming: false }) })
+      } catch (_error) { fail() }
     },
     open(event: WechatMiniprogram.BaseEvent) {
       if (!this.data.ready || this.data.loading) return
