@@ -1,0 +1,55 @@
+<navigation-bar warmSwiss="{{true}}" title="" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="mine-page">
+  <view class="mine-shell">
+    <view class="mine-head">
+      <text class="mine-eyebrow">匿名浏览</text>
+      <text class="mine-title">{{pageTitle}}</text>
+      <text class="mine-description">老人档案与个人服务记录</text>
+    </view>
+    <view class="mine-identity">
+      <text class="mine-section-title">先浏览，按需确认身份</text>
+      <text class="mine-copy">暂不登录也可以浏览机构、图片、VR 和填写评估。查看需要身份确认的记录时，将在对应服务中按需进行。</text>
+    </view>
+    <view class="mine-service mine-elder-scaffold">
+      <view class="mine-section-heading">
+        <text class="mine-number">01</text>
+        <text class="mine-section-title">老人档案</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">档案资料暂不可读取。当前入口提供档案说明，不展示已保存的老人资料。</text>
+        <primary-button wx:if="{{showNext}}" class="mine-entry-action" text="查看老人档案" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+      </view>
+    </view>
+    <view class="mine-service mine-history-entry">
+      <view class="mine-section-heading">
+        <text class="mine-number">02</text>
+        <text class="mine-section-title">我的评估</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">查看评估记录与历史版本说明，记录可用性以页面提示为准。</text>
+        <view wx:if="{{historyNavigationErrorMessage}}" class="mine-action-error" role="alert">{{historyNavigationErrorMessage}}</view>
+        <primary-button class="mine-entry-action" text="查看我的评估" variant="quiet" warmSwiss="{{true}}" bind:action="openAssessmentHistory"></primary-button>
+      </view>
+    </view>
+    <view class="mine-service mine-appointments-entry">
+      <view class="mine-section-heading">
+        <text class="mine-number">03</text>
+        <text class="mine-section-title">我的预约</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">查看当前账号的预约记录。身份确认与记录读取在进入预约页后进行。</text>
+        <view wx:if="{{appointmentNavigationErrorMessage}}" class="mine-action-error" role="alert">{{appointmentNavigationErrorMessage}}</view>
+        <primary-button class="mine-entry-action" text="查看我的预约" variant="quiet" warmSwiss="{{true}}" bind:action="openAppointments"></primary-button>
+      </view>
+    </view>
+    <view class="mine-help">
+      <view class="mine-section-heading">
+        <text class="mine-number">04</text>
+        <text class="mine-section-title">需要帮助？</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">可通过底部「养老顾问」了解服务。</text>
+      </view>
+    </view>
+  </view>
+</page-container>

@@ -1,0 +1,10 @@
+@import '../../styles/tokens.less';
+.demo-tools { margin: @space-4 @space-5; padding: @space-4; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; line-height: 1.75; }
+text { display: block; overflow-wrap: break-word; margin-top: @space-2; }
+.demo-title { font-size: 20px; font-weight: 600; }
+button,.picker { margin-top: @space-3; padding: 12px; min-height: 48px; white-space: normal; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; line-height: 1.6; }
+button::after { border: 0; }
+button.primary { background: @ws-accent; color: @ws-surface; }
+button[disabled] { background: @color-disabled-surface; color: @color-disabled-text; }
+.simulation { margin-top: @space-4; padding-top: @space-3; border-top: 1px solid @ws-border; }
+.error { color: @color-error; }

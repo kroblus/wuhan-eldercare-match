@@ -1,0 +1,3 @@
+<view class="tag tag--{{tone}}">
+  <text>{{text}}</text>
+</view>

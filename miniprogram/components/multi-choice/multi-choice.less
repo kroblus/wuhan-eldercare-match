@@ -1,0 +1,62 @@
+@import '../../styles/tokens.less';
+
+.multi-choice {
+  margin-top: @space-3;
+}
+
+.multi-choice__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: @touch-target-min;
+  margin-bottom: @space-2;
+  padding: 0 @space-3;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  background: @color-surface;
+  color: @color-text-primary;
+}
+
+.multi-choice__item.is-selected {
+  border-color: @color-brand;
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.multi-choice__label {
+  flex: 1;
+  padding: @space-2 0;
+  font-size: @font-size-body;
+  line-height: @line-height-tight;
+}
+
+.multi-choice__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+  margin-left: @space-2;
+  border: 2rpx solid @color-border;
+  border-radius: @radius-sm;
+}
+
+.is-selected .multi-choice__mark {
+  border-color: @color-brand;
+  background: @color-brand;
+}
+
+.multi-choice__check {
+  color: @color-surface;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.multi-choice.is-warm-swiss { display: flex; flex-wrap: wrap; gap: @space-2; margin-top: @space-2; }
+.is-warm-swiss .multi-choice__item { box-sizing: border-box; flex: 1 1 calc(50% - @space-2); min-width: calc(50% - @space-2); min-height: @ws-checkbox-height; margin: 0; padding: @space-1 @space-2; border-color: @ws-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; }
+.is-warm-swiss .multi-choice__item.is-selected { border-color: @ws-accent; background: @ws-accent-soft; color: @ws-ink; }
+.is-warm-swiss .multi-choice__mark { order: -1; flex-shrink: 0; width: 28rpx; height: 28rpx; margin: 0 @space-2 0 0; border-color: @ws-border; border-radius: 4rpx; }
+.is-warm-swiss .is-selected .multi-choice__mark { border-color: @ws-accent; background: @ws-accent; }
+.is-warm-swiss .multi-choice__label { font-size: @ws-body; }
+.is-warm-swiss .multi-choice__check { font-size: @ws-helper; }
+.is-warm-swiss .multi-choice__item.is-full-width { flex-basis: 100%; min-width: 100%; }

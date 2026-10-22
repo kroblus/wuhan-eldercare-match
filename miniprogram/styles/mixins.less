@@ -1,0 +1,65 @@
+@import './tokens.less';
+
+.text-body() {
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.text-caption() {
+  font-size: @font-size-caption;
+  line-height: @line-height-body;
+  color: @color-text-muted;
+}
+
+.card-surface() {
+  background: @color-surface;
+  border: 1rpx solid @color-border;
+  border-radius: @radius-md;
+  box-shadow: @shadow-card;
+}
+
+.touch-target() {
+  min-width: @touch-target-min;
+  min-height: @touch-target-min;
+}
+
+.safe-bottom() {
+  padding-bottom: calc(@space-6 + env(safe-area-inset-bottom));
+}
+
+.ws-section-heading() {
+  display: flex;
+  align-items: baseline;
+  gap: @space-3;
+  color: @ws-ink;
+  font-size: @ws-section-title;
+  font-weight: 700;
+  line-height: @line-height-tight;
+}
+
+.ws-footer() {
+  position: fixed;
+  z-index: 20;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: @space-2;
+  padding: @space-3 @ws-page-margin calc(@space-3 + env(safe-area-inset-bottom));
+  border-top: @ws-rule-width solid @ws-border;
+  background: @ws-background;
+}
+
+.ws-footer-safe() {
+  padding-bottom: calc(@ws-footer-reserve + env(safe-area-inset-bottom));
+}
+
+// Import/apply only in a Warm Swiss representative page, never in app.less.
+.ws-page-surface() {
+  background: @ws-background;
+  color: @ws-ink;
+  .page-container { padding-right: @ws-page-margin; padding-left: @ws-page-margin; background: @ws-background; }
+  .section-card { padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .ws-section-heading { .ws-section-heading(); }
+  .ws-section-number { flex-shrink: 0; color: @ws-accent; font-size: @ws-body; font-weight: 600; }
+}

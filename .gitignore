@@ -1,0 +1,52 @@
+# WeChat Developer Tools local configuration
+project.private.config.json
+*.private.config.json
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.jks
+secrets/
+
+# Node.js / mini program dependencies
+node_modules/
+miniprogram_npm/
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# Build and test output
+dist/
+build/
+coverage/
+/output/
+tmp/
+*.log
+
+# Java / Spring Boot output (future server module)
+server/target/
+*.class
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local secrets / environment overrides
+.env
+.env.*
+!.env.example
+.secrets/
+*.secret
+
+# Machine-only assistant settings and recovery artifacts
+.codex/
+*.bundle
+*.zip

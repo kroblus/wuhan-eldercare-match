@@ -1,0 +1,945 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "path": "README.md",
+      "doc_id": "project.readme",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/README.md",
+      "doc_id": "product.source.current",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "package.json",
+      "doc_id": "runtime.package_manifest",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/agent/README_AGENT_ENGINEERING_V2_1.md",
+      "doc_id": "agent.engineering.v2_1",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/agent/MODEL_STRATEGIES.md",
+      "doc_id": "agent.model_strategies",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "doc_id": "architecture.documentation_overview",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/DOC_REGISTRY.json",
+      "doc_id": "architecture.doc_registry",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/CONTRACT_INDEX.md",
+      "doc_id": "architecture.contract_index",
+      "status": "CURRENT",
+      "kind": "ROUTER",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/FRONTEND_STRUCTURE.md",
+      "doc_id": "architecture.frontend_structure",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/MOCK_DATA_POLICY.md",
+      "doc_id": "architecture.mock_data_policy",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ROUTES.md",
+      "doc_id": "architecture.routes",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/WECHAT_RUNTIME_COMPATIBILITY_POLICY.md",
+      "doc_id": "architecture.wechat_runtime_compatibility",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ADL_RULE_CONTRACT.md",
+      "doc_id": "contract.adl_rules.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AI_CONSULTATION_CONTRACT_V1.md",
+      "doc_id": "contract.ai_consultation.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md",
+      "doc_id": "contract.appointment_institution_visit.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AUTHENTICATED_ELDER_RECORD_IDENTITY_RESPONSIBLE_USER_BINDING_CONTRACT_V1.md",
+      "doc_id": "contract.authenticated_elder_record_identity_responsible_user_binding.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_VISIT_OPERATIONS_LIFECYCLE_CONTRACT_V1.md",
+      "doc_id": "contract.institution_visit_operations_lifecycle.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AUTHENTICATED_VISIT_SUBMISSION_PERSISTENCE_CONTRACT_V1.md",
+      "doc_id": "contract.authenticated_visit_submission_persistence.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/VISIT_EVALUATION_NON_SENSITIVE_UI_CONTRACT_V1.md",
+      "doc_id": "contract.visit_evaluation_non_sensitive_ui.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AUTHENTICATED_VISIT_EVALUATION_CONTEXT_CONTRACT_V1.md",
+      "doc_id": "contract.authenticated_visit_evaluation_context.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/APPOINTMENT_PRODUCTION_OWNER_READ_CONTRACT_V1.md",
+      "doc_id": "contract.appointment_production_owner_read.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/MY_APPOINTMENTS_CONTACT_CONSULTANT_ACTION_CONTRACT_V1.md",
+      "doc_id": "contract.my_appointments_contact_consultant_action.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/VISIT_EVALUATION_PRODUCTION_WRITE_CONTRACT_V1.md",
+      "doc_id": "contract.visit_evaluation_production_write.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AI_PROVIDER_DEV_TESTING.md",
+      "doc_id": "architecture.ai_provider_dev_testing",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B7_FAQ_APPROVAL_RECORD.md",
+      "doc_id": "audit.v1_2_b7_faq_approval_2026_09_17",
+      "status": "FROZEN",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ANONYMOUS_PROFILE_PREVIEW_CONTRACT.md",
+      "doc_id": "contract.anonymous_profile_preview.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ANONYMOUS_PROFILE_PREVIEW_CONTRACT_V2.md",
+      "doc_id": "contract.anonymous_profile_preview.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ASSESSMENT_CONTRACT.md",
+      "doc_id": "contract.assessment.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ASSESSMENT_CONTRACT_V2.md",
+      "doc_id": "contract.assessment.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ASSESSMENT_V1_TO_V2_MIGRATION_CONTRACT.md",
+      "doc_id": "contract.assessment_migration.v1_to_v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/CONSULTANT_PERMISSION_CONTRACT_V1.md",
+      "doc_id": "contract.consultant_permission.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md",
+      "doc_id": "contract.global_consultant_snapshot.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ELDER_PROFILE_CONTRACT.md",
+      "doc_id": "contract.elder_profile.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/ELDER_PROFILE_CONTRACT_V2.md",
+      "doc_id": "contract.elder_profile.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CAPABILITY_CONTRACT.md",
+      "doc_id": "contract.institution_capability.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT.md",
+      "doc_id": "contract.institution.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT_V1_1.md",
+      "doc_id": "contract.institution.v1_1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT_V1_2.md",
+      "doc_id": "contract.institution.v1_2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT_V1_2_1.md",
+      "doc_id": "contract.institution.v1_2_1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "backend_domain",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_LIST_DETAIL_V1_2_INTEGRATION_CONTRACT.md",
+      "doc_id": "contract.institution_list_detail.v1_2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/PROFILE_UI_CONTRACT.md",
+      "doc_id": "contract.profile_ui.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/PROFILE_UI_V2_INTEGRATION_CONTRACT.md",
+      "doc_id": "contract.profile_ui.v2_integration",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_CONTRACT.md",
+      "doc_id": "contract.recommendation.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_CONTRACT_V2.md",
+      "doc_id": "contract.recommendation.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_PREVIEW_INTEGRATION_CONTRACT.md",
+      "doc_id": "contract.recommendation_preview.integration",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_RESULT_UI_V2_INTEGRATION_CONTRACT.md",
+      "doc_id": "contract.recommendation_result_ui.v2_integration",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_RULE_CONTRACT.md",
+      "doc_id": "contract.recommendation_rules.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_RULE_CONTRACT_V2.md",
+      "doc_id": "contract.recommendation_rules.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/WECHAT_INTERACTION_CONTRACT.md",
+      "doc_id": "contract.wechat_interaction.v1",
+      "status": "SUPERSEDED",
+      "kind": "CONTRACT",
+      "normative": false,
+      "owner": "wechat_frontend",
+      "superseded_by": "docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md",
+      "doc_id": "contract.wechat_interaction.v2",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B1_PHASE_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B2_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b2",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B2_1_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b2_1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B3_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b3",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B4_PHASE_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b4",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B5_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b5",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B6_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b6",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_B7_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_b7",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C1_PHASE_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C2_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c2",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C3_PHASE_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c3",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C4_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c4",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C5_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c5",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/V1_2_C6_IMPLEMENTATION_HANDOFF.md",
+      "doc_id": "handoff.v1_2_c6",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_VISIT_OPERATIONS_LIFECYCLE_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.institution_visit_operations_lifecycle.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/OPERATIONS_PRINCIPAL_PER_VISIT_AUTHORIZATION_FOUNDATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.operations_principal_per_visit_authorization_foundation.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/AUTHENTICATED_ELDER_RECORD_IDENTITY_RESPONSIBLE_USER_BINDING_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.authenticated_elder_record_identity_responsible_user_binding.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/C3_CANONICAL_REFERENCE_ELDER_BINDING_TRANSACTIONAL_INTEGRATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.c3_canonical_reference_elder_binding_transactional_integration.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/APPOINTMENT_CREATE_C3_CLIENT_INTEGRATION_IMPLEMENTATION_HANDOFF_V1.md",
+      "doc_id": "handoff.appointment_create_c3_client_integration.v1",
+      "status": "FROZEN",
+      "kind": "HANDOFF",
+      "normative": "PHASE_BOUNDARY_ONLY",
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/DOMAIN_CONTRACT.md",
+      "doc_id": "redirect.bootstrap_domain_contract",
+      "status": "SUPERSEDED",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/CONTRACT_INDEX.md",
+      "archive_target": "docs/archive/bootstrap/DOMAIN_CONTRACT.md"
+    },
+    {
+      "path": "docs/architecture/LEGACY_INSTITUTION_DTO_MIGRATION_PLAN.md",
+      "doc_id": "redirect.legacy_institution_migration",
+      "status": "SUPERSEDED",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/INSTITUTION_LIST_DETAIL_V1_2_INTEGRATION_CONTRACT.md",
+      "archive_target": "docs/archive/migrations/institution/LEGACY_INSTITUTION_DTO_MIGRATION_PLAN.md"
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_RESULT_UI_CONTRACT.md",
+      "doc_id": "redirect.recommendation_result_ui_v1_proposal",
+      "status": "SUPERSEDED",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/RECOMMENDATION_RESULT_UI_V2_INTEGRATION_CONTRACT.md",
+      "archive_target": "docs/archive/proposals/recommendation/RECOMMENDATION_RESULT_UI_CONTRACT.md"
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT_V1_2_CARE_PROCESS_PROPOSAL.md",
+      "doc_id": "redirect.institution_v1_2_care_process_proposal",
+      "status": "SUPERSEDED",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/INSTITUTION_CONTRACT_V1_2.md",
+      "archive_target": "docs/archive/proposals/institution/INSTITUTION_CONTRACT_V1_2_CARE_PROCESS_PROPOSAL.md"
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_CONTRACT_V1_2_1_PUBLIC_INFO_MAP_PROPOSAL.md",
+      "doc_id": "redirect.institution_v1_2_1_public_info_map_proposal",
+      "status": "SUPERSEDED",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/INSTITUTION_CONTRACT_V1_2_1.md",
+      "archive_target": "docs/archive/proposals/institution/INSTITUTION_CONTRACT_V1_2_1_PUBLIC_INFO_MAP_PROPOSAL.md"
+    },
+    {
+      "path": "docs/architecture/ADL_RULE_PROPOSAL.md",
+      "doc_id": "redirect.adl_rule_proposal",
+      "status": "HISTORICAL",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/ADL_RULE_CONTRACT.md",
+      "archive_target": "docs/archive/proposals/adl/ADL_RULE_PROPOSAL.md"
+    },
+    {
+      "path": "docs/architecture/RECOMMENDATION_RULE_PROPOSAL.md",
+      "doc_id": "redirect.recommendation_rule_proposal",
+      "status": "HISTORICAL",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/RECOMMENDATION_RULE_CONTRACT.md",
+      "archive_target": "docs/archive/proposals/recommendation/RECOMMENDATION_RULE_PROPOSAL.md"
+    },
+    {
+      "path": "docs/architecture/V1_1_CHANGE_IMPACT_ANALYSIS.md",
+      "doc_id": "redirect.v1_1_change_impact_analysis",
+      "status": "HISTORICAL",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": "docs/archive/impact-analysis/v1.1/V1_1_CHANGE_IMPACT_ANALYSIS.md"
+    },
+    {
+      "path": "docs/architecture/V1_2_CHANGE_IMPACT_ANALYSIS.md",
+      "doc_id": "redirect.v1_2_change_impact_analysis",
+      "status": "HISTORICAL",
+      "kind": "REDIRECT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": "docs/archive/impact-analysis/v1.2/V1_2_CHANGE_IMPACT_ANALYSIS.md"
+    },
+    {
+      "path": "docs/archive/agent/AGENT_ENGINEERING_V2_1_MIGRATION.md",
+      "doc_id": "archive.agent_engineering_v2_1_migration",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/bootstrap/BOOTSTRAP_DECISION_2026-08-26.md",
+      "doc_id": "archive.bootstrap_decision.2026_08_26",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/bootstrap/DOMAIN_CONTRACT.md",
+      "doc_id": "archive.bootstrap_domain_contract",
+      "status": "SUPERSEDED",
+      "kind": "CONTRACT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/CONTRACT_INDEX.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/bootstrap/PROJECT_BOOTSTRAP_PROMPT_2026-08-26.md",
+      "doc_id": "archive.project_bootstrap_prompt.2026_08_26",
+      "status": "HISTORICAL",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/bootstrap/SOL_FIRST_PROMPT_2026-08-26.md",
+      "doc_id": "archive.sol_first_prompt.2026_08_26",
+      "status": "HISTORICAL",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/impact-analysis/v1.1/V1_1_CHANGE_IMPACT_ANALYSIS.md",
+      "doc_id": "archive.v1_1_change_impact_analysis",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/impact-analysis/v1.2/V1_2_CHANGE_IMPACT_ANALYSIS.md",
+      "doc_id": "archive.v1_2_change_impact_analysis",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/migrations/institution/LEGACY_INSTITUTION_DTO_MIGRATION_PLAN.md",
+      "doc_id": "archive.legacy_institution_migration",
+      "status": "SUPERSEDED",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": "docs/architecture/INSTITUTION_LIST_DETAIL_V1_2_INTEGRATION_CONTRACT.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/onboarding/00_START_HERE_V1.md",
+      "doc_id": "archive.onboarding.v1",
+      "status": "HISTORICAL",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/proposals/adl/ADL_RULE_PROPOSAL.md",
+      "doc_id": "archive.adl_rule_proposal",
+      "status": "HISTORICAL",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "matching_engine",
+      "superseded_by": "docs/architecture/ADL_RULE_CONTRACT.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/proposals/institution/INSTITUTION_CONTRACT_V1_2_CARE_PROCESS_PROPOSAL.md",
+      "doc_id": "archive.institution_v1_2_care_process_proposal",
+      "status": "SUPERSEDED",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "backend_domain",
+      "superseded_by": "docs/architecture/INSTITUTION_CONTRACT_V1_2.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/proposals/institution/INSTITUTION_CONTRACT_V1_2_1_PUBLIC_INFO_MAP_PROPOSAL.md",
+      "doc_id": "archive.institution_v1_2_1_public_info_map_proposal",
+      "status": "SUPERSEDED",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "backend_domain",
+      "superseded_by": "docs/architecture/INSTITUTION_CONTRACT_V1_2_1.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/proposals/recommendation/RECOMMENDATION_RESULT_UI_CONTRACT.md",
+      "doc_id": "archive.recommendation_result_ui_v1_proposal",
+      "status": "SUPERSEDED",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "wechat_frontend",
+      "superseded_by": "docs/architecture/RECOMMENDATION_RESULT_UI_V2_INTEGRATION_CONTRACT.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/proposals/recommendation/RECOMMENDATION_RULE_PROPOSAL.md",
+      "doc_id": "archive.recommendation_rule_proposal",
+      "status": "HISTORICAL",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "matching_engine",
+      "superseded_by": "docs/architecture/RECOMMENDATION_RULE_CONTRACT.md",
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/releases/v1.1/V1_1_FINAL_FREEZE_READINESS_AUDIT.md",
+      "doc_id": "archive.release_v1_1_readiness_audit",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/archive/releases/v1.1/V1_1_FINAL_FREEZE_RECORD.md",
+      "doc_id": "archive.release_v1_1_freeze_record",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    }
+  ]
+}

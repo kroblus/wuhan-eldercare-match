@@ -1,0 +1,17 @@
+<view class="assessment-footer {{warmSwiss ? 'is-warm-swiss' : ''}} {{warmSwiss && wideNext ? 'has-wide-next' : ''}}">
+  <view class="assessment-footer__back">
+    <primary-button warmSwiss="{{warmSwiss}}"
+      text="{{backText}}"
+      variant="quiet"
+      disabled="{{backDisabled}}"
+      bind:action="onBackAction"
+    ></primary-button>
+  </view>
+  <view class="assessment-footer__next">
+    <primary-button warmSwiss="{{warmSwiss}}"
+      text="{{nextText}}"
+      disabled="{{nextDisabled}}"
+      bind:action="onNextAction"
+    ></primary-button>
+  </view>
+</view>

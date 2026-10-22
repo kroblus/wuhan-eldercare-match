@@ -1,0 +1,13 @@
+@import '../../styles/base.less';
+@import '../../styles/mixins.less';
+page { .ws-page-surface(); }
+.page-container.assessment-page { .ws-footer-safe(); }
+.page-shell { padding-top: @space-3; padding-bottom: 0; }
+.basic-intro { display: block; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.basic-section { margin-top: @space-4; padding-top: @space-4; border-top: @ws-rule-width solid @ws-border; }
+.question-anchor { display: block; }
+.text-input { box-sizing: border-box; width: 100%; height: @ws-input-height; margin-top: @space-2; padding: 0 @space-3; border: @ws-rule-width solid @ws-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: @ws-body; }
+.age-field { display: flex; align-items: center; gap: @space-2; color: @ws-muted; font-size: @ws-helper; }
+.age-input { width: 240rpx; }
+.form-error { margin-top: @space-2; color: @color-error; font-size: @ws-helper; line-height: @line-height-body; }
+.save-status { display: block; margin-top: @space-4; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }

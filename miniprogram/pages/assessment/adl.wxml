@@ -1,0 +1,112 @@
+<navigation-bar warmSwiss="{{true}}" title="日常生活能力" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/health" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="assessment-page">
+  <view class="page-shell">
+    <progress-header warmSwiss="{{true}}" current="3" total="6" label="养老需求评估"></progress-header>
+    <text class="assessment-intro">请选择最接近老人日常实际情况的描述，不确定时可以选择“暂不确定”。</text>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <view class="assessment-form">
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>进食能力</text></view>
+        <view id="{{eatingAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="进食能力"
+            hint="老人平时吃饭时通常需要多少帮助？"
+            required="{{true}}"
+            error="{{eatingError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {special_feeding: true} }}" options="{{eatingOptions}}" value="{{eating}}" bindchange="onEatingChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>行走能力</text></view>
+        <view id="{{mobilityAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="行走能力"
+            hint="请选择老人平时最常见的移动方式"
+            required="{{true}}"
+            error="{{mobilityError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{mobilityOptions}}" value="{{mobility}}" bindchange="onMobilityChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">03</text><text>如厕能力</text></view>
+        <view id="{{toiletingAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="如厕能力"
+            hint="包括如厕过程中的协助、失禁或导尿情况"
+            required="{{true}}"
+            error="{{toiletingError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{toiletingOptions}}" value="{{toileting}}" bindchange="onToiletingChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">04</text><text>洗澡能力</text></view>
+        <view id="{{bathingAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="洗澡能力"
+            hint="请选择老人洗澡时通常需要的帮助"
+            required="{{true}}"
+            error="{{bathingError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{bathingOptions}}" value="{{bathing}}" bindchange="onBathingChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">05</text><text>穿衣能力</text></view>
+        <view id="{{dressingAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="穿衣能力"
+            hint="请选择老人穿衣时通常需要的帮助"
+            required="{{true}}"
+            error="{{dressingError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{dressingOptions}}" value="{{dressing}}" bindchange="onDressingChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">06</text><text>起床与床椅转移</text></view>
+        <view id="{{transferAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="起床与床椅转移"
+            hint="包括从床上起身、坐下和床椅之间移动"
+            required="{{true}}"
+            error="{{transferError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{transferOptions}}" value="{{transfer}}" bindchange="onTransferChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">07</text><text>上下楼能力</text></view>
+        <view id="{{stairsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="上下楼能力"
+            hint="如果当前生活环境没有楼梯，请选择对应选项"
+            required="{{true}}"
+            error="{{stairsError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {no_stairs: true} }}" options="{{stairsOptions}}" value="{{stairs}}" bindchange="onStairsChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+    </view>
+
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer warmSwiss="{{true}}" backText="{{backText}}" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+  </view>
+</page-container>

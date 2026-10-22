@@ -1,0 +1,114 @@
+<navigation-bar warmSwiss="{{true}}" title="机构详情" back="{{true}}" fallbackUrl="/pages/institution/index" bind:navigationfail="onNavigationFailure"></navigation-bar>
+<template name="detailRows">
+  <view wx:for="{{rows}}" wx:key="key" class="fact-row">
+    <text class="fact-row__label">{{item.label}}</text>
+    <view class="fact-row__body"><text class="fact-row__value">{{item.value}}</text><text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text></view>
+  </view>
+</template>
+<page-container extraClass="institution-detail-page">
+  <view class="page-shell institution-detail-shell">
+    <view wx:if="{{pageState === 'loading'}}" class="detail-card-wrap"><state-panel state="loading" title="正在读取机构资料" message="正在整理机构信息，请稍候。"></state-panel></view>
+    <block wx:elif="{{pageState === 'ready' && viewModel}}">
+      <view class="page-head institution-detail-head">
+        <text wx:if="{{viewModel.hasDisclosure}}" class="detail-source-note detail-source-note--development">开发演示数据 · 不代表真实机构事实</text>
+        <text class="page-title">{{viewModel.title}}</text>
+        <view class="detail-hero-meta">
+          <view wx:for="{{viewModel.overview.regionAndType}}" wx:key="key"><text>{{item.value}}</text><text wx:if="{{item.statusSummary !== '已核验'}}" class="detail-hero-status">{{item.statusSummary}}</text></view>
+        </view>
+        <view class="detail-hero-fees">
+          <text class="detail-hero-status">参考月费</text>
+          <block wx:if="{{viewModel.overview.monthlyPrice}}">
+            <text class="detail-hero-fee">{{viewModel.overview.monthlyPrice.value}}</text>
+            <text wx:if="{{viewModel.overview.monthlyPrice.statusSummary !== '已核验'}}" class="detail-hero-status">{{viewModel.overview.monthlyPrice.statusSummary}}</text>
+          </block>
+          <text wx:else class="detail-summary">参考月费待确认</text>
+          <text class="detail-price-note">仅供参考，不是最终报价；适用房型、照护等级及包含项目请向机构确认。</text>
+        </view>
+        <view class="detail-hero-care">
+          <text class="detail-subheading">主要照护接收</text><text class="detail-summary">{{viewModel.overview.careSummary}}</text>
+          <text wx:if="{{viewModel.overview.careAlert && !(viewModel.recommendation && viewModel.recommendation.differences.length)}}" class="detail-important-note">{{viewModel.overview.careAlert}}</text>
+        </view>
+        <view wx:if="{{viewModel.recommendation}}" class="detail-recommendation-overview">
+          <text class="detail-subheading">本次推荐说明 · {{viewModel.recommendation.tierLabel}}</text>
+          <text wx:for="{{viewModel.recommendation.reasons}}" wx:key="key" class="detail-summary">{{item.value}}</text>
+          <view wx:if="{{viewModel.recommendation.differences.length}}" class="detail-important-note">
+            <text class="detail-subheading">与本次需求有关的待确认事项</text>
+            <text wx:for="{{viewModel.recommendation.differences}}" wx:key="key" class="detail-summary">{{item.value}}</text>
+          </view>
+          <text class="detail-source-note">来自本次推荐上下文</text>
+        </view>
+        <text class="detail-source-note">核验状态按具体项目标注；资料缺失不代表机构没有该服务。</text>
+        <text wx:if="{{viewModel.historyLabel}}" class="history-label">{{viewModel.historyLabel}}</text>
+        <text wx:if="{{viewModel.revisionNotice}}" class="revision-notice">{{viewModel.revisionNotice}}</text>
+        <text wx:if="{{viewModel.historyLabel}}" class="detail-source-note">{{viewModel.description}}</text>
+        <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+      <view wx:if="{{viewModel.media.hasCover && !coverLoadFailed}}" class="detail-cover-wrap"><image class="detail-cover" src="{{viewModel.media.coverUrl}}" mode="aspectFill" aria-label="{{viewModel.title}}封面" binderror="onCoverLoadError"></image></view>
+      <text wx:else class="detail-image-placeholder">{{coverLoadFailed ? '机构图片暂时无法加载' : '暂无已核验机构图片'}}</text>
+      <view class="detail-quick-actions">
+        <button class="detail-quick-action" data-action-key="faq" bindtap="onAIChatTap">看院常见问题</button>
+        <button wx:if="{{viewModel.location.mapAction.available}}" class="detail-quick-action" data-action-key="map" bindtap="onMapTap">查看地图</button>
+        <button wx:if="{{viewModel.media.canOpenVr}}" class="detail-quick-action" data-action-key="vr" bindtap="onVrTap">VR 看院</button>
+      </view>
+      <text class="detail-source-note">常见问题仅打开公共 FAQ，不携带本次老人或机构资料。</text>
+      <view wx:if="{{actionErrorKey === 'map' || actionErrorKey === 'vr' || actionErrorKey === 'faq'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      <view wx:for="{{viewModel.overview.sections}}" wx:key="key" wx:for-item="section" class="detail-section">
+        <button class="detail-section-toggle" data-section-key="{{section.key}}" aria-label="{{section.title}}，{{expandedSections[section.key] ? '收起' : '展开'}}" aria-expanded="{{expandedSections[section.key] ? 'true' : 'false'}}" bindtap="onSectionToggle">
+          <text class="detail-section-title">{{section.title}}</text>
+          <view class="detail-section-state"><text>{{expandedSections[section.key] ? '收起' : '展开'}}</text><text class="detail-section-arrow" aria-hidden="true">{{expandedSections[section.key] ? '⌃' : '⌄'}}</text></view>
+        </button>
+        <text wx:for="{{section.highlights}}" wx:key="*this" class="detail-summary">{{item}}</text>
+        <text class="detail-summary detail-summary--secondary">{{section.summary}}</text>
+        <text wx:if="{{section.notice}}" class="detail-important-note">{{section.notice}}</text>
+        <view wx:if="{{section.key === 'care'}}" class="detail-care-notices"><text wx:for="{{viewModel.overview.careNotices}}" wx:key="*this" class="detail-care-notice">{{item}}</text></view>
+        <view wx:if="{{expandedSections[section.key]}}" class="detail-section-content">
+          <template is="detailRows" data="{{rows: section.rows}}"></template>
+          <block wx:if="{{section.key === 'life'}}">
+            <text wx:if="{{!viewModel.rooms.length}}" class="detail-summary">房型与设施资料待确认。</text>
+            <view wx:for="{{viewModel.rooms}}" wx:key="key" class="room-card">
+              <view class="room-card__head"><text class="room-card__name">{{item.name}}</text><text class="room-card__type">{{item.type}}</text></view>
+              <template is="detailRows" data="{{rows: item.rows}}"></template>
+              <text wx:if="{{item.hasMedia}}" class="room-card__note">房型图片资料按对应媒体记录展示</text>
+            </view>
+          </block>
+          <block wx:if="{{section.key === 'team'}}"><text class="detail-subheading">护理管理与交接</text><text class="detail-source-note">护理记录及交接制度资料不代表特殊护理能力。</text></block>
+          <block wx:if="{{section.key === 'info'}}">
+            <view wx:if="{{viewModel.introduction}}" class="detail-introduction">
+              <text class="detail-subheading">机构简介</text><text class="detail-summary">{{viewModel.introduction.text}}</text>
+              <text class="detail-source-note">{{viewModel.introduction.sourceLabel}}</text>
+              <text wx:if="{{viewModel.introduction.updatedDateLabel}}" class="detail-source-note">{{viewModel.introduction.updatedDateLabel}}</text>
+            </view>
+            <view class="location-address"><text class="detail-subheading">机构位置</text><text class="detail-summary">{{viewModel.location.address}}</text><text class="detail-source-note">{{viewModel.location.addressStatus}}</text><text class="detail-source-note">{{viewModel.location.mapStatus}}</text></view>
+            <text class="detail-subheading">机构官方电话</text>
+            <view wx:if="{{viewModel.officialContact.hasPhones}}" class="official-phone-list">
+              <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key" class="official-phone-row">
+                <text class="detail-summary">{{item.purposeLabel}} · {{item.displayValue || item.statusLabel}}</text><text class="detail-source-note">{{item.statusLabel}}</text>
+                <text wx:if="{{item.verifiedDateLabel}}" class="detail-source-note">{{item.verifiedDateLabel}}</text>
+                <button wx:if="{{item.callAction.available}}" class="detail-quick-action" data-phone-key="{{item.key}}" bindtap="onOfficialPhoneTap">{{item.callAction.label}}</button>
+                <text wx:else class="detail-source-note">{{item.callAction.label}}</text>
+              </view>
+            </view>
+            <text wx:else class="detail-summary">{{viewModel.officialContact.statusLabel}}</text>
+            <view wx:if="{{actionErrorKey === 'phone'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            <text class="detail-subheading">资料来源与核验说明</text><text class="detail-summary">{{viewModel.description}}</text>
+            <text wx:if="{{viewModel.hasDisclosure}}" class="detail-summary">{{viewModel.disclosure}}</text>
+            <text class="detail-source-note">{{viewModel.contextLabel}}；核验仅适用于逐项标注的资料。</text>
+            <view wx:if="{{viewModel.media.gallery.length}}" class="gallery-list"><view wx:for="{{viewModel.media.gallery}}" wx:key="key" class="gallery-item"><image wx:if="{{item.url}}" class="gallery-item__image" src="{{item.url}}" mode="aspectFill" aria-label="机构图片"></image><text class="gallery-item__caption">{{item.caption}}</text><text class="gallery-item__status">{{item.status}}</text></view></view>
+            <view wx:if="{{viewModel.canViewCurrentRevision}}" class="detail-card-wrap"><text class="detail-summary">本页保留原资料版本，可明确切换到当前资料。</text><button class="primary-action" loading="{{isSwitchingRevision}}" disabled="{{isSwitchingRevision}}" bindtap="onViewCurrentRevision">{{viewModel.currentRevisionLabel}}</button></view>
+          </block>
+        </view>
+      </view>
+      <text wx:if="{{canRequestService}}" class="detail-source-note detail-appointment-note">提交申请后，请等待机构确认看院安排。</text>
+      <text wx:else class="detail-source-note detail-appointment-note">公开资料查询 · 不代表平台合作，暂未开放平台预约；服务与接收条件请向机构确认。</text>
+      <view class="detail-sticky-actions">
+        <view wx:if="{{actionErrorKey === 'consultant' || actionErrorKey === 'appointment'}}" class="detail-footer-error action-error" role="alert">{{actionErrorMessage}}</view>
+        <view class="detail-sticky-actions__button"><primary-button warmSwiss="{{true}}" variant="quiet" text="咨询顾问" bind:action="onConsultantTap"></primary-button></view>
+        <view wx:if="{{canRequestService}}" class="detail-sticky-actions__button"><primary-button warmSwiss="{{true}}" text="预约看院 →" bind:action="onAppointmentTap"></primary-button></view>
+      </view>
+    </block>
+    <view wx:elif="{{errorViewModel}}" class="detail-card-wrap"><section-card>
+      <state-panel state="error" title="{{errorViewModel.title}}" message="{{errorViewModel.message}}"></state-panel>
+      <view class="error-actions"><button wx:if="{{errorViewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button><button class="secondary-action" bindtap="onBackToList">返回合作机构列表</button></view>
+    </section-card></view>
+  </view>
+</page-container>

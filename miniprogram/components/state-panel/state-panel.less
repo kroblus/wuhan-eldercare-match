@@ -1,0 +1,58 @@
+@import '../../styles/tokens.less';
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: @space-5 @space-3;
+  text-align: center;
+}
+
+.state-panel__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-bottom: @space-2;
+  border-radius: 50%;
+  background: #F1EFEB;
+  color: @color-text-muted;
+  font-size: @font-size-body-large;
+  font-weight: 700;
+}
+
+.state-panel__title {
+  color: @color-text-primary;
+  font-size: @font-size-body-large;
+  font-weight: 600;
+  line-height: @line-height-tight;
+}
+
+.state-panel__message {
+  max-width: 620rpx;
+  margin-top: @space-2;
+  color: @color-text-secondary;
+  font-size: @font-size-body;
+  line-height: @line-height-body;
+}
+
+.state-panel__action {
+  min-height: @touch-target-min;
+  margin-top: @space-3;
+  padding: 0 @space-3;
+  background: transparent;
+  color: @color-brand-dark;
+  font-size: @font-size-body;
+  line-height: @touch-target-min;
+}
+
+.state-panel--error .state-panel__mark {
+  background: #FBE9E7;
+  color: @color-error;
+}
+
+.state-panel--development .state-panel__mark {
+  background: #F3E7D8;
+  color: #80522D;
+}

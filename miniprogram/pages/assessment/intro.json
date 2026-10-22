@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "navigation-bar": "/components/navigation-bar/navigation-bar",
+    "page-container": "/components/page-container/page-container",
+    "section-card": "/components/section-card/section-card",
+    "primary-button": "/components/primary-button/primary-button",
+    "tag": "/components/tag/tag"
+  }
+}

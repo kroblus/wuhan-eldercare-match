@@ -1,0 +1,10 @@
+<view class="question-section {{warmSwiss ? 'is-warm-swiss' : ''}}">
+  <view class="question-section__heading">
+    <text class="question-section__title">{{title}}</text>
+    <text wx:if="{{required}}" class="question-section__required">必填</text>
+    <text wx:else class="question-section__optional">选填</text>
+  </view>
+  <text wx:if="{{hint}}" class="question-section__hint">{{hint}}</text>
+  <text wx:if="{{error}}" class="question-section__error" role="alert">{{error}}</text>
+  <slot></slot>
+</view>

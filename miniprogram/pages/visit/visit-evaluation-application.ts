@@ -1,0 +1,248 @@
+import {
+  cloneVisitEvaluationDraft,
+  validateVisitEvaluationDraft,
+} from './evaluation-view-model'
+import type { VisitEvaluationDraftV1 } from './evaluation-view-model'
+import { mapVisitEvaluationDraftToWriteContentV1 } from './visit-evaluation-write-content'
+import { createWeChatVisitEvaluationIdempotencyKeyV1 } from './visit-evaluation-idempotency'
+import type {
+  ProductionVisitEvaluationContextProviderV1,
+  ProductionVisitEvaluationContextResultV1,
+  ProductionVisitEvaluationContextV1,
+} from './visit-evaluation-production-context'
+import type {
+  ProductionVisitEvaluationSubmitProviderV1,
+  ProductionVisitEvaluationSubmitResultV1,
+} from './visit-evaluation-production-submit'
+
+export interface TestOnlyVisitEvaluationContextV1 {
+  provenance: 'TEST_ONLY'
+  visitId: string
+  institutionId: string
+  institutionRecordRevision: string
+  ownerUserId: string
+  visitStatus: 'completed'
+}
+
+export interface TestOnlyEvaluationSubmitInputV1 {
+  provenance: 'TEST_ONLY'
+  context: TestOnlyVisitEvaluationContextV1
+  draft: VisitEvaluationDraftV1
+}
+
+export interface TestOnlyEvaluationContextProviderV1 {
+  loadContext(visitId: string): unknown | Promise<unknown>
+}
+
+export interface TestOnlyEvaluationSubmitProviderV1 {
+  submit(input: TestOnlyEvaluationSubmitInputV1): unknown | Promise<unknown>
+}
+
+export interface VisitEvaluationUiApplicationDependenciesV1 {
+  productionContextProvider?: ProductionVisitEvaluationContextProviderV1
+  productionSubmitProvider?: ProductionVisitEvaluationSubmitProviderV1
+  testOnlyContextProvider?: TestOnlyEvaluationContextProviderV1
+  testOnlySubmitProvider?: TestOnlyEvaluationSubmitProviderV1
+  createIdempotencyKey?: () => Promise<string>
+}
+
+export type VisitEvaluationContextResultV1 =
+  | { kind: 'ready'; context: TestOnlyVisitEvaluationContextV1 }
+  | ProductionVisitEvaluationContextResultV1
+
+export type VisitEvaluationSubmitResultV1 =
+  | { kind: 'submitted_test_only' }
+  | { kind: 'submit_failed'; reason: 'provider_missing' | 'invalid_draft' | 'provider_failed' }
+
+export type VisitEvaluationProductionSubmitResultV1 = ProductionVisitEvaluationSubmitResultV1
+  | { kind: 'invalid_draft' }
+
+interface PendingProductionAttemptV1 {
+  visitId: string
+  contentIdentity: string
+  idempotencyKey: string
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+const isSafeIdentifier = (value: unknown): value is string =>
+  typeof value === 'string'
+  && value.length > 0
+  && value.length <= 200
+  && !/[\u0000-\u001f\u007f]/.test(value)
+
+const isTestOnlyContextForVisit = (
+  value: unknown,
+  visitId: string,
+): value is TestOnlyVisitEvaluationContextV1 => {
+  if (!isRecord(value)) return false
+  const keys = Object.keys(value).sort().join('|')
+  return keys === 'institutionId|institutionRecordRevision|ownerUserId|provenance|visitId|visitStatus'
+    && value.provenance === 'TEST_ONLY'
+    && value.visitId === visitId
+    && value.visitStatus === 'completed'
+    && isSafeIdentifier(value.institutionId)
+    && isSafeIdentifier(value.institutionRecordRevision)
+    && isSafeIdentifier(value.ownerUserId)
+}
+
+const isTestOnlySuccess = (value: unknown): boolean => isRecord(value)
+  && Object.keys(value).sort().join('|') === 'outcome|provenance'
+  && value.provenance === 'TEST_ONLY'
+  && value.outcome === 'submitted'
+
+const readProductionContextResult = (
+  value: unknown,
+  visitId: string,
+): ProductionVisitEvaluationContextResultV1 => {
+  if (!isRecord(value)) return { kind: 'load_error' }
+  if (value.kind === 'eligible'
+    && Object.keys(value).sort().join('|') === 'context|kind'
+    && isRecord(value.context)
+    && Object.keys(value.context).sort().join('|') === 'institutionId|institutionRecordRevision|provenance|visitId|visitStatus'
+    && value.context.provenance === 'PRODUCTION'
+    && value.context.visitId === visitId
+    && value.context.visitStatus === 'completed'
+    && isSafeIdentifier(value.context.institutionId)
+    && isSafeIdentifier(value.context.institutionRecordRevision)) {
+    return {
+      kind: 'eligible',
+      context: value.context as unknown as ProductionVisitEvaluationContextV1,
+    }
+  }
+  if (Object.keys(value).sort().join('|') !== 'kind') return { kind: 'load_error' }
+  if (value.kind === 'not_completed'
+    || value.kind === 'denied'
+    || value.kind === 'unavailable'
+    || value.kind === 'load_error') return { kind: value.kind }
+  return { kind: 'load_error' }
+}
+
+export const createVisitEvaluationUiApplicationV1 = (
+  dependencies: VisitEvaluationUiApplicationDependenciesV1 = {},
+ ) => {
+  let pendingProductionAttempt: PendingProductionAttemptV1 | null = null
+  let productionSubmitInFlight: Promise<VisitEvaluationProductionSubmitResultV1> | null = null
+
+  const submitProduction = (
+    context: ProductionVisitEvaluationContextV1,
+    draft: VisitEvaluationDraftV1,
+  ): Promise<VisitEvaluationProductionSubmitResultV1> => {
+    if (productionSubmitInFlight) return productionSubmitInFlight
+    if (!context || context.provenance !== 'PRODUCTION' || context.visitStatus !== 'completed'
+      || !isSafeIdentifier(context.visitId)) return Promise.resolve({ kind: 'not_found' })
+
+    const mapped = mapVisitEvaluationDraftToWriteContentV1(draft)
+    if (mapped.kind !== 'valid') return Promise.resolve({ kind: 'invalid_draft' })
+    const provider = dependencies.productionSubmitProvider
+    if (!provider || typeof provider.submit !== 'function') {
+      return Promise.resolve({ kind: 'service_unavailable' })
+    }
+
+    const contentIdentity = JSON.stringify(mapped.content)
+    const submit = async (): Promise<VisitEvaluationProductionSubmitResultV1> => {
+      let idempotencyKey = ''
+      if (pendingProductionAttempt
+        && pendingProductionAttempt.visitId === context.visitId
+        && pendingProductionAttempt.contentIdentity === contentIdentity) {
+        idempotencyKey = pendingProductionAttempt.idempotencyKey
+      } else {
+        try {
+          idempotencyKey = await (dependencies.createIdempotencyKey || createWeChatVisitEvaluationIdempotencyKeyV1)()
+        } catch (_error) {
+          return { kind: 'technical_failure' }
+        }
+        if (typeof idempotencyKey !== 'string' || idempotencyKey.length < 8 || idempotencyKey.length > 128
+          || /[\s\u0000-\u001f\u007f]/.test(idempotencyKey)) return { kind: 'technical_failure' }
+        pendingProductionAttempt = { visitId: context.visitId, contentIdentity, idempotencyKey }
+      }
+
+      let result: ProductionVisitEvaluationSubmitResultV1
+      try {
+        result = await provider.submit({
+          visitId: context.visitId,
+          idempotencyKey,
+          content: mapped.content,
+        })
+      } catch (_error) {
+        result = { kind: 'technical_failure' }
+      }
+
+      if (result.kind === 'submitted'
+        || result.kind === 'validation_failed'
+        || result.kind === 'already_submitted'
+        || result.kind === 'idempotency_conflict'
+        || result.kind === 'not_found'
+        || result.kind === 'not_completed') {
+        pendingProductionAttempt = null
+      }
+      return result
+    }
+
+    const flight = submit()
+    productionSubmitInFlight = flight
+    return flight.then((result) => {
+      if (productionSubmitInFlight === flight) productionSubmitInFlight = null
+      return result
+    }, (_error) => {
+      if (productionSubmitInFlight === flight) productionSubmitInFlight = null
+      return { kind: 'technical_failure' as const }
+    })
+  }
+
+  return {
+  async loadContext(visitId: string): Promise<VisitEvaluationContextResultV1> {
+    const provider = dependencies.testOnlyContextProvider
+    if (provider && typeof provider.loadContext === 'function') {
+      try {
+        const candidate = await provider.loadContext(visitId)
+        if (!isTestOnlyContextForVisit(candidate, visitId)) {
+          return { kind: 'unavailable' }
+        }
+        return { kind: 'ready', context: candidate }
+      } catch (_error) {
+        return { kind: 'unavailable' }
+      }
+    }
+
+    const productionProvider = dependencies.productionContextProvider
+    if (!productionProvider || typeof productionProvider.loadContext !== 'function') return { kind: 'unavailable' }
+    try {
+      return readProductionContextResult(await productionProvider.loadContext(visitId), visitId)
+    } catch (_error) {
+      return { kind: 'load_error' }
+    }
+  },
+
+  async submit(
+    context: TestOnlyVisitEvaluationContextV1,
+    draft: VisitEvaluationDraftV1,
+  ): Promise<VisitEvaluationSubmitResultV1> {
+    if (!isTestOnlyContextForVisit(context, context.visitId)) {
+      return { kind: 'submit_failed', reason: 'provider_failed' }
+    }
+    if (validateVisitEvaluationDraft(draft).length > 0) {
+      return { kind: 'submit_failed', reason: 'invalid_draft' }
+    }
+    const provider = dependencies.testOnlySubmitProvider
+    if (!provider || typeof provider.submit !== 'function') {
+      return { kind: 'submit_failed', reason: 'provider_missing' }
+    }
+    try {
+      const result = await provider.submit({
+        provenance: 'TEST_ONLY',
+        context,
+        draft: cloneVisitEvaluationDraft(draft),
+      })
+      return isTestOnlySuccess(result)
+        ? { kind: 'submitted_test_only' }
+        : { kind: 'submit_failed', reason: 'provider_failed' }
+    } catch (_error) {
+      return { kind: 'submit_failed', reason: 'provider_failed' }
+    }
+  },
+
+  submitProduction,
+  }
+}

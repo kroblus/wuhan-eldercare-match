@@ -1,0 +1,73 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/assessment/intro",
+    "pages/assessment/basic",
+    "pages/assessment/health",
+    "pages/assessment/adl",
+    "pages/assessment/cognitive",
+    "pages/assessment/preference",
+    "pages/assessment/budget",
+    "pages/assessment/profile",
+    "pages/recommendation/result",
+    "pages/institution/index",
+    "pages/institution/detail",
+    "pages/institution/vr",
+    "pages/consultant/index",
+    "pages/consultant/consultation",
+    "pages/service/ai-chat/index",
+    "pages/appointment/create",
+    "pages/appointment/success",
+    "pages/mine/index",
+    "pages/elder/index",
+    "pages/elder/detail",
+    "pages/assessment/history",
+    "pages/appointment/index",
+    "pages/visit/evaluation",
+    "pages/showcase/index",
+    "pages/showcase/vr-real",
+    "pages/showcase/map-real"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#665E55",
+    "selectedColor": "#1F676D",
+    "backgroundColor": "#FFFBF7",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home.png"
+      },
+      {
+        "pagePath": "pages/consultant/index",
+        "text": "养老顾问",
+        "iconPath": "assets/tabbar/consultant.png",
+        "selectedIconPath": "assets/tabbar/consultant.png"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的",
+        "iconPath": "assets/tabbar/mine.png",
+        "selectedIconPath": "assets/tabbar/mine.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,22 @@
+<navigation-bar warmSwiss="{{true}}" title="老人档案详情" back="{{backEnabled}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/elder/index" fallbackIsTab="{{false}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<page-container extraClass="elder-detail-page">
+  <view class="elder-detail-shell">
+    <view class="elder-detail-head">
+      <text class="elder-detail-eyebrow">我的 · 档案详情</text>
+      <text class="elder-detail-title">{{pageTitle}}</text>
+      <text class="elder-detail-description">老人资料与评估记录说明</text>
+    </view>
+    <view class="elder-detail-status" role="status">
+      <text class="elder-detail-status-label">档案状态</text>
+      <state-panel state="empty" title="档案详情暂不可用" message="老人资料与评估记录暂不可查看。当前页面不代表已读取或已保存的个人档案。"></state-panel>
+    </view>
+    <view class="elder-detail-history">
+      <view class="elder-detail-section-heading">
+        <text class="elder-detail-number">01</text>
+        <text class="elder-detail-section-title">关于评估记录</text>
+      </view>
+      <text class="elder-detail-copy">已完成的评估保留各自的历史版本。重新评估应创建新的记录，不覆盖旧评估或推荐结果。</text>
+      <primary-button wx:if="{{showNext}}" class="elder-detail-action" text="查看评估记录说明" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+    </view>
+  </view>
+</page-container>

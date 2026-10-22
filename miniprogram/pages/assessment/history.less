@@ -1,0 +1,34 @@
+@import '../../styles/base.less';
+
+page { .ws-page-surface(); }
+.assessment-history-shell { padding-top: @space-3; padding-bottom: @space-5; }
+.assessment-history-head { padding: @space-3 0 @ws-section-gap; }
+.assessment-history-eyebrow { display: block; margin-bottom: @space-2; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.assessment-history-title { display: block; color: @ws-ink; font-size: @ws-hero-title; font-weight: 700; line-height: @line-height-tight; word-break: break-word; }
+.assessment-history-description { display: block; margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; }
+.assessment-history-status { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
+.assessment-history-status-label { display: block; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.assessment-history-status .state-panel { align-items: flex-start; padding: @space-3 0 0; text-align: left; }
+.assessment-history-page .state-panel__mark { display: none; }
+.assessment-history-status .state-panel__title { color: @ws-ink; font-size: @ws-section-title; line-height: @line-height-tight; }
+.assessment-history-status .state-panel__message { margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; word-break: break-word; }
+.assessment-history-section { padding-top: @ws-section-gap; }
+.assessment-history-section-heading { .ws-section-heading(); }
+.assessment-history-number { flex-shrink: 0; color: @ws-accent; font-size: @ws-body; font-weight: 600; }
+.assessment-history-section-title { color: @ws-ink; font-size: @ws-section-title; font-weight: 600; word-break: break-word; }
+.assessment-history-copy { display: block; margin: @space-3 0 0 @space-6; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.assessment-history-current primary-button { display: block; margin-top: @space-3; margin-left: @space-6; }
+.assessment-history-page .assessment-history-action .primary-button { justify-content: flex-start; padding: @space-2 0; border: 0; border-bottom: @ws-rule-width solid @ws-border; border-radius: 0; color: @ws-accent; text-align: left; font-size: @ws-helper; }
+.assessment-history-list-title { display: block; margin-top: @space-3; color: @ws-ink; font-size: @ws-section-title; font-weight: 600; }
+.assessment-history-list-note { display: block; margin-top: @space-2; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.assessment-history-row { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; margin-top: @space-3; }
+.assessment-history-time { color: @ws-ink; font-size: @ws-body; font-weight: 600; line-height: @line-height-body; word-break: break-word; }
+.assessment-history-row-body { margin-left: @space-6; }
+.assessment-history-row-meta { display: block; margin-top: @space-2; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.assessment-history-row-body primary-button { display: block; margin-top: @space-3; }
+.assessment-history-new-action { display: block; margin: @space-3 0 0 @space-6; }
+.assessment-history-test-only { margin-top: @space-3; padding: @space-2; background: @ws-accent-soft; color: @ws-accent; font-size: @ws-helper; line-height: @line-height-body; }
+.assessment-history-feedback { margin-top: @space-3; color: @color-error; font-size: @ws-helper; line-height: @line-height-body; }
+.assessment-history-page .assessment-history-action .primary-button.is-disabled { color: @ws-muted; }
+.assessment-history-loop primary-button { display: block; margin-top: @space-3; }
+.assessment-history-detail primary-button { display: block; margin-top: @space-3; }

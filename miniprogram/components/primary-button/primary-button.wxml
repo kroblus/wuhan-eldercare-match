@@ -1,0 +1,9 @@
+<button
+  class="primary-button primary-button--{{variant}} {{warmSwiss ? 'is-warm-swiss' : ''}} {{block ? 'is-block' : ''}} {{disabled || loading ? 'is-disabled' : ''}}"
+  loading="{{loading}}"
+  disabled="{{disabled || loading}}"
+  catch:tap="handleAction"
+  hover-class="primary-button--active"
+>
+  {{text}}
+</button>

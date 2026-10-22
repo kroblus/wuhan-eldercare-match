@@ -1,0 +1,25 @@
+@import '../../styles/base.less';
+@import '../../styles/tokens.less';
+@import '../../styles/mixins.less';
+
+page { .ws-page-surface(); }
+.appointment-success-shell { padding-top: @space-3; padding-bottom: @space-5; }
+.appointment-success-head { padding: @space-3 0 0; }
+.appointment-success-head .eyebrow { color: @ws-muted; font-size: @ws-meta; letter-spacing: 0; }
+.appointment-success-head .page-title { color: @ws-ink; font-size: @ws-hero-title; word-break: break-word; }
+.appointment-success-head .page-description { margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; }
+.appointment-success-status { margin-top: @space-4; padding-left: @space-3; border-left: 4rpx solid @ws-accent; }
+.appointment-success-status__label { display: block; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.appointment-success-status__value { display: block; margin-top: @space-1; color: @ws-ink; font-size: @ws-section-title; font-weight: 600; line-height: @line-height-tight; word-break: break-word; }
+.appointment-success-section { margin-top: @ws-section-gap; padding-top: @space-4; border-top: @ws-rule-width solid @ws-border; }
+.appointment-success-institution { display: block; margin-top: @space-4; color: @ws-ink; font-size: @ws-section-title; font-weight: 600; line-height: @line-height-tight; word-break: break-word; }
+.appointment-success-facts { margin-top: @space-3; }
+.appointment-success-fact { display: flex; align-items: baseline; gap: @space-3; padding: @space-3 0; border-bottom: @ws-rule-width solid @ws-border; }
+.appointment-success-fact__label { flex-shrink: 0; width: 190rpx; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.appointment-success-fact__value { flex: 1; min-width: 0; color: @ws-ink; font-size: @ws-body; line-height: @line-height-body; word-break: break-word; }
+.appointment-success-note { display: block; margin-top: @space-2; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.appointment-success-next { display: block; margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; word-break: break-word; }
+.appointment-success-error { margin-top: @space-4; padding: @space-3 0; border-top: @ws-rule-width solid @ws-border; color: @color-error; font-size: @ws-helper; line-height: @line-height-body; word-break: break-word; }
+.appointment-success-actions { display: grid; gap: @space-3; margin-top: @space-4; }
+.appointment-success-unavailable { margin-top: @ws-section-gap; padding-top: @space-4; border-top: @ws-rule-width solid @ws-border; }
+.appointment-success-unavailable__title { display: block; color: @ws-ink; font-size: @ws-section-title; font-weight: 600; line-height: @line-height-tight; }

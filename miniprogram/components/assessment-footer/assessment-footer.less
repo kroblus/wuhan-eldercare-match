@@ -1,0 +1,20 @@
+@import '../../styles/tokens.less';
+
+.assessment-footer {
+  display: flex;
+  align-items: center;
+  gap: @space-2;
+  margin-top: @space-6;
+  padding-bottom: calc(@space-5 + env(safe-area-inset-bottom));
+}
+
+.assessment-footer__back,
+.assessment-footer__next {
+  flex: 1;
+  min-width: 0;
+}
+
+@import '../../styles/mixins.less';
+.assessment-footer.is-warm-swiss { .ws-footer(); margin-top: 0; align-items: center; }
+.assessment-footer.is-warm-swiss.has-wide-next .assessment-footer__back { flex: 0.7; }
+.assessment-footer.is-warm-swiss.has-wide-next .assessment-footer__next { flex: 1.3; }

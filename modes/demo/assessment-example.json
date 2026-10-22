@@ -1,0 +1,55 @@
+{
+  "source": "Classic B V1.6 synthetic assessment; not a real person",
+  "answers": {
+    "basic.relationship": "other",
+    "basic.elderName": "合成老人甲（TEST ONLY）",
+    "basic.gender": "female",
+    "basic.age": 78,
+    "basic.livingStatus": "with_children",
+    "basic.primaryCaregiver": "children",
+    "basic.hasInstitutionExperience": "true",
+    "basic.institutionExitReasons": [
+      "high_cost"
+    ],
+    "health.conditions": [
+      "hypertension"
+    ],
+    "health.recentEvents": [
+      "recently_discharged"
+    ],
+    "health.rehabilitationNeed": "definite",
+    "health.chewingAbility": "easy_chew",
+    "health.swallowingAbility": "normal",
+    "adl.eating": "independent",
+    "adl.mobility": "walking_aid",
+    "adl.toileting": "occasional_assistance",
+    "adl.bathing": "partial_assistance",
+    "adl.dressing": "partial_assistance",
+    "adl.transfer": "minor_assistance",
+    "adl.stairs": "needs_assistance",
+    "cognitive.symptoms": [
+      "none"
+    ],
+    "cognitive.specialCareNeeds": [
+      "rehabilitation_training"
+    ],
+    "preference.careType": "medical_nursing_integrated",
+    "preference.roomType": "single",
+    "preference.mealSchedule": "three_meals",
+    "preference.activityPreference": "indoor",
+    "preference.priorities": [
+      "care_capability",
+      "price"
+    ],
+    "preference.region": {
+      "kind": "no_preference",
+      "regionCode": "no_preference",
+      "regionLabelSnapshot": "不限制",
+      "catalogVersion": "institution-region-catalog-v1"
+    },
+    "budget.monthlyRange": "cny_5000_8000",
+    "budget.upfrontCostAcceptance": "depends_on_amount",
+    "budget.moveInTiming": "within_1_to_3_months",
+    "budget.consultantSupport": "recommendation_first"
+  }
+}

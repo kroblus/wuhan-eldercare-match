@@ -1,0 +1,22 @@
+<navigation-bar warmSwiss="{{true}}" title="老人档案" back="{{backEnabled}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<page-container extraClass="elder-directory-page">
+  <view class="elder-directory-shell">
+    <view class="elder-directory-head">
+      <text class="elder-directory-eyebrow">我的 · 老人档案</text>
+      <text class="elder-directory-title">{{pageTitle}}</text>
+      <text class="elder-directory-description">了解老人档案与评估记录。</text>
+    </view>
+    <view class="elder-directory-status" role="status">
+      <text class="elder-directory-status-label">档案服务</text>
+      <state-panel state="empty" title="暂时无法查看老人档案" message="当前页面暂不提供已保存档案的读取，不能据此判断是否已有档案。"></state-panel>
+    </view>
+    <view class="elder-directory-note">
+      <view class="elder-directory-section-heading">
+        <text class="elder-directory-number">01</text>
+        <text class="elder-directory-section-title">档案与评估</text>
+      </view>
+      <text class="elder-directory-copy">填写需求评估不会在这里自动建立老人档案。档案资料与已完成的评估记录需分别保存和读取。</text>
+      <primary-button wx:if="{{showNext}}" class="elder-directory-action" text="查看档案详情说明" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+    </view>
+  </view>
+</page-container>

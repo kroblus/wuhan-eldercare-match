@@ -1,0 +1,84 @@
+<navigation-bar warmSwiss="{{true}}" title="健康情况" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/basic" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="assessment-page">
+  <view class="page-shell">
+    <progress-header warmSwiss="{{true}}" current="2" total="6" label="养老需求评估"></progress-header>
+    <text class="assessment-intro">了解老人目前的健康情况，不清楚时请选择相应的不确定选项。</text>
+
+    <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
+
+    <view class="assessment-form">
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>慢性疾病</text></view>
+        <view id="{{conditionsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="目前是否存在以下疾病"
+            hint="可多选；选择“暂无明显慢性疾病”或“暂不清楚”时，会清除同题其他选项；其他慢性疾病请选择对应项"
+            required="{{true}}"
+            error="{{conditionsError}}"
+          >
+            <multi-choice warmSwiss="{{true}}" fullWidthOptions="{{ {none: true, unknown: true} }}" options="{{conditionsOptions}}" values="{{conditions}}" bindchange="onConditionsChange"></multi-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>近期健康风险</text></view>
+        <view id="{{recentEventsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="近期是否发生以下情况"
+            hint="可多选；选择“以上均无”或“暂不清楚”时，会清除同题其他选项"
+            required="{{true}}"
+            error="{{recentEventsError}}"
+          >
+            <multi-choice warmSwiss="{{true}}" fullWidthOptions="{{ {fall_within_6_months: true, fracture_within_6_months: true, frequent_hospitalization_within_6_months: true} }}" options="{{recentEventOptions}}" values="{{recentEvents}}" bindchange="onRecentEventsChange"></multi-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">03</text><text>康复需求</text></view>
+        <view id="{{rehabilitationNeedAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="是否有康复需求"
+            hint="如果还不能确定，可以选择“不确定”"
+            required="{{true}}"
+            error="{{rehabilitationNeedError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{rehabilitationOptions}}" value="{{rehabilitationNeed}}" bindchange="onRehabilitationNeedChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">04</text><text>咀嚼情况</text></view>
+        <view id="{{chewingAbilityAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="咀嚼情况"
+            hint="请选择老人目前最接近的咀嚼情况；不确定时可以选择“暂不确定”"
+            required="{{true}}"
+            error="{{chewingAbilityError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {easy_chew: true, modified_food: true} }}" options="{{chewingOptions}}" value="{{chewingAbility}}" bindchange="onChewingAbilityChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">05</text><text>吞咽情况</text></view>
+        <view id="{{swallowingAbilityAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="吞咽情况"
+            hint="请选择老人目前最接近的吞咽情况；如有明确的特殊护理需求，请在后续特殊护理页单独选择"
+            required="{{true}}"
+            error="{{swallowingAbilityError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {occasional_difficulty: true} }}" options="{{swallowingOptions}}" value="{{swallowingAbility}}" bindchange="onSwallowingAbilityChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+    </view>
+
+    <text class="save-status">{{saveStatus}}</text>
+    <assessment-footer warmSwiss="{{true}}" backText="{{backText}}" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+  </view>
+</page-container>

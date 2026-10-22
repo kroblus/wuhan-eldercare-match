@@ -1,0 +1,121 @@
+<navigation-bar warmSwiss="{{true}}" title="我的评估" back="{{backEnabled}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<page-container extraClass="assessment-history-page">
+  <view class="assessment-history-shell">
+    <view class="assessment-history-head">
+      <text class="assessment-history-eyebrow">我的 · 历史评估</text>
+      <text class="assessment-history-title">{{pageTitle}}</text>
+      <text class="assessment-history-description">历史评估与当次结果说明</text>
+    </view>
+
+    <view wx:if="{{userLoopEnabled && !loopDetailVisible}}" class="assessment-history-test-only assessment-history-loop">
+      <text class="assessment-history-list-title">TEST_ONLY · 合成用户操作</text>
+      <text class="assessment-history-list-note">保存前先可靠记录不含答案的恢复标识。冷启动只核对原保存结果，无法确认时不重复提交。草稿保持不变。</text>
+      <primary-button class="assessment-history-save" text="保存本次评估" warmSwiss="{{true}}" loading="{{loopSavePending || loopSavePreparing}}" disabled="{{loopSavePending || loopSavePreparing || loopRecoveryPending || loopSaveConfirmVisible || loopReassessmentPending}}" bind:action="saveCurrentAssessment"></primary-button>
+      <view wx:if="{{loopSaveConfirmVisible}}" class="assessment-history-test-only">
+        <text class="assessment-history-list-title">TEST_ONLY · 确认保存</text>
+        <text class="assessment-history-list-note">{{loopSaveConfirmMessage}}</text>
+        <primary-button class="assessment-history-confirm-save" text="确认保存合成评估" warmSwiss="{{true}}" disabled="{{loopSavePending}}" bind:action="confirmSaveAssessment"></primary-button>
+        <primary-button class="assessment-history-cancel-save" text="取消并保留草稿" variant="quiet" warmSwiss="{{true}}" bind:action="cancelSaveAssessment"></primary-button>
+      </view>
+      <text wx:if="{{loopSaveMessage}}" class="assessment-history-list-note" role="status">{{loopSaveMessage}}</text>
+      <primary-button class="assessment-history-recovery" text="核对原保存结果" variant="quiet" warmSwiss="{{true}}" loading="{{loopRecoveryPending}}" disabled="{{loopRecoveryPending || loopSavePending}}" bind:action="reconcilePendingSave"></primary-button>
+      <primary-button wx:if="{{loopRecoveredId}}" class="assessment-history-recovered-result" text="查看已确认的原记录" variant="quiet" warmSwiss="{{true}}" bind:action="viewRecoveredSave"></primary-button>
+      <primary-button class="assessment-history-action" text="开始新的评估" variant="quiet" warmSwiss="{{true}}" disabled="{{loopReassessmentPending}}" bind:action="newAssessment"></primary-button>
+    </view>
+
+    <view class="assessment-history-status" role="status" hidden="{{loopDetailVisible}}">
+      <text class="assessment-history-status-label">历史记录</text>
+      <text wx:if="{{historyLoading}}" class="assessment-history-list-note" role="status">正在读取评估历史…</text>
+      <view wx:if="{{testOnly}}" class="assessment-history-test-only" role="status">TEST_ONLY · 合成验收，非真实用户历史</view>
+      <state-panel wx:if="{{historyState !== 'READY' && !historyLoading}}" state="{{panelState}}" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+      <block wx:if="{{historyState === 'READY'}}">
+        <text class="assessment-history-list-title">历史评估 · {{records.length}} 次</text>
+        <text class="assessment-history-list-note">{{stateMessage}}</text>
+        <view wx:if="{{invalidRecordsMessage}}" class="assessment-history-list-note" role="status">{{invalidRecordsMessage}}</view>
+        <view wx:for="{{records}}" wx:key="id" class="assessment-history-row">
+          <view class="assessment-history-section-heading">
+            <text class="assessment-history-number">{{item.number}}</text>
+            <text class="assessment-history-time">{{item.completedAtLabel}}</text>
+          </view>
+          <view class="assessment-history-row-body">
+            <text class="assessment-history-row-meta">评估状态：已完成</text>
+            <text class="assessment-history-row-meta">版本：{{item.versionLabel}}</text>
+            <text class="assessment-history-row-meta">来源：{{item.sourceLabel}}</text>
+            <primary-button wx:if="{{!userLoopEnabled}}" class="assessment-history-action" text="查看当次结果（暂不可用）" variant="quiet" warmSwiss="{{true}}" disabled="{{item.resultDisabled}}" bind:action="viewHistoryResult"></primary-button>
+            <primary-button wx:else class="assessment-history-action assessment-history-detail-action" data-record-id="{{item.id}}" text="查看当次历史结果" variant="quiet" warmSwiss="{{true}}" bind:action="viewHistoryResult"></primary-button>
+          </view>
+        </view>
+        <text wx:if="{{!userLoopEnabled}}" class="assessment-history-list-note">历史结果暂不可查看，尚未接入当次评估的只读结果入口。</text>
+        <primary-button wx:if="{{hasMore}}" class="assessment-history-action" text="加载更多评估记录" variant="quiet" warmSwiss="{{true}}" loading="{{historyLoading}}" disabled="{{historyLoading}}" bind:action="loadMoreHistory"></primary-button>
+      </block>
+    </view>
+
+    <view wx:if="{{userLoopEnabled && loopDetailVisible}}" class="assessment-history-status assessment-history-detail">
+      <text class="assessment-history-test-only">TEST_ONLY · 当次历史结果，只读</text>
+      <block wx:if="{{!loopRecommendationVisible}}">
+      <text class="assessment-history-list-title">历史画像</text>
+      <text class="assessment-history-list-note">{{loopDetailTime}} {{loopDetailVersion}}</text>
+      <text wx:if="{{loopDetailPending}}" class="assessment-history-list-note" role="status">正在读取当次历史快照…</text>
+      <text wx:if="{{loopDetailMessage}}" class="assessment-history-list-note" role="status">{{loopDetailMessage}}</text>
+      <view wx:if="{{loopProfileAvailable}}" class="assessment-history-row-body">
+        <text class="assessment-history-list-note">ElderProfile V2 · 展示快照 V1</text>
+        <text wx:for="{{loopProfileRows}}" wx:key="label" class="assessment-history-row-meta">{{item.label}}：{{item.value}}</text>
+      </view>
+      <primary-button class="assessment-history-action assessment-history-recommendation-action" text="查看当次历史推荐" variant="quiet" warmSwiss="{{true}}" disabled="{{loopDetailPending}}" bind:action="viewHistoricalRecommendation"></primary-button>
+      <primary-button wx:if="{{!loopDetailPending}}" class="assessment-history-action" text="重试读取历史结果" variant="quiet" warmSwiss="{{true}}" bind:action="retryHistoricalResult"></primary-button>
+      <primary-button class="assessment-history-action" text="返回历史列表" variant="quiet" warmSwiss="{{true}}" bind:action="returnToHistoryList"></primary-button>
+      </block>
+      <block wx:else>
+        <text class="assessment-history-list-title">历史推荐</text>
+        <text class="assessment-history-list-note">这是当次评估保存的历史推荐结果。机构现在的价格、床位和核验状态可能已变化，历史结果不保证仍适合当前需要。</text>
+        <text class="assessment-history-test-only">当前展示数据仅用于开发演示，不是真实机构资料，也不代表武汉合作机构事实。</text>
+        <text wx:if="{{loopRecommendationTitle}}" class="assessment-history-list-title">{{loopRecommendationTitle}}</text>
+        <text class="assessment-history-list-note" role="status">{{loopRecommendationMessage}}</text>
+        <text wx:if="{{loopRecommendationVersion}}" class="assessment-history-list-note">{{loopRecommendationVersion}}</text>
+        <view wx:for="{{loopRecommendationCards}}" wx:key="key" class="assessment-history-row">
+          <text class="assessment-history-list-title">{{item.order}} · {{item.name}}</text>
+          <text class="assessment-history-row-meta">{{item.region}} · {{item.version}}</text>
+          <text wx:for="{{item.reasons}}" wx:for-item="reason" wx:key="*this" class="assessment-history-row-meta">{{reason}}</text>
+          <text wx:for="{{item.differences}}" wx:for-item="difference" wx:key="*this" class="assessment-history-list-note">{{difference}}</text>
+        </view>
+        <text wx:for="{{loopRecommendationGaps}}" wx:key="*this" class="assessment-history-list-note">{{item}}</text>
+        <primary-button class="assessment-history-action assessment-history-recommendation-retry" text="重试读取历史推荐" variant="quiet" warmSwiss="{{true}}" loading="{{loopRecommendationPending}}" disabled="{{loopRecommendationPending}}" bind:action="retryHistoricalRecommendation"></primary-button>
+        <primary-button class="assessment-history-action assessment-history-recommendation-back" text="返回历史画像" variant="quiet" warmSwiss="{{true}}" bind:action="returnToHistoricalProfile"></primary-button>
+        <primary-button class="assessment-history-action" text="返回历史列表" variant="quiet" warmSwiss="{{true}}" bind:action="returnToHistoryList"></primary-button>
+      </block>
+    </view>
+
+    <view wx:if="{{userLoopEnabled && loopConflict}}" class="assessment-history-test-only">
+      <text class="assessment-history-copy">当前草稿已保留。不能直接开始新评估。</text>
+      <primary-button text="先保留" variant="quiet" warmSwiss="{{true}}" bind:action="keepCurrentDraft"></primary-button>
+      <primary-button text="继续现有草稿" variant="quiet" warmSwiss="{{true}}" bind:action="continueCurrentDraft"></primary-button>
+    </view>
+    <view wx:if="{{userLoopEnabled && loopNewSessionConfirm}}" class="assessment-history-test-only">
+      <text class="assessment-history-copy">已确认当前答案安全保存且未修改。确认后将替换当前活动草稿为独立空白评估；旧历史保持不变。</text>
+      <primary-button class="assessment-history-confirm-session" text="确认创建新的空白评估" warmSwiss="{{true}}" disabled="{{loopReassessmentPending}}" bind:action="confirmNewAssessmentSession"></primary-button>
+      <primary-button class="assessment-history-cancel-session" text="取消并保留当前草稿" variant="quiet" warmSwiss="{{true}}" bind:action="cancelNewAssessmentSession"></primary-button>
+    </view>
+
+    <view wx:if="{{actionMessage}}" class="assessment-history-feedback" role="alert">{{actionMessage}}</view>
+
+    <view class="assessment-history-section">
+      <view class="assessment-history-section-heading">
+        <text class="assessment-history-number">01</text>
+        <text class="assessment-history-section-title">关于历史版本</text>
+      </view>
+      <text class="assessment-history-copy">已完成的评估应保留当时的答案、画像与推荐版本。正在填写的问卷不属于历史记录，新的评估不应覆盖旧记录。</text>
+      <text wx:if="{{!userLoopEnabled}}" class="assessment-history-copy">重新评估暂不可用。须先支持保留当前草稿并创建独立的新评估。</text>
+      <primary-button wx:if="{{!userLoopEnabled}}" class="assessment-history-new-action" text="重新评估（暂不可用）" variant="quiet" warmSwiss="{{true}}" disabled="{{newAssessmentDisabled}}" bind:action="newAssessment"></primary-button>
+    </view>
+
+    <view class="assessment-history-section assessment-history-current">
+      <view class="assessment-history-section-heading">
+        <text class="assessment-history-number">02</text>
+        <text class="assessment-history-section-title">当前推荐页面</text>
+      </view>
+      <text wx:if="{{!userLoopEnabled}}" class="assessment-history-copy">下方入口打开当前推荐页面，不代表某次历史评估的结果。这里暂不提供历史结果查询或重新评估。</text>
+      <text wx:else class="assessment-history-copy">下方入口打开当前推荐页面，与上方只读历史快照分开。它不是当次历史推荐。</text>
+      <primary-button wx:if="{{showNext}}" class="assessment-history-action" text="查看当前推荐页面" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
+    </view>
+  </view>
+</page-container>

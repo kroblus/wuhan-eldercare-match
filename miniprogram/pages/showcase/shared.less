@@ -1,0 +1,23 @@
+@import '../../styles/tokens.less';
+@import '../../styles/brand-content.less';
+page { background: @ws-background; color: @ws-ink; font-family: @font-family-base; }
+.showcase { padding: @space-5; padding-top: calc(104rpx + env(safe-area-inset-top)); padding-bottom: calc(48rpx + env(safe-area-inset-bottom)); }
+text { display: block; }
+.eyebrow { color: @ws-muted; font-size: @ws-meta; line-height: 1.6; margin-top: @space-4; }
+.title { font-size: @ws-hero-title; font-weight: 600; line-height: 1.3; margin: @space-3 0; }
+.body, .boundary, .source, .footnote, .error { font-size: @ws-body; line-height: @line-height-body; margin-top: @space-3; overflow-wrap: break-word; }
+.body { color: @ws-secondary; }
+.boundary { border-left: 4rpx solid @ws-accent; padding-left: @space-3; }
+.section { margin-top: @ws-section-gap; padding-top: @space-4; border-top: @ws-rule-width solid @ws-border; }
+.section-title { font-size: @ws-section-title; font-weight: 600; }
+.source, .footnote { font-size: @ws-meta; color: @ws-secondary; }
+.error { color: @color-error; }
+button { margin: @space-3 0 0; min-height: @touch-target-min; padding: @space-2 @space-3; background: @ws-surface; border: @ws-rule-width solid @ws-border; border-radius: @ws-radius; font-size: @ws-body; color: @ws-ink; line-height: 1.6; display: flex; align-items: center; justify-content: center; white-space: normal; }
+button::after { border: 0; }
+button.primary { background: @ws-accent; color: white; border-color: @ws-accent; }
+button[disabled] { color: @ws-muted; background: #EEECE7; }
+button.back { justify-content: flex-start; border: 0; padding-left: 0; background: transparent; }
+.controls { display: flex; flex-wrap: wrap; gap: @space-2; }
+.controls button { flex: 1; min-width: 140rpx; }
+.viewport, .native-map { display: block; width: 100%; height: 58vh; min-height: 420rpx; max-height: 720rpx; margin-top: @space-4; overflow: hidden; border-radius: @ws-radius; background: #171C23; }
+.panorama { width: 100%; height: 100%; }

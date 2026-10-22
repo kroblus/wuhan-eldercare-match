@@ -1,0 +1,71 @@
+@import '../../styles/base.less';
+@import '../../styles/mixins.less';
+page { .ws-page-surface(); }
+.recommendation-shell { padding: @space-4 0 calc(@space-5 + env(safe-area-inset-bottom)); }
+.result-intro { display: block; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.mock-disclosure { margin-top: @space-3; padding: @space-3 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.mock-disclosure__title { display: block; color: @ws-secondary; font-weight: 600; }
+.mock-disclosure__message, .mock-disclosure__source { display: block; margin-top: @space-1; }
+.mock-disclosure__source { color: @ws-muted; }
+.result-summary { padding: @space-4 0; border-bottom: @ws-rule-width solid @ws-border; }
+.candidate-count { display: block; color: @ws-ink; font-size: @ws-page-title; font-weight: 700; line-height: @line-height-tight; }
+.candidate-count__number { color: @ws-accent; }
+.summary-title { display: block; margin-top: @space-2; color: @ws-ink; font-size: @ws-section-title; font-weight: 600; line-height: @line-height-tight; }
+.summary-title--with-count { margin-top: @space-3; color: @ws-secondary; font-size: @ws-body; font-weight: 500; line-height: @line-height-body; }
+.focus-list { display: flex; flex-wrap: wrap; gap: @space-1 @space-3; margin-top: @space-3; padding-top: @space-2; border-top: @ws-rule-width solid @ws-border; }
+.focus-item { color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; }
+.summary-message, .section-subtitle { display: block; margin-top: @space-2; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.result-section { margin-top: @space-4; }
+.section-kicker { display: block; color: @ws-ink; font-size: @ws-section-title; font-weight: 700; line-height: @line-height-tight; }
+.institution-card { padding: @space-4 0; border-bottom: @ws-rule-width solid @ws-border; }
+.institution-heading { display: flex; gap: @space-3; align-items: baseline; }
+.institution-number { flex-shrink: 0; color: @ws-accent; font-size: @ws-body; font-weight: 600; }
+.institution-heading__copy { flex: 1; min-width: 0; }
+.institution-name { display: block; color: @ws-ink; font-size: @ws-section-title; font-weight: 700; line-height: @line-height-tight; word-break: break-word; }
+.institution-region, .institution-meta__item { display: block; margin-top: @space-1; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; }
+.institution-price { display: block; margin-top: @space-1; color: @ws-accent; font-size: @ws-body; font-weight: 600; line-height: @line-height-body; }
+.institution-status { display: flex; flex-wrap: wrap; gap: @space-1 @space-3; margin-top: @space-2; }
+.institution-status__item { color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.institution-decision-body { display: flex; gap: @space-3; align-items: flex-start; margin-top: @space-3; }
+.institution-media { flex: 0 0 220rpx; }
+.institution-cover { display: block; width: 220rpx; height: 176rpx; border-radius: @ws-radius; }
+.institution-cover--empty { display: flex; align-items: center; justify-content: center; padding: @space-2; background: @color-border; color: @ws-muted; font-size: @ws-meta; line-height: @line-height-body; text-align: center; }
+.institution-explanation { flex: 1; min-width: 0; }
+.detail-list__title { display: block; margin-bottom: @space-2; color: @ws-ink; font-size: @ws-body; font-weight: 600; line-height: @line-height-body; }
+.detail-line, .compact-fact { display: flex; gap: @space-1; margin-top: @space-1; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.detail-line__mark, .compact-fact__mark { flex: 0 0 @space-2; color: @ws-muted; }
+.detail-line__text, .compact-fact__text { flex: 1; min-width: 0; word-break: break-word; }
+.difference-list, .compact-fact-list, .advisory-list { margin-top: @space-3; }
+.detail-list .detail-line { color: @ws-ink; }
+.difference-list, .compact-fact-list { padding-top: @space-3; border-top: @ws-rule-width solid @ws-border; }
+.difference-list .detail-list__title, .compact-fact-list .detail-list__title { color: @ws-secondary; font-size: @ws-helper; }
+.difference-list .detail-line { margin-top: @space-2; }
+.compact-fact { color: @ws-muted; }
+.advisory-list { padding-left: @space-3; border-left: @ws-rule-width solid @ws-border; }
+.result-advisory-line, .advisory-line, .no-safe-note { display: block; margin-top: @space-2; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
+.institution-card__footer { min-height: @touch-target-min; display: flex; align-items: center; margin-top: @space-2; color: @ws-accent; font-size: @ws-helper; line-height: @line-height-body; }
+.institution-card--conditional .detail-list { margin-top: @space-3; }
+.conditional-section, .visit-section { padding-top: @space-4; }
+.visit-advice-line { display: flex; gap: @space-3; padding: @space-3 0; border-bottom: @ws-rule-width solid @ws-border; font-size: @ws-body; line-height: @line-height-body; }
+.visit-advice-line__mark { flex: 0 0 @space-3; color: @ws-muted; font-size: @ws-helper; }
+.visit-advice-line__text { flex: 1; min-width: 0; color: @ws-ink; }
+.result-actions { margin-top: @space-4; }
+.result-actions primary-button { display: block; margin-top: @space-3; }
+.result-save { margin-top: @space-4; padding-top: @space-3; border-top: @ws-rule-width solid @ws-border; }
+.result-save__label { display: block; color: @ws-secondary; font-size: @ws-meta; line-height: @line-height-body; }
+.result-save__message { display: block; margin-top: @space-2; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.result-save__confirmation { margin-top: @space-3; }
+.result-save__projection { margin-top: @space-3; padding: @space-3 0; border-top: @ws-rule-width solid @ws-border; }
+.result-save__candidate { margin-top: @space-3; }
+.result-save__projection .result-save__message { word-break: break-word; }
+.result-actions .list-boundary { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: @touch-target-min; margin: 0; padding: @space-3 0; border-bottom: @ws-rule-width solid @ws-border; background: transparent; color: @ws-secondary; font-size: @ws-body; line-height: @line-height-body; text-align: left; }
+.action-error { margin-top: @space-2; color: @color-error; font-size: @ws-helper; line-height: @line-height-body; }
+.result-state { padding: @space-4 0; }
+.no-safe-section { margin-top: @space-3; }
+.no-safe-section .adjust-needs-action { margin-top: @space-3; }
+.adjust-needs-action primary-button { display: block; }
+.result-state .state-panel, .no-safe-section .state-panel { padding: @space-4 0; border: 0; background: transparent; box-shadow: none; }
+@media (max-width: 360px) {
+  .institution-decision-body { display: block; }
+  .institution-explanation { margin-top: @space-3; }
+}

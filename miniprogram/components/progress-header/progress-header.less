@@ -1,0 +1,47 @@
+@import '../../styles/tokens.less';
+
+.progress-header {
+  padding: @space-2 0 @space-4;
+}
+
+.progress-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48rpx;
+}
+
+.progress-header__label,
+.progress-header__count {
+  color: @color-text-secondary;
+  font-size: @font-size-caption;
+  line-height: @line-height-tight;
+}
+
+.progress-header__label {
+  color: @color-brand-dark;
+  font-weight: 600;
+}
+
+.progress-header__track {
+  height: 12rpx;
+  margin-top: @space-2;
+  overflow: hidden;
+  border-radius: @radius-pill;
+  background: @color-border;
+}
+
+.progress-header__value {
+  height: 100%;
+  border-radius: @radius-pill;
+  background: @color-brand;
+  transition: width 160ms ease-out;
+}
+
+.progress-header.is-warm-swiss { padding: 0 0 @space-3; }
+.is-warm-swiss .progress-header__label { color: @ws-muted; font-weight: 400; }
+.is-warm-swiss .progress-header__count { color: @ws-ink; }
+.progress-header__segments { display: flex; gap: @space-1; margin-top: @space-2; }
+.progress-header__segment { flex: 1; height: @space-1; background: @ws-border; }
+.progress-header__segment.is-current { background: @ws-accent; }
+.progress-header__segment.is-completed { background: @ws-secondary; }

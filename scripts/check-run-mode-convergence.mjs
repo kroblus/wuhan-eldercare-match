@@ -1,0 +1,113 @@
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
+import { loadWechatTypeScript, createWechatTsRuntime } from './support/load-wechat-ts-runtime.mjs'
+const { ts } = loadWechatTypeScript()
+const load = base => {
+  const effects = [], storage = new Map([['real-draft', 'preserve-me']])
+  let component, page
+  const appid = JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid
+  const api = { getAccountInfoSync: () => ({ miniProgram: { appId: appid, envVersion: 'develop' } }), cloud: {} }
+  for (const name of ['request','login','openLocation','makePhoneCall','getStorageSync','setStorageSync','removeStorageSync','clearStorageSync','uploadFile','downloadFile','connectSocket']) api[name] = () => { effects.push(name); return storage.get('real-draft') }
+  for (const name of ['init','callFunction','database','callContainer']) api.cloud[name] = () => effects.push('cloud.' + name)
+  const rt = createWechatTsRuntime(ts, { wx: api, App() {}, Component(v) { component = v }, Page(v) { page = v }, getCurrentPages: () => [], setTimeout, clearTimeout })
+  return { ...rt, effects, storage, api, component: () => component, page: () => page, module: file => rt.load(path.join(base, file)) }
+}
+const demo = load('dist/demo/miniprogram')
+demo.module('app.js')
+for (const name of ['request','login','getStorageSync','setStorageSync','clearStorageSync','openLocation']) assert.throws(() => demo.api[name](), /DEMO_API_BLOCKED/)
+assert.throws(() => demo.api.cloud.callFunction(), /DEMO_API_BLOCKED/)
+const session = demo.module('demo/session.js')
+const catalog = demo.module('services/institution-catalog-v1-2-1.js')
+assert.equal((await catalog.institutionCatalogServiceV121.loadCatalog()).value.records.length, 0)
+await session.loadDemo()
+assert.equal(session.readDemo().ready, true)
+assert.equal(session.readDemo().count, 12)
+assert.equal(session.readDemo().flows.length, 3)
+assert.deepEqual(Array.from(session.readDemo().flows.map(f => f.state)), ['appointment_simulated','visit_simulated','evaluation_simulated'])
+const rows = (await catalog.institutionCatalogServiceV121.loadCatalog()).value.records
+assert.equal(new Set(rows.map(r => r.institutionId)).size, 12)
+assert.ok(rows.every(r => r.recordProvenance === 'MOCK_DEVELOPMENT_ONLY' && !r.institutionId.startsWith('dq-search-')))
+const pageService = demo.module('services/institution-list-detail-page.js')
+const list = await pageService.buildInstitutionListPageSnapshot(null)
+assert.equal(list.ok, true)
+assert.equal(list.value.displayInstitutions.length, 12)
+for (const record of rows) {
+  const detail = await pageService.buildInstitutionDetailPageSnapshot({ identity: { institutionId: record.institutionId, recordRevision: record.recordRevision }, source: 'direct', sourceContextRef: null })
+  assert.equal(detail.ok, true)
+  assert.equal(detail.value.sections.media.vr.canNavigate, false)
+  assert.equal(detail.value.sections.futureV121.mapLocation.mapActionAvailable, false)
+}
+const draft = demo.module('store/assessment-draft.js').assessmentDraftStore.getDraft()
+assert.equal(demo.module('types/assessment-v2.js').validateAssessmentAnswersV2(draft.answers, true).valid, true)
+const profile = demo.module('services/profile-application-v2.js').buildProfileApplicationSnapshot()
+assert.equal(profile.ok, true)
+assert.equal(profile.version, 2)
+const recommended = await demo.module('services/recommendation-result-application.js').buildRecommendationResultApplicationSnapshot({ evaluationAsOf: new Date().toISOString() })
+assert.equal(recommended.ok, true)
+assert.equal(recommended.version, 2)
+const pinned = await pageService.buildInstitutionListPageSnapshot(session.readDemo().contextRef)
+assert.equal(pinned.ok, true)
+const id = rows[3].institutionId, epoch = session.readDemo().epoch
+assert.throws(() => session.simulateEvaluation(id, epoch, 4), /CONTEXT_INVALID/)
+session.simulateAppointment(id, epoch)
+session.simulateAppointment(id, epoch)
+assert.equal(session.readDemo().flows.length, 4)
+session.simulateVisit(id, epoch)
+assert.throws(() => session.simulateEvaluation(id, epoch, 0), /INVALID/)
+session.simulateEvaluation(id, epoch, 4)
+assert.equal(session.readDemo().flows.find(f => f.institutionId === id).state, 'evaluation_simulated')
+assert.equal(session.readDemo().flows.find(f => f.institutionId === id).evaluation.overallRating, 4)
+// Shared directory Page: combined keyword/nature/district, no engine/ranking changes.
+demo.module('pages/institution/index.js')
+const definition = demo.page()
+const instance = { ...definition, data: { ...definition.data, viewModel: demo.module('pages/institution/list-view-model.js').createInstitutionListPageViewModel(list.value) }, setData(p) { Object.assign(this.data, p) } }
+instance.filterDirectory()
+assert.equal(instance.data.visibleItems.length, 12)
+instance.onSearchInput({ detail: { value: '春和' } })
+assert.equal(instance.data.visibleItems.length, 3)
+instance.onNatureChange({ detail: { value: '1' } })
+assert.equal(instance.data.visibleItems.length, 1)
+instance.onDistrictChange({ detail: { value: '2' } })
+assert.equal(instance.data.visibleItems.length, 0)
+instance.clearSearch()
+assert.equal(instance.data.visibleItems.length, 12)
+const oldRef = session.readDemo().contextRef
+session.resetDemo()
+assert.equal(session.readDemo().ready, false)
+assert.equal(session.readDemo().flows.length, 0)
+assert.equal(Object.keys(demo.module('store/assessment-draft.js').assessmentDraftStore.getDraft().answers).length, 0)
+assert.equal((await catalog.institutionCatalogServiceV121.loadCatalog()).value.records.length, 0)
+assert.equal((await pageService.buildInstitutionListPageSnapshot(oldRef)).ok, false)
+assert.throws(() => session.simulateAppointment(id, epoch), /STALE/)
+await session.loadDemo()
+assert.equal(session.readDemo().ready, true)
+assert.notEqual(session.readDemo().epoch, epoch)
+assert.equal(demo.effects.length, 0)
+assert.equal(demo.storage.get('real-draft'), 'preserve-me')
+
+const production = load('dist/production/miniprogram')
+production.module('app.js')
+const prodCatalog = await production.module('services/institution-catalog-v1-2-1.js').institutionCatalogServiceV121.loadCatalog()
+assert.equal(prodCatalog.ok, true)
+assert.equal(prodCatalog.value.datasetMode, 'PRODUCTION')
+assert.equal(prodCatalog.value.records.length, 1)
+assert.equal(prodCatalog.value.records[0].recordProvenance, 'PRODUCTION_CANDIDATE')
+assert.equal(prodCatalog.value.records[0].identity.name.value, '武汉市社会福利院')
+assert.equal(fs.existsSync('dist/demo/miniprogram/production'), false)
+assert.equal(fs.existsSync('dist/production/miniprogram/demo'), false)
+assert.equal(fs.existsSync('dist/production/miniprogram/components/demo-tools'), false)
+assert.doesNotMatch(fs.readFileSync('dist/production/miniprogram/pages/home/index.wxml', 'utf8'), /加载演示|demo-tools/)
+assert.equal(production.module('pages/showcase/development.js').isDevelopmentBuild(), false)
+const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)])
+for (const file of walk('dist/demo/miniprogram').filter(f => f.endsWith('.wxml'))) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /open-type=/, 'Native authorization must be absent in demo')
+for (const file of walk('dist/demo/miniprogram').filter(f => f.endsWith('.js'))) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /require\(["'][^"']+\.json["']\)/, 'WeChat cannot require JSON')
+// Wrong environment/identity and unreplaceable APIs fail closed before App.
+const guard = demo.module('demo/guard.js').installDemoGuards
+assert.throws(() => guard('wrong-appid'), /IDENTITY_GATE_CLOSED/)
+demo.api.getAccountInfoSync = () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'release' } })
+assert.throws(() => guard(JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid), /IDENTITY_GATE_CLOSED/)
+const locked = load('dist/demo/miniprogram')
+Object.defineProperty(locked.api, 'request', { value: locked.api.request, writable: false })
+assert.throws(() => locked.module('app.js'), /read only|GUARD_INSTALL_FAILED/)
+console.log('PASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo')

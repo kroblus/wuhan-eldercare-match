@@ -1,0 +1,64 @@
+@import '../../styles/tokens.less';
+@import '../../styles/mixins.less';
+
+.primary-button {
+  .touch-target();
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 @space-4;
+  border-radius: @radius-pill;
+  font-size: @font-size-body;
+  font-weight: 600;
+  line-height: @touch-target-min;
+  white-space: nowrap;
+}
+
+.primary-button.is-block {
+  display: flex;
+  width: 100%;
+}
+
+.primary-button--primary {
+  background: @color-brand;
+  color: #FFFFFF;
+}
+
+.primary-button--secondary {
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.primary-button--quiet {
+  background: transparent;
+  border: 1rpx solid @color-border;
+  color: @color-text-secondary;
+}
+
+.primary-button--active {
+  opacity: 0.82;
+}
+
+.primary-button.is-disabled {
+  background: @color-disabled-surface;
+  color: @color-disabled-text;
+}
+
+.primary-button.is-warm-swiss {
+  min-height: @ws-primary-height;
+  border-radius: @ws-radius;
+  font-size: var(--brand-cta-size, @ws-cta);
+  line-height: @line-height-tight;
+  padding-top: @space-2;
+  padding-bottom: @space-2;
+  white-space: normal;
+}
+.is-warm-swiss.primary-button--primary { background: @ws-accent; }
+.is-warm-swiss.primary-button--secondary,
+.is-warm-swiss.primary-button--quiet {
+  min-height: @ws-secondary-height;
+  border: @ws-rule-width solid @ws-border;
+  background: transparent;
+  color: @ws-ink;
+}
+.is-warm-swiss.is-disabled { background: @color-disabled-surface; color: @color-disabled-text; }

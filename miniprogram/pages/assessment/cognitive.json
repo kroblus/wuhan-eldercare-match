@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "navigation-bar": "/components/navigation-bar/navigation-bar",
+    "page-container": "/components/page-container/page-container",
+    "progress-header": "/components/progress-header/progress-header",
+    "section-card": "/components/section-card/section-card",
+    "question-section": "/components/question-section/question-section",
+    "multi-choice": "/components/multi-choice/multi-choice",
+    "assessment-footer": "/components/assessment-footer/assessment-footer"
+  }
+}

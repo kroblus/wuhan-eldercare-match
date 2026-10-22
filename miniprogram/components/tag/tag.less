@@ -1,0 +1,31 @@
+@import '../../styles/tokens.less';
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48rpx;
+  padding: 0 @space-2;
+  border-radius: @radius-pill;
+  font-size: @font-size-caption;
+  line-height: 48rpx;
+}
+
+.tag--neutral {
+  background: #F1EFEB;
+  color: @color-text-secondary;
+}
+
+.tag--brand {
+  background: @color-brand-soft;
+  color: @color-brand-dark;
+}
+
+.tag--warning {
+  background: #FBF2E2;
+  color: @color-warning;
+}
+
+.tag--development {
+  background: #F3E7D8;
+  color: #80522D;
+}

@@ -1,0 +1,198 @@
+# 小程序前端结构与所有权
+
+> 适用项目：武汉养老机构精准匹配小程序 / 养老对接小程序
+> 文档定位：前端长期稳定结构、模块职责与所有权约束。
+> 本文件不记录某个历史 Phase 的临时实施步骤；阶段性实现细节应由对应 Contract、交接摘要或任务记录承载。
+
+## 1. 技术基线
+
+- 微信原生小程序；
+- TypeScript；
+- WXML；
+- Less，由微信开发者工具现有编译插件处理；
+- 不引入额外 UI 框架或复杂构建层。
+
+## 2. 目录职责
+
+```text
+miniprogram/
+├─ pages/       页面与页面级交互
+├─ components/  小而稳定的公共组件
+├─ styles/      Less token、mixins 和全局基础样式
+├─ types/       领域类型与 service contract 类型
+├─ domain/      不依赖页面、Store、wx 或网络的纯领域规则
+├─ services/    页面唯一的数据访问入口
+├─ store/       评估草稿等跨页状态
+├─ runtime/     构建适配端口：草稿存储、目录展示元数据与可选演示素材
+├─ mock/        仅开发使用的显式 Mock provider
+└─ utils/       无业务状态的通用工具
+```
+
+`modes/demo/` 只包含合成数据、独立内存 Session、启动隔离及模拟服务组件；正式与演示均由
+`scripts/build-run-mode.mjs` 组合 `miniprogram/` 的同一页面、组件与领域规则，生成忽略目录
+`dist/production`、`dist/demo`。构建时选择数据提供者及草稿存储适配器，不使用页面参数或 Storage
+开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
+正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
+
+### 2.1 页面与组件
+
+- `pages/` 负责页面展示、页面级交互、页面生命周期和应用层调用；
+- `components/` 只承载小而稳定、可复用的 UI/交互单元；
+- 页面和组件不得复制 Frozen Contract 中的领域算法；
+- 页面展示只消费合法的 Application / Service 输出，不直接解释底层 verification、evidence 或领域判定。
+
+### 2.2 Domain
+
+`miniprogram/domain/**` 承载不依赖 Page、Component、Store、Service、Mock、网络和 `wx.*` 的纯领域逻辑。
+
+领域模块：
+
+- 只依赖自身允许的稳定类型与纯模块；
+- 不读取页面状态；
+- 不直接持久化；
+- 不直接访问机构 Provider、网络或微信运行时；
+- Frozen Domain 的精确规则以对应 Frozen Contract 为最高依据，本文件不复制其算法细节。
+
+### 2.3 Services
+
+`miniprogram/services/**` 是页面和组件访问业务数据与 application capability 的统一入口。
+
+基本方向：
+
+```text
+Page / Component
+      ↓
+Service / Application contract
+      ↓
+Mock provider（开发阶段）或未来 Backend / HTTP provider
+```
+
+要求：
+
+- 页面不得直接调用 `wx.request` 获取业务数据；
+- Mock provider 与未来真实 provider 应尽量共享稳定 contract；
+- 登录、重试、错误映射、数据来源判断不应分散到各页面；
+- 新 application consumer 不应依赖已明确标记为 legacy 的 DTO 或兼容路径；
+- 具体某一领域的 provider、snapshot、evaluator、validator 边界，以对应当前 Contract 为准。
+
+## 3. Less 策略
+
+- `tokens.less`：颜色、字号、行高、间距、圆角、边框、阴影和触控尺寸；
+- `mixins.less`：少量复用模式，例如卡片、点击区域、文本截断和焦点态；
+- `base.less`：页面背景、默认文字、盒模型和基础可访问性样式；
+- `app.less`：导入全局基础样式；
+- 页面与组件需要编译期变量或 mixin 时，显式导入对应 Less 文件。
+
+视觉方向继续保持：
+
+- 温暖；
+- 可信；
+- 克制；
+- 面向 35–65 岁家庭决策者；
+- 优先保证高对比、清楚层级、舒适行高；
+- 主要触控区域至少约 88rpx；
+- 不为单个页面引入复杂动画或独立设计体系。
+
+## 4. 基础组件职责
+
+| 组件 | 职责 | 不负责 |
+|---|---|---|
+| `page-container` | 页面安全区、通用边距和标题壳层 | 业务取数 |
+| `section-card` | 内容分区和标题 | 领域判断 |
+| `primary-button` | 统一主要操作和禁用/loading 外观 | 登录或提交逻辑 |
+| `tag` | 标签和状态短文本 | 推断推荐理由 |
+| `state-panel` | empty/error/loading/development 状态 | 伪造成功状态 |
+
+现有 `navigation-bar` 优先复用；只有确认无法满足当前路由壳层时才做局部调整。
+
+新增或修改公共组件时，应优先保持：
+
+- 单一职责；
+- 稳定输入输出；
+- 不内嵌页面业务状态；
+- 不复制领域规则；
+- 不制造第二套导航、校验或数据访问路径。
+
+## 5. 数据访问与展示边界
+
+### 5.1 页面不得越层读取
+
+Page / Component 不应直接读取：
+
+- raw provider record；
+- schema version；
+- internal evidence；
+- 私有 verification locator；
+- 领域 validator 内部实现；
+- 仅测试使用 fixture。
+
+页面应消费已经面向 UI 的稳定 application / view model / display snapshot。
+
+### 5.2 Verification / Evidence
+
+如果页面展示机构资料：
+
+- availability；
+- effective verification；
+- public verification date；
+
+应保持语义分离。
+
+UI 不应泄露内部 evidence、精确内部 locator、私有 source metadata 或其他不面向用户的核验信息。
+
+### 5.3 Legacy 路径
+
+历史兼容 service / DTO 可以继续存在于明确的 legacy 使用范围，但：
+
+- 新 consumer 不默认依赖 legacy DTO；
+- 不因为兼容旧页面而复制一套新的领域语义；
+- legacy 的退出或替换应由独立任务明确推进，而不是在无关任务中顺手重构。
+
+## 6. Mock 与 Fixture 隔离
+
+- `miniprogram/mock/**` 只用于开发态显式 Mock provider；
+- `scripts/fixtures/**` 属于测试 / runtime fixture，不应作为生产 App 数据源；
+- 生产代码不得导入测试 fixture；
+- Mock / synthetic 数据不得被页面或文案包装成真实合作机构事实；
+- 更完整的规则见 `MOCK_DATA_POLICY.md`。
+
+## 7. 微信运行时与 DevTools
+
+微信 DevTools / MCP 属于开发和验证工具能力，不改变前端模块所有权。
+
+使用原则：
+
+- 只有任务风险需要时，才升级到 DevTools / Simulator / 自动化验证；
+- 纯文案、简单 Less、低风险静态修改不默认启动完整运行时验证；
+- DevTools / Simulator / MCP 自动化证据不能替代要求明确的 Android / iOS 人工真机 Gate；
+- 具体 MCP 连接方式、Token、端口和本机路径不得写入本文件。
+
+## 8. 文件所有权
+
+- `wechat_frontend`：主要负责 `miniprogram/**` 中的页面、组件、WXML、Less、客户端交互及前端 application integration；
+- `backend_domain`：未来 `server/**`、API、数据库、持久化、鉴权和后端领域边界；
+- `matching_engine`：ElderProfile / Recommendation 等明确纯领域规则及其对应 runtime / fixtures，精确范围以当前 Agent ownership 与 Frozen Contract 为准；
+- `qa_reviewer`：只读审查，不拥有功能实现；
+- Main session / orchestrator：负责跨模块契约协调、集成决策与最终验收。
+
+具体主线程模型和 Reasoning effort 不属于模块所有权；由当前任务的模型路由建议和用户选择决定。
+
+## 9. Source of Truth
+
+本文件只定义前端长期稳定结构与所有权，不复制业务规则。
+
+优先级：
+
+```text
+Current Product Source / Frozen Architecture Contract
+    >
+当前代码与冻结实现
+    >
+AGENTS.md / Agent ownership / Repo Skills
+    >
+FRONTEND_STRUCTURE.md
+    >
+历史阶段实现说明
+```
+
+若本文件与当前 Frozen Contract 或当前正式实现证据冲突，以更高优先级来源为准。

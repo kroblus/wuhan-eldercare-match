@@ -1,0 +1,20 @@
+<view class="showcase">
+  <text wx:if="{{!allowed}}" class="error">功能演示仅在开发构建中开放；当前构建不允许进入。</text>
+  <block wx:if="{{allowed}}">
+  <text class="eyebrow">开发专用 / NATIVE SHOWCASE</text>
+  <text class="title">功能演示。</text>
+  <text class="boundary">VR / 地图功能演示，非养老机构实景或实际机构位置。</text>
+  <view class="section">
+    <text class="section-title">01　全景体验</text>
+    <text class="body">原生 Canvas WebGL 球面视角。等待已授权的家庭全景；可先用明确标识的几何网格检查环顾与缩放。</text>
+    <button id="open-vr" class="primary" bindtap="openVr">打开全景演示</button>
+  </view>
+  <view class="section">
+    <text class="section-title">02　武汉地图</text>
+    <text class="body">微信原生 map 底图。打开后会向地图服务方读取地图数据；不读取你的位置，不展示机构点位。</text>
+    <button id="open-map" bindtap="openMap">打开真实地图</button>
+  </view>
+  <text class="error" wx:if="{{error}}">{{error}}</text>
+  <text class="footnote">本入口仅供有人值守的开发验证，无预约、评估保存或其他业务操作。使用开发者工具从此页启动；结束请关闭演示。</text>
+  </block>
+</view>

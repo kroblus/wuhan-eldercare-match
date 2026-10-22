@@ -1,0 +1,102 @@
+<navigation-bar warmSwiss="{{true}}" title="我的预约" back="true" color="#111827" background="#FBFAF7" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<page-container extraClass="appointment-list-page">
+  <view class="page-shell appointment-list-shell">
+    <view class="page-head appointment-list-head">
+      <text class="eyebrow">预约记录</text>
+      <text class="page-title">我的预约</text>
+      <text class="page-description">申请、联系、确认看院与完成是不同状态。仅以服务端或授权运营记录为准，日期经过不会自动变为已完成。</text>
+    </view>
+
+    <state-panel class="appointment-list-status"
+      wx:if="{{loadState === 'loading'}}"
+      state="loading"
+      title="正在加载预约"
+      message="请稍候。"
+    ></state-panel>
+    <state-panel class="appointment-list-status"
+      wx:elif="{{loadState === 'load_error'}}"
+      state="error"
+      title="预约列表暂不可用"
+      message="{{errorMessage}}"
+      actionText="重试"
+      bind:action="onRetry"
+    ></state-panel>
+    <state-panel class="appointment-list-status"
+      wx:elif="{{loadState === 'ready_empty'}}"
+      state="empty"
+      title="暂时没有预约记录"
+      message="新的预约记录将在服务可用后显示。"
+    ></state-panel>
+
+    <block wx:elif="{{loadState === 'ready_non_empty'}}">
+      <scroll-view class="appointment-filters" scroll-x="true" show-scrollbar="false">
+        <view class="appointment-filters__row">
+          <view
+            wx:for="{{filters}}"
+            wx:key="key"
+            class="appointment-filter {{activeFilter === item.key ? 'appointment-filter--active' : ''}}"
+            data-filter="{{item.key}}"
+            bindtap="onFilterTap"
+            aria-role="button"
+            aria-label="{{item.label}}"
+          >
+            <text>{{item.label}}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view wx:if="{{consultantActionError}}" class="appointment-action-error" role="alert">
+        {{consultantActionError}}
+      </view>
+
+      <state-panel class="appointment-list-status"
+        wx:if="{{visibleVisits.length === 0}}"
+        state="empty"
+        title="这个状态下暂无预约"
+        message="切换筛选查看其他预约记录。"
+      ></state-panel>
+
+      <block wx:else>
+        <view wx:for="{{visibleVisits}}" wx:key="visitId" class="appointment-record">
+          <text class="appointment-record__number">{{index > 8 ? '' : '0'}}{{index + 1}}</text>
+          <view class="appointment-record__body">
+            <view class="appointment-card__heading">
+              <text class="appointment-card__institution">{{item.institutionLabel}}</text>
+              <text class="appointment-status appointment-status--{{item.status}}">{{item.statusLabel}}</text>
+            </view>
+            <view class="appointment-card__detail">
+              <text class="appointment-card__label">预约日期</text>
+              <text class="appointment-card__value">{{item.visitDate}}</text>
+            </view>
+            <view class="appointment-card__detail">
+              <text class="appointment-card__label">期望时间</text>
+              <text class="appointment-card__value">{{item.visitTimePreference}}</text>
+            </view>
+            <view class="appointment-card__detail">
+              <text class="appointment-card__label">同行人数</text>
+              <text class="appointment-card__value">{{item.participantLabel}}</text>
+            </view>
+            <text wx:if="{{item.pickupLabel}}" class="appointment-card__pickup">{{item.pickupLabel}}</text>
+            <view wx:if="{{item.showContactConsultantAction || item.showEvaluationAction}}" class="appointment-record-actions">
+              <primary-button
+                wx:if="{{item.showContactConsultantAction}}"
+                warmSwiss="{{true}}"
+                text="联系顾问"
+                variant="secondary"
+                bind:action="openConsultant"
+              ></primary-button>
+              <primary-button
+                wx:if="{{item.showEvaluationAction}}"
+                warmSwiss="{{true}}"
+                text="填写看院评价"
+                variant="secondary"
+                data-visit-id="{{item.visitId}}"
+                bind:action="openEvaluation"
+              ></primary-button>
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+  </view>
+</page-container>
