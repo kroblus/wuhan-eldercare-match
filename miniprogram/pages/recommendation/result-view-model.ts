@@ -511,7 +511,7 @@ export const createRecommendationResultViewModel = (
   const semantics = snapshot.preview.semantics
   const state = deriveState(semantics, selected.cards, selected.conditionalCards)
   let headline = '先看清老人需要什么'
-  let summary = '以下内容依据本次评估与本次画像与机构资料整理。'
+  let summary = '以下内容依据本次评估、需求画像与机构资料整理。'
   if (state === 'ready_exact') {
     headline = '关键护理需求已找到可确认匹配的候选机构'
     summary = '这些机构在当前资料和评估时间点下，满足主要护理条件；入住前仍建议实地确认。'
