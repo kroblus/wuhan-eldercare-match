@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="健康情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/basic" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="健康情况" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/basic" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header warmSwiss="{{true}}" current="2" total="6" label="养老需求评估"></progress-header>
@@ -12,7 +12,7 @@
         <view id="{{conditionsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
           <question-section warmSwiss="{{true}}"
             title="目前是否存在以下疾病"
-            hint="可多选；如果没有或不清楚，请选择对应选项"
+            hint="可多选；选择“暂无明显慢性疾病”或“暂不清楚”时，会清除同题其他选项；其他慢性疾病请选择对应项"
             required="{{true}}"
             error="{{conditionsError}}"
           >
@@ -26,7 +26,7 @@
         <view id="{{recentEventsAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
           <question-section warmSwiss="{{true}}"
             title="近期是否发生以下情况"
-            hint="可多选；如果没有或不清楚，请选择对应选项"
+            hint="可多选；选择“以上均无”或“暂不清楚”时，会清除同题其他选项"
             required="{{true}}"
             error="{{recentEventsError}}"
           >
@@ -79,6 +79,6 @@
     </view>
 
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer warmSwiss="{{true}}" backText="上一步" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="{{backText}}" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

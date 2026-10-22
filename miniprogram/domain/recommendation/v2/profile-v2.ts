@@ -961,7 +961,14 @@ const validateClarifications = (
   profile.clarifications.forEach((entry) => {
     const referenced = rows.some((row) => row.clarificationIds !== undefined
       && row.clarificationIds.indexOf(entry.clarificationId) >= 0)
-    if (!referenced) issues.push(`profile.clarifications.${entry.clarificationId}`)
+    // Frozen other_without_detail is an independent recommended prompt, not a
+    // fact's unresolved requirement. Only the exact canonical prompt is exempt.
+    const canonicalOtherWithoutDetail = entry.reasonCode === 'other_without_detail'
+      && entry.priority === 'recommended'
+      && canonicalClarifications.some((canonical) => clarificationMatchesCanonicalV2(entry, canonical))
+    if (!referenced && !canonicalOtherWithoutDetail) {
+      issues.push(`profile.clarifications.${entry.clarificationId}`)
+    }
   })
   if (profile.clarifications.length !== canonicalClarifications.length) {
     issues.push('profile.clarifications.canonical')

@@ -1,0 +1,58 @@
+{
+  "description": "TEST_ONLY isolated official-AppID showcase; OFFLINE_ADAPTATION_NOT_PREVIEW_AUTHORIZATION",
+  "projectname": "daqian-showcase-official-preview-v1",
+  "appid": "wx69f6bd834cebca33",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "libVersion": "3.17.3",
+  "setting": {
+    "useCompilerPlugins": [
+      "typescript",
+      "less"
+    ],
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "minified": false,
+    "minifyWXML": false,
+    "minifyWXSS": false,
+    "urlCheck": true,
+    "compileHotReLoad": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "localPlugins": false,
+    "compileWorklet": false,
+    "disableSWC": true,
+    "uglifyFileName": false,
+    "packNpmRelationList": [],
+    "disableUseStrict": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "lessSetting": {
+      "commonUseFilePath": "app.less"
+    }
+  },
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "id": 0,
+          "name": "TEST_ONLY official identity isolated showcase",
+          "pathName": "pages/showcase/index",
+          "query": "",
+          "scene": null
+        }
+      ]
+    }
+  },
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

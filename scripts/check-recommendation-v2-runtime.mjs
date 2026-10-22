@@ -25,6 +25,7 @@ import {
   makeCompletedAssessmentV2,
 } from './fixtures/elder-profile-v2-fixtures.mjs'
 import { makeCompletedAssessment } from './fixtures/elder-profile-fixtures.mjs'
+import { makeV2Draft } from './fixtures/assessment-v2-fixtures.mjs'
 import { institutionFixtures } from './fixtures/institution-fixtures.mjs'
 
 const require = createRequire(import.meta.url)
@@ -217,6 +218,230 @@ const run = async () => {
     return profile.kind === 'elder_profile'
       ? recommendationV2.evaluateFormalRecommendationV2(input)
       : recommendationV2.evaluateRecommendationPreviewV2(input)
+  }
+
+  // Additional synthetic regression cases are separate from the frozen 68-case
+  // manifest below; no historical fixture or expectation is replaced.
+  const ancillaryRows = []
+  const careQuestion = 'cognitive.specialCareNeeds'
+  const otherId = 'cl:other_without_detail:cognitive.specialCareNeeds'
+  const careCodes = ['round_the_clock_care', 'one_to_one_caregiver', 'night_care',
+    'dementia_unit', 'rehabilitation_training', 'tube_feeding', 'catheter_care',
+    'pressure_injury_care', 'incontinence_care']
+  const profileValidator = load(path.join(repositoryRoot, 'miniprogram/domain/recommendation/v2/profile-v2.ts'))
+  const assessment = load(path.join(repositoryRoot, 'miniprogram/types/assessment-v2.ts'))
+  const ancillaryCase = (id, expectation, check, historicalFailure = false) => {
+    try {
+      const details = check() || {}
+      ancillaryRows.push({ id, expectation, actualClassification: expectation, status: 'PASS', historicalFailure, ...details })
+    } catch (error) {
+      ancillaryRows.push({ id, expectation, status: 'FAIL', historicalFailure,
+        actualClassification: error.actualClassification || 'ASSERTION_FAILED', error: error.message })
+      failures.push(`${id}: ${error.stack || error.message}`)
+    }
+  }
+  const accepted = (profile, pool = configurePool(1)) => {
+    const before = clone({ profile, pool })
+    const result = evaluate(profile, pool)
+    if (!result.ok) {
+      const error = new Error(`VALID_WRONGLY_REJECTED: ${JSON.stringify(result.error)}`)
+      error.actualClassification = 'VALID_WRONGLY_REJECTED'
+      throw error
+    }
+    assert.deepEqual(clone({ profile, pool }), before, 'valid input is immutable')
+    assert.equal(result.value.semantics.elderSnapshot.specialCare.requiredCareCapabilities.length, 9)
+    assert.deepEqual(clone(result.value.semantics.elderSnapshot.specialCare), clone(profile.specialCare.derivedFacts))
+    return result.value.semantics
+  }
+  const rejected = (profile, code) => {
+    const before = clone(profile)
+    const result = profileValidator.validateAndSnapshotProfileV2(profile, profile.kind)
+    if (result.ok) {
+      const error = new Error('INVALID_WRONGLY_ACCEPTED')
+      error.actualClassification = 'INVALID_WRONGLY_ACCEPTED'
+      throw error
+    }
+    assert.equal(result.error.code, code, 'correct stable rejection code')
+    assert.ok(result.error.paths.length > 0, 'rejection identifies a path')
+    assert.equal(Object.hasOwn(result, 'value'), false, 'no partial result')
+    assert.deepEqual(clone(profile), before, 'invalid input is immutable')
+    return { rejection: clone(result.error) }
+  }
+  const validCare = (needs) => {
+    const profile = derivePreview({ [careQuestion]: needs })
+    const semantics = accepted(profile)
+    assert.deepEqual(clone(profile.specialCare.rawFacts.answers), needs, 'other/none/unknown raw answer preserved')
+    profile.specialCare.derivedFacts.requiredCareCapabilities.forEach((fact) => {
+      assert.equal(fact.status, needs.includes('unknown') ? 'unknown' : needs.includes('none')
+        ? 'not_required' : needs.includes(fact.capability) ? 'required' : 'not_reported')
+    })
+    const other = profile.clarifications.find((entry) => entry.clarificationId === otherId)
+    assert.equal(Boolean(other), needs.includes('other'))
+    if (other) {
+      assert.equal(other.reasonCode, 'other_without_detail')
+      assert.equal(other.priority, 'recommended')
+      assert.equal(other.affectedDerivedFields.length, 9)
+      assert.equal(profile.specialCare.derivedFacts.requiredCareCapabilities
+        .some((fact) => (fact.clarificationIds || []).includes(otherId)), false)
+      assert.deepEqual(clone(semantics.elderSnapshot.clarifications), clone(profile.clarifications))
+    }
+    return { elderReadiness: semantics.elderReadiness }
+  }
+  ancillaryCase('ANC-A01-OTHER', 'VALID_ACCEPTED', () => validCare(['other']), true)
+  careCodes.forEach((code) => {
+    ancillaryCase(`ANC-A02-OTHER-${code}`, 'VALID_ACCEPTED', () => validCare(['other', code]), true)
+    ancillaryCase(`ANC-A03-${code}`, 'VALID_ACCEPTED', () => validCare([code]))
+  })
+  for (let i = 0; i < careCodes.length; i += 1) {
+    for (let j = i + 1; j < careCodes.length; j += 1) {
+      ancillaryCase(`ANC-A04-${i}-${j}`, 'VALID_ACCEPTED', () => validCare([careCodes[i], careCodes[j]]))
+    }
+  }
+  ancillaryCase('ANC-A05-ALL-NINE', 'VALID_ACCEPTED', () => validCare(careCodes))
+  ancillaryCase('ANC-A06-ALL-NINE-AND-OTHER', 'VALID_ACCEPTED', () => validCare([...careCodes, 'other']))
+  ancillaryCase('ANC-A07-NONE', 'VALID_ACCEPTED', () => validCare(['none']))
+  ancillaryCase('ANC-A08-UNKNOWN', 'VALID_ACCEPTED', () => {
+    const details = validCare(['unknown'])
+    assert.equal(details.elderReadiness, 'blocked_by_required_clarification')
+    return details
+  })
+  ancillaryCase('ANC-A09-HISTORICAL-T11', 'VALID_ACCEPTED', () => {
+    const draft = makeV2Draft({ 'basic.elderName': undefined, 'health.conditions': ['none'],
+      'health.recentEvents': ['none'], 'health.rehabilitationNeed': 'none', [careQuestion]: ['other'] },
+    { localDraftId: 'TEST_ONLY_ANCILLARY001_T11' })
+    assert.equal(assessment.validateAssessmentAnswersV2(draft.answers, true).valid, true)
+    const derived = elderV2.deriveElderProfilePreviewV2(draft)
+    assert.equal(derived.ok, true)
+    const semantics = accepted(derived.preview)
+    assert.equal(derived.preview.clarifications.length, 1)
+    assert.equal(semantics.elderReadiness, 'ready')
+    assert.deepEqual(clone(derived.preview.specialCare.rawFacts.answers), ['other'])
+  }, true)
+  ancillaryCase('ANC-A10-FORMAL-OTHER-PARITY', 'VALID_ACCEPTED', () => {
+    const answers = { [careQuestion]: ['other'] }
+    assert.deepEqual(clone(accepted(deriveFormal(answers))), clone(accepted(derivePreview(answers))))
+  }, true)
+  ancillaryCase('ANC-A11-FORMAL-COMBINED-PARITY', 'VALID_ACCEPTED', () => {
+    const answers = { [careQuestion]: ['other', 'tube_feeding'] }
+    assert.deepEqual(clone(accepted(deriveFormal(answers))), clone(accepted(derivePreview(answers))))
+  })
+  ancillaryCase('ANC-A12-V1-PREVIEW-OTHER', 'VALID_ACCEPTED', () => {
+    const completed = makeCompletedAssessment(baseAnswers({ [careQuestion]: ['other'] }))
+    const answers = clone(completed.answers)
+    for (const key of ['preference.roomType', 'preference.mealSchedule', 'preference.activityPreference']) delete answers[key]
+    const preview = elderV1.deriveElderProfilePreview({ kind: 'assessment_draft', schemaVersion: 1,
+      localDraftId: 'TEST_ONLY_ANCILLARY001_V1', persistence: 'LOCAL_DEVICE_DEVELOPMENT_ONLY',
+      currentStep: 'budget', answers, startedAt: completed.completedAt, updatedAt: completed.completedAt })
+    assert.equal(preview.ok, true)
+    const checked = load(path.join(repositoryRoot, 'miniprogram/domain/recommendation/profile.ts'))
+      .validateAndSnapshotProfile(preview.preview, 'elder_profile_preview')
+    assert.equal(checked.ok, true)
+    assert.equal(checked.value.elderReadiness, 'ready')
+    assert.deepEqual(clone(preview.preview.specialCare.rawFacts.answers), ['other'])
+  })
+  const clarificationMutations = [
+    ['missing', (p) => { p.clarifications = [] }],
+    ['duplicate', (p) => { p.clarifications.push(clone(p.clarifications[0])) }],
+    ['priority-required', (p) => { p.clarifications[0].priority = 'required_before_hard_filter' }],
+    ['priority-informational', (p) => { p.clarifications[0].priority = 'informational' }],
+    ['source', (p) => { p.clarifications[0].sources[0].sourceOptionCode = 'none' }],
+    ['source-missing', (p) => { p.clarifications[0].sources = [] }],
+    ['affected-fields', (p) => { p.clarifications[0].affectedDerivedFields.pop() }],
+    ['affected-fields-empty', (p) => { p.clarifications[0].affectedDerivedFields = [] }],
+    ['code', (p) => { p.clarifications[0].reasonCode = 'unknown_answer' }],
+    ['id', (p) => { p.clarifications[0].clarificationId = 'cl:other_without_detail:health.conditions' }],
+    ['status', (p) => { p.clarifications[0].status = 'resolved' }],
+    ['forged-orphan-recommended', (p) => { p.clarifications.push({ ...clone(p.clarifications[0]),
+      clarificationId: 'cl:risk_signal_needs_confirmation:specialCare.requiredCareCapabilities.night_care',
+      reasonCode: 'risk_signal_needs_confirmation', priority: 'recommended' }) }],
+    ['forged-other-code-priority-only', (p) => { p.clarifications[0].affectedDerivedFields = ['health.rehabilitationNeed'] }],
+    ['forged-orphan-required', (p) => { p.clarifications.push({ ...clone(p.clarifications[0]),
+      clarificationId: 'cl:risk_signal_needs_confirmation:specialCare.requiredCareCapabilities.night_care',
+      reasonCode: 'risk_signal_needs_confirmation', priority: 'required_before_hard_filter' }) }],
+  ]
+  clarificationMutations.forEach(([name, mutate]) => ancillaryCase(`ANC-B01-${name}`, 'INVALID_REJECTED', () => {
+    const p = clone(derivePreview({ [careQuestion]: ['other'] }))
+    mutate(p)
+    return rejected(p, 'INVALID_PROFILE_CLARIFICATION')
+  }))
+  ancillaryCase('ANC-B02-FORGED-OTHER-WITHOUT-ANSWER', 'INVALID_REJECTED', () => {
+    const p = clone(derivePreview())
+    p.clarifications = clone(derivePreview({ [careQuestion]: ['other'] }).clarifications)
+    return rejected(p, 'INVALID_PROFILE_CLARIFICATION')
+  })
+  for (const needs of [['not_a_frozen_code'], ['other', 'none'], ['unknown', 'other'], ['other', 'other']]) {
+    ancillaryCase(`ANC-B03-ENUM-${needs.join('-')}`, 'INVALID_REJECTED', () => {
+      const p = clone(derivePreview({ [careQuestion]: ['other'] }))
+      p.specialCare.rawFacts.answers = needs
+      assert.equal(assessment.isValidAnswerForQuestionV2(careQuestion, needs), false)
+      return rejected(p, 'INVALID_PROFILE_SNAPSHOT')
+    })
+  }
+  ancillaryCase('ANC-B04-MUTATED-EVIDENCE', 'INVALID_REJECTED', () => {
+    const p = clone(derivePreview({ [careQuestion]: ['other'] }))
+    p.evidence.find((e) => e.derivedField.startsWith('specialCare.')).ruleId = 'elder-profile-ruleset-v1:FORGED'
+    return rejected(p, 'INVALID_PROFILE_EVIDENCE')
+  })
+  for (const [name, mutate] of [
+    ['missing-required-link', (p) => { delete p.specialCare.derivedFacts.requiredCareCapabilities[0].clarificationIds }],
+    ['wrong-required-link', (p) => { p.specialCare.derivedFacts.requiredCareCapabilities[0].clarificationIds = [otherId] }],
+    ['missing-required-clarification', (p) => { p.clarifications = [] }],
+    ['promote-required-to-recommended', (p) => { p.clarifications[0].priority = 'recommended' }],
+  ]) ancillaryCase(`ANC-B05-${name}`, 'INVALID_REJECTED', () => {
+    const p = clone(derivePreview({ [careQuestion]: ['unknown'] }))
+    mutate(p)
+    return rejected(p, name.includes('link') ? 'INVALID_PROFILE_SNAPSHOT' : 'INVALID_PROFILE_CLARIFICATION')
+  })
+  ancillaryCase('ANC-B06-FORGED-REVERSE-LINK', 'INVALID_REJECTED', () => {
+    const p = clone(derivePreview({ [careQuestion]: ['other'] }))
+    p.specialCare.derivedFacts.requiredCareCapabilities[0].clarificationIds = [otherId]
+    return rejected(p, 'INVALID_PROFILE_SNAPSHOT')
+  })
+  const blockedCases = [
+    ['other-swallowing', { [careQuestion]: ['other'], 'health.swallowingAbility': 'occasional_difficulty' }],
+    ['other-pressure-injury', { [careQuestion]: ['other', 'round_the_clock_care'], 'health.recentEvents': ['pressure_injury'] }],
+    ['unknown-care', { [careQuestion]: ['unknown'] }],
+    ['other-swallowing-unknown', { [careQuestion]: ['other'], 'health.swallowingAbility': 'unknown' }],
+  ]
+  blockedCases.forEach(([name, answers]) => ancillaryCase(`ANC-C01-${name}`, 'VALID_ACCEPTED', () => {
+    const p = derivePreview(answers)
+    const semantics = accepted(p)
+    assert.equal(semantics.elderReadiness, 'blocked_by_required_clarification')
+    assert.equal(semantics.cards.length, 0)
+    assert.equal(semantics.conditionalCandidates.length, 0)
+    assert.ok(p.clarifications.some((entry) => entry.priority === 'required_before_hard_filter'))
+    assert.deepEqual(clone(semantics.elderSnapshot.clarifications), clone(p.clarifications))
+    assert.equal(semantics.noExactMatch.reasonCode, 'REQUIRED_CAPABILITY_UNRESOLVED')
+  }))
+  ancillaryCase('ANC-C02-EXCLUSIVITY', 'VALID_ACCEPTED', () => {
+    for (const exclusive of ['none', 'unknown']) {
+      assert.deepEqual(clone(assessment.normalizeMultiChoiceValueV2(careQuestion, ['other', 'night_care', exclusive])), [exclusive])
+      assert.deepEqual(clone(assessment.normalizeMultiChoiceValueV2(careQuestion, [exclusive, 'other'])), ['other'])
+    }
+  })
+  ancillaryCase('ANC-C03-UNSAFE-INSTITUTION-EMPTY', 'VALID_ACCEPTED', () => {
+    const p = derivePreview({ [careQuestion]: ['other', 'tube_feeding'] })
+    const pool = configurePool(1)
+    setCapabilityStatus(pool[0], 'capabilities.specialCare.tube_feeding', 'unsupported')
+    const semantics = accepted(p, pool)
+    assert.equal(semantics.cards.length, 0)
+    assert.equal(semantics.conditionalCandidates.length, 0)
+    assert.equal(semantics.candidateEvaluations[0].matchTier, 'INELIGIBLE')
+    assert.equal(semantics.noExactMatch.reasonCode, 'ALL_CANDIDATES_HAVE_HARD_CONFLICT')
+  })
+  ancillaryCase('ANC-C04-EMPTY-POOL', 'VALID_ACCEPTED', () => {
+    const semantics = accepted(derivePreview({ [careQuestion]: ['other'] }), [])
+    assert.equal(semantics.cards.length, 0)
+    assert.equal(semantics.noExactMatch.reasonCode, 'NO_VERIFIED_INSTITUTION_POOL')
+  })
+  assert.equal(ancillaryRows.filter((row) => row.historicalFailure).length, 12)
+  assert.equal(new Set(ancillaryRows.map((row) => row.id)).size, ancillaryRows.length)
+  console.log(`ANCILLARY_001_RESULTS: ${JSON.stringify({ provenance: 'TEST_ONLY_SYNTHETIC',
+    pass: ancillaryRows.filter((row) => row.status === 'PASS').length,
+    fail: ancillaryRows.filter((row) => row.status === 'FAIL').length, cases: ancillaryRows })}`)
+  if (process.argv.includes('--ancillary-only')) {
+    process.exitCode = ancillaryRows.some((row) => row.status === 'FAIL') ? 1 : 0
+    return
   }
 
   const runFixture = (fixture) => {

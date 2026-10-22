@@ -14,8 +14,8 @@ import type {
 import { assessmentDraftStore } from '../../store/assessment-draft'
 import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
-import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getAssessmentBackText, navigateBackFromAssessment } from '../../utils/assessment-navigation'
+import { invalidateAssessmentPageAction, onHideAssessmentPhasePage, onUnloadAssessmentPhasePage, reLaunchAssessmentProfileWithGuard, resetAssessmentPageNavigation } from '../../utils/assessment-phase-navigation'
 
 type ChoiceOption = { value: string; label: string }
 type BudgetQuestionId =
@@ -28,6 +28,7 @@ type BudgetQuestionValueMap = Pick<AssessmentAnswerValueMapV2, BudgetQuestionId>
 
 interface AssessmentBudgetData {
   backEnabled: boolean
+  backText: string
   warmSwissHeaderHeight: number
   monthlyRange: MonthlyRangeV2 | ''
   upfrontCostAcceptance: UpfrontCostAcceptanceV2 | ''
@@ -112,6 +113,7 @@ const hasBudgetAnswers = (answers: DraftAnswers): boolean =>
 Page({
   data: {
     backEnabled: true,
+    backText: '返回上一页',
     warmSwissHeaderHeight: 0,
     monthlyRange: '',
     upfrontCostAcceptance: '',
@@ -143,8 +145,17 @@ Page({
   },
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
+    this.setData({ backText: getAssessmentBackText('budget') })
     this.syncFromDraft()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   syncFromDraft() {
@@ -229,7 +240,12 @@ Page({
   },
 
   onBack() {
+    invalidateAssessmentPageAction(this)
     navigateBackFromAssessment('budget')
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请重试。', icon: 'none' })
   },
 
   onNext() {
@@ -281,11 +297,9 @@ Page({
       })
       return
     }
-    navigateToWithGuard(
+    reLaunchAssessmentProfileWithGuard(
       this,
       'budget.next',
-      '/pages/assessment/profile',
-      undefined,
       () => {
         this.setData({
           formError: '暂时无法打开老人需求画像，请重试',

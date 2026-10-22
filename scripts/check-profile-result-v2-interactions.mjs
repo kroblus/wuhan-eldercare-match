@@ -32,7 +32,7 @@ const checks = [
     assert.doesNotMatch(resultWxml, /<primary-button[^>]*bindtap=/)
   }],
   ['INTERACTION-V2-003', 'Back remains available while page data is loading', () => {
-    assert.match(profileSource, /resetNavigationGuard\(this\)/)
+    assert.match(profileSource, /resetAssessmentPageNavigation\(this\)/)
     assert.match(resultSource, /resetNavigationGuard\(this\)/)
     assert.match(profileWxml, /back="\{\{backEnabled\}\}"/)
     assert.match(resultWxml, /back="\{\{backEnabled\}\}"/)

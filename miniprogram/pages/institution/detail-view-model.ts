@@ -34,6 +34,18 @@ export interface InstitutionDetailFactRowViewModel {
   verificationLabel: string
   statusSummary: string
   statusTone: 'positive' | 'neutral' | 'warning' | 'muted'
+  availability?: InstitutionPresentationAvailability
+  effectiveVerification?: InstitutionEffectiveVerification
+}
+
+export interface InstitutionDetailOverviewSection {
+  key: string
+  number: string
+  title: string
+  summary: string
+  highlights: readonly string[]
+  notice: string
+  rows: readonly InstitutionDetailFactRowViewModel[]
 }
 
 export interface InstitutionDetailCapabilityViewModel {
@@ -178,6 +190,14 @@ export interface InstitutionDetailPageViewModelV12 {
   hospitalRows: readonly InstitutionDetailFactRowViewModel[]
   priceRows: readonly InstitutionDetailFactRowViewModel[]
   qualificationRows: readonly InstitutionDetailFactRowViewModel[]
+  overview: {
+    regionAndType: readonly InstitutionDetailFactRowViewModel[]
+    monthlyPrice: InstitutionDetailFactRowViewModel | null
+    careSummary: string
+    careAlert: string
+    careNotices: readonly string[]
+    sections: readonly InstitutionDetailOverviewSection[]
+  }
 }
 
 export interface InstitutionDetailErrorViewModelV12 {
@@ -194,6 +214,37 @@ type FactLike = {
 }
 
 const CODE_LABELS: Record<string, string> = {
+  requires_assessment: '需评估后确认',
+  included: '已包含',
+  additional_fee: '另行收费',
+  care_level: '照护等级',
+  room_type: '房型',
+  special_care: '特殊护理',
+  nutritionist: '营养师',
+  social_worker: '社工',
+  rehabilitation_room: '康复室',
+  postoperative_rehabilitation: '术后康复',
+  limb_function_training: '肢体功能训练',
+  cognitive_training: '认知训练',
+  eldercare_caregiver_certificate: '养老护理员证书',
+  nursing_assistant_certificate: '护理辅助人员证书',
+  other_documented_certificate: '其他有记录的证书',
+  resident_call_to_nurse_arrival: '老人呼叫至护士到达',
+  resident_call_to_caregiver_arrival: '老人呼叫至护理员到达',
+  emergency_call_to_staff_arrival: '紧急呼叫至人员到达',
+  other_documented_scenario: '其他有记录的场景',
+  documented_target: '记录的目标值',
+  documented_median: '记录的中位数',
+  documented_maximum: '记录的最大值',
+  other_documented_statistic: '其他有记录的统计值',
+  weekly: '每周',
+  on_demand: '按需',
+  straight_line: '直线距离',
+  road: '道路距离',
+  co_located: '同址',
+  walking: '步行',
+  driving: '驾车',
+  public_transit: '公共交通',
   less_than_one_year: '不足 1 年',
   one_to_three_years: '1–3 年',
   three_to_five_years: '3–5 年',
@@ -291,6 +342,49 @@ const HANDOVER_CONTENT_LABELS: Record<HandoverContentCode, string> = {
 }
 
 const FIELD_LABELS: Record<string, string> = {
+  training: '培训资料',
+  trainingTopics: '培训内容',
+  trainingNote: '培训说明',
+  rehabilitationTherapist: '康复师',
+  features: '设施项目',
+  bloodPressureMonitoring: '血压监测',
+  rehabilitationRoom: '康复室',
+  emergencySupport: '应急支持',
+  equipment: '设备',
+  featureCode: '服务项目',
+  serviceCode: '服务项目',
+  priceTreatment: '收费方式',
+  certification: '资质',
+  trainingDescription: '培训说明',
+  vehicleAccess: '车辆通行',
+  metro: '地铁',
+  busStops: '公交站点',
+  relationships: '医疗合作关系',
+  hospitals: '周边医院',
+  nearestStationName: '最近地铁站点',
+  routeNote: '交通路线说明',
+  publicActivityZone: '公共活动区域',
+  activeAgingZone: '活力养老区域',
+  careZone: '照护区域',
+  dementiaZone: '认知照护区域',
+  privateBathroom: '独立卫生间',
+  airConditioner: '空调',
+  wardrobe: '衣柜',
+  television: '电视',
+  callSystem: '呼叫系统',
+  balcony: '阳台',
+  accessibility: '无障碍设施',
+  electricCurtain: '电动窗帘',
+  refrigerator: '冰箱',
+  bedsideTableOrFoldBoard: '床头桌或折叠板',
+  wheelchairOrAssistiveEquipment: '轮椅或辅助设备',
+  smartSpeakerOrRadio: '智能音箱或收音机',
+  magnifier: '放大镜',
+  calligraphyOrPersonalItems: '书画或个人物品',
+  scheduleNote: '活动安排说明',
+  bloodPressure: '血压监测',
+  bloodOxygen: '血氧监测',
+  bloodGlucose: '血糖监测',
   name: '机构名称',
   region: '所在区域',
   address: '地址',
@@ -430,7 +524,7 @@ const isFact = (value: unknown): value is FactLike => isRecord(value)
     || value.effectiveVerification === 'expired')
   && Object.prototype.hasOwnProperty.call(value, 'value')
 
-const labelFor = (key: string): string => FIELD_LABELS[key] || CODE_LABELS[key] || key
+const labelFor = (key: string): string => FIELD_LABELS[key] || CODE_LABELS[key] || '资料项目'
 
 const verificationLabel = (verification: InstitutionEffectiveVerification): string =>
   verification === 'current_verified' ? '已核验'
@@ -559,7 +653,7 @@ const officialPhoneState = (
 
 const officialPhoneStatusLabel = (state: InstitutionDetailOfficialPhoneState): string => {
   if (state === 'verified') return '已核验'
-  if (state === 'pending') return '待核验'
+  if (state === 'pending') return '机构提供，平台待核验'
   if (state === 'expired') return '电话资料已过核验期'
   if (state === 'unavailable') return '当前暂无可提供的官方联系电话'
   return '官方联系电话待确认'
@@ -812,6 +906,8 @@ const factRow = (
   return {
     key,
     label,
+    availability: fact.availability,
+    effectiveVerification: fact.effectiveVerification,
     value: value || availabilityLabel,
     status,
     verificationLabel: verification,
@@ -845,7 +941,12 @@ const rowsFromValue = (
     const value = source[key]
     const rowKey = `${prefix}.${key}`
     if (isFact(value)) {
-      rows.push(factRow(rowKey, labels[key] || labelFor(key), value))
+      const fieldLabel = labels[key] || labelFor(key)
+      const parentKey = prefix.split('.').filter((part) => !/^\d+$/.test(part)).pop() || ''
+      const needsContext = ['availability', 'frequency', 'serviceNote', 'distanceMeters', 'responseTimeMinutes', 'scenario', 'statistic', 'measurementNote'].includes(key)
+      const parentLabel = labelFor(parentKey)
+      rows.push(factRow(rowKey, needsContext && parentLabel !== '资料项目'
+        ? `${parentLabel} · ${fieldLabel}` : fieldLabel, value))
       return
     }
     if (Array.isArray(value)) {
@@ -952,7 +1053,7 @@ const mediaViewModel = (
     ? 'VR看院资料已核验'
     : media.vr.state === 'unavailable' ? 'VR资料暂不可用' : 'VR资料待确认',
   vrState: media.vr.state,
-  canOpenVr,
+  canOpenVr: canOpenVr && media.vr.state === 'available' && media.vr.canNavigate && media.vr.sceneCount > 0,
 })
 
 const roomViewModel = (room: InstitutionDetailRoomDisplay): InstitutionDetailRoomViewModel => {
@@ -965,9 +1066,12 @@ const roomViewModel = (room: InstitutionDetailRoomDisplay): InstitutionDetailRoo
     name,
     type,
     rows: [
+      factRow(`${room.roomId}.name`, '房型名称', room.name),
+      factRow(`${room.roomId}.roomType`, '房型类别', room.roomType),
       factRow(`${room.roomId}.area`, '面积', room.areaSquareMeters),
       factRow(`${room.roomId}.bedType`, '床型', room.bedType),
       factRow(`${room.roomId}.referencePrice`, '参考费用', room.referencePrice as FactLike),
+      ...rowsFromValue(room.features, `${room.roomId}.features`),
     ],
     hasMedia: room.mediaIds.length > 0,
   }
@@ -983,6 +1087,107 @@ const historyCopy = (snapshot: InstitutionDetailApplicationSnapshotV12): { label
   return { label: snapshot.contextKind === 'RECOMMENDATION_PINNED' ? '推荐机构资料' : '当前机构资料', notice: '' }
 }
 
+// Presentation only: retain every projected field and its independent status.
+const describeFacts = (
+  rows: readonly InstitutionDetailFactRowViewModel[], subject: string, unknownCopy: string,
+): string => {
+  if (!rows.length) return `${subject}暂无可展示资料`
+  if (rows.every((row) => row.availability === 'unknown' && row.effectiveVerification !== 'expired')) return unknownCopy
+  const notes: string[] = []
+  if (rows.some((row) => row.availability === 'unknown')) notes.push('尚无明确资料的项目')
+  if (rows.some((row) => row.availability === 'unavailable')) notes.push('资料当前不可取得或不适用的项目')
+  if (rows.some((row) => row.availability === 'provided' && row.effectiveVerification === 'unverified')) notes.push('待核验项目')
+  if (rows.some((row) => row.effectiveVerification === 'expired')) notes.push('核验已过期的项目')
+  return notes.length ? `${subject}中有${notes.join('、')}` : `${subject}已有资料，核验状态见明细`
+}
+
+const sectionOverview = (
+  key: string, number: string, title: string,
+  rows: readonly InstitutionDetailFactRowViewModel[],
+): InstitutionDetailOverviewSection => {
+  const highlights = rows.filter((row) => row.availability === 'provided'
+    && row.effectiveVerification === 'current_verified').slice(0, 2)
+    .map((row) => `${row.label}：${row.value}（${row.statusSummary}）`)
+  return {
+    key, number, title, rows, highlights, notice: '', summary: '',
+  }
+}
+
+const overviewFor = (
+  view: Omit<InstitutionDetailPageViewModelV12, 'overview'>,
+  snapshot: InstitutionDetailApplicationSnapshotV12,
+  future: InstitutionDetailFutureSectionsV121,
+): InstitutionDetailPageViewModelV12['overview'] => {
+  const capabilityRows = view.capabilityGroups.reduce<InstitutionDetailFactRowViewModel[]>((rows, group) => {
+    group.items.forEach((item) => rows.push({
+      key: item.key, label: `${group.title} · ${item.label}`, value: item.status,
+      status: item.status, verificationLabel: item.verification,
+      statusSummary: item.verification, statusTone: item.tone,
+    }))
+    return rows
+  }, [])
+  const acceptance = view.capabilityGroups[0].items
+  const currentAccepted = acceptance.filter((item) => item.status === '可提供' && item.verification === '已核验')
+  const careSummary = currentAccepted.length
+    ? `已核验接收：${currentAccepted.map((item) => item.label).join('、')}`
+    : '照护接收情况待逐项确认，请咨询老人所需的具体照护。'
+  const careNotices = view.capabilityGroups.map((group) => {
+    const unresolved = group.items.filter((item) => item.status !== '可提供' || item.verification !== '已核验')
+    if (!unresolved.length) return ''
+    const statuses = Array.from(new Set(unresolved.map((item) => `${item.status} · ${item.verification}`)))
+    return `${group.title}：${unresolved.map((item) => item.label).join('、')}（${statuses.join('；')}）。请逐项确认。`
+  }).filter((text) => text.length > 0)
+  const careRows: InstitutionDetailFactRowViewModel[] = []
+  if (view.careProcess && snapshot.sections.careProcess.state === 'available_for_schema') {
+    const add = (key: string, label: string, fact: Parameters<typeof careFactRow>[2], formatter: Parameters<typeof careFactRow>[3]) => {
+      careRows.push(careFactRow(key, label, fact, formatter) || factRow(key, label, fact))
+    }
+    add('careProcess.careRecord.presence', '护理记录', future.careProcess.careRecord.presence, carePresenceValue)
+    add('careProcess.careRecord.completeness', '护理记录完整性', future.careProcess.careRecord.completeness, careCompletenessValue)
+    add('careProcess.careRecord.frequency', '记录频率', future.careProcess.careRecord.frequency, careFrequencyValue)
+    add('careProcess.careRecord.traceability', '可追溯性', future.careProcess.careRecord.traceability, careTraceabilityValue)
+    add('careProcess.shiftHandover24h.presence', '24小时交接', future.careProcess.shiftHandover24h.presence, carePresenceValue)
+    HANDOVER_CONTENT_KEYS.forEach((key) => add(`careProcess.shiftHandover24h.contents.${key}`,
+      `交接内容 · ${HANDOVER_CONTENT_LABELS[key]}`, future.careProcess.shiftHandover24h.contents[key], carePresenceValue))
+  }
+  const medicalPending = view.medicalRows.filter((row) => row.availability !== 'provided' || row.effectiveVerification !== 'current_verified')
+  const medicalRisk = view.medicalRows.filter((row) => row.availability === 'provided'
+    && /^(未提供|暂不可用|当前不可用|否|需进一步确认|需评估后确认)$/.test(row.value))
+  medicalRisk.forEach((row) => careNotices.push(`${row.label}：${row.value}（${row.statusSummary}）。请确认对入住的影响。`))
+  const careAlert = careNotices.length
+    ? '照护接收或护理支持有待确认项目，请先核实老人需要的服务。'
+    : medicalPending.length ? '医疗、康复及健康监测资料待确认，请先核实老人需要的服务。' : ''
+  const lifeRows = [...view.mealRows, ...view.activityRows]
+  const life = sectionOverview('life', '03', '房间与日常生活', [...lifeRows, ...view.rooms.reduce<InstitutionDetailFactRowViewModel[]>((rows, room) => [...rows, ...room.rows], [])])
+  const monthlyPrice = view.priceRows.find((row) => row.key === 'price.referenceMonthlyPrice' || row.key === 'price.monthlyRange') || null
+  const feeDetails = view.priceRows.filter((row) => row !== monthlyPrice)
+  const monthlyCopy = monthlyPrice
+    ? `参考月费：${monthlyPrice.availability !== 'provided' ? monthlyPrice.statusSummary
+      : `${monthlyPrice.value}${monthlyPrice.statusSummary === '已核验' ? '' : `（${monthlyPrice.statusSummary}）`}`}`
+    : '参考月费待确认'
+  const teamRows = [...view.staffingRows, ...careRows]
+  const contactCopy = view.officialContact.hasPhones
+    ? `官方电话：${Array.from(new Set(view.officialContact.phones.map((phone) => phone.statusLabel))).join('、')}`
+    : view.officialContact.statusLabel
+  const care = sectionOverview('care', '01', '护理与照护能力', [...capabilityRows, ...view.medicalRows])
+  const fees = sectionOverview('fees', '02', '费用与入住', view.priceRows)
+  const team = sectionOverview('team', '04', '护理团队与管理', teamRows)
+  const info = sectionOverview('info', '05', '机构资料与位置', [...view.basicRows, ...view.qualificationRows, ...view.transportRows, ...view.hospitalRows])
+  return {
+    regionAndType: view.basicRows.filter((row) => row.key === 'basic.region' || row.key === 'basic.institutionType'),
+    monthlyPrice,
+    careSummary, careAlert, careNotices,
+    sections: [
+      { ...care, summary: `${careNotices.length ? '照护支持有待确认项目' : '照护支持已有资料'}；${describeFacts(view.medicalRows, '医疗与康复', '医疗、康复及健康监测资料尚待补充')}。` },
+      { ...fees, highlights: [], summary: `${monthlyCopy}。${describeFacts(feeDetails, '收费明细', '其他收费内容待确认，请询问实际费用和包含项目')}。` },
+      { ...life, rows: lifeRows, summary: `${describeFacts(life.rows, '居住与日常生活资料', view.rooms.length ? '房型、设施、膳食及活动安排仍需确认' : '房型尚待补充，膳食安排和活动空间也需确认')}。` },
+      { ...team, summary: `${describeFacts(teamRows, '人员及护理管理资料', view.careProcess ? '人员配置、资质与护理记录等资料待补充' : '人员配置及资质资料待补充')}${view.careProcess ? '' : '；该版本未包含护理管理与交接资料'}。` },
+      { ...info, highlights: view.location.addressState === 'ready' ? [`机构地址：${view.location.address}`] : [],
+        summary: `${view.location.addressStatus}；${contactCopy}；${describeFacts(view.qualificationRows, '资质资料', '资质资料尚待补充')}。` },
+    ],
+  }
+}
+
 export const createInstitutionDetailPageViewModel = (
   snapshot: InstitutionDetailApplicationSnapshotV12,
 ): InstitutionDetailPageViewModelV12 => {
@@ -993,7 +1198,7 @@ export const createInstitutionDetailPageViewModel = (
     reasons: recommendationRows(snapshot.recommendationContext.reasons, 'reason', false),
     differences: recommendationRows(snapshot.recommendationContext.differences, 'difference', true),
   }
-  return {
+  const view: Omit<InstitutionDetailPageViewModelV12, 'overview'> = {
     pageState: 'ready',
     title: snapshot.sections.basic.name.value || '机构详情',
     description: snapshot.contextKind === 'HISTORICAL_READ_ONLY'
@@ -1032,6 +1237,7 @@ export const createInstitutionDetailPageViewModel = (
     priceRows: rowsFromValue(snapshot.sections.price, 'price'),
     qualificationRows: rowsFromValue({ qualifications: snapshot.sections.qualifications }, 'qualification'),
   }
+  return { ...view, overview: overviewFor(view, snapshot, future) }
 }
 
 const detailErrorCopy = (

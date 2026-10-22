@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="预算与入住计划" back="{{backEnabled}}" fallbackUrl="/pages/assessment/preference" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="预算与入住计划" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/preference" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header warmSwiss="{{true}}" current="6" total="6" label="养老需求评估"></progress-header>
@@ -65,6 +65,6 @@
     <text class="privacy-note">如果之后明确预约看院或希望顾问联系，再按对应流程处理联系方式。</text>
     <text class="save-status">{{saveStatus}}</text>
     <view wx:if="{{formError}}" class="form-error form-error--footer" role="alert">{{formError}}</view>
-    <assessment-footer warmSwiss="{{true}}" wideNext="{{true}}" backText="上一步" nextText="查看老人需求画像 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" wideNext="{{true}}" backText="{{backText}}" nextText="查看老人需求画像 →" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

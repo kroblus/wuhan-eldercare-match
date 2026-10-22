@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createWechatTsRuntime, loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
+import { appointmentPhoneFormatCases, syntheticMobile } from './fixtures/appointment-phone-format-v1-fixtures.mjs'
+import { makeDraftFixture, makeCompletedVisitFixture } from './fixtures/appointment-institution-visit-c2-fixtures.mjs'
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const appRoot = path.join(repositoryRoot, 'miniprogram')
@@ -265,8 +267,8 @@ const makePageWx = (responses) => {
     login: (options) => options.success({ code: 'synthetic-login-code' }),
     request: (options) => {
       requests.push(options)
-      Promise.resolve().then(() => {
-        const response = responses(options)
+      Promise.resolve().then(async () => {
+        const response = await responses(options)
         options.success(response)
       }).catch(() => options.fail({ errMsg: 'request:fail' }))
     },
@@ -309,6 +311,7 @@ const fillValidForm = (pageConfiguration, page) => {
 
 const runPageCases = async (typescript) => {
   const state = { pageConfiguration: null }
+  let stack = []
   const wxHarness = makePageWx((options) => {
     if (options.url.endsWith('/api/v1/auth/wechat')) return authResponse()
     if (options.url.endsWith('/api/v1/elder-record')) {
@@ -323,7 +326,7 @@ const runPageCases = async (typescript) => {
   const runtime = createWechatTsRuntime(typescript, {
     wx: wxHarness.wx,
     Page: (configuration) => { state.pageConfiguration = configuration },
-    getCurrentPages: () => [],
+    getCurrentPages: () => stack,
   })
   const service = runtime.load(servicePath)
   service.recordAppointmentInstitutionDisplaySnapshotV1(
@@ -334,6 +337,7 @@ const runPageCases = async (typescript) => {
   runtime.load(createPagePath)
   const createPage = state.pageConfiguration
   const page = makePageInstance(createPage)
+  stack = [page]
   createPage.onLoad.call(page, {
     institutionId: fixedIdentity.institutionId,
     recordRevision: String(fixedIdentity.recordRevision),
@@ -391,14 +395,14 @@ const runPageCases = async (typescript) => {
   successPage.onViewAppointments.call(successInstance)
   successPage.onReturnHome.call(successInstance)
   successPage.onReturnHome.call(successInstance)
-  assert.deepEqual(wxHarness.tabSwitches, ['/pages/consultant/index', '/pages/home/index'])
-  assert.deepEqual(wxHarness.navigations, ['/pages/appointment/index'])
+  assert.deepEqual(wxHarness.tabSwitches, ['/pages/home/index'])
+  assert.deepEqual(wxHarness.navigations, ['/pages/consultant/consultation', '/pages/appointment/index'])
 
   const invalidSuccess = makePageInstance(successPage)
   successPage.onLoad.call(invalidSuccess, { visitId: 'forged-route-visit' })
   assert.equal(invalidSuccess.data.pageState, 'unavailable')
   successPage.onContactConsultant.call(invalidSuccess)
-  assert.equal(wxHarness.tabSwitches.length, 2)
+  assert.equal(wxHarness.tabSwitches.length, 1)
 
   service.recordAppointmentInstitutionDisplaySnapshotV1(
     fixedIdentity.institutionId,
@@ -406,14 +410,246 @@ const runPageCases = async (typescript) => {
     'must-not-be-used',
   )
   const invalidRoutePage = makePageInstance(createPage)
+  stack = [invalidRoutePage]
   const beforeInvalidRoute = wxHarness.requests.length
   createPage.onLoad.call(invalidRoutePage, { institutionId: fixedIdentity.institutionId })
   assert.equal(invalidRoutePage.data.pageState, 'route_error')
   assert.equal(wxHarness.requests.length, beforeInvalidRoute)
 }
 
+const runInstitutionReturnRouteCases = (typescript) => {
+  const trace = { back: [], push: [], redirect: [] }
+  let stack = []
+  let pageConfiguration = null
+  const runtime = createWechatTsRuntime(typescript, {
+    wx: {
+      getAccountInfoSync: () => ({ miniProgram: { envVersion: 'develop' } }),
+      getSystemInfoSync: () => ({ platform: 'ios', safeArea: { top: 0 } }),
+      request: () => { throw new Error('TEST_ONLY invalid entry must not call request') },
+      navigateBack: (options) => trace.back.push(options),
+      navigateTo: (options) => trace.push.push(options),
+      redirectTo: (options) => trace.redirect.push(options),
+      showToast: () => {},
+    },
+    Page: (configuration) => { pageConfiguration = configuration },
+    getCurrentPages: () => stack,
+  })
+  runtime.load(createPagePath)
+  const createPage = pageConfiguration
+  const list = { route: 'pages/institution/index', sourceContext: 'TEST_ONLY_RECOMMENDATION', selectedRevision: '8' }
+  const detail = { route: 'pages/institution/detail' }
+  const nestedPage = makePageInstance(createPage)
+  createPage.onLoad.call(nestedPage, {})
+  stack = [{ route: 'pages/index/index' }, list, detail, nestedPage]
+  createPage.onShow.call(nestedPage)
+  assert.equal(nestedPage.data.returnInstitutionButtonText, '返回合作机构列表')
+  assert.match(readFileSync(path.join(appRoot, 'pages', 'appointment', 'create.wxml'), 'utf8'),
+    /text="\{\{returnInstitutionButtonText\}\}" bind:action="onReturnToInstitution"/)
+  createPage.onReturnToInstitution.call(nestedPage)
+  assert.equal(trace.back.length, 1)
+  assert.equal(trace.back[0].delta, 2)
+  assert.equal(trace.push.length, 0)
+  assert.equal(trace.redirect.length, 0)
+  trace.back[0].fail({ errMsg: 'TEST_ONLY back failure' })
+  trace.back[0].complete({ errMsg: 'TEST_ONLY back failure' })
+  assert.match(nestedPage.data.actionMessage, /暂时无法返回合作机构列表/)
+  createPage.onReturnToInstitution.call(nestedPage)
+  assert.equal(trace.back.length, 2, 'failed ancestor return releases the route guard')
+  trace.back[1].success({})
+  trace.back[1].complete({})
+
+  const rootPage = makePageInstance(createPage)
+  createPage.onLoad.call(rootPage, {})
+  stack = [rootPage]
+  createPage.onShow.call(rootPage)
+  assert.equal(rootPage.data.returnInstitutionButtonText, '重新浏览合作机构')
+  createPage.onReturnToInstitution.call(rootPage)
+  assert.equal(trace.redirect.length, 1, 'a root invalid route is replaced by the directory')
+  assert.equal(trace.redirect[0].url, '/pages/institution/index')
+  assert.equal(trace.push.length, 0, 'do not push another page over the dead-end route')
+  trace.redirect[0].fail({ errMsg: 'TEST_ONLY redirect failure' })
+  trace.redirect[0].complete({ errMsg: 'TEST_ONLY redirect failure' })
+  assert.match(rootPage.data.actionMessage, /暂时无法返回合作机构列表/)
+  createPage.onReturnToInstitution.call(rootPage)
+  assert.equal(trace.redirect.length, 2, 'failed root replacement releases the route guard')
+  assert.equal(readFileSync(path.join(appRoot, 'pages', 'appointment', 'create.wxml'), 'utf8').includes(
+    'bind:navigationfail="onNavigationFailure"',
+  ), true, 'appointment header Back failure is wired to visible feedback')
+}
+
+const runAppointmentLifecycleCases = async (typescript) => {
+  const makeScenario = (responses) => {
+    const capture = { pageConfiguration: null }
+    let stack = []
+    const wxHarness = makePageWx(responses)
+    const runtime = createWechatTsRuntime(typescript, {
+      wx: wxHarness.wx,
+      Page: (configuration) => { capture.pageConfiguration = configuration },
+      getCurrentPages: () => stack,
+    })
+    const service = runtime.load(servicePath)
+    let handoffId = null
+    const createHandoff = service.createAppointmentSuccessHandoffV1
+    service.createAppointmentSuccessHandoffV1 = (...args) => {
+      const created = createHandoff(...args)
+      handoffId = created.id
+      return created
+    }
+    service.recordAppointmentInstitutionDisplaySnapshotV1(
+      fixedIdentity.institutionId,
+      fixedIdentity.recordRevision,
+      '测试机构（仅测试数据）',
+    )
+    runtime.load(createPagePath)
+    const configuration = capture.pageConfiguration
+    const page = makePageInstance(configuration)
+    stack = [page]
+    configuration.onLoad.call(page, {
+      institutionId: fixedIdentity.institutionId,
+      recordRevision: String(fixedIdentity.recordRevision),
+    })
+    configuration.onShow.call(page)
+    fillValidForm(configuration, page)
+    return { configuration, page, runtime, service, wxHarness, setStack: (pages) => { stack = pages }, getHandoffId: () => handoffId }
+  }
+
+  const createAcceptedGate = () => {
+    let startedResolve
+    let releaseResolve
+    let submissionOptions = null
+    const started = new Promise((resolve) => { startedResolve = resolve })
+    const response = new Promise((resolve) => { releaseResolve = resolve })
+    return {
+      started,
+      release: (value) => releaseResolve(value),
+      capture: (options) => {
+        submissionOptions = options
+        startedResolve()
+        return response
+      },
+      get submissionOptions() { return submissionOptions },
+    }
+  }
+  const fixedResponses = (gate) => async (options) => {
+    if (options.url.endsWith('/api/v1/auth/wechat')) return authResponse()
+    if (options.url.endsWith('/api/v1/elder-record')) return elderEnvelope('bound', 'elder-lifecycle-test-001')
+    if (options.url.endsWith('/api/v1/appointment-submissions')) return gate.capture(options)
+    return { statusCode: 404, data: {} }
+  }
+  const waitForSubmission = async (gate) => Promise.race([
+    gate.started,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('TEST_ONLY submission did not start')), 2000)),
+  ])
+
+  const hiddenGate = createAcceptedGate()
+  const hidden = makeScenario(fixedResponses(hiddenGate))
+  await hidden.configuration.onPrepareAppointment.call(hidden.page)
+  assert.equal(hidden.page.data.prepared, true)
+  const pending = hidden.configuration.onPhoneAuthorization.call(hidden.page, { detail: { code: 'TEST_ONLY_FRESH_PHONE_CODE' } })
+  await waitForSubmission(hiddenGate)
+  await hidden.configuration.onPhoneAuthorization.call(hidden.page, { detail: { code: 'TEST_ONLY_DUPLICATE_CODE' } })
+  assert.equal(hidden.wxHarness.requests.filter((item) => item.url.endsWith('/api/v1/appointment-submissions')).length, 1,
+    'pending callback must block duplicate business submission')
+  hidden.configuration.onHide.call(hidden.page)
+  hidden.setStack([hidden.page, { route: 'pages/appointment/success' }])
+  hiddenGate.release({ statusCode: 200, data: publicResult(hiddenGate.submissionOptions.data, 'accepted') })
+  await pending
+  assert.equal(hidden.page.data.receiptReady, true, 'hidden live page retains accepted receipt state')
+  assert.equal(hidden.wxHarness.redirects.length, 0, 'accepted response while hidden must not redirect behind another page')
+  hidden.setStack([hidden.page])
+  hidden.configuration.onShow.call(hidden.page)
+  assert.equal(hidden.wxHarness.redirects.length, 1, 're-show may open the retained accepted result')
+  assert.match(hidden.wxHarness.redirects[0], /^\/pages\/appointment\/success\?handoffId=/)
+  assert.equal(hidden.wxHarness.requests.filter((item) => item.url.endsWith('/api/v1/appointment-submissions')).length, 1,
+    're-show must not resubmit the appointment')
+
+  const nonTopGate = createAcceptedGate()
+  const nonTop = makeScenario(fixedResponses(nonTopGate))
+  await nonTop.configuration.onPrepareAppointment.call(nonTop.page)
+  const activeButCoveredSubmit = nonTop.configuration.onPhoneAuthorization.call(nonTop.page, {
+    detail: { code: 'TEST_ONLY_COVERED_PAGE_CODE' },
+  })
+  await waitForSubmission(nonTopGate)
+  nonTop.setStack([nonTop.page, { route: 'pages/other/overlay' }])
+  nonTopGate.release({ statusCode: 200, data: publicResult(nonTopGate.submissionOptions.data, 'accepted') })
+  await activeButCoveredSubmit
+  assert.equal(nonTop.page.data.receiptReady, true)
+  assert.equal(nonTop.wxHarness.redirects.length, 0, 'stack top must be this exact page before redirect')
+  const redirectImmediately = nonTop.wxHarness.wx.redirectTo
+  let failFirstResultNavigation = true
+  nonTop.wxHarness.wx.redirectTo = (options) => {
+    if (failFirstResultNavigation) {
+      failFirstResultNavigation = false
+      nonTop.wxHarness.redirects.push(options.url)
+      options.fail && options.fail({ errMsg: 'TEST_ONLY result route failure' })
+      options.complete && options.complete({ errMsg: 'TEST_ONLY result route failure' })
+      return
+    }
+    redirectImmediately(options)
+  }
+  nonTop.setStack([nonTop.page])
+  nonTop.configuration.onShow.call(nonTop.page)
+  assert.equal(nonTop.wxHarness.redirects.length, 1, 'visible page may navigate to its retained result')
+  assert.equal(nonTop.page.data.successNavigationFailed, true, 'failed result navigation remains an accepted, retryable receipt')
+  nonTop.configuration.onRetrySuccessNavigation.call(nonTop.page)
+  assert.equal(nonTop.wxHarness.redirects.length, 2, 'result navigation retry does not repeat business submission')
+  assert.equal(nonTop.wxHarness.requests.filter((item) => item.url.endsWith('/api/v1/appointment-submissions')).length, 1)
+
+  const unloadedGate = createAcceptedGate()
+  const unloaded = makeScenario(fixedResponses(unloadedGate))
+  await unloaded.configuration.onPrepareAppointment.call(unloaded.page)
+  const lateAccepted = unloaded.configuration.onPhoneAuthorization.call(unloaded.page, {
+    detail: { code: 'TEST_ONLY_LATE_ACCEPTED_PHONE_CODE' },
+  })
+  await waitForSubmission(unloadedGate)
+  let isUnloaded = false
+  const originalSetData = unloaded.page.setData
+  unloaded.page.setData = function (patch) {
+    assert.equal(isUnloaded, false, 'late accepted response must not call setData after unload')
+    originalSetData.call(this, patch)
+  }
+  unloaded.configuration.onHide.call(unloaded.page)
+  unloaded.setStack([unloaded.page, { route: 'pages/home/index' }])
+  unloaded.configuration.onUnload.call(unloaded.page)
+  isUnloaded = true
+  unloadedGate.release({ statusCode: 200, data: publicResult(unloadedGate.submissionOptions.data, 'accepted') })
+  await lateAccepted
+  assert.equal(unloaded.wxHarness.redirects.length, 0, 'late accepted response must not redirect an unloaded page')
+  assert.equal(unloaded.page.data.actionMessage, '', 'accepted must not be presented as a rejection or cancellation')
+  assert.equal(unloaded.wxHarness.requests.filter((item) => item.url.endsWith('/api/v1/appointment-submissions')).length, 1)
+  assert.ok(unloaded.getHandoffId(), 'accepted late response still creates a result handoff')
+  const retainedHandoff = unloaded.service.consumeAppointmentSuccessHandoffV1(unloaded.getHandoffId())
+  assert.equal(retainedHandoff.receipt.publicMessage, '预约申请已提交')
+
+  const staleGate = createAcceptedGate()
+  const stale = makeScenario(fixedResponses(staleGate))
+  await stale.configuration.onPrepareAppointment.call(stale.page)
+  const stalePending = stale.configuration.onPhoneAuthorization.call(stale.page, {
+    detail: { code: 'TEST_ONLY_STALE_GENERATION_CODE' },
+  })
+  await waitForSubmission(staleGate)
+  let staleGenerationCompleted = false
+  const staleSetData = stale.page.setData
+  stale.page.setData = function (patch) {
+    assert.equal(staleGenerationCompleted, false, 'old callback must not update the replacement page generation')
+    staleSetData.call(this, patch)
+  }
+  stale.configuration.onHide.call(stale.page)
+  stale.configuration.onUnload.call(stale.page)
+  stale.configuration.onLoad.call(stale.page, {})
+  stale.configuration.onShow.call(stale.page)
+  assert.equal(stale.page.data.pageState, 'route_error', 'test creates a new generation on the same instance')
+  staleGenerationCompleted = true
+  staleGate.release({ statusCode: 200, data: publicResult(staleGate.submissionOptions.data, 'accepted') })
+  await stalePending
+  assert.equal(stale.page.data.pageState, 'route_error')
+  assert.equal(stale.wxHarness.redirects.length, 0, 'old accepted callback cannot redirect the replacement generation')
+  assert.ok(stale.getHandoffId(), 'old accepted callback still preserves its independent result handoff')
+}
+
 const runLostResponseReplayPageCase = async (typescript) => {
   let c3Calls = 0
+  let stack = []
   const wxHarness = makePageWx((options) => {
     if (options.url.endsWith('/api/v1/auth/wechat')) return authResponse()
     if (options.url.endsWith('/api/v1/elder-record')) {
@@ -431,7 +667,7 @@ const runLostResponseReplayPageCase = async (typescript) => {
   const runtime = createWechatTsRuntime(typescript, {
     wx: wxHarness.wx,
     Page: (configuration) => { capture.pageConfiguration = configuration },
-    getCurrentPages: () => [],
+    getCurrentPages: () => stack,
   })
   const service = runtime.load(servicePath)
   service.recordAppointmentInstitutionDisplaySnapshotV1(
@@ -442,6 +678,7 @@ const runLostResponseReplayPageCase = async (typescript) => {
   runtime.load(createPagePath)
   const createPage = capture.pageConfiguration
   const page = makePageInstance(createPage)
+  stack = [page]
   createPage.onLoad.call(page, {
     institutionId: fixedIdentity.institutionId,
     recordRevision: String(fixedIdentity.recordRevision),
@@ -582,6 +819,7 @@ const runEntryCases = async (typescript) => {
 const runBackNavigationCases = (typescript) => {
   const source = readFileSync(path.join(appRoot, 'pages', 'appointment', 'create.wxml'), 'utf8')
   assert.match(source, /<navigation-bar[\s\S]*?back="\{\{true\}\}"[\s\S]*?fallbackUrl="\/pages\/institution\/index"/)
+  assert.match(source, /guardBack="\{\{true\}\}"/)
   const redirected = []
   const returned = []
   let stackDepth = 0
@@ -608,22 +846,159 @@ const runBackNavigationCases = (typescript) => {
   assert.deepEqual(returned, [1])
 }
 
+const runPhonePolicyCases = async (typescript) => {
+  const observations = []
+  const runtime = createWechatTsRuntime(typescript)
+  const service = runtime.load(servicePath)
+  const domain = runtime.load(path.join(appRoot, 'domain/appointment-institution-visit/validate-appointment-institution-visit.ts'))
+  const institution = { identity: fixedIdentity, displayName: 'TEST_ONLY_SYNTHETIC_INSTITUTION' }
+  const p = syntheticMobile()
+  const submission = (phone) => ({
+    contractVersion: 'appointment-institution-visit-contract-v1', kind: 'appointment_submission_v1',
+    idempotencyKey: 'phone-policy-test-key', institutionId: fixedIdentity.institutionId,
+    institutionRecordRevision: String(fixedIdentity.recordRevision), elderId: 'TEST_ONLY_ELDER',
+    visitDate: fixedForm.visitDate, visitTimePreference: fixedForm.visitTimePreference, participantCount: 1,
+    contactName: 'TEST_ONLY', phone, phonePurpose: 'appointment_or_consultant_contact', phoneAuthorization: 'explicit',
+  })
+  const newPage = () => {
+    const state = { configuration: null }
+    const harness = makePageWx((options) => {
+      if (options.url.endsWith('/api/v1/auth/wechat')) return authResponse()
+      if (options.url.endsWith('/api/v1/elder-record')) return elderEnvelope('bound', 'TEST_ONLY_ELDER')
+      throw new Error('Unexpected submission in phone review test')
+    })
+    const isolated = createWechatTsRuntime(typescript, {
+      wx: harness.wx, Page: (configuration) => { state.configuration = configuration }, getCurrentPages: () => [],
+    })
+    const localService = isolated.load(servicePath)
+    localService.recordAppointmentInstitutionDisplaySnapshotV1(fixedIdentity.institutionId, fixedIdentity.recordRevision, institution.displayName)
+    isolated.load(createPagePath)
+    const page = makePageInstance(state.configuration)
+    state.configuration.onLoad.call(page, { institutionId: fixedIdentity.institutionId, recordRevision: String(fixedIdentity.recordRevision) })
+    assert.equal(page.data.pageState, 'ready')
+    fillValidForm(state.configuration, page)
+    return { configuration: state.configuration, page, harness }
+  }
+  for (const item of appointmentPhoneFormatCases()) {
+    const form = { ...fixedForm, phone: item.input }
+    const validated = service.validateAppointmentCreateFormV1(form, institution)
+    assert.equal(validated.valid, item.valid, `${item.id}/${item.variant}: form`)
+    const command = domain.validateAppointmentSubmissionV1(submission(item.input))
+    assert.equal(command.ok, item.valid, `${item.id}/${item.variant}: command`)
+    const draft = domain.validateAppointmentLocalDraftV1(makeDraftFixture({ phone: item.input }))
+    // Optional phone may be omitted, but an explicitly supplied invalid value must not be restored.
+    assert.equal(draft.ok, item.input === undefined || item.valid, `${item.id}/${item.variant}: draft`)
+    if (item.valid) {
+      const canonical = item.input.replace(/^ +/, '').replace(/ +$/, '')
+      assert.equal(validated.normalized.phone === canonical, true, `${item.id}: canonical form`)
+      assert.equal(command.value.phone === canonical, true, `${item.id}: canonical command`)
+      assert.equal(draft.value.phone === canonical, true, `${item.id}: canonical draft`)
+    } else {
+      const trace = makeServiceTransport({ elderBound: true })
+      const rejected = await service.createProductionAppointmentCreateClientV1(trace.transport).submit({ institution, elderId: 'TEST_ONLY_ELDER', form, phoneCode: 'TEST_ONLY_FRESH_CODE' })
+      assert.equal(rejected.kind === 'rejected' && rejected.code === 'VALIDATION_FAILED', true, `${item.id}: pre-submit`)
+      assert.equal(trace.requests.length, 0, `${item.id}: no transport`)
+    }
+    const test = newPage()
+    test.configuration.onPhoneInput.call(test.page, { detail: { value: item.input } })
+    const prepareA = test.configuration.onPrepareAppointment.call(test.page)
+    const prepareB = test.configuration.onPrepareAppointment.call(test.page)
+    await Promise.all([prepareA, prepareB])
+    assert.equal(test.page.data.prepared, item.valid, `${item.id}/${item.variant}: review`)
+    if (!item.valid) {
+      assert.equal(test.page.data.formErrors.phone !== undefined, true, `${item.id}: inline error`)
+      assert.equal(test.page.data.firstErrorAnchor, 'appointment-field-phone')
+      assert.equal(test.harness.requests.length, 0, `${item.id}: no downstream side effect`)
+      assert.equal(test.harness.redirects.length + test.harness.navigations.length, 0)
+    } else {
+      assert.equal(test.harness.requests.filter(r => r.url.endsWith('/api/v1/elder-record')).length, 1)
+      for (const detail of [{}, { errMsg: 'getPhoneNumber:fail user deny' }, { errMsg: 'getPhoneNumber:fail user cancel' }]) {
+        const before = test.harness.requests.length
+        await test.configuration.onPhoneAuthorization.call(test.page, { detail })
+        assert.equal(test.harness.requests.length, before, 'V23/V24: no evidence means no submission')
+        assert.equal(test.page.data.receiptReady, false)
+      }
+    }
+    observations.push({ id: item.id, variant: item.variant, status: 'PASS', formatValid: validated.valid,
+      reviewPrepared: test.page.data.prepared, commandValid: command.ok, draftValid: draft.ok,
+      invalidDownstreamCalls: item.valid ? null : test.harness.requests.length })
+  }
+  // V19 / V20: edits, stale prepared state and direct state replacement.
+  for (const editByHandler of [true, false]) {
+    const test = newPage()
+    await test.configuration.onPrepareAppointment.call(test.page)
+    assert.equal(test.page.data.prepared, true)
+    const before = test.harness.requests.length
+    if (editByHandler) test.configuration.onPhoneInput.call(test.page, { detail: { value: p.slice(0, -1) } })
+    else test.page.data.form = { ...test.page.data.form, phone: p + '\n' }
+    await test.configuration.onPrepareAppointment.call(test.page)
+    assert.equal(test.page.data.prepared, false)
+    assert.equal(test.harness.requests.length, before)
+    await test.configuration.onPhoneAuthorization.call(test.page, { detail: { code: 'TEST_ONLY_FRESH_CODE' } })
+    assert.equal(test.harness.requests.length, before)
+  }
+  // A direct tamper at the final callback is independently revalidated.
+  const tampered = newPage()
+  await tampered.configuration.onPrepareAppointment.call(tampered.page)
+  const beforeCallback = tampered.harness.requests.length
+  tampered.page.data.form = { ...tampered.page.data.form, phone: p + '\n' }
+  await tampered.configuration.onPhoneAuthorization.call(tampered.page, { detail: { code: 'TEST_ONLY_FRESH_CODE' } })
+  assert.equal(tampered.harness.requests.length, beforeCallback)
+  assert.equal(tampered.page.data.prepared, false)
+  // Empty -> correction -> invalid; onShow must not resurrect readiness, reentry starts empty.
+  const restored = newPage()
+  for (const phone of ['', p, p.slice(0, -1), '', p]) {
+    restored.configuration.onPhoneInput.call(restored.page, { detail: { value: phone } })
+    await restored.configuration.onPrepareAppointment.call(restored.page)
+    assert.equal(restored.page.data.prepared, phone === p)
+  }
+  restored.configuration.onPhoneInput.call(restored.page, { detail: { value: '' } })
+  restored.configuration.onShow.call(restored.page)
+  assert.equal(restored.page.data.prepared, false)
+  restored.configuration.onLoad.call(restored.page, { institutionId: fixedIdentity.institutionId, recordRevision: String(fixedIdentity.recordRevision) })
+  assert.equal(restored.page.data.prepared, false)
+  const reentry = newPage()
+  assert.equal(reentry.page.data.prepared, false)
+  // V26: canonical request only reaches an injected memory transport.
+  const trace = makeServiceTransport({ elderBound: true })
+  const accepted = await service.createProductionAppointmentCreateClientV1(trace.transport).submit({ institution, elderId: 'TEST_ONLY_ELDER', form: { ...fixedForm, phone: '  ' + p + '  ' }, phoneCode: 'TEST_ONLY_FRESH_CODE' })
+  assert.equal(accepted.kind, 'accepted')
+  const request = trace.requests.find(r => r.url.endsWith('/api/v1/appointment-submissions'))
+  assert.equal(request.data.phone === p, true, 'V26: canonical wire value')
+  const historic = { ...makeCompletedVisitFixture(), phone: '0'.repeat(6) }
+  assert.equal(domain.validateInstitutionVisitV1(historic).ok, true, 'historical Visit reads keep their existing grammar')
+  if (process.env.APPOINTMENT_PHONE_TEST_REPORT) {
+    writeFileSync(process.env.APPOINTMENT_PHONE_TEST_REPORT, JSON.stringify({
+      provenance: 'TEST_ONLY_SYNTHETIC_IN_MEMORY', policy: 'APPOINTMENT_PHONE_FORMAT_V1', observations,
+      behaviorIdsPassed: ['V19', 'V20', 'V22', 'V23', 'V24', 'V26'], invalidPhoneFormAcceptance: 0,
+      invalidPreparedTransition: 0, invalidDownstreamSideEffects: 0, realPhoneAuthorizationAttempts: 0,
+      realAppointmentSubmissions: 0, realRecordsCreated: 0,
+    }, null, 2))
+  }
+  console.log('APPOINTMENT_PHONE_POLICY_V1 = PASS')
+  console.log('APPOINTMENT_PHONE_INVALID_DOWNSTREAM_CALLS = 0')
+}
+
 const run = async () => {
   const { ts } = loadWechatTypeScript()
   const standaloneRuntime = createWechatTsRuntime(ts)
   const service = standaloneRuntime.load(servicePath)
   await runServiceCases(standaloneRuntime, service)
   await runPageCases(ts)
+  runInstitutionReturnRouteCases(ts)
+  await runAppointmentLifecycleCases(ts)
   await runLostResponseReplayPageCase(ts)
   await runElderFailureAndStaleInstitutionCases(ts)
   await runEntryCases(ts)
   runBackNavigationCases(ts)
+  await runPhonePolicyCases(ts)
   console.log('APPOINTMENT_CREATE_TEST_PROVENANCE = TEST_ONLY_SYNTHETIC')
   console.log('APPOINTMENT_CREATE_CLIENT_IDEMPOTENCY_REPLAY = PASS')
   console.log('APPOINTMENT_CREATE_C5_ELDER_C3_TRANSPORT = PASS')
   console.log('APPOINTMENT_CREATE_PAGE_INTERACTIONS = PASS')
   console.log('APPOINTMENT_CREATE_SUCCESS_RECEIPT_GATE = PASS')
   console.log('APPOINTMENT_CREATE_ENTRY_CONTEXT_AND_BACK = PASS')
+  console.log('APPOINTMENT_CREATE_LIFECYCLE_AND_RETURN_STACK = PASS')
   console.log('APPOINTMENT_CREATE_TARGETED_RUNTIME = PASS')
 }
 

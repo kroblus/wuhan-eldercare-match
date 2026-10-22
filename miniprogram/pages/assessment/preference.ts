@@ -19,8 +19,8 @@ import {
 import type { InstitutionRegionCatalogOption } from '../../services/institution-region-catalog'
 import { institutionService } from '../../services/institution.service'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
-import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getAssessmentBackText, navigateBackFromAssessment } from '../../utils/assessment-navigation'
+import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, onHideAssessmentPhasePage, onUnloadAssessmentPhasePage, resetAssessmentPageNavigation } from '../../utils/assessment-phase-navigation'
 
 type ChoiceOption = {
   value: string
@@ -32,6 +32,7 @@ type RegionCatalogStatus = 'loading' | 'ready' | 'empty' | 'error'
 
 interface AssessmentPreferenceData {
   backEnabled: boolean
+  backText: string
   warmSwissHeaderHeight: number
   careType: PreferredCareTypeV2 | ''
   roomType: RoomType | ''
@@ -180,6 +181,7 @@ const withNoPreference = (options: readonly InstitutionRegionCatalogOption[]): I
 Page({
   data: {
     backEnabled: true,
+    backText: '返回上一页',
     warmSwissHeaderHeight: 0,
     careType: '',
     roomType: '',
@@ -223,9 +225,18 @@ Page({
   },
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
+    this.setData({ backText: getAssessmentBackText('preference') })
     this.syncFromDraft()
     this.loadRegionCatalog()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   syncFromDraft() {
@@ -404,7 +415,12 @@ Page({
   },
 
   onBack() {
+    invalidateAssessmentPageAction(this)
     navigateBackFromAssessment('preference')
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请重试。', icon: 'none' })
   },
 
   onNext() {
@@ -434,15 +450,24 @@ Page({
       return
     }
 
-    const result = assessmentDraftStore.setCurrentStep('budget')
-    if (!result.persistence.ok) {
-      this.setData({
-        formError: '本机保存失败，暂时无法进入下一步，请重试',
-        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
-        persistenceFailed: true,
-      })
-      return
-    }
-    navigateToWithGuard(this, 'preference.next', '/pages/assessment/budget')
+    navigateAssessmentForwardWithCapacity(
+      this,
+      'preference',
+      'budget',
+      'preference.next',
+      () => {
+        const result = assessmentDraftStore.setCurrentStep('budget')
+        if (!result.persistence.ok) {
+          this.setData({
+            formError: '本机保存失败，暂时无法进入下一步，请重试',
+            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+            persistenceFailed: true,
+          })
+          return false
+        }
+        return true
+      },
+      () => this.setData({ formError: '暂时无法进入下一步，请重试' }),
+    )
   },
 })

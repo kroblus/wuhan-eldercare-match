@@ -131,6 +131,11 @@ const main = async () => {
     assert.equal(live.officialContact.hasPhones, false)
     assert.equal(live.officialContact.statusLabel, '官方联系电话待确认')
     assert.equal(JSON.stringify(live.officialContact).includes('顾问'), false)
+    const syntheticUnknown = makeView(fixtures.allUnknown).officialContact
+    assert.equal(syntheticUnknown.state, 'unknown')
+    assert.equal(syntheticUnknown.statusLabel, '官方联系电话待确认')
+    assert.equal(syntheticUnknown.phones.length, 0)
+    assert.equal(JSON.stringify(syntheticUnknown).includes('机构提供'), false)
   })
   run('DETAIL-V121-UI-006', 'live CareProcess collapses unknown fields to one quiet state', () => {
     assert.equal(live.careProcess.hasFacts, false)
@@ -257,12 +262,14 @@ const main = async () => {
       '机构主电话', '入住咨询', '服务电话', '其它',
     ]))
   })
-  run('DETAIL-V121-UI-020', 'unverified sourced phone displays but cannot be called', () => {
+  run('DETAIL-V121-UI-020', 'unverified sourced phone distinguishes source from platform verification and cannot be called', () => {
     const item = makeView(fixtures.unverifiedPhone).officialContact.phones[0]
     assert.equal(item.displayValue, '027-11112222')
     assert.equal(item.state, 'pending')
-    assert.equal(item.statusLabel, '待核验')
+    assert.equal(item.statusLabel, '机构提供，平台待核验')
     assert.equal(item.callAction.available, false)
+    assert.equal(JSON.stringify(item.callAction), JSON.stringify({ available: false, label: '暂不可拨打' }))
+    assert.equal(JSON.stringify(item).includes('02711112222'), false)
     assert.equal(JSON.stringify(item).includes('拨打机构电话'), false)
   })
   run('DETAIL-V121-UI-021', 'expired phone hides complete number and blocks calling', () => {
@@ -272,18 +279,25 @@ const main = async () => {
     assert.equal(item.statusLabel, '电话资料已过核验期')
     assert.equal(item.verifiedDateLabel, '核验日期：2025-01-01')
     assert.equal(item.callAction.available, false)
+    assert.equal(JSON.stringify(item.callAction), JSON.stringify({ available: false, label: '电话资料已过核验期' }))
   })
-  run('DETAIL-V121-UI-022', 'unknown phone never reveals a number or enables call', () => {
+  run('DETAIL-V121-UI-022', 'unverified phone without source never claims an institution source, reveals a number or enables call', () => {
     const item = makeView(fixtures.unknownPhone).officialContact.phones[0]
+    assert.equal(fixtures.unknownPhone.officialContact.phones[0].status, 'unverified_without_source')
+    assert.equal(item.state, 'unknown')
     assert.equal(item.displayValue, '')
     assert.equal(item.statusLabel, '官方联系电话待确认')
     assert.equal(item.callAction.available, false)
+    assert.equal(JSON.stringify(item.callAction), JSON.stringify({ available: false, label: '暂不可拨打' }))
+    assert.equal(JSON.stringify(item).includes('机构提供'), false)
   })
   run('DETAIL-V121-UI-023', 'unavailable contact has no empty phone rows', () => {
     const view = makeView(fixtures.unavailable)
     assert.equal(view.officialContact.state, 'unavailable')
     assert.equal(view.officialContact.hasPhones, false)
     assert.equal(view.officialContact.statusLabel, '当前暂无可提供的官方联系电话')
+    assert.equal(view.officialContact.phones.length, 0)
+    assert.equal(JSON.stringify(view.officialContact).includes('机构提供'), false)
   })
   run('DETAIL-V121-UI-024', 'full CareProcess exposes four record facts plus one handover presence', () => {
     const view = makeView(fixtures.fullCare)
@@ -373,9 +387,10 @@ const main = async () => {
     assert.match(wxml, /机构位置/)
     assert.match(wxml, /机构官方电话/)
     assert.match(wxml, /护理管理与交接/)
-    assert.match(wxml, /disabled="\{\{!viewModel\.location\.mapAction\.available\}\}"/)
+    assert.match(wxml, /<button wx:if="\{\{viewModel\.location\.mapAction\.available\}\}"[^>]*bindtap="onMapTap"/)
     assert.match(wxml, /item\.callAction\.available/)
-    assert.match(wxml, /<view wx:if="\{\{viewModel\.careProcess\}\}" class="detail-card-wrap">\s*<section-card>\s*<text class="section-kicker">护理管理与交接/)
+    assert.match(wxml, /section\.key === 'team'/)
+    assert.match(wxml, /expandedSections\[section\.key\]/)
     assert.match(wxml, /开发演示数据/)
   })
   run('DETAIL-V121-UI-036', 'WXML never puts phone/address/care facts into list-style card bindings', () => {

@@ -2,7 +2,9 @@
   warmSwiss="{{true}}"
   title="预约看院"
   back="{{true}}"
+  guardBack="{{true}}"
   fallbackUrl="/pages/institution/index"
+  bind:navigationfail="onNavigationFailure"
   color="#111827"
   background="#FBFAF7"
 ></navigation-bar>
@@ -166,7 +168,7 @@
           {{actionMessage}}
         </view>
 
-        <text class="appointment-submit-note">提交仅表示预约申请已送达，不代表机构已确认或安排看院。</text>
+        <text class="appointment-submit-note">收到合法提交回执后，才表示预约申请已送达；仍需机构确认看院安排。</text>
         <view class="appointment-submit-area">
           <primary-button warmSwiss="{{true}}"
             wx:if="{{!prepared && !terminalConflict}}"
@@ -211,7 +213,7 @@
           title="{{pageState === 'route_error' ? '预约入口无效' : '机构资料暂不可用'}}"
           message="{{pageDescription}}"
         ></state-panel>
-        <primary-button warmSwiss="{{true}}" text="返回合作机构列表" bind:action="onReturnToInstitution"></primary-button>
+        <primary-button warmSwiss="{{true}}" text="{{returnInstitutionButtonText}}" bind:action="onReturnToInstitution"></primary-button>
       </section-card>
     </view>
   </view>

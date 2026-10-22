@@ -1,6 +1,13 @@
 @import '../../styles/base.less';
+.directory-search { margin: @space-3 0; }
+.directory-search input { min-height: 48px; padding: 12px; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: 16px; }
+.directory-filters { display: flex; flex-wrap: wrap; gap: @space-2; }
+.directory-filters picker { flex: 1; min-width: 120px; }
+.directory-filter { padding: 12px; margin-top: @space-2; min-height: 48px; border: 1px solid @color-control-border; border-radius: @ws-radius; color: @ws-ink; font-size: 16px; line-height: 1.6; }
+.directory-search-empty { display: block; margin: @space-3 0; color: @ws-secondary; font-size: 16px; line-height: 1.75; }
 @import '../../styles/tokens.less';
 @import '../../styles/mixins.less';
+@import '../../styles/brand-content.less';
 
 page { .ws-page-surface(); }
 .institution-list-shell { padding-top: @space-3; padding-bottom: 0; }

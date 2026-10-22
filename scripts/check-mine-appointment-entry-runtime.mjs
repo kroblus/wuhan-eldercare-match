@@ -1,5 +1,5 @@
 /**
- * Targeted Mine -> My Appointments interaction runtime gate.
+ * Targeted Mine -> My Appointments / Assessment History interaction runtime gate.
  *
  * It executes the production PrimaryButton action and Mine page handler with
  * synthetic wx callbacks. It does not call authentication, owner-read, phone,
@@ -89,6 +89,7 @@ const run = () => {
   let mineComponentConfig = null
   let buttonComponentConfig = null
   const navigationCalls = []
+  const toastCalls = []
   const forbiddenCalls = Object.create(null)
   const countForbiddenCall = (name) => (..._args) => {
     forbiddenCalls[name] = (forbiddenCalls[name] || 0) + 1
@@ -99,6 +100,8 @@ const run = () => {
     login: countForbiddenCall('login'),
     checkSession: countForbiddenCall('checkSession'),
     request: countForbiddenCall('request'),
+    getStorage: countForbiddenCall('getStorage'),
+    getStorageSync: countForbiddenCall('getStorageSync'),
     getUserProfile: countForbiddenCall('getUserProfile'),
     makePhoneCall: countForbiddenCall('makePhoneCall'),
     setStorage: countForbiddenCall('setStorage'),
@@ -107,6 +110,7 @@ const run = () => {
     removeStorageSync: countForbiddenCall('removeStorageSync'),
     clearStorage: countForbiddenCall('clearStorage'),
     clearStorageSync: countForbiddenCall('clearStorageSync'),
+    showToast(options) { toastCalls.push(options) },
   }
 
   const mineRuntime = createRuntime(typescript, {
@@ -182,8 +186,63 @@ const run = () => {
   assert.equal(navigationCalls[2].url, '/pages/appointment/index')
 
   page.navigateNext()
+  page.navigateNext()
   assert.equal(navigationCalls.length, 4, 'existing Elder scaffold action must remain available')
   assert.equal(navigationCalls[3].url, '/pages/elder/index')
+  navigationCalls[3].fail({ errMsg: 'synthetic route failure' })
+  navigationCalls[3].complete({ errMsg: 'synthetic route failure' })
+  assert.match(toastCalls.at(-1).title, /暂时无法打开老人档案/)
+  page.navigateNext()
+  assert.equal(navigationCalls.length, 5, 'failed Elder entry releases its local guard for retry')
+  navigationCalls[4].success({})
+  navigationCalls[4].complete({})
+  page.navigateNext()
+  assert.equal(navigationCalls.length, 5, 'successful navigation remains guarded until the page is shown again')
+  mineComponentConfig.pageLifetimes.show.call(page)
+  page.navigateNext()
+  assert.equal(navigationCalls.length, 6, 'onShow resets the Elder entry guard')
+
+  mineComponentConfig.pageLifetimes.show.call(page)
+  const beforeHistory = navigationCalls.length
+  const historyEvents = []
+  const historyButton = {
+    data: { disabled: true, loading: false },
+    triggerEvent(name, detail, options) {
+      historyEvents.push({ name, detail, options })
+      if (name === 'action') page.openAssessmentHistory()
+    },
+  }
+  const tapHistory = () => buttonComponentConfig.methods.handleAction.call(historyButton)
+  tapHistory()
+  historyButton.data.disabled = false
+  historyButton.data.loading = true
+  tapHistory()
+  assert.equal(historyEvents.length, 0, 'disabled/loading button cannot emit a History action')
+  historyButton.data.loading = false
+  tapHistory()
+  assert.equal(historyEvents.length, 1, 'one History tap emits one action')
+  assert.equal(historyEvents[0].name, 'action')
+  assert.equal(historyEvents[0].options.bubbles, false)
+  assert.equal(historyEvents[0].options.composed, false)
+  assert.equal(navigationCalls.length, beforeHistory + 1)
+  assert.equal(navigationCalls.at(-1).url, '/pages/assessment/history')
+  assert.equal(navigationCalls.at(-1).url.includes('?'), false, 'no identity or Assessment query is forwarded')
+  tapHistory()
+  assert.equal(navigationCalls.length, beforeHistory + 1, 'rapid History tap navigates at most once')
+  navigationCalls.at(-1).fail({ errMsg: 'TEST_ONLY history navigation failure' })
+  navigationCalls.at(-1).complete({})
+  assert.match(page.data.historyNavigationErrorMessage, /暂时无法打开我的评估/)
+  assert.equal(page.data.appointmentNavigationErrorMessage, '', 'History error does not leak into appointment entry')
+  tapHistory()
+  assert.equal(page.data.historyNavigationErrorMessage, '')
+  assert.equal(navigationCalls.length, beforeHistory + 2, 'failed History navigation releases retry')
+  navigationCalls.at(-1).success({})
+  navigationCalls.at(-1).complete({})
+  tapHistory()
+  assert.equal(navigationCalls.length, beforeHistory + 2, 'success stays guarded before return')
+  mineComponentConfig.pageLifetimes.show.call(page)
+  tapHistory()
+  assert.equal(navigationCalls.length, beforeHistory + 3, 'return to Mine allows History entry again')
 
   const mineWxml = read('miniprogram/pages/mine/index.wxml')
   assert.match(mineWxml, /<primary-button[^>]*text="查看我的预约"[^>]*bind:action="openAppointments"/)
@@ -191,20 +250,51 @@ const run = () => {
   assert.doesNotMatch(mineWxml, /(?:bindtap|catchtap|bind:tap|catch:tap)="openAppointments"/)
   assert.match(mineWxml, /wx:if="\{\{appointmentNavigationErrorMessage\}\}"[^>]*role="alert"/)
   assert.doesNotMatch(mineWxml, /bindgetphonenumber|catchgetphonenumber/)
+  assert.match(mineWxml, /<primary-button[^>]*text="查看我的评估"[^>]*bind:action="openAssessmentHistory"/)
+  assert.equal((mineWxml.match(/bind:action="openAssessmentHistory"/g) || []).length, 1)
+  assert.doesNotMatch(mineWxml, /(?:bindtap|catchtap|bind:tap|catch:tap)="openAssessmentHistory"/)
+  assert.match(mineWxml, /wx:if="\{\{historyNavigationErrorMessage\}\}"[^>]*role="alert"/)
   assert.match(mineWxml, /bind:action="navigateNext"/, 'existing Elder entry must remain rendered')
 
   const appConfig = JSON.parse(read('miniprogram/app.json'))
   assert.ok(appConfig.pages.includes('pages/appointment/index'), 'target route must be registered')
+  assert.ok(appConfig.pages.includes('pages/assessment/history'))
+  assert.equal(appConfig.tabBar.list.some(item => item.pagePath === 'pages/assessment/history'), false)
   assert.equal(
     appConfig.tabBar.list.some((item) => item.pagePath === 'pages/appointment/index'),
     false,
     'appointment list route must remain a non-tab page for navigateTo',
   )
 
+  const routeScaffold = mineRuntime.load(path.join(repositoryRoot, 'miniprogram/utils/route-scaffold.ts'))
+  routeScaffold.registerRoutePage({
+    title: '老人档案详情',
+    routeLabel: '档案 · 本机服务骨架',
+    description: 'TEST_ONLY route scaffold',
+    nextUrl: '/pages/elder/detail',
+  })
+  const scaffoldConfig = mineComponentConfig
+  const scaffoldPage = {
+    data: { ...scaffoldConfig.data },
+    setData(patch) { this.data = { ...this.data, ...patch } },
+  }
+  const beforeScaffold = navigationCalls.length
+  scaffoldConfig.methods.navigateNext.call(scaffoldPage)
+  scaffoldConfig.methods.navigateNext.call(scaffoldPage)
+  assert.equal(navigationCalls.length, beforeScaffold + 1, 'route-scaffold non-Tab child action is locally guarded')
+  assert.equal(navigationCalls.at(-1).url, '/pages/elder/detail')
+  navigationCalls.at(-1).fail({ errMsg: 'synthetic scaffold failure' })
+  navigationCalls.at(-1).complete({ errMsg: 'synthetic scaffold failure' })
+  assert.match(toastCalls.at(-1).title, /暂时无法打开此页面/)
+  scaffoldConfig.pageLifetimes.show.call(scaffoldPage)
+  scaffoldConfig.methods.navigateNext.call(scaffoldPage)
+  assert.equal(navigationCalls.length, beforeScaffold + 2, 'route-scaffold resets after returning to the page')
+
   for (const [name, count] of Object.entries(forbiddenCalls)) {
     assert.equal(count, 0, `Mine entry must not invoke wx.${name}`)
   }
   console.log('MINE APPOINTMENT ENTRY RUNTIME PASS: tap chain, rapid guard, failure retry, return reset, no eager capabilities')
+  console.log('MINE HISTORY ENTRY RUNTIME PASS: single action, disabled/loading, rapid guard, inline failure/retry, return reset, no identity query or eager auth/storage/network')
   console.log(`TypeScript parser: ${typescript.version || 'unknown'}`)
   console.log(`Loaded Mine production modules: ${[...mineRuntime.loadedPaths].sort().join(', ')}`)
 }

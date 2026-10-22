@@ -29,6 +29,10 @@ const a13RequiredSourcePaths = [
 const a14RequiredSourcePaths = [
   'pages/institution/detail.ts',
   'pages/institution/detail-view-model.ts',
+  'pages/consultant/index.ts',
+  'pages/consultant/consultation.ts',
+  'pages/consultant/consultant-page.ts',
+  'pages/appointment/success.ts',
 ]
 const b6RequiredSourcePaths = [
   'pages/home/index.ts',
@@ -42,6 +46,11 @@ const b7RequiredSourcePaths = [
   'domain/ai-consultation/lookup-approved-faq.ts',
   'domain/ai-consultation/validate-approved-faq.ts',
   'domain/ai-consultation/evaluate-approved-faq-safety.ts',
+]
+const historyRequiredSourcePaths = [
+  'pages/assessment/history.ts',
+  'pages/assessment/history-view-model.ts',
+  'pages/assessment/history-user-loop.ts',
 ]
 
 const walkFiles = async (root, accept = () => true) => {
@@ -336,6 +345,32 @@ const reportClassFields = (ts, units) => {
   return false
 }
 
+const findUnsupportedOperators = (ts, source, fileName) => {
+  const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JS)
+  const findings = []
+  const visit = (node) => {
+    if (node.kind === ts.SyntaxKind.QuestionDotToken || node.kind === ts.SyntaxKind.QuestionQuestionToken) {
+      findings.push({ kind: node.kind === ts.SyntaxKind.QuestionDotToken ? 'optional chaining (?.)' : 'nullish coalescing (??)', position: node.getStart(sourceFile) })
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+  return findings
+}
+
+const reportUnsupportedOperators = (ts, units) => {
+  const findings = units.flatMap(unit => findUnsupportedOperators(ts, unit.code, unit.moduleName).map(finding => ({ ...finding, unit, context: getContext(unit.code, finding.position) })))
+  if (findings.length === 0) return true
+  console.error(`FAIL: unsupported generated JavaScript operators found (${findings.length})`)
+  for (const finding of findings) {
+    console.error(`\n${finding.unit.moduleName}:${finding.context.line}:${finding.context.column}`)
+    console.error(`artifact: ${finding.unit.filePath}`)
+    console.error(`syntax: ${finding.kind}`)
+    console.error(finding.context.text)
+  }
+  return false
+}
+
 const goodFixture = `
 class Compatible {
   constructor() { this.value = 1; }
@@ -361,11 +396,15 @@ const runSelfTest = (ts) => {
   if (safeCount !== 0 || unsafeCount !== 6) {
     throw new Error(`detector self-test mismatch: safe=${safeCount}, unsafe=${unsafeCount}`)
   }
+  const unsafeOperators = findUnsupportedOperators(ts, 'const id = event?.currentTarget?.dataset?.recordId; const records = reads.get(this)?.records || []; const fallback = value ?? 0; const item = list?.[0]; callback?.();', 'history-operators.js')
+  const safeOperators = findUnsupportedOperators(ts, 'const message = "event?.id ?? fallback"; /* ignored?.comment */ const id = event == null ? undefined : event.id;', 'safe-operators.js')
+  if (unsafeOperators.length !== 7 || safeOperators.length !== 0) throw new Error(`operator self-test mismatch: unsafe=${unsafeOperators.length}, safe=${safeOperators.length}`)
   console.log('SELF_TEST PASS: both historical incidents and 4 class-field variants detected; method assignments ignored')
+  console.log('SELF_TEST PASS: optional property/element/call and nullish operators detected; strings/comments ignored')
 }
 
 const parseArguments = (args) => {
-  const options = { selfTest: false, selfTestFail: false, artifactDirectory: undefined }
+  const options = { selfTest: false, selfTestFail: false, artifactDirectory: undefined, scope: 'all' }
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === '--self-test') {
       options.selfTest = true
@@ -374,8 +413,11 @@ const parseArguments = (args) => {
     } else if (args[index] === '--artifact-dir' && args[index + 1]) {
       options.artifactDirectory = args[index + 1]
       index += 1
+    } else if (args[index] === '--scope' && args[index + 1] === 'history') {
+      options.scope = 'history'
+      index += 1
     } else if (args[index] === '--help') {
-      console.log('Usage: node scripts/check-wechat-js-compat.mjs [--artifact-dir <path>] [--self-test|--self-test-fail]')
+      console.log('Usage: node scripts/check-wechat-js-compat.mjs [--artifact-dir <path>] [--scope history] [--self-test|--self-test-fail]')
       process.exit(0)
     } else {
       throw new Error(`unknown or incomplete argument: ${args[index]}`)
@@ -394,12 +436,14 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   const a14RequiredModules = await getRequiredSourceModules(sourceRoot, a14RequiredSourcePaths)
   const b6RequiredModules = await getRequiredSourceModules(sourceRoot, b6RequiredSourcePaths)
   const b7RequiredModules = await getRequiredSourceModules(sourceRoot, b7RequiredSourcePaths)
-  const requiredModules = mergeSourceModules(
+  const historyRequiredModules = await getRequiredSourceModules(sourceRoot, historyRequiredSourcePaths)
+  const requiredModules = options.scope === 'history' ? mergeSourceModules(classModules, historyRequiredModules) : mergeSourceModules(
     classModules,
     a13RequiredModules,
     a14RequiredModules,
     b6RequiredModules,
     b7RequiredModules,
+    historyRequiredModules,
   )
   const artifacts = await locateArtifacts(options, configuration, requiredModules)
   if (artifacts.units.length === 0) {
@@ -410,18 +454,25 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`ARTIFACT_SOURCE: ${artifacts.source}`)
   console.log(`ARTIFACT_ROOT: ${artifacts.artifactRoot}`)
   console.log(`GENERATED_JS_MODULES: ${artifacts.units.length}`)
+  console.log(`CHECK_SCOPE: ${options.scope}`)
   console.log(`CLASS_SOURCE_MODULES: ${classModules.map((item) => item.moduleName).join(', ')}`)
+  if (options.scope === 'all') {
   console.log(`A1_3_REQUIRED_GENERATED_MODULES: ${a13RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`A1_4_REQUIRED_GENERATED_MODULES: ${a14RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`B6_REQUIRED_GENERATED_MODULES: ${b6RequiredModules.map((item) => item.moduleName).join(', ')}`)
   console.log(`B7_REQUIRED_GENERATED_MODULES: ${b7RequiredModules.map((item) => item.moduleName).join(', ')}`)
+  }
+  console.log(`HISTORY_REQUIRED_GENERATED_MODULES: ${historyRequiredModules.map((item) => item.moduleName).join(', ')}`)
 
-  const passed = verifyCoverage(requiredModules, artifacts.units) && reportClassFields(ts, artifacts.units)
+  const coveragePassed = verifyCoverage(requiredModules, artifacts.units)
+  const fieldsPassed = reportClassFields(ts, artifacts.units)
+  const operatorsPassed = reportUnsupportedOperators(ts, artifacts.units)
+  const passed = coveragePassed && fieldsPassed && operatorsPassed
   if (!passed) {
     process.exitCode = 1
     return
   }
-  console.log(`PASS: ${artifacts.units.length} generated JavaScript modules contain no unsupported class-field syntax`)
+  console.log(`PASS (${options.scope} scope): ${artifacts.units.length} generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators`)
 }
 
 try {

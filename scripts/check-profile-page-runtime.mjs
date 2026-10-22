@@ -24,7 +24,7 @@ const EXPECTED_PROFILE_CASE_IDS = Object.freeze([
   'PROFILE-001', 'PROFILE-002', 'PROFILE-003', 'PROFILE-004', 'PROFILE-005',
   'PROFILE-006', 'PROFILE-007', 'PROFILE-008', 'PROFILE-009', 'PROFILE-010',
   'PROFILE-011', 'PROFILE-012', 'PROFILE-013', 'PROFILE-014', 'PROFILE-015',
-  'PROFILE-016', 'PROFILE-017',
+  'PROFILE-016', 'PROFILE-017', 'PROFILE-018', 'PROFILE-019', 'PROFILE-020',
 ])
 
 const clone = (value) => {
@@ -151,10 +151,12 @@ const runtimeState = {
   storage: Object.create(null),
   pageStack: [],
   navigationCalls: [],
+  modalCalls: [],
   navigationModes: {
     navigateTo: 'success',
     navigateBack: 'success',
     redirectTo: 'success',
+    switchTab: 'success',
   },
   authCalls: 0,
   requestCalls: 0,
@@ -222,6 +224,9 @@ globalThis.wx = {
     runtimeState.removeStorageCalls += 1
     delete runtimeState.storage[key]
   },
+  showModal(options) {
+    runtimeState.modalCalls.push(options)
+  },
   navigateTo(options) {
     invokeNavigation('navigateTo', options)
   },
@@ -230,6 +235,9 @@ globalThis.wx = {
   },
   redirectTo(options) {
     invokeNavigation('redirectTo', options)
+  },
+  switchTab(options) {
+    invokeNavigation('switchTab', options)
   },
   login() {
     runtimeState.authCalls += 1
@@ -401,9 +409,11 @@ const resetRuntime = (draftStore) => {
   const cleared = draftStore.clear()
   assert.equal(cleared.persistence.ok, true, 'test Draft reset must persist successfully')
   runtimeState.navigationCalls.length = 0
+  runtimeState.modalCalls.length = 0
   runtimeState.navigationModes.navigateTo = 'success'
   runtimeState.navigationModes.navigateBack = 'success'
   runtimeState.navigationModes.redirectTo = 'success'
+  runtimeState.navigationModes.switchTab = 'success'
   runtimeState.authCalls = 0
   runtimeState.requestCalls = 0
   runtimeState.phoneCalls = 0
@@ -433,6 +443,10 @@ const preparePage = (pageDefinition, draftStore, answers = null, pageStack = nul
     runtimeState.pageStack = pageStack
   }
   const page = mountPage(pageDefinition)
+  page.route = 'pages/assessment/profile'
+  if (runtimeState.pageStack.length > 0) {
+    runtimeState.pageStack[runtimeState.pageStack.length - 1] = page
+  }
   invoke(page, 'onShow')
   return page
 }
@@ -547,6 +561,9 @@ const run = async () => {
         { route: 'pages/assessment/basic' },
         { route: 'pages/assessment/health' },
         { route: 'pages/assessment/adl' },
+        { route: 'pages/assessment/cognitive' },
+        { route: 'pages/assessment/preference' },
+        { route: 'pages/assessment/budget' },
         { route: 'pages/assessment/profile' },
       ],
     )
@@ -556,7 +573,7 @@ const run = async () => {
     assert.equal(page.data.recoveryRoute, '/pages/assessment/adl')
     assert.match(page.data.recoveryLabel, /日常生活能力/)
     invoke(page, 'onRecover')
-    assertNavigationSummary([{ type: 'navigateBack', url: undefined, delta: 1 }])
+    assertNavigationSummary([{ type: 'navigateBack', url: undefined, delta: 4 }])
     assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before,
       'incomplete recovery must preserve Draft')
 
@@ -815,13 +832,14 @@ const run = async () => {
 
   runCase('PROFILE-017', 'Back contract emits one non-bubbling action and visible navigationfail feedback', () => {
     const profileWxml = readText('miniprogram/pages/assessment/profile.wxml')
-    assert.match(profileWxml, /<navigation-bar[\s\S]*back="\{\{backEnabled\}\}"[\s\S]*fallbackUrl="\/pages\/assessment\/budget"[\s\S]*bind:navigationfail="onBackNavigationFailure"/)
+    assert.match(profileWxml, /<navigation-bar[\s\S]*back="\{\{backEnabled\}\}"[\s\S]*fallbackUrl="\/pages\/home\/index"[\s\S]*fallbackIsTab="\{\{true\}\}"[\s\S]*bind:navigationfail="onBackNavigationFailure"/)
     assert.doesNotMatch(profileWxml, /<navigation-bar[^>]*bind:?back=/)
 
     runtimeState.navigationCalls.length = 0
     const navigationBar = mountComponent(navigationBarDefinition)
     navigationBar.data.delta = 1
-    navigationBar.data.fallbackUrl = '/pages/assessment/budget'
+    navigationBar.data.fallbackUrl = '/pages/home/index'
+    navigationBar.data.fallbackIsTab = true
     runtimeState.navigationModes.navigateBack = 'success'
     runtimeState.pageStack = [
       { route: 'pages/assessment/budget' },
@@ -837,7 +855,7 @@ const run = async () => {
     navigationBar.events.length = 0
     runtimeState.pageStack = [{ route: 'pages/assessment/profile' }]
     navigationBar.back()
-    assertNavigationSummary([{ type: 'redirectTo', url: '/pages/assessment/budget', delta: undefined }])
+    assertNavigationSummary([{ type: 'switchTab', url: '/pages/home/index', delta: undefined }])
     assert.deepEqual(navigationBar.events, [
       { name: 'back', detail: { delta: 1 }, options: { bubbles: false, composed: false } },
     ])
@@ -845,7 +863,8 @@ const run = async () => {
     const page = readyPage(profileDefinition, draftStore)
     const failureBar = mountComponent(navigationBarDefinition)
     failureBar.data.delta = 1
-    failureBar.data.fallbackUrl = '/pages/assessment/budget'
+    failureBar.data.fallbackUrl = '/pages/home/index'
+    failureBar.data.fallbackIsTab = true
     failureBar.triggerEvent = (name, detail, options) => {
       failureBar.events.push({ name, detail, options })
       if (name === 'navigationfail') {
@@ -867,6 +886,170 @@ const run = async () => {
     assert.equal(page.handlerCalls.onBackNavigationFailure, 1)
     assert.equal(page.data.actionErrorKey, 'back')
     assert.match(page.data.actionErrorMessage, /暂时无法返回/)
+  })
+
+  runCase('PROFILE-018', 'Home is always available, preserves Draft, reports failures, and is root-labeled', () => {
+    const profileWxml = readText('miniprogram/pages/assessment/profile.wxml')
+    const homeButtonIndex = profileWxml.indexOf('catchtap="onHome"')
+    const firstStateIndex = profileWxml.indexOf('wx:if="{{pageState ===')
+    assert.ok(homeButtonIndex >= 0 && homeButtonIndex < firstStateIndex,
+      'Home action must appear outside all four conditional Profile states')
+    assert.match(profileWxml, /<button[^>]*catchtap="onHome"[^>]*aria-label="返回首页">返回首页<\/button>/)
+    assert.match(profileWxml, /wx:if="\{\{isRootProfile\}\}" class="boundary-note">系统返回可能离开小程序/)
+    assert.equal(typeof profileDefinition.onHome, 'function')
+
+    const page = readyPage(profileDefinition, draftStore, 'PREVIEW-001', {}, [
+      { route: 'pages/assessment/profile' },
+    ])
+    assert.equal(page.data.isRootProfile, true)
+    assert.equal(page.data.backEnabled, true, 'root keeps the header fallback enabled')
+    const before = draftSnapshot(draftStore, draftStorageKey)
+
+    ;['loading', 'ready', 'incomplete', 'error'].forEach((state) => {
+      page.setData({ pageState: state })
+      runtimeState.navigationCalls.length = 0
+      invoke(page, 'onHome')
+      assertNavigationSummary([{ type: 'switchTab', url: '/pages/home/index', delta: undefined }])
+      assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before,
+        `Home from ${state} state must preserve Draft and storage`)
+      invoke(page, 'onShow')
+    })
+
+    runtimeState.navigationCalls.length = 0
+    runtimeState.navigationModes.switchTab = 'fail'
+    invoke(page, 'onHome')
+    assertNavigationSummary([{ type: 'switchTab', url: '/pages/home/index', delta: undefined }])
+    assert.equal(page.data.actionErrorKey, 'home')
+    assert.match(page.data.actionErrorMessage, /暂时无法返回首页/)
+    assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before)
+
+    runtimeState.navigationCalls.length = 0
+    runtimeState.navigationModes.switchTab = 'pending'
+    invoke(page, 'onHome')
+    invoke(page, 'onOpenRecommendation')
+    assertNavigationSummary([{ type: 'switchTab', url: '/pages/home/index', delta: undefined }])
+    assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before)
+  })
+
+  runCase('PROFILE-019', 'Six edit actions use safe full-trail ancestors and push a fresh step when ancestry is incomplete', () => {
+    const sections = ['basic', 'health', 'adl', 'cognitive', 'preference', 'budget']
+    const profileWxml = readText('miniprogram/pages/assessment/profile.wxml')
+    const boundSections = Array.from(profileWxml.matchAll(/data-section="([a-z]+)"/g), (match) => match[1])
+    assert.deepEqual(Array.from(new Set(boundSections)).sort(), sections.slice().sort())
+
+    sections.forEach((section) => {
+      const page = readyPage(profileDefinition, draftStore, 'PREVIEW-001', {}, [
+        { route: 'pages/assessment/profile' },
+      ])
+      invoke(page, 'onEdit', { currentTarget: { dataset: { section } } })
+      assertNavigationSummary([{
+        type: 'navigateTo',
+        url: `/pages/assessment/${section}`,
+        delta: undefined,
+      }])
+    })
+
+    sections.forEach((section, index) => {
+      const stepNumber = index + 1
+      const safeDepth = 10 - (7 - stepNumber)
+      const stackAtDepth = (page, depth) =>
+        Array.from({ length: depth - 1 }, (_, entry) => ({ route: `pages/test/${entry}` })).concat(page)
+
+      const safePage = readyPage(profileDefinition, draftStore, 'PREVIEW-001')
+      const safeDraft = draftSnapshot(draftStore, draftStorageKey)
+      runtimeState.pageStack = stackAtDepth(safePage, safeDepth)
+      invoke(safePage, 'onEdit', { currentTarget: { dataset: { section } } })
+      assertNavigationSummary([{
+        type: 'navigateTo',
+        url: `/pages/assessment/${section}`,
+        delta: undefined,
+      }])
+      assert.equal(runtimeState.modalCalls.length, 0,
+        `${section} must fit at the exact predicted peak depth 10`)
+      assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), safeDraft)
+
+      const fullPage = readyPage(profileDefinition, draftStore, 'PREVIEW-001')
+      const fullDraft = draftSnapshot(draftStore, draftStorageKey)
+      runtimeState.pageStack = stackAtDepth(fullPage, safeDepth + 1)
+      invoke(fullPage, 'onEdit', { currentTarget: { dataset: { section } } })
+      assert.equal(runtimeState.navigationCalls.length, 0,
+        `${section} must not push beyond the predicted peak depth 10`)
+      assert.equal(runtimeState.modalCalls.length, 1,
+        `${section} must request confirmation one level beyond its safe depth`)
+      const modal = runtimeState.modalCalls[0]
+      assert.ok(Array.from(modal.confirmText || '').length <= 4)
+      assert.ok(Array.from(modal.cancelText || '').length <= 4)
+      modal.success({ confirm: false, cancel: true })
+      assert.equal(runtimeState.navigationCalls.length, 0)
+      assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), fullDraft,
+        `${section} capacity cancellation must preserve Draft and storage`)
+    })
+
+    const legalTrail = [
+      { route: 'pages/assessment/intro' },
+      { route: 'pages/assessment/basic' },
+      { route: 'pages/assessment/health' },
+      { route: 'pages/assessment/adl' },
+      { route: 'pages/assessment/cognitive' },
+      { route: 'pages/assessment/preference' },
+      { route: 'pages/assessment/budget' },
+      { route: 'pages/assessment/profile' },
+    ]
+    const ancestorPage = readyPage(profileDefinition, draftStore, 'PREVIEW-001', {}, legalTrail)
+    invoke(ancestorPage, 'onEdit', { currentTarget: { dataset: { section: 'adl' } } })
+    assertNavigationSummary([{ type: 'navigateBack', url: undefined, delta: 4 }])
+
+    const incompleteTrail = [
+      { route: 'pages/assessment/intro' },
+      { route: 'pages/assessment/basic' },
+      { route: 'pages/assessment/health' },
+      { route: 'pages/assessment/adl' },
+      { route: 'pages/assessment/profile' },
+    ]
+    const nonAncestorPage = readyPage(profileDefinition, draftStore, 'PREVIEW-001', {}, incompleteTrail)
+    invoke(nonAncestorPage, 'onEdit', { currentTarget: { dataset: { section: 'adl' } } })
+    assertNavigationSummary([{
+      type: 'navigateTo',
+      url: '/pages/assessment/adl',
+      delta: undefined,
+    }])
+  })
+
+  runCase('PROFILE-020', 'Recommendation entry refuses a full or changed actual stack without touching Draft or opening downstream flows', () => {
+    const page = readyPage(profileDefinition, draftStore)
+    const before = draftSnapshot(draftStore, draftStorageKey)
+    runtimeState.pageStack = Array.from({ length: 9 }, (_, index) => ({ route: `pages/test/${index}` }))
+      .concat(page)
+    invoke(page, 'onOpenRecommendation')
+    assert.equal(runtimeState.navigationCalls.length, 0,
+      'the local result push must be refused at actual stack depth 10')
+    assert.equal(page.data.actionErrorKey, 'recommendation')
+    assert.match(page.data.actionErrorMessage, /页面层级已满/)
+    assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before)
+    assert.equal(runtimeState.authCalls, 0)
+    assert.equal(runtimeState.requestCalls, 0)
+    assert.equal(runtimeState.removeStorageCalls, 0)
+
+    runtimeState.navigationCalls.length = 0
+    runtimeState.pageStack = [page, { route: 'pages/appointment/index' }]
+    invoke(page, 'onOpenRecommendation')
+    assert.equal(runtimeState.navigationCalls.length, 0,
+      'a Profile page that is no longer current must not push a result route')
+    assert.match(page.data.actionErrorMessage, /页面状态已变化/)
+    assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before)
+
+    runtimeState.pageStack = [page]
+    const previousGetCurrentPages = globalThis.getCurrentPages
+    globalThis.getCurrentPages = () => { throw new Error('page stack unavailable') }
+    try {
+      invoke(page, 'onOpenRecommendation')
+    } finally {
+      globalThis.getCurrentPages = previousGetCurrentPages
+    }
+    assert.equal(runtimeState.navigationCalls.length, 0,
+      'an unavailable actual stack must fail closed before downstream navigation')
+    assert.match(page.data.actionErrorMessage, /页面状态已变化/)
+    assert.deepEqual(draftSnapshot(draftStore, draftStorageKey), before)
   })
 
   assertPureProfileGraph(loadedSourcePaths)

@@ -12,6 +12,7 @@ import {
   readAppointmentReceiptV1,
 } from './appointment-institution-visit-application'
 import { validateAppointmentSubmissionV1 } from '../domain/appointment-institution-visit/validate-appointment-institution-visit'
+import { normalizeAppointmentPhoneV1 } from '../domain/appointment-institution-visit/phone-format'
 import type {
   AppointmentCreateFormErrorsV1,
   AppointmentCreateFormV1,
@@ -146,17 +147,13 @@ export const validateAppointmentCreateFormV1 = (
     errors.contactName = '请填写联系人姓名，最多 200 个字符。'
   }
 
-  const phone = typeof form.phone === 'string' ? form.phone.trim() : ''
-  const phoneDigitCount = phone.replace(/\D/g, '').length
-  if (phone.length < 6 || phone.length > 32 || !/^[0-9+()\-\s]+$/.test(phone)
-    || phoneDigitCount < 6 || phoneDigitCount > 20) {
-    errors.phone = '请填写有效的联系电话。'
-  }
+  const phone = normalizeAppointmentPhoneV1(form.phone)
+  if (phone === null) errors.phone = '请输入正确的中国大陆11位手机号。'
 
   const rawNotes = typeof form.notes === 'string' ? form.notes.trim() : ''
   if (rawNotes.length > 2000) errors.notes = '备注最多 2000 个字符。'
 
-  if (Object.keys(errors).length > 0) return { valid: false, errors }
+  if (Object.keys(errors).length > 0 || phone === null) return { valid: false, errors }
   const normalized: AppointmentFormValidationV1['normalized'] = {
     visitDate,
     visitTimePreference,

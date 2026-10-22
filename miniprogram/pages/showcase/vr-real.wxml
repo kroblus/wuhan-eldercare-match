@@ -1,0 +1,28 @@
+<view class="showcase">
+  <text wx:if="{{!allowed}}" class="error">功能演示仅在开发构建中开放；未加载照片或 Canvas。</text>
+  <block wx:if="{{allowed}}">
+  <button id="back" class="back" bindtap="back">返回功能演示</button>
+  <text class="eyebrow">CANVAS WEBGL / 非养老机构实景</text>
+  <text class="title">环顾这个空间。</text>
+  <text class="body">{{notice}}</text>
+  <view class="viewport">
+    <canvas wx:if="{{canvasVisible}}" id="panorama" type="webgl" class="panorama" catchtouchstart="touchStart" catchtouchmove="touchMove" catchtouchend="touchEnd" catchtouchcancel="touchEnd"></canvas>
+  </view>
+  <text class="source">{{source}}</text>
+  <text wx:if="{{loading}}" class="body">正在检查照片并加载纹理…</text>
+  <text wx:if="{{error}}" class="error" role="alert">{{error}}</text>
+  <text class="body">左右 / 上下拖动；双指缩放。水平 {{yaw}}° · 俯仰 {{pitch}}° · 视野 {{fov}}°</text>
+  <view class="controls">
+    <button id="zoom-out" disabled="{{!rendered}}" bindtap="zoomOut">拉远</button>
+    <button id="zoom-in" disabled="{{!rendered}}" bindtap="zoomIn">拉近</button>
+    <button id="reset" disabled="{{!rendered}}" bindtap="resetView">复位</button>
+  </view>
+  <view class="section">
+    <button wx:if="{{hasSample}}" id="synthetic" class="primary" disabled="{{loading || choosing}}" loading="{{loading}}" bindtap="useSample">加载合成演示全景</button>
+    <button wx:else id="choose-photo" class="primary" disabled="{{loading || choosing}}" loading="{{loading || choosing}}" bindtap="chooseLocalPhoto">选择已脱敏本地 JPEG</button>
+    <button id="calibration" disabled="{{loading || choosing}}" bindtap="useCalibration">使用几何校准纹理（非照片）</button>
+    <button id="retry" bindtap="retryCanvas">重试 WebGL</button>
+    <text class="footnote">照片不会上传、落盘保存或关联任何机构。离开后释放纹理；重进需重新选择照片。普通横向 Panorama 暂不作为球形全景加载。不支持时保留说明，不伪装为真实 VR。</text>
+  </view>
+  </block>
+</view>

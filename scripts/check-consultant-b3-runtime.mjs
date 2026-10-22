@@ -272,7 +272,7 @@ const runPageInteractionCases = (typescript, applicationResult) => {
 }
 
 const runStaticIsolationCases = () => {
-  const pageSource = read('miniprogram/pages/consultant/index.ts')
+  const pageSource = read('miniprogram/pages/consultant/index.ts') + read('miniprogram/pages/consultant/consultant-page.ts')
   const applicationSource = read('miniprogram/services/consultant-global-page.ts')
   const wxml = read('miniprogram/pages/consultant/index.wxml')
   const appConfig = read('miniprogram/app.json')

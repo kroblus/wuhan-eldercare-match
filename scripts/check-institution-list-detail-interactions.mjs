@@ -130,10 +130,14 @@ const main = () => {
     assert.match(detailTs, /暂时无法返回/)
     assert.equal((detailWxml.match(/bind:navigationfail="onNavigationFailure"/g) || []).length, 1)
   })
-  run('INTERACTION-012', 'Detail VR action is blocked without navigation', () => {
+  run('INTERACTION-012', 'Detail VR action gates availability and preserves canonical context', () => {
     const body = functionBody(detailTs, 'onVrTap')
+    assert.match(body, /!this\.data\.viewModel\.media\.canOpenVr/)
+    assert.match(body, /routeByPage\.get/)
+    assert.match(body, /serializeInstitutionDetailRoute/)
+    assert.match(body, /route\.sourceContextRef/)
+    assert.equal((body.match(/navigateToWithGuard\(/g) || []).length, 1)
     assert.match(body, /actionErrorMessage/)
-    assert.equal(/navigateTo|redirectTo|switchTab|reLaunch/.test(body), false)
     assert.match(detailWxml, /bindtap="onVrTap"/)
   })
   run('INTERACTION-013', 'Home no longer propagates legacy id-only detail routes', () => {

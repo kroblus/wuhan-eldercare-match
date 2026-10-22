@@ -22,15 +22,27 @@ interface AIChatPageData {
 }
 
 const applyResult = (
-  instance: { setData: (data: Partial<AIChatPageData>) => void },
+  instance: { setData: (data: Partial<AIChatPageData>, callback?: () => void) => void },
   result: AIConsultationPublicApplicationResultV1,
   isSending = false,
 ): void => {
+  const viewModel = createAIChatPageViewModelV1(result)
   instance.setData({
     result,
-    viewModel: createAIChatPageViewModelV1(result),
+    viewModel,
     isSending,
     inputError: '',
+  }, () => {
+    if (isSending || !viewModel.messages.length) return
+    const latest = viewModel.messages[viewModel.messages.length - 1]
+    try {
+      const pages = getCurrentPages()
+      if (!pages.length || pages[pages.length - 1] !== instance) return
+      const target = latest.role === 'assistant'
+        && (viewModel.state === 'answer_ready' || viewModel.state === 'need_human')
+        ? { selector: '#' + latest.messageId } : { scrollTop: 0 }
+      wx.pageScrollTo({ ...target, duration: 200, fail: () => { /* Manual scrolling remains available. */ } })
+    } catch (_error) { /* Keep the answer readable when automatic scrolling is unavailable. */ }
   })
 }
 

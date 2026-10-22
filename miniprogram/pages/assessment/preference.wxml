@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="养老需求与偏好" back="{{backEnabled}}" fallbackUrl="/pages/assessment/cognitive" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="养老需求与偏好" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/cognitive" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header warmSwiss="{{true}}" current="5" total="6" label="养老需求评估"></progress-header>
@@ -106,6 +106,6 @@
     </view>
 
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer warmSwiss="{{true}}" backText="上一步" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="{{backText}}" nextText="下一步 →" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

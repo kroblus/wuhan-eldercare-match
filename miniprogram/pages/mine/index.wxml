@@ -20,9 +20,20 @@
         <primary-button wx:if="{{showNext}}" class="mine-entry-action" text="查看老人档案" variant="quiet" warmSwiss="{{true}}" bind:action="navigateNext"></primary-button>
       </view>
     </view>
-    <view class="mine-service mine-appointments-entry">
+    <view class="mine-service mine-history-entry">
       <view class="mine-section-heading">
         <text class="mine-number">02</text>
+        <text class="mine-section-title">我的评估</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">查看评估记录与历史版本说明，记录可用性以页面提示为准。</text>
+        <view wx:if="{{historyNavigationErrorMessage}}" class="mine-action-error" role="alert">{{historyNavigationErrorMessage}}</view>
+        <primary-button class="mine-entry-action" text="查看我的评估" variant="quiet" warmSwiss="{{true}}" bind:action="openAssessmentHistory"></primary-button>
+      </view>
+    </view>
+    <view class="mine-service mine-appointments-entry">
+      <view class="mine-section-heading">
+        <text class="mine-number">03</text>
         <text class="mine-section-title">我的预约</text>
       </view>
       <view class="mine-service-body">
@@ -32,8 +43,13 @@
       </view>
     </view>
     <view class="mine-help">
-      <text class="mine-section-title">需要帮助？</text>
-      <text class="mine-copy">可通过底部「养老顾问」了解服务。</text>
+      <view class="mine-section-heading">
+        <text class="mine-number">04</text>
+        <text class="mine-section-title">需要帮助？</text>
+      </view>
+      <view class="mine-service-body">
+        <text class="mine-copy">可通过底部「养老顾问」了解服务。</text>
+      </view>
     </view>
   </view>
 </page-container>

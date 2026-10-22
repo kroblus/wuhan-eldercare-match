@@ -3,6 +3,20 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:showcase-native-vr-map": "node scripts/check-showcase-native-vr-map.mjs",
+    "check:assessment-history-presentation": "node scripts/check-assessment-history-presentation-runtime.mjs",
+    "check:completed-assessment-history-provider": "node scripts/check-completed-assessment-history-provider-runtime.mjs",
+    "check:completed-assessment-history-validator": "node scripts/check-completed-assessment-history-validator.mjs",
+    "check:completed-assessment-history-e2e": "node scripts/check-completed-assessment-history-e2e.mjs",
+    "check:completed-assessment-user-loop-e2e": "node scripts/check-completed-assessment-user-loop-e2e.mjs",
+    "check:assessment-history-device-preparation": "node scripts/check-assessment-history-device-preparation-runtime.mjs",
+    "check:history-intent-resource-guard-e2e": "node scripts/check-completed-assessment-history-e2e.mjs --intent-resource-guard",
+    "check:history-cold-start-e2e": "node scripts/check-history-cold-start-e2e.mjs",
+    "check:completed-assessment-recommendation-runtime": "node scripts/check-completed-assessment-recommendation-runtime.mjs",
+    "check:completed-assessment-recommendation-e2e": "node scripts/check-completed-assessment-user-loop-e2e.mjs --recommendation",
+    "check:assessment-intro-nav-p0": "node scripts/check-assessment-intro-nav-p0.mjs",
+    "check:navigation-home-dedup-p0": "node scripts/check-navigation-home-dedup-p0.mjs",
+    "check:dqa-001-root-back-runtime": "node scripts/check-dqa-001-root-back-runtime.mjs",
     "check:warm-swiss-ui0-runtime": "node scripts/check-warm-swiss-ui0-runtime.mjs",
     "check:doc-governance": "node scripts/check-doc-governance.mjs",
     "check:wechat-js-compat": "node scripts/check-wechat-js-compat.mjs",
@@ -46,13 +60,17 @@
     "check:appointment-contact-consultant-runtime": "node scripts/check-appointment-contact-consultant-runtime.mjs",
     "check:mine-appointment-entry-runtime": "node scripts/check-mine-appointment-entry-runtime.mjs",
     "check:ai-b6-runtime": "node scripts/check-ai-b6-runtime.mjs",
-    "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs"
+    "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs",
+    "build:production": "node scripts/build-run-mode.mjs production",
+    "build:demo": "node scripts/build-run-mode.mjs demo",
+    "check:run-mode-convergence": "node scripts/check-run-mode-convergence.mjs",
+    "check:institution-vr-runtime": "node scripts/check-institution-vr-runtime.mjs",
+    "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "miniprogram-api-typings": "^2.8.3-1"
   }

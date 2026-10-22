@@ -414,7 +414,8 @@ const main = async () => {
     assert.equal(direct.sections.careProcess.state, 'not_applicable_for_schema')
     assert.equal(view.careProcess, null)
     assert.equal(wxml.includes('护理管理与交接'), true)
-    assert.match(wxml, /<view wx:if="\{\{viewModel\.careProcess\}\}" class="detail-card-wrap">\s*<section-card>\s*<text class="section-kicker">护理管理与交接/)
+    assert.match(wxml, /section\.key === 'team'/)
+    assert.match(wxml, /expandedSections\[section\.key\]/)
     assert.equal(wxml.includes('consultantVisit'), false)
   })
   await run('DETAIL-UI-028', 'public rating is not rendered', () => {

@@ -127,7 +127,10 @@ const runtimeState = {
   scrollCalls: [],
   setDataCalls: [],
   failNextNavigateTo: false,
+  failNextNavigateBack: false,
+  throwNextNavigateBack: false,
   failNextRedirectTo: false,
+  failNextReLaunch: false,
   failNextSwitchTab: false,
 }
 const previousComponent = globalThis.Component
@@ -187,6 +190,18 @@ globalThis.wx = {
   },
   navigateBack(options) {
     runtimeState.navigationCalls.push({ type: 'navigateBack', options })
+    if (runtimeState.throwNextNavigateBack) {
+      runtimeState.throwNextNavigateBack = false
+      throw new Error('navigateBack:throw test')
+    }
+    if (runtimeState.failNextNavigateBack) {
+      runtimeState.failNextNavigateBack = false
+      if (options.fail) options.fail({ errMsg: 'navigateBack:fail test' })
+      if (options.complete) options.complete({ errMsg: 'navigateBack:fail test' })
+      return
+    }
+    if (options.success) options.success({ errMsg: 'navigateBack:ok' })
+    if (options.complete) options.complete({ errMsg: 'navigateBack:ok' })
   },
   redirectTo(options) {
     runtimeState.navigationCalls.push({ type: 'redirectTo', url: options.url, options })
@@ -198,6 +213,17 @@ globalThis.wx = {
     }
     if (options.success) options.success({ errMsg: 'redirectTo:ok' })
     if (options.complete) options.complete({ errMsg: 'redirectTo:ok' })
+  },
+  reLaunch(options) {
+    runtimeState.navigationCalls.push({ type: 'reLaunch', url: options.url, options })
+    if (runtimeState.failNextReLaunch) {
+      runtimeState.failNextReLaunch = false
+      if (options.fail) options.fail({ errMsg: 'reLaunch:fail test' })
+      if (options.complete) options.complete({ errMsg: 'reLaunch:fail test' })
+      return
+    }
+    if (options.success) options.success({ errMsg: 'reLaunch:ok' })
+    if (options.complete) options.complete({ errMsg: 'reLaunch:ok' })
   },
   switchTab(options) {
     runtimeState.navigationCalls.push({ type: 'switchTab', url: options.url, options })
@@ -242,8 +268,9 @@ const cloneSerializable = (value) => {
   return value
 }
 
-const mountPage = (definition) => {
+const mountPage = (definition, route = '') => {
   const instance = {
+    route,
     data: cloneSerializable(definition.data || {}),
     handlerCalls: Object.create(null),
     setData(updates, callback) {
@@ -594,7 +621,10 @@ const run = async () => {
     runtimeState.scrollCalls.length = 0
     runtimeState.setDataCalls.length = 0
     runtimeState.failNextNavigateTo = false
+    runtimeState.failNextNavigateBack = false
+    runtimeState.throwNextNavigateBack = false
     runtimeState.failNextRedirectTo = false
+    runtimeState.failNextReLaunch = false
     runtimeState.failNextSwitchTab = false
     runtimeState.pageStack = [
       { route: 'pages/assessment/intro' },
@@ -604,7 +634,8 @@ const run = async () => {
 
   const preparePage = (spec) => {
     resetRuntime(spec.step)
-    const page = mountPage(pageDefinitionsByStep[spec.step])
+    const page = mountPage(pageDefinitionsByStep[spec.step], `pages/assessment/${spec.step}`)
+    runtimeState.pageStack[runtimeState.pageStack.length - 1] = page
     invokePageHandler(page, 'onShow')
     return page
   }
@@ -632,7 +663,8 @@ const run = async () => {
         { route: 'pages/home/index' },
         { route: 'pages/assessment/intro' },
       ]
-    const page = mountPage(introDefinition)
+    const page = mountPage(introDefinition, 'pages/assessment/intro')
+    runtimeState.pageStack[runtimeState.pageStack.length - 1] = page
     invokePageHandler(page, 'onShow')
     assert.equal(page.data.hasDraft, true, 'Intro must expose Continue and Restart for an incomplete Draft')
     return page
@@ -640,7 +672,7 @@ const run = async () => {
 
   const prepareForCompleteNext = (spec, page) => {
     if (spec.step === 'budget') {
-      seedAnswers(allPrerequisiteAnswers)
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
     }
     applyInputs(page, pageInteractionSpecs[spec.step].completeInputs)
   }
@@ -660,7 +692,7 @@ const run = async () => {
     const restoredStore = new draftModule.AssessmentDraftStore()
     assert.deepEqual(restoredStore.getDraft().answers, draft.answers, 'new store did not recover persisted Draft')
 
-    const restoredPage = mountPage(pageDefinitionsByStep[spec.step])
+    const restoredPage = mountPage(pageDefinitionsByStep[spec.step], `pages/assessment/${spec.step}`)
     invokePageHandler(restoredPage, 'onShow')
     Object.entries(pageInteractionSpecs[spec.step].restore).forEach(([dataKey, expected]) => {
       assert.deepEqual(restoredPage.data[dataKey], expected, `page restore mismatch: ${spec.step}.${dataKey}`)
@@ -675,7 +707,7 @@ const run = async () => {
       const introWxml = readText('miniprogram/pages/assessment/intro.wxml')
       const continueButton = introWxml.match(/<button[^>]*class="draft-continue"[^>]*>/)?.[0] || ''
       assert.match(continueButton, /bindtap="startAssessment"/)
-      assert.doesNotMatch(continueButton, /\bdisabled\s*=/)
+      assert.match(continueButton, /disabled="\{\{restartPending\}\}"/, 'Continue is disabled only during the existing restart action')
 
       const page = prepareIntroWithDraft()
       const draftBefore = draftStore.getDraft()
@@ -758,7 +790,8 @@ const run = async () => {
       const introWxml = readText('miniprogram/pages/assessment/intro.wxml')
       const restartButton = introWxml.match(/<button[^>]*class="restart-button"[^>]*>/)?.[0] || ''
       assert.match(restartButton, /bindtap="restartAssessment"/)
-      assert.doesNotMatch(restartButton, /\bdisabled\s*=/)
+      assert.match(restartButton, /disabled="\{\{restartPending\}\}"/)
+      assert.match(restartButton, /loading="\{\{restartPending\}\}"/)
 
       const page = prepareIntroWithDraft()
       const draftBefore = draftStore.getDraft()
@@ -773,7 +806,6 @@ const run = async () => {
       assert.equal(runtimeState.navigationCalls.length, 0)
 
       modal.success({ confirm: true, cancel: false })
-      modal.complete({})
 
       const draftAfter = draftStore.getDraft()
       assert.notEqual(draftAfter.localDraftId, draftBefore.localDraftId)
@@ -815,7 +847,8 @@ const run = async () => {
       assert.equal(draftStore.setCurrentStep('budget').persistence.ok, true)
       runtimeState.navigationCalls.length = 0
       runtimeState.pageStack = [{ route: 'pages/assessment/intro' }]
-      const page = mountPage(introDefinition)
+      const page = mountPage(introDefinition, 'pages/assessment/intro')
+      runtimeState.pageStack[0] = page
       invokePageHandler(page, 'onShow')
       invokePageHandler(page, 'startAssessment')
       assert.deepEqual(
@@ -823,6 +856,228 @@ const run = async () => {
         [{ type: 'redirectTo', url: '/pages/assessment/preference' }],
       )
       assert.equal(draftStore.getDraft().currentStep, 'budget')
+    },
+  )
+
+  runCase(
+    'ASSESSMENT_CAPACITY_RESET_ONE_TIME_INTENT',
+    'A full actual stack asks before reset, cancellation preserves Draft, confirmation opens only root Intro, and one explicit action consumes a local one-time intent',
+    () => {
+      const basicSpec = pageSpecs.find((spec) => spec.step === 'basic')
+      const page = preparePage(basicSpec)
+      prepareForCompleteNext(basicSpec, page)
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
+      runtimeState.pageStack = [
+        { route: 'pages/home/index' },
+        { route: 'pages/assessment/intro' },
+        { route: 'pages/appointment/index' },
+        { route: 'pages/mine/index' },
+        { route: 'pages/elder/index' },
+        page,
+      ]
+      const before = draftStore.getDraft()
+      invokePageHandler(page, 'onNext')
+      assert.equal(runtimeState.modalCalls.length, 1)
+      assert.equal(runtimeState.navigationCalls.length, 0)
+      const modal = runtimeState.modalCalls[0]
+      assert.ok(Array.from(modal.confirmText || '').length <= 4)
+      assert.ok(Array.from(modal.cancelText || '').length <= 4)
+      modal.success({ confirm: false, cancel: true })
+      assert.deepEqual(draftStore.getDraft(), before, 'cancel must not update currentStep or clear Draft')
+      assert.equal(runtimeState.navigationCalls.length, 0)
+
+      invokePageHandler(page, 'onNext')
+      assert.equal(runtimeState.modalCalls.length, 2, 'cancel releases the page action lease')
+      const confirmedModal = runtimeState.modalCalls[1]
+      let introPage
+      const originalReLaunch = wx.reLaunch
+      wx.reLaunch = (options) => {
+        runtimeState.navigationCalls.push({ type: 'reLaunch', url: options.url, options })
+        introPage = mountPage(introDefinition, 'pages/assessment/intro')
+        runtimeState.pageStack = [introPage]
+        invokePageHandler(page, 'onHide')
+        const query = Object.fromEntries(new URLSearchParams(options.url.split('?')[1]))
+        invokePageHandler(introPage, 'onLoad', query)
+        if (options.success) options.success({ errMsg: 'reLaunch:ok' })
+        if (options.complete) options.complete({ errMsg: 'reLaunch:ok' })
+      }
+      try {
+        confirmedModal.success({ confirm: true, cancel: false })
+        confirmedModal.success({ confirm: true, cancel: false })
+      } finally {
+        wx.reLaunch = originalReLaunch
+      }
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'reLaunch', url: '/pages/assessment/intro?phaseStep=health&phaseSource=assessment-forward' }],
+        'a duplicate modal confirmation cannot launch a second Intro reset',
+      )
+      assert.deepEqual(draftStore.getDraft().answers, before.answers)
+      assert.equal(draftStore.getDraft().currentStep, 'health')
+
+      runtimeState.navigationCalls.length = 0
+      assert.equal(introPage.data.phaseIntentStep, 'health')
+      assert.match(introPage.data.phaseIntentActionLabel, /继续填写/)
+      assert.equal(runtimeState.navigationCalls.length, 0,
+        'Intro acceptance must wait for a second explicit user action')
+
+      runtimeState.failNextNavigateTo = true
+      invokePageHandler(introPage, 'startAssessment')
+      assert.equal(introPage.data.phaseIntentStep, 'health',
+        'an async navigation failure keeps a still-valid intent retryable')
+      assert.match(introPage.data.phaseIntentError, /暂时无法进入目标步骤/)
+
+      const retryNavigateTo = wx.navigateTo
+      wx.navigateTo = () => { throw new Error('navigateTo:throw test') }
+      try {
+        invokePageHandler(introPage, 'startAssessment')
+      } finally {
+        wx.navigateTo = retryNavigateTo
+      }
+      assert.equal(introPage.data.phaseIntentStep, 'health',
+        'a synchronous navigation exception also keeps the intent retryable')
+      assert.match(introPage.data.phaseIntentError, /暂时无法进入目标步骤/)
+
+      runtimeState.navigationCalls.length = 0
+      const originalNavigateTo = wx.navigateTo
+      wx.navigateTo = (options) => {
+        runtimeState.navigationCalls.push({ type: 'navigateTo', url: options.url, options })
+        runtimeState.pageStack.push({ route: 'pages/assessment/health' })
+        invokePageHandler(introPage, 'onHide')
+        if (options.success) options.success({ errMsg: 'navigateTo:ok' })
+        if (options.complete) options.complete({ errMsg: 'navigateTo:ok' })
+      }
+      try {
+        invokePageHandler(introPage, 'startAssessment')
+      } finally {
+        wx.navigateTo = originalNavigateTo
+      }
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'navigateTo', url: '/pages/assessment/health' }],
+      )
+      invokePageHandler(introPage, 'onShow')
+      assert.equal(introPage.data.phaseIntentStep, '')
+      assert.match(introPage.data.phaseIntentError, /已结束/)
+
+      const replayPage = mountPage(introDefinition, 'pages/assessment/intro')
+      runtimeState.pageStack = [replayPage]
+      invokePageHandler(replayPage, 'onLoad', { phaseStep: 'health', phaseSource: 'assessment-forward' })
+      assert.equal(replayPage.data.phaseIntentStep, '')
+      assert.match(replayPage.data.phaseIntentError, /无效或已过期/,
+        'the consumed URL cannot recreate the one-time intent')
+      assert.equal(runtimeState.navigationCalls.length, 1)
+
+      resetRuntime('intro')
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
+      assert.equal(draftStore.setCurrentStep('budget').persistence.ok, true)
+      const ordinaryIntro = mountPage(introDefinition, 'pages/assessment/intro')
+      runtimeState.pageStack = [ordinaryIntro]
+      invokePageHandler(ordinaryIntro, 'onLoad', {})
+      assert.equal(ordinaryIntro.data.phaseIntentError, '',
+        'ordinary Intro without an outstanding handoff has no invalid-intent warning')
+      invokePageHandler(ordinaryIntro, 'onShow')
+      invokePageHandler(ordinaryIntro, 'startAssessment')
+      assert.deepEqual(
+        runtimeState.navigationCalls.map((call) => ({ type: call.type, url: call.url })),
+        [{ type: 'redirectTo', url: '/pages/assessment/basic' }],
+        'ordinary complete-Draft Continue remains the approved Basic restart route',
+      )
+
+      const deepStackForSource = (sourcePage) => [
+        { route: 'pages/home/index' },
+        { route: 'pages/assessment/intro' },
+        { route: 'pages/appointment/index' },
+        { route: 'pages/mine/index' },
+        { route: 'pages/elder/index' },
+        sourcePage,
+      ]
+
+      const hiddenSource = preparePage(basicSpec)
+      prepareForCompleteNext(basicSpec, hiddenSource)
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
+      runtimeState.pageStack = deepStackForSource(hiddenSource)
+      const hiddenDraft = draftStore.getDraft()
+      invokePageHandler(hiddenSource, 'onNext')
+      assert.equal(runtimeState.modalCalls.length, 1)
+      invokePageHandler(hiddenSource, 'onHide')
+      runtimeState.modalCalls[0].success({ confirm: true, cancel: false })
+      assert.equal(runtimeState.navigationCalls.length, 0,
+        'a confirmation delivered after source onHide must not create a handoff or navigate')
+      assert.deepEqual(draftStore.getDraft(), hiddenDraft)
+
+      const displacedSource = preparePage(basicSpec)
+      prepareForCompleteNext(basicSpec, displacedSource)
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
+      runtimeState.pageStack = deepStackForSource(displacedSource)
+      const displacedDraft = draftStore.getDraft()
+      invokePageHandler(displacedSource, 'onNext')
+      assert.equal(runtimeState.modalCalls.length, 1)
+      runtimeState.pageStack[runtimeState.pageStack.length - 1] = { route: 'pages/appointment/index' }
+      runtimeState.modalCalls[0].success({ confirm: true, cancel: false })
+      assert.equal(runtimeState.navigationCalls.length, 0,
+        'a delayed confirmation cannot act after the source has left the actual stack')
+      assert.deepEqual(draftStore.getDraft(), displacedDraft)
+
+      const changedSource = preparePage(basicSpec)
+      prepareForCompleteNext(basicSpec, changedSource)
+      seedAnswers(Object.assign({}, ...pageSpecs.map((spec) => spec.complete)))
+      runtimeState.pageStack = deepStackForSource(changedSource)
+      invokePageHandler(changedSource, 'onNext')
+      assert.equal(runtimeState.modalCalls.length, 1)
+      assert.equal(draftStore.setCurrentStep('budget').persistence.ok, true)
+      const changedDraft = draftStore.getDraft()
+      runtimeState.modalCalls[0].success({ confirm: true, cancel: false })
+      assert.equal(runtimeState.navigationCalls.length, 0,
+        'confirmation must not reset after the source Draft context changes')
+      assert.deepEqual(draftStore.getDraft(), changedDraft,
+        'a stale confirmation preserves the latest locally saved Draft')
+      assert.match(changedSource.data.formError, /暂时无法进入下一步/)
+
+      const lateFailureSource = preparePage(basicSpec)
+      prepareForCompleteNext(basicSpec, lateFailureSource)
+      runtimeState.pageStack = [
+        { route: 'pages/home/index' },
+        { route: 'pages/assessment/intro' },
+        { route: 'pages/appointment/index' },
+        { route: 'pages/mine/index' },
+        { route: 'pages/elder/index' },
+        lateFailureSource,
+      ]
+      invokePageHandler(lateFailureSource, 'onNext')
+      let lateIntroPage
+      let lateFailureOptions
+      const savedReLaunch = wx.reLaunch
+      wx.reLaunch = (options) => {
+        runtimeState.navigationCalls.push({ type: 'reLaunch', url: options.url, options })
+        lateFailureOptions = options
+        lateIntroPage = mountPage(introDefinition, 'pages/assessment/intro')
+        runtimeState.pageStack = [lateIntroPage]
+        invokePageHandler(lateFailureSource, 'onHide')
+        invokePageHandler(lateIntroPage, 'onLoad', {})
+      }
+      try {
+        runtimeState.modalCalls[0].success({ confirm: true, cancel: false })
+      } finally {
+        wx.reLaunch = savedReLaunch
+      }
+      assert.equal(lateIntroPage.data.phaseIntentStep, '')
+      assert.match(lateIntroPage.data.phaseIntentError, /无效或已过期/,
+        'an authorized reset without its expected query must not expose an intent')
+      runtimeState.pageStack = [{ route: 'pages/home/index' }]
+      invokePageHandler(lateIntroPage, 'onHide')
+      lateFailureOptions.fail({ errMsg: 'reLaunch:fail late test' })
+      lateFailureOptions.complete({ errMsg: 'reLaunch:fail late test' })
+
+      const lateReplayPage = mountPage(introDefinition, 'pages/assessment/intro')
+      runtimeState.pageStack = [lateReplayPage]
+      invokePageHandler(lateReplayPage, 'onLoad', {
+        phaseStep: 'health',
+        phaseSource: 'assessment-forward',
+      })
+      assert.equal(lateReplayPage.data.phaseIntentStep, '')
+      assert.match(lateReplayPage.data.phaseIntentError, /无效或已过期/,
+        'a late failed reLaunch cannot restore a handoff after Intro exits')
     },
   )
 
@@ -836,7 +1091,6 @@ const run = async () => {
       const modal = runtimeState.modalCalls[0]
 
       modal.success({ confirm: true, cancel: false })
-      modal.complete({})
 
       assert.notEqual(draftStore.getDraft().localDraftId, draftBefore.localDraftId)
       assert.deepEqual(draftStore.getDraft().answers, {})
@@ -862,7 +1116,6 @@ const run = async () => {
 
       const modal = runtimeState.modalCalls[0]
       modal.success({ confirm: true, cancel: false })
-      modal.complete({})
 
       assert.equal(runtimeState.removeStorageCalls, 1)
       assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 1)
@@ -880,7 +1133,6 @@ const run = async () => {
       const modal = runtimeState.modalCalls[0]
 
       modal.success({ confirm: false, cancel: true })
-      modal.complete({})
 
       assert.deepEqual(draftStore.getDraft(), draftBefore)
       assert.equal(runtimeState.removeStorageCalls, 0)
@@ -994,7 +1246,8 @@ const run = async () => {
       runtimeState.pageStack = [{ route: 'pages/assessment/intro' }]
       navigationBar.data.fallbackUrl = '/pages/home/index'
       navigationBar.data.fallbackIsTab = true
-      const introPage = mountPage(introDefinition)
+      const introPage = mountPage(introDefinition, 'pages/assessment/intro')
+      runtimeState.pageStack[runtimeState.pageStack.length - 1] = introPage
       navigationBar.triggerEvent = (name, detail, options) => {
         navigationBar.events.push({ name, detail, options })
         if (name === 'navigationfail') {
@@ -1041,6 +1294,39 @@ const run = async () => {
       navigationBar.back()
       assert.equal(runtimeState.navigationCalls.length, 0)
       assert.equal(navigationBar.events.length, 1)
+
+      const guardedPage = preparePage(pageSpecs.find((spec) => spec.step === 'basic'))
+      navigationBar.data.guardBack = true
+      navigationBar.data.fallbackUrl = '/pages/assessment/intro'
+      navigationBar.data.fallbackIsTab = false
+      navigationBar.events.length = 0
+      runtimeState.toastCalls.length = 0
+      runtimeState.navigationCalls.length = 0
+      runtimeState.pageStack = [
+        { route: 'pages/assessment/intro' },
+        { route: 'pages/assessment/basic' },
+      ]
+      navigationBar.triggerEvent = (name, detail, options) => {
+        navigationBar.events.push({ name, detail, options })
+        if (name === 'navigationfail') invokePageHandler(guardedPage, 'onNavigationFailure')
+      }
+      runtimeState.failNextNavigateBack = true
+      navigationBar.back()
+      assert.equal(navigationBar.events.length, 1, 'guarded Back emits one failure event after fail+complete')
+      assert.equal(navigationBar.events[0].name, 'navigationfail')
+      assert.equal(runtimeState.toastCalls.length, 1)
+      navigationBar.back()
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateBack').length, 2,
+        'guarded Back failure releases the component action for retry')
+      assert.equal(runtimeState.toastCalls.length, 1)
+
+      navigationBarDefinition.pageLifetimes.show.call(navigationBar)
+      navigationBar.events.length = 0
+      runtimeState.throwNextNavigateBack = true
+      navigationBar.back()
+      assert.equal(navigationBar.events.length, 1, 'synchronous wx exception also emits one failure event')
+      assert.equal(navigationBar.events[0].name, 'navigationfail')
+      assert.equal(runtimeState.toastCalls.length, 2)
     },
   )
 
@@ -1061,6 +1347,8 @@ const run = async () => {
           assert.match(wxml, /bind:navigationfail="onNavigationFailure"/, 'Intro must show feedback if Home fallback fails')
         } else {
           assert.doesNotMatch(wxml, /fallbackIsTab/, `${step} keeps the ordinary page fallback API`)
+          assert.match(wxml, /guardBack="\{\{true\}\}"/, `${step} opts into guarded navigation-bar Back`)
+          assert.match(wxml, /bind:navigationfail="onNavigationFailure"/, `${step} must show feedback if header Back fails`)
         }
       })
     },
@@ -1072,6 +1360,7 @@ const run = async () => {
     const pageWxml = readText(`miniprogram/pages/assessment/${spec.step}.wxml`)
     const validator = assessmentV2[spec.validatorName]
     const interaction = pageInteractionSpecs[spec.step]
+    const forwardNavigationType = spec.step === 'budget' ? 'reLaunch' : 'navigateTo'
     const expectedErrorSelector = (questionId) =>
       `#assessment-question-${questionId.replace(/[^a-zA-Z0-9]+/g, '-')}`
 
@@ -1090,6 +1379,7 @@ const run = async () => {
         assert.deepEqual(draftStore.getDraft().answers, {})
         assert.match(pageSource, new RegExp(`navigateBackFromAssessment\\('${spec.step}'\\)`))
         assert.match(pageWxml, /<assessment-footer[\s\S]*bindback="onBack"[\s\S]*bindnext="onNext"/)
+        assert.match(pageWxml, /<assessment-footer[^>]*backText="\{\{backText\}\}"/)
       },
     )
 
@@ -1121,7 +1411,7 @@ const run = async () => {
         invokePageHandler(page, 'onNext')
         assert.equal(page.handlerCalls.onNext, 1)
         assert.deepEqual(
-          runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').map((call) => call.url),
+          runtimeState.navigationCalls.filter((call) => call.type === forwardNavigationType).map((call) => call.url),
           [interaction.nextRoute],
         )
         assert.equal(runtimeState.scrollCalls.length, 0)
@@ -1145,7 +1435,7 @@ const run = async () => {
         invokePageHandler(page, 'onNext')
         assert.equal(page.handlerCalls.onNext, 2)
         assert.deepEqual(
-          runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').map((call) => call.url),
+          runtimeState.navigationCalls.filter((call) => call.type === forwardNavigationType).map((call) => call.url),
           [interaction.nextRoute],
         )
         const beforeReturn = JSON.stringify(draftStore.getDraft().answers)
@@ -1160,21 +1450,21 @@ const run = async () => {
 
     runCase(
       `${spec.step.toUpperCase()}_RAPID_NEXT_GUARD`,
-      'Two rapid calls to the real page onNext handler share one page instance while the first navigateTo remains guarded',
+      'Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded',
       () => {
         const page = preparePage(spec)
         prepareForCompleteNext(spec, page)
         invokePageHandler(page, 'onNext')
         invokePageHandler(page, 'onNext')
         assert.equal(page.handlerCalls.onNext, 2)
-        assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 1)
+        assert.equal(runtimeState.navigationCalls.filter((call) => call.type === forwardNavigationType).length, 1)
         assert.equal(runtimeState.scrollCalls.length, 0)
 
         invokePageHandler(page, 'onShow')
         invokePageHandler(page, 'onNext')
         assert.equal(page.handlerCalls.onShow, 2)
         assert.equal(page.handlerCalls.onNext, 3)
-        assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 2)
+        assert.equal(runtimeState.navigationCalls.filter((call) => call.type === forwardNavigationType).length, 2)
         assertDraftPersistedAndRestored(spec, page)
       },
     )
@@ -1187,6 +1477,8 @@ const run = async () => {
       for (const spec of pageSpecs) {
         const page = preparePage(spec)
         runtimeState.pageStack = [{ route: `pages/assessment/${spec.step}` }]
+        invokePageHandler(page, 'onShow')
+        assert.match(page.data.backText, /^返回/)
         runtimeState.navigationCalls.length = 0
         invokePageHandler(page, 'onBack')
         assert.equal(page.handlerCalls.onBack, 1)
@@ -1200,22 +1492,77 @@ const run = async () => {
   )
 
   runCase(
+    'ASSESSMENT_BACK_LABEL_FOLLOWS_ACTUAL_PARENT',
+    'Each Assessment footer label reflects its actual stack parent, including Resume from Intro, while root fallback names the configured route',
+    () => {
+      const labels = {
+        intro: '评估说明', basic: '老人基本情况', health: '健康情况', adl: '生活自理情况',
+        cognitive: '认知情况', preference: '入住偏好', budget: '预算安排',
+      }
+      for (const spec of pageSpecs) {
+        const page = preparePage(spec)
+        assert.equal(page.data.backText, '返回评估说明', `${spec.step} Resume from Intro label`)
+        const parentStep = spec.step === 'basic' ? null : pageSpecs[pageSpecs.findIndex((item) => item.step === spec.step) - 1]
+        if (parentStep) {
+          runtimeState.pageStack = [
+            { route: `pages/assessment/${parentStep.step}` },
+            { route: `pages/assessment/${spec.step}` },
+          ]
+          invokePageHandler(page, 'onShow')
+          assert.equal(page.data.backText, `返回${labels[parentStep.step]}`, `${spec.step} actual parent label`)
+        }
+        runtimeState.pageStack = [{ route: `pages/assessment/${spec.step}` }]
+        invokePageHandler(page, 'onShow')
+        assert.equal(page.data.backText, `返回${labels[spec.step === 'basic' ? 'intro' : parentStep.step]}`)
+      }
+    },
+  )
+
+  runCase(
+    'ASSESSMENT_BACK_FAILURE_VISIBLE_AND_RETRY',
+    'Footer and navigation-bar Back failures are visible, do not validate Next, preserve Draft, and allow retry',
+    () => {
+      const spec = pageSpecs.find((item) => item.step === 'health')
+      const page = preparePage(spec)
+      seedAnswers({ 'basic.relationship': 'father' })
+      const answersBefore = JSON.stringify(draftStore.getDraft().answers)
+      runtimeState.failNextNavigateBack = true
+      invokePageHandler(page, 'onBack')
+      assert.equal(runtimeState.toastCalls.length, 1)
+      assert.match(runtimeState.toastCalls[0].title, /无法返回/)
+      assert.equal(runtimeState.scrollCalls.length, 0, 'Back must not trigger Next validation')
+      assert.equal(JSON.stringify(draftStore.getDraft().answers), answersBefore)
+      invokePageHandler(page, 'onBack')
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateBack').length, 2)
+      invokePageHandler(page, 'onNavigationFailure')
+      assert.equal(runtimeState.toastCalls.length, 2, 'header failure handler must surface feedback')
+
+      runtimeState.pageStack = [{ route: 'pages/assessment/health' }]
+      runtimeState.failNextRedirectTo = true
+      invokePageHandler(page, 'onBack')
+      assert.equal(runtimeState.toastCalls.length, 3)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'redirectTo').length, 1)
+      assert.equal(JSON.stringify(draftStore.getDraft().answers), answersBefore)
+    },
+  )
+
+  runCase(
     'BUDGET_NAVIGATION_FAILURE_VISIBLE_AND_RETRY',
-    'Budget valid Next receives navigateTo failure, shows an actionable footer error, releases the guard, then retries successfully',
+    'Budget valid Next receives reLaunch failure, shows an actionable footer error, releases the guard, then retries successfully',
     () => {
       const budgetSpec = pageSpecs.find((spec) => spec.step === 'budget')
       const page = preparePage(budgetSpec)
       prepareForCompleteNext(budgetSpec, page)
-      runtimeState.failNextNavigateTo = true
+      runtimeState.failNextReLaunch = true
 
       invokePageHandler(page, 'onNext')
       assert.equal(page.handlerCalls.onNext, 1)
-      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 1)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'reLaunch').length, 1)
       assert.match(page.data.formError, /无法打开老人需求画像/)
 
       invokePageHandler(page, 'onNext')
       assert.equal(page.handlerCalls.onNext, 2)
-      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'navigateTo').length, 2)
+      assert.equal(runtimeState.navigationCalls.filter((call) => call.type === 'reLaunch').length, 2)
       assert.equal(page.data.formError, '')
     },
   )

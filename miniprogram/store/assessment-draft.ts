@@ -1,3 +1,4 @@
+import { draftStorage } from '../runtime/draft-storage'
 import {
   applyAssessmentConditionalRulesV2,
   ASSESSMENT_SCHEMA_VERSION_V2,
@@ -107,7 +108,7 @@ const deepEqual = (left: unknown, right: unknown): boolean => {
 
 const readStorage = (key: string): unknown => {
   try {
-    return wx.getStorageSync(key) as unknown
+    return draftStorage.getStorageSync(key) as unknown
   } catch (_error) {
     return undefined
   }
@@ -145,12 +146,12 @@ const isStoredDraftV2 = (value: unknown): value is AssessmentDraftV2 => {
 
 const persistAndVerifyDraft = (draft: AssessmentDraftV2): AssessmentDraftPersistenceResult => {
   try {
-    wx.setStorageSync(STORAGE_KEY_V2, cloneDraft(draft))
+    draftStorage.setStorageSync(STORAGE_KEY_V2, cloneDraft(draft))
     const saved = readStorage(STORAGE_KEY_V2)
     if (!isStoredDraftV2(saved) || !deepEqual(saved, draft)) {
       return { ok: false, status: 'failed', reason: 'read_back_invalid' }
     }
-    wx.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V2_POINTER)
+    draftStorage.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V2_POINTER)
     const active = readPointer()
     if (active !== ACTIVE_V2_POINTER) {
       return { ok: false, status: 'failed', reason: 'active_pointer_failed' }
@@ -168,13 +169,13 @@ const persistAndVerifyDraft = (draft: AssessmentDraftV2): AssessmentDraftPersist
  */
 const rollbackUncommittedMigration = (): void => {
   try {
-    wx.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V1_POINTER)
+    draftStorage.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V1_POINTER)
   } catch (_error) {
     // Removing the uncommitted V2 value still prevents a stale V2 pointer
     // from resolving to a half-written Draft on the next launch.
   }
   try {
-    wx.removeStorageSync(STORAGE_KEY_V2)
+    draftStorage.removeStorageSync(STORAGE_KEY_V2)
   } catch (_error) {
     // The caller still returns a stable failure and never treats V2 as active.
   }
@@ -182,7 +183,7 @@ const rollbackUncommittedMigration = (): void => {
 
 const persistAndVerifyMigratedDraft = (draft: AssessmentDraftV2): AssessmentDraftPersistenceResult => {
   try {
-    wx.setStorageSync(STORAGE_KEY_V2, cloneDraft(draft))
+    draftStorage.setStorageSync(STORAGE_KEY_V2, cloneDraft(draft))
   } catch (_error) {
     rollbackUncommittedMigration()
     return { ok: false, status: 'failed', reason: 'write_failed' }
@@ -195,7 +196,7 @@ const persistAndVerifyMigratedDraft = (draft: AssessmentDraftV2): AssessmentDraf
   }
 
   try {
-    wx.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V2_POINTER)
+    draftStorage.setStorageSync(ACTIVE_POINTER_KEY, ACTIVE_V2_POINTER)
   } catch (_error) {
     rollbackUncommittedMigration()
     return { ok: false, status: 'failed', reason: 'active_pointer_failed' }
@@ -300,6 +301,29 @@ export class AssessmentDraftStore {
     return cloneDraft(this.draft)
   }
 
+  /** Pure candidate only. The TEST_ONLY History application owns trusted saved-state confirmation. */
+  prepareEmptyHistoryDraft(): AssessmentDraftV2 { return createEmptyDraft() }
+
+  /** Compare-and-replace the existing single slot; never call clear/reset or add an answer backup. */
+  replaceSavedHistoryDraft(expected: AssessmentDraftV2, candidate: AssessmentDraftV2): AssessmentDraftMutationResult {
+    if (this.legacyRecoveryBlocked || !deepEqual(this.draft, expected) || !isStoredDraftV2(candidate)
+      || candidate.localDraftId === expected.localDraftId || candidate.currentStep !== 'basic' || Object.keys(candidate.answers).length) {
+      return { draft: this.getDraft(), persistence: { ok: false, status: 'failed', reason: 'invalid_answer' } }
+    }
+    const result = persistAndVerifyDraft(candidate)
+    if (!result.ok) {
+      // Best effort restore of the same pre-existing slot. If storage fails, the application retains
+      // non-sensitive SWITCH_PREPARED metadata and blocks; old completed history remains authoritative.
+      persistAndVerifyDraft(expected)
+      this.lastPersistenceResult = result
+      return { draft: this.getDraft(), persistence: result }
+    }
+    this.draft = cloneDraft(candidate)
+    this.lastPersistenceResult = result
+    this.notify()
+    return { draft: this.getDraft(), persistence: result }
+  }
+
   hasAnswers(): boolean {
     return this.legacyRecoveryBlocked || Object.keys(this.draft.answers).length > 0
   }
@@ -382,9 +406,9 @@ export class AssessmentDraftStore {
   clear(): AssessmentDraftMutationResult {
     const previousDraft = this.getDraft()
     try {
-      wx.removeStorageSync(STORAGE_KEY_V2)
-      wx.setStorageSync(STORAGE_KEY_V1, '')
-      wx.setStorageSync(ACTIVE_POINTER_KEY, '')
+      draftStorage.removeStorageSync(STORAGE_KEY_V2)
+      draftStorage.setStorageSync(STORAGE_KEY_V1, '')
+      draftStorage.setStorageSync(ACTIVE_POINTER_KEY, '')
     } catch (_error) {
       this.draft = previousDraft
       const persistence: AssessmentDraftPersistenceResult = { ok: false, status: 'failed', reason: 'remove_failed' }

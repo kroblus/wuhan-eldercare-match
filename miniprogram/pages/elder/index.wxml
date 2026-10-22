@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="老人档案" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="老人档案" back="{{backEnabled}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="elder-directory-page">
   <view class="elder-directory-shell">
     <view class="elder-directory-head">

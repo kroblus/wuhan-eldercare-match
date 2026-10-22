@@ -1,6 +1,7 @@
 @import '../../styles/base.less';
 @import '../../styles/tokens.less';
 @import '../../styles/mixins.less';
+@import '../../styles/brand-content.less';
 
 .institution-detail-shell {
   padding-top: @space-4;
@@ -761,3 +762,35 @@ page { .ws-page-surface(); }
 .detail-quick-action { min-height: @touch-target-min; margin: 0; padding: @space-2; border: 0; background: transparent; color: @ws-ink; font-size: @ws-helper; line-height: @line-height-body; }
 .detail-quick-action[disabled], .detail-quick-unavailable { color: @ws-muted; background: transparent; font-size: @ws-helper; line-height: @line-height-body; }
 .detail-quick-unavailable { flex: 1; min-width: 144rpx; }
+
+// Institution Detail P0: readable overview, five independently expandable groups.
+.institution-detail-head { padding: 0; }
+.detail-hero-meta { display: flex; flex-wrap: wrap; gap: @space-2; color: @ws-secondary; font-size: @ws-body; }
+.detail-hero-meta > view { min-width: 0; }
+.detail-hero-fees { margin-top: @space-3; }
+.detail-hero-care, .detail-recommendation-overview { margin-top: @space-3; }
+.detail-summary { display: block; margin-top: @space-1; color: @ws-ink; font-size: @ws-body; line-height: @line-height-body; overflow-wrap: break-word; white-space: pre-wrap; }
+.detail-summary--secondary { color: @ws-secondary; }
+.detail-source-note, .detail-price-note { display: block; margin-top: @space-1; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; }
+.detail-source-note--development { margin: 0 0 @space-2; color: @color-warning; }
+.detail-important-note { display: block; margin-top: @space-2; padding-left: @space-2; border-left: 4rpx solid @color-warning; color: @color-warning; font-size: @ws-body; line-height: @line-height-body; }
+.detail-image-placeholder { display: block; margin-top: @space-3; padding: @space-2 0; color: @ws-muted; font-size: @ws-helper; line-height: @line-height-body; border-bottom: @ws-rule-width solid @ws-border; }
+.detail-cover-wrap { margin-top: @space-3; }
+.detail-cover { height: 280rpx; }
+.detail-section { margin-top: @space-3; padding-top: @space-2; }
+.detail-care-notice { display: block; margin-top: @space-2; color: @color-warning; font-size: @ws-body; line-height: @line-height-body; }
+.detail-section > .detail-section-toggle { .touch-target(); display: flex; align-items: center; justify-content: space-between; gap: @space-2; width: 100%; margin: 0; padding: 0; color: @ws-ink; background: transparent; border: 0; border-radius: 0; line-height: @line-height-body; text-align: left; }
+.detail-section-toggle::after { border: 0; }
+.detail-section-title { flex: 1; min-width: 0; font-size: @ws-section-title; font-weight: 600; line-height: @line-height-tight; }
+.detail-section-state { flex-shrink: 0; display: flex; align-items: center; gap: @space-1; color: @ws-secondary; font-size: @ws-helper; }
+.detail-section-arrow { font-size: @ws-body; }
+.detail-section-content { padding-top: @space-2; }
+.detail-section-content .detail-subheading { margin-top: @space-3; }
+.fact-row__label { font-size: @ws-body; }
+.detail-introduction { white-space: pre-wrap; }
+.detail-appointment-note { margin-top: @space-5; padding-bottom: @space-3; }
+.institution-detail-shell { padding-bottom: @space-3; }
+.detail-sticky-actions { align-items: flex-end; }
+
+.detail-quick-actions { flex-wrap: wrap; }
+.detail-quick-action { min-width: 140rpx; white-space: normal; }

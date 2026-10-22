@@ -17,6 +17,7 @@ import {
   INSTITUTION_VISIT_KIND_V1,
   INSTITUTION_VISIT_PUBLIC_SNAPSHOT_KIND_V1,
 } from '../../types/appointment-institution-visit-v1'
+import { normalizeAppointmentPhoneV1 } from './phone-format'
 
 const STATUS_VALUES = ['requested', 'contacting', 'scheduled', 'completed', 'cancelled'] as const
 const PHONE_PURPOSE = 'appointment_or_consultant_contact' as const
@@ -103,6 +104,14 @@ const readPhone = (value: unknown, path: string, issues: AppointmentValidationIs
   return phone
 }
 
+// New manual drafts/commands follow the approved policy. Historical persisted
+// Visit reads retain their existing transport grammar; no records are migrated.
+const readManualPhone = (value: unknown, path: string, issues: AppointmentValidationIssueV1[]): string | null => {
+  const phone = normalizeAppointmentPhoneV1(value)
+  if (phone === null) issues.push(issue('INVALID_FIELD', path))
+  return phone
+}
+
 const readOptionalNotes = (value: unknown, path: string, issues: AppointmentValidationIssueV1[]): string | undefined => {
   if (value === undefined) return undefined
   return readString(value, path, 1, 2000, issues) || undefined
@@ -138,7 +147,7 @@ export const validateAppointmentLocalDraftV1 = (value: unknown): AppointmentVali
   const elderId = readOpaqueId(value.elderId, 'elderId', issues)
   const intent = validateDateAndIntent(value, issues)
   const contactName = value.contactName === undefined ? undefined : readString(value.contactName, 'contactName', 1, 200, issues) || undefined
-  const phone = value.phone === undefined ? undefined : readPhone(value.phone, 'phone', issues) || undefined
+  const phone = value.phone === undefined ? undefined : readManualPhone(value.phone, 'phone', issues) || undefined
   const notes = readOptionalNotes(value.notes, 'notes', issues)
   if (issues.length > 0 || !localDraftId || !institutionId || !institutionRecordRevision || !elderId
     || !intent.visitDate || !intent.visitTimePreference || !intent.participantCount) return invalid(issues)
@@ -179,7 +188,7 @@ export const validateAppointmentSubmissionV1 = (value: unknown): AppointmentVali
   const elderId = readOpaqueId(value.elderId, 'elderId', issues)
   const intent = validateDateAndIntent(value, issues)
   const contactName = readString(value.contactName, 'contactName', 1, 200, issues)
-  const phone = readPhone(value.phone, 'phone', issues)
+  const phone = readManualPhone(value.phone, 'phone', issues)
   if (value.phonePurpose !== PHONE_PURPOSE) issues.push(issue('INVALID_PHONE_PURPOSE', 'phonePurpose'))
   if (value.phoneAuthorization !== PHONE_AUTHORIZATION) issues.push(issue('INVALID_PHONE_AUTHORIZATION', 'phoneAuthorization'))
   const notes = readOptionalNotes(value.notes, 'notes', issues)

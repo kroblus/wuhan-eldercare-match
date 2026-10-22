@@ -30,6 +30,7 @@ import type {
   RecommendationResultViewModel,
 } from './result-view-model'
 import type { RecommendationResultPageViewModelV2 } from './result-v2-view-model'
+import { emptyRecommendationSaveView, recommendationResultSaveController } from '../../services/recommendation-result-save'
 
 type RecommendationResultPageLifecycleState =
   | 'loading'
@@ -50,6 +51,14 @@ interface RecommendationResultPageData {
   stateMessage: string
   actionErrorKey: string
   actionErrorMessage: string
+  resultSaveVisible: boolean
+  resultSavePending: boolean
+  resultSaveDialog: boolean
+  resultSaveConfirmDisabled: boolean
+  resultSaveMessage: string
+  resultSaveCanReconcile: boolean
+  resultSaveAdmissionReady: boolean
+  resultSaveTrustedView: ReturnType<typeof emptyRecommendationSaveView>['resultSaveTrustedView']
 }
 
 interface NavigationCallbacks {
@@ -210,6 +219,7 @@ Page({
     stateMessage: '正在根据本次评估和开发目录中的结构化资料生成结果。',
     actionErrorKey: '',
     actionErrorMessage: '',
+    ...emptyRecommendationSaveView(),
   } as RecommendationResultPageData,
 
   onShow() {
@@ -218,10 +228,14 @@ Page({
   },
 
   onUnload() {
+    recommendationResultSaveController(this).close()
     clearResultSourceContexts(this)
   },
 
+  onHide() { recommendationResultSaveController(this).close() },
+
   refreshRecommendation() {
+    recommendationResultSaveController(this).close()
     clearResultSourceContexts(this)
     const generation = nextRefreshGeneration(this)
     resultSnapshots.delete(this)
@@ -261,6 +275,7 @@ Page({
         stateTitle: '',
         stateMessage: '',
       })
+      void recommendationResultSaveController(this).activate(result.version === 2 ? result.value : undefined)
     }).catch(() => {
       if (!isCurrentRefresh(this, generation)) {
         return
@@ -315,11 +330,13 @@ Page({
   },
 
   onAdjustNeeds() {
+    recommendationResultSaveController(this).close()
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     this.navigateToProfile()
   },
 
   onConsultant() {
+    recommendationResultSaveController(this).close()
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     runGuardedNavigation(this, 'recommendation.consultant', (callbacks) => wx.switchTab({
       url: '/pages/consultant/index',
@@ -332,6 +349,19 @@ Page({
         actionErrorMessage: '暂时无法打开养老顾问，请稍后重试。',
       })
     })
+  },
+
+  onSaveAssessment() { void recommendationResultSaveController(this).begin() },
+  onVerifyAssessmentSave() { void recommendationResultSaveController(this).verify() },
+  onObtainTrustedAssessmentPreview() { void recommendationResultSaveController(this).obtainPreview() },
+  onCancelAssessmentSave() { recommendationResultSaveController(this).cancel() },
+  onConfirmAssessmentSave() { void recommendationResultSaveController(this).confirm() },
+  onReconcileAssessmentSave() { void recommendationResultSaveController(this).reconcile() },
+  async onAssessmentHistory() {
+    if (!await recommendationResultSaveController(this).canOpenHistory()) return
+    runGuardedNavigation(this, 'recommendation.assessmentHistory', callbacks => wx.navigateTo({
+      url: '/pages/assessment/history', ...callbacks,
+    }), () => this.setData({ actionErrorKey: 'history-save', actionErrorMessage: '暂时无法打开我的评估，请重试。' }))
   },
 
   onRecommendationCardTap(event: WechatMiniprogram.BaseEvent) {

@@ -14,6 +14,7 @@ import {
 import { deriveOfficialPhonePublicSnapshot } from '../domain/institution/v1-2-1/official-phone'
 import { isValidIsoTimestamp } from '../domain/institution/primitives'
 import type { InstitutionField } from '../types/institution'
+import { institutionValidationOptions } from '../runtime/institution-validation'
 import type {
   CareProcessPresenceCode,
   HandoverContentCode,
@@ -138,7 +139,7 @@ const projectMap = (
   record: InstitutionRecordV121,
   evaluationAsOf: string,
 ): InstitutionMapApplicationSnapshotV121 => {
-  const result = deriveInstitutionMapReadiness(record, evaluationAsOf)
+  const result = deriveInstitutionMapReadiness(record, evaluationAsOf, institutionValidationOptions)
   if (!result.ok) return unavailableMap()
   return {
     status: result.value.status,

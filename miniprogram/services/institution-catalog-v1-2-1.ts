@@ -18,6 +18,7 @@ import {
 } from '../domain/institution/primitives'
 import { projectInstitutionRecordV121ToV11 } from '../domain/institution/v1-2-1/project-to-v1-1'
 import { MOCK_INSTITUTION_CATALOG_V121 } from '../mock/institution-catalog.mock'
+import { institutionValidationOptions } from '../runtime/institution-validation'
 import type { InstitutionRecordV11 } from '../types/institution-v1-1'
 import type {
   InstitutionCatalogResultV11,
@@ -111,7 +112,7 @@ export const validateInstitutionCatalogPayloadV121 = (
   const institutionIds: string[] = []
   const identities: string[] = []
   for (let index = 0; index < input.records.length; index += 1) {
-    const dispatched = validateInstitutionRecordByVersion(input.records[index])
+    const dispatched = validateInstitutionRecordByVersion(input.records[index], institutionValidationOptions)
     if (!dispatched.ok) {
       return invalid(
         dispatched.code === 'UNSUPPORTED_INSTITUTION_CONTRACT_VERSION'
@@ -261,7 +262,7 @@ export const projectInstitutionCatalogV121ToV11 = (
   }
   const records: InstitutionRecordV11[] = []
   for (let index = 0; index < validated.value.records.length; index += 1) {
-    const projected = projectInstitutionRecordV121ToV11(validated.value.records[index])
+    const projected = projectInstitutionRecordV121ToV11(validated.value.records[index], institutionValidationOptions)
     if (!projected.ok) {
       return { ok: false, error: { code: 'INVALID_INSTITUTION_RECORD', recordIndex: index } }
     }

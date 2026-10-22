@@ -1,28 +1,17 @@
-<navigation-bar warmSwiss="{{true}}" title="武汉养老机构精准匹配" back="{{false}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="武汉养老机构精准匹配" back="{{false}}"></navigation-bar>
 <page-container extraClass="home-page">
   <view class="home-hero">
     <text class="home-brand-note">武汉本地养老机构匹配服务</text>
     <text class="home-hero__title">先了解老人情况，再找到更合适的养老机构。</text>
     <text class="home-hero__description">从身体情况、照护需求、生活偏好和预算出发，逐步帮您梳理选择。</text>
     <primary-button warmSwiss="{{true}}" text="开始养老需求评估 →" block="{{false}}" bind:action="startAssessment"></primary-button>
-    <view aria-role="button" class="home-link" bindtap="openInstitutions">查看合作机构 →</view>
+    <view aria-role="button" class="home-link" bindtap="openInstitutions">直接查看机构 →</view>
     <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
   </view>
 
   <view class="home-section">
-    <view class="ws-section-heading"><text class="ws-section-number">01</text><text>3–5 分钟了解老人需求</text></view>
-    <text class="section-heading__note">帮助我们更准确地理解照护需求</text>
-    <view class="home-editorial-row"><text>健康情况</text><text>慢性病、近期风险、身体状况</text></view>
-    <view class="home-editorial-row"><text>生活能力</text><text>日常起居与生活自理程度</text></view>
-    <view class="home-editorial-row"><text>认知与护理</text><text>认知状态与特殊护理需求</text></view>
-    <view class="home-editorial-row"><text>养老偏好</text><text>居住环境与服务偏好</text></view>
-    <view class="home-editorial-row"><text>预算与入住计划</text><text>预算范围与入住时间</text></view>
-    <primary-button warmSwiss="{{true}}" text="3–5 分钟完成评估 →" variant="quiet" bind:action="startAssessment"></primary-button>
-  </view>
-
-  <view class="home-section">
-    <view class="ws-section-heading"><text class="ws-section-number">02</text><text>{{showMockDisclosure ? '当前合作机构资料示例' : '精选合作机构'}}</text></view>
-    <text class="section-heading__note">先浏览当前可读取的基础资料，再了解机构详情</text>
+    <view class="ws-section-heading"><text class="ws-section-number">01</text><text>{{showMockDisclosure ? '机构资料示例' : '机构资料预览'}}</text></view>
+    <text class="section-heading__note">先浏览机构资料，目录顺序不代表推荐排名；完成评估后可查看匹配参考。</text>
     <view wx:if="{{showMockDisclosure}}" class="home-mock-disclosure"><tag text="开发 Mock" tone="development"></tag><text>{{mockDisclosure}}</text></view>
     <state-panel wx:if="{{isLoading}}" state="loading" title="正在读取机构资料" message="仅加载当前本地开发目录"></state-panel>
     <state-panel wx:elif="{{loadError}}" state="error" title="机构资料暂时不可用" message="当前本地开发目录未能读取。" actionText="重新加载" bind:action="retryLoad"></state-panel>
@@ -42,11 +31,13 @@
         <text class="home-chevron" aria-hidden="true">›</text>
       </view>
     </block>
+    <view aria-role="button" class="home-link home-all-institutions" bindtap="openInstitutions">查看全部机构 →</view>
+    <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
     <view wx:if="{{institutionActionError}}" class="home-action-error" role="alert">{{institutionActionError}}</view>
   </view>
 
   <view class="home-section home-section--guide">
-    <view class="ws-section-heading"><text class="ws-section-number">03</text><text>需要帮助？</text></view>
+    <view class="ws-section-heading"><text class="ws-section-number">02</text><text>需要帮助？</text></view>
     <view aria-role="button" class="home-navigation-row" bindtap="openConsultant"><view><text class="home-navigation-row__title">养老顾问</text><text class="section-heading__note">人工协助解读评估结果与机构选择</text></view><text class="home-chevron">›</text></view>
     <view wx:if="{{consultantActionError}}" class="home-action-error" role="alert">{{consultantActionError}}</view>
     <view aria-role="button" class="home-navigation-row" bindtap="openAIConsultation"><view><text class="home-navigation-row__title">养老咨询助手</text><text class="section-heading__note">了解流程、常见问题与基础信息</text></view><text class="home-chevron">›</text></view>

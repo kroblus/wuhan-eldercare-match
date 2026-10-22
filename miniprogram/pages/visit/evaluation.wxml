@@ -1,4 +1,4 @@
-<navigation-bar id="evaluation-navigation" title="看院评价" back="true" warmSwiss="{{true}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar id="evaluation-navigation" title="看院评价" back="true" warmSwiss="{{true}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/appointment/index" fallbackIsTab="{{false}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="route-page">
   <view class="page-shell evaluation-page">
     <view class="page-head">

@@ -1,8 +1,11 @@
-<navigation-bar title="老人需求画像" warmSwiss="{{true}}" back="{{backEnabled}}" fallbackUrl="/pages/assessment/budget" color="#111827" background="#FBFAF7" bind:navigationfail="onBackNavigationFailure"></navigation-bar>
+<navigation-bar title="老人需求画像" warmSwiss="{{true}}" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#111827" background="#FBFAF7" bind:navigationfail="onBackNavigationFailure"></navigation-bar>
 <page-container extraClass="profile-page">
   <view class="profile-shell">
     <view class="profile-head">
-      <text class="profile-intro">根据本次评估，为您整理老人的核心养老需求。请先确认以下信息，再查看机构推荐。</text>
+      <text class="profile-intro">以下是本次评估整理的养老需求，不是医疗诊断。请先核对；如需调整，可点击各区“修改”，确认后再查看机构推荐。</text>
+      <button class="edit-action" catchtap="onHome" aria-label="返回首页">返回首页</button>
+      <view wx:if="{{actionErrorKey === 'home'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      <text wx:if="{{isRootProfile}}" class="boundary-note">系统返回可能离开小程序；返回首页请点击“返回首页”。</text>
       <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
     </view>
     <view wx:if="{{pageState === 'loading'}}" class="profile-state">

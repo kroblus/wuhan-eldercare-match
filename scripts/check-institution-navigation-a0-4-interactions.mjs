@@ -157,7 +157,6 @@ const makeResultSnapshot = () => ({
 
 const runHomeAssessmentEntryHarness = () => {
   const typescript = loadWechatTypeScript()
-  const guardModule = createRuntime(typescript).load(path.join(root, 'miniprogram', 'utils', 'navigation-guard.ts'))
   const calls = []
   const toasts = []
   let componentConfig = null
@@ -167,6 +166,7 @@ const runHomeAssessmentEntryHarness = () => {
     reLaunch(options) { calls.push({ api: 'reLaunch', options }) },
     showToast(options) { toasts.push(options) },
   }
+  const guardModule = createRuntime(typescript, { globals: { wx: wxRuntime } }).load(path.join(root, 'miniprogram', 'utils', 'navigation-guard.ts'))
   const modulePath = (relativePath) => path.resolve(root, 'miniprogram', relativePath)
   const overrides = new Map([
     [modulePath('services/institution-list-detail-page.ts'), { buildInstitutionListPageSnapshot() { return Promise.resolve({ ok: false }) } }],
@@ -192,21 +192,21 @@ const runHomeAssessmentEntryHarness = () => {
   const guard = guardModule.getNavigationGuard(page)
 
   startAssessment.call(page)
-  assert.equal(calls.length, 1, 'one Home action must issue one route replacement')
-  assert.equal(calls[0].api, 'reLaunch', 'Home must reset its root page to reserve one stack slot')
+  assert.equal(calls.length, 1, 'one Home action must issue one page push')
+  assert.equal(calls[0].api, 'navigateTo', 'Home must remain the parent of Intro')
   assert.equal(calls[0].options.url, '/pages/assessment/intro')
   assert.equal(guard.isLocked('home.startAssessment'), true)
-  calls[0].options.fail({ errMsg: 'reLaunch:fail' })
-  calls[0].options.complete({ errMsg: 'reLaunch:fail' })
-  assert.equal(guard.isLocked('home.startAssessment'), false, 'failed redirect must release the guard')
-  assert.equal(toasts.length, 1, 'failed redirect must provide one visible retry cue')
+  calls[0].options.fail({ errMsg: 'navigateTo:fail' })
+  calls[0].options.complete({ errMsg: 'navigateTo:fail' })
+  assert.equal(guard.isLocked('home.startAssessment'), false, 'failed push must release the guard')
+  assert.equal(toasts.length, 1, 'failed push must provide one visible retry cue')
 
   startAssessment.call(page)
-  assert.equal(calls.length, 2, 'failed redirect must allow a retry')
-  assert.equal(calls[1].api, 'reLaunch')
-  calls[1].options.success({ errMsg: 'reLaunch:ok' })
-  calls[1].options.complete({ errMsg: 'reLaunch:ok' })
-  assert.equal(guard.isLocked('home.startAssessment'), true, 'successful route replacement keeps the source action locked')
+  assert.equal(calls.length, 2, 'failed push must allow a retry')
+  assert.equal(calls[1].api, 'navigateTo')
+  calls[1].options.success({ errMsg: 'navigateTo:ok' })
+  calls[1].options.complete({ errMsg: 'navigateTo:ok' })
+  assert.equal(guard.isLocked('home.startAssessment'), true, 'successful push keeps the source action locked')
   componentConfig.pageLifetimes.show.call(page)
   assert.equal(guard.isLocked('home.startAssessment'), false, 'returning to Home resets its page guard')
 
@@ -612,7 +612,7 @@ const resultCardBody = functionBody(resultTs, 'onRecommendationCardTap')
 
 const matrix = Object.freeze([
   ['HOME-CTA', 'home.openInstitutions', 'ready', 'clickable', 'none', 'navigateTo /pages/institution/index', 'guarded', 'rapid <= 1', 'visible fail feedback'],
-  ['HOME-ASSESSMENT-ENTRY', 'home.startAssessment', 'Home root', 'clickable', 'none', 'reLaunch Intro; Intro root Back switches to Home tab', 'guarded', 'rapid <= 1', 'visible fail feedback'],
+  ['HOME-ASSESSMENT-ENTRY', 'home.startAssessment', 'Home root', 'clickable', 'none', 'navigateTo Intro; parent Back returns Home; root-only Back switches Home Tab', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['HOME-FEATURED', 'home.openInstitution', 'loaded canonical item', 'clickable', 'identity validation', 'direct_link detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['LIST-CARD', 'institution.list.onCardTap', 'ready canonical item', 'clickable', 'identity serialization', 'direct_list / recommendation detail', 'guarded', 'rapid <= 1', 'visible fail feedback'],
   ['RESULT-EXACT', 'recommendation.result.onRecommendationCardTap', 'ready_exact V2 snapshot', 'clickable', 'snapshot identity gate', 'recommendation detail', 'guarded', 'rapid <= 1', 'context discard on fail'],
@@ -780,16 +780,16 @@ const main = () => {
     assert.ok(metrics.resolveCount >= 5)
     assert.ok(metrics.clearCount >= 3)
   })
-  run('NAV-024', 'Home assessment entry reserves a Detail stack slot and preserves root Back', () => {
-    assert.equal((homeWxml.match(/(?:bind:action|bindtap)="startAssessment"/g) || []).length, 2, 'both Home Assessment actions share the same handler')
+  run('NAV-024', 'Home assessment entry preserves its parent and legal root Back fallback', () => {
+    assert.equal((homeWxml.match(/(?:bind:action|bindtap)="startAssessment"/g) || []).length, 1, 'Home exposes one primary Assessment action')
     assert.match(homeAssessmentBody, /navigateToWithGuard/)
-    assert.match(homeAssessmentBody, /wx\.reLaunch/)
+    assert.doesNotMatch(homeAssessmentBody, /wx\.(?:reLaunch|redirectTo)/)
     assert.match(homeAssessmentBody, /无法开始评估/)
     assert.match(introWxml, /fallbackUrl="\/pages\/home\/index"/)
     assert.match(introWxml, /fallbackIsTab="\{\{true\}\}"/)
     assert.match(navigationBarTs, /pages\.length <= 1 && data\.fallbackUrl[\s\S]*data\.fallbackIsTab[\s\S]*wx\.switchTab[\s\S]*wx\.redirectTo/)
     const metrics = runHomeAssessmentEntryHarness()
-    assert.deepEqual(metrics, { reLaunchCount: 2, navigateCount: 0, toastCount: 1 })
+    assert.deepEqual(metrics, { reLaunchCount: 0, navigateCount: 2, toastCount: 1 })
   })
   run('NAV-025', 'Institution List root Back uses Home Tab and preserves parent/failure semantics', () => {
     assert.match(listWxml, /fallbackUrl="\/pages\/home\/index"/)

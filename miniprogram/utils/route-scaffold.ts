@@ -1,3 +1,5 @@
+import { navigateToWithGuard, resetNavigationGuard } from './navigation-guard'
+
 export interface RouteScaffoldConfig {
   title: string
   routeLabel: string
@@ -40,6 +42,11 @@ export const createRouteScaffoldData = (config: RouteScaffoldConfig): RouteScaff
 export const registerRoutePage = (config: RouteScaffoldConfig): void => {
   Component({
     data: createRouteScaffoldData(config),
+    pageLifetimes: {
+      show() {
+        resetNavigationGuard(this)
+      },
+    },
     methods: {
       navigateNext() {
         const { nextUrl, nextIsTab } = this.data as RouteScaffoldData
@@ -47,7 +54,9 @@ export const registerRoutePage = (config: RouteScaffoldConfig): void => {
           if (nextIsTab) {
             wx.switchTab({ url: nextUrl })
           } else {
-            wx.navigateTo({ url: nextUrl })
+            navigateToWithGuard(this, 'route-scaffold.next', nextUrl, undefined, () => {
+              wx.showToast({ title: '暂时无法打开此页面，请稍后重试。', icon: 'none' })
+            })
           }
         }
       },

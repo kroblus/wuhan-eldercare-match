@@ -1,4 +1,8 @@
 const pendingRootTabFallbacks = new WeakSet<object>()
+const pendingBackOperations = new WeakMap<object, { succeeded: boolean }>()
+type NavigationBarLayoutLifecycleMetadata = {
+  __navigationBarLayoutRequestToken?: object
+}
 
 Component({
   options: {
@@ -63,6 +67,9 @@ Component({
       type: Boolean,
       value: false
     },
+    // Opt-in for pages with an approved root fallback; legacy callers keep their behavior.
+    guardBack: { type: Boolean, value: false },
+    navigationFailureMessage: { type: String, value: '' },
   },
   /**
    * 组件的初始数据
@@ -71,10 +78,19 @@ Component({
     displayStyle: ''
   },
   lifetimes: {
+    detached() {
+      const layoutOwner = this as unknown as NavigationBarLayoutLifecycleMetadata
+      layoutOwner.__navigationBarLayoutRequestToken = undefined
+      pendingBackOperations.delete(this)
+    },
     attached() {
       const rect = wx.getMenuButtonBoundingClientRect()
+      const layoutOwner = this as unknown as NavigationBarLayoutLifecycleMetadata
+      const layoutRequestToken = {}
+      layoutOwner.__navigationBarLayoutRequestToken = layoutRequestToken
       wx.getSystemInfo({
         success: (res) => {
+          if (layoutOwner.__navigationBarLayoutRequestToken !== layoutRequestToken) return
           const isAndroid = res.platform === 'android'
           const isDevtools = res.platform === 'devtools'
           this.setData({
@@ -87,10 +103,67 @@ Component({
       })
     },
   },
+  pageLifetimes: {
+    show() {
+      // A source page shown again must be able to start a new Back operation.
+      pendingBackOperations.delete(this)
+    },
+  },
   /**
    * 组件的方法列表
    */
   methods: {
+    _guardedBack() {
+      if (pendingBackOperations.has(this)) return
+      const operation = { succeeded: false }
+      pendingBackOperations.set(this, operation)
+      const notifyFailure = () => {
+        if (pendingBackOperations.get(this) !== operation || operation.succeeded) return
+        pendingBackOperations.delete(this)
+        if (this.data.navigationFailureMessage) {
+          wx.showToast({ title: this.data.navigationFailureMessage, icon: 'none' })
+        } else {
+          this.triggerEvent('navigationfail', { action: 'back' }, { bubbles: false, composed: false })
+        }
+      }
+      const callbacks = {
+        success: () => { operation.succeeded = true },
+        fail: notifyFailure,
+        complete: () => { if (!operation.succeeded) notifyFailure() },
+      }
+      try {
+        const pages = getCurrentPages()
+        if (!Array.isArray(pages) || pages.length === 0) {
+          notifyFailure()
+          return
+        }
+        for (let index = 0; index < pages.length; index += 1) {
+          const page = pages[index]
+          if (!page || typeof page !== 'object' || typeof page.route !== 'string' || !page.route) {
+            notifyFailure()
+            return
+          }
+        }
+        if (pages.length > 1) {
+          const delta = this.data.delta
+          if (!Number.isInteger(delta) || delta <= 0 || delta >= pages.length) {
+            notifyFailure()
+            return
+          }
+          wx.navigateBack({ delta, ...callbacks })
+        } else if (this.data.fallbackUrl) {
+          if (this.data.fallbackIsTab) {
+            wx.switchTab({ url: this.data.fallbackUrl, ...callbacks })
+          } else {
+            wx.redirectTo({ url: this.data.fallbackUrl, ...callbacks })
+          }
+        } else {
+          notifyFailure()
+        }
+      } catch (_error) {
+        notifyFailure()
+      }
+    },
     _showChange(show: boolean) {
       const animated = this.data.animated
       let displayStyle = ''
@@ -106,6 +179,10 @@ Component({
       })
     },
     back() {
+      if (this.data.guardBack) {
+        this._guardedBack()
+        return
+      }
       const data = this.data
       const pages = getCurrentPages()
       const isRootTabFallback = pages.length <= 1 && Boolean(data.fallbackUrl && data.fallbackIsTab)

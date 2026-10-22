@@ -120,7 +120,8 @@ Component({
           isLoading: false,
           loadError: false,
           empty: viewModel.pageState === 'empty',
-          institutions: viewModel.items,
+          // Preview follows the existing directory order; it is not a recommendation.
+          institutions: viewModel.items.slice(0, 2),
           mockDisclosure: viewModel.disclosure,
           showMockDisclosure: viewModel.hasDisclosure,
         })
@@ -143,7 +144,7 @@ Component({
         this,
         'home.startAssessment',
         '/pages/assessment/intro',
-        (options) => wx.reLaunch(options as WechatMiniprogram.ReLaunchOption),
+        undefined,
         () => wx.showToast({ title: '无法开始评估', icon: 'none' }),
       )
     },

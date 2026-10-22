@@ -12,6 +12,8 @@ import {
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
+import { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
+import type { InstitutionListItemViewModel } from './list-view-model'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
@@ -21,6 +23,13 @@ interface InstitutionListPageData {
   sourceContextRef: string | null
   actionErrorKey: string
   actionErrorMessage: string
+  keyword: string
+  visibleItems: readonly InstitutionListItemViewModel[]
+  natureOptions: typeof directoryNatureOptions
+  districtOptions: typeof directoryDistrictOptions
+  natureIndex: number
+  districtIndex: number
+  hasMetadataFilters: boolean
 }
 
 const listGenerations = new WeakMap<object, number>()
@@ -87,6 +96,13 @@ Page({
     sourceContextRef: null,
     actionErrorKey: '',
     actionErrorMessage: '',
+    keyword: '',
+    visibleItems: [],
+    natureOptions: directoryNatureOptions,
+    districtOptions: directoryDistrictOptions,
+    natureIndex: 0,
+    districtIndex: 0,
+    hasMetadataFilters: false,
   } as InstitutionListPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -121,6 +137,7 @@ Page({
           actionErrorKey: '',
           actionErrorMessage: '',
         })
+        this.filterDirectory()
         return
       }
       const pageState = pageStateForError(result.error.code)
@@ -142,6 +159,39 @@ Page({
         actionErrorMessage: '',
       })
     })
+  },
+
+  filterDirectory() {
+    const items = this.data.viewModel ? this.data.viewModel.items : []
+    const keyword = this.data.keyword.trim().toLowerCase()
+    const metadata = readDirectoryMetadata()
+    const nature = directoryNatureOptions[this.data.natureIndex].value
+    const district = directoryDistrictOptions[this.data.districtIndex].value
+    this.setData({
+      hasMetadataFilters: metadata.length > 0,
+      visibleItems: items.filter(item => {
+        if (keyword && item.name.toLowerCase().indexOf(keyword) < 0) return false
+        const entry = metadata.find(row => row.institutionId === item.institutionId)
+        return (nature === 'all' || !!entry && entry.nature === nature)
+          && (district === 'all' || !!entry && entry.district === district)
+      }),
+    })
+  },
+  onSearchInput(event: WechatMiniprogram.Input) {
+    this.setData({ keyword: event.detail.value }); this.filterDirectory()
+  },
+  onNatureChange(event: WechatMiniprogram.PickerChange) {
+    const index = Number(event.detail.value)
+    if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
+    this.setData({ natureIndex: index }); this.filterDirectory()
+  },
+  onDistrictChange(event: WechatMiniprogram.PickerChange) {
+    const index = Number(event.detail.value)
+    if (!Number.isInteger(index) || !directoryDistrictOptions[index]) return
+    this.setData({ districtIndex: index }); this.filterDirectory()
+  },
+  clearSearch() {
+    this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
   },
 
   onRetry() {

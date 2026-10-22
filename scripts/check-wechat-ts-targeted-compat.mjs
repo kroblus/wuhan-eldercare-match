@@ -90,6 +90,8 @@ const recommendationResultApplicationPath = path.join(repositoryRoot, 'miniprogr
 const recommendationResultCompatibilityTargets = [recommendationResultPagePath, recommendationResultViewModelPath, recommendationResultV2ViewModelPath, recommendationResultApplicationPath]
 const consultantB3CompatibilityTargets = [
   path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'index.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'consultation.ts'),
+  path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'consultant-page.ts'),
   path.join(repositoryRoot, 'miniprogram', 'pages', 'consultant', 'index-view-model.ts'),
   path.join(applicationServiceRoot, 'consultant-global-page.ts'),
 ]
@@ -294,6 +296,9 @@ const assertNoConfigErrors = (ts, diagnostics) => {
 const run = async () => {
   const { parser: ts, parserPath, source: parserSource } = await loadWechatTypeScript()
   const applicationTargets = [
+    path.join(repositoryRoot, 'miniprogram/pages/assessment/history.ts'),
+    path.join(repositoryRoot, 'miniprogram/pages/assessment/history-view-model.ts'),
+    path.join(repositoryRoot, 'miniprogram/pages/assessment/history-user-loop.ts'),
     ...await walkTypeScriptFiles(applicationServiceRoot),
     ...await walkTypeScriptFiles(applicationMockRoot),
     ...integrationTypePaths,

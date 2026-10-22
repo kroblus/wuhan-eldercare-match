@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="老人档案详情" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="老人档案详情" back="{{backEnabled}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/elder/index" fallbackIsTab="{{false}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="elder-detail-page">
   <view class="elder-detail-shell">
     <view class="elder-detail-head">

@@ -10,14 +10,15 @@ import { validateBasicAnswersV2 } from '../../types/assessment-v2'
 import { assessmentDraftStore } from '../../store/assessment-draft'
 import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
-import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getAssessmentBackText, navigateBackFromAssessment } from '../../utils/assessment-navigation'
+import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, onHideAssessmentPhasePage, onUnloadAssessmentPhasePage, resetAssessmentPageNavigation } from '../../utils/assessment-phase-navigation'
 
 type ChoiceOption = { value: string; label: string }
 
 interface AssessmentBasicData {
   warmSwissHeaderHeight: number
   backEnabled: boolean
+  backText: string
   relationship: BasicRelationship | ''
   elderName: string
   gender: BasicGender | ''
@@ -40,6 +41,10 @@ interface AssessmentBasicData {
   formError: string
   ageError: string
   saveStatus: string
+}
+
+type AssessmentBasicPageMetadata = {
+  _warmSwissHeaderPatch?: Pick<AssessmentBasicData, 'warmSwissHeaderHeight'>
 }
 
 const relationshipOptions: ChoiceOption[] = [
@@ -100,10 +105,14 @@ const relationshipAnchorId = getAssessmentQuestionAnchorId('basic.relationship')
 const genderAnchorId = getAssessmentQuestionAnchorId('basic.gender')
 const ageAnchorId = getAssessmentQuestionAnchorId('basic.age')
 
+const sameStringArray = (left: string[], right: string[]): boolean =>
+  left.length === right.length && left.every((value, index) => value === right[index])
+
 Page({
   data: {
     warmSwissHeaderHeight: 0,
     backEnabled: true,
+    backText: '返回上一页',
     relationship: '',
     elderName: '',
     gender: '',
@@ -132,19 +141,47 @@ Page({
     // Same safe-top/header measurement as NavigationBar. Only the visual
     // anchor box changes; question IDs and the first-error scroll stay intact.
     const system = wx.getSystemInfoSync()
-    this.setData({
+    const page = this as unknown as AssessmentBasicPageMetadata
+    page._warmSwissHeaderPatch = {
       warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
-    })
+    }
   },
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
     this.syncFromDraft()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   syncFromDraft() {
     const answers = assessmentDraftStore.getDraft().answers
-    this.setData({
+    const page = this as unknown as AssessmentBasicPageMetadata
+    const patch: Pick<AssessmentBasicData,
+      | 'warmSwissHeaderHeight'
+      | 'backText'
+      | 'relationship'
+      | 'elderName'
+      | 'gender'
+      | 'ageInput'
+      | 'livingStatus'
+      | 'primaryCaregiver'
+      | 'hasInstitutionExperience'
+      | 'institutionExitReasons'
+      | 'relationshipError'
+      | 'genderError'
+      | 'ageError'
+      | 'formError'
+      | 'saveStatus'
+    > = {
+      ...(page._warmSwissHeaderPatch || { warmSwissHeaderHeight: this.data.warmSwissHeaderHeight }),
+      backText: getAssessmentBackText('basic'),
       relationship: answers['basic.relationship'] || '',
       elderName: answers['basic.elderName'] || '',
       gender: answers['basic.gender'] || '',
@@ -160,7 +197,24 @@ Page({
       saveStatus: Object.keys(answers).length > 0
         ? '已从本机草稿恢复（开发态）'
         : '填写后会尝试保存到本机开发态草稿',
-    })
+    }
+    const changedPatch: Partial<AssessmentBasicData> = {}
+    if (this.data.warmSwissHeaderHeight !== patch.warmSwissHeaderHeight) changedPatch.warmSwissHeaderHeight = patch.warmSwissHeaderHeight
+    if (this.data.backText !== patch.backText) changedPatch.backText = patch.backText
+    if (this.data.relationship !== patch.relationship) changedPatch.relationship = patch.relationship
+    if (this.data.elderName !== patch.elderName) changedPatch.elderName = patch.elderName
+    if (this.data.gender !== patch.gender) changedPatch.gender = patch.gender
+    if (this.data.ageInput !== patch.ageInput) changedPatch.ageInput = patch.ageInput
+    if (this.data.livingStatus !== patch.livingStatus) changedPatch.livingStatus = patch.livingStatus
+    if (this.data.primaryCaregiver !== patch.primaryCaregiver) changedPatch.primaryCaregiver = patch.primaryCaregiver
+    if (this.data.hasInstitutionExperience !== patch.hasInstitutionExperience) changedPatch.hasInstitutionExperience = patch.hasInstitutionExperience
+    if (!sameStringArray(this.data.institutionExitReasons, patch.institutionExitReasons)) changedPatch.institutionExitReasons = patch.institutionExitReasons
+    if (this.data.relationshipError !== patch.relationshipError) changedPatch.relationshipError = patch.relationshipError
+    if (this.data.genderError !== patch.genderError) changedPatch.genderError = patch.genderError
+    if (this.data.ageError !== patch.ageError) changedPatch.ageError = patch.ageError
+    if (this.data.formError !== patch.formError) changedPatch.formError = patch.formError
+    if (this.data.saveStatus !== patch.saveStatus) changedPatch.saveStatus = patch.saveStatus
+    if (Object.keys(changedPatch).length > 0) this.setData(changedPatch)
   },
 
   applyPersistenceResult(result: AssessmentDraftMutationResult) {
@@ -245,7 +299,12 @@ Page({
   },
 
   onBack() {
+    invalidateAssessmentPageAction(this)
     navigateBackFromAssessment('basic')
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请重试。', icon: 'none' })
   },
 
   onNext() {
@@ -264,14 +323,23 @@ Page({
     if (!validation.valid) {
       return
     }
-    const result = assessmentDraftStore.setCurrentStep('health')
-    if (!result.persistence.ok) {
-      this.setData({
-        formError: '本机保存失败，暂时无法进入下一步，请重试',
-        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
-      })
-      return
-    }
-    navigateToWithGuard(this, 'basic.next', '/pages/assessment/health')
+    navigateAssessmentForwardWithCapacity(
+      this,
+      'basic',
+      'health',
+      'basic.next',
+      () => {
+        const result = assessmentDraftStore.setCurrentStep('health')
+        if (!result.persistence.ok) {
+          this.setData({
+            formError: '本机保存失败，暂时无法进入下一步，请重试',
+            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+          })
+          return false
+        }
+        return true
+      },
+      () => this.setData({ formError: '暂时无法进入下一步，请重试' }),
+    )
   },
 })

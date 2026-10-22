@@ -4,8 +4,10 @@ import {
 } from '../../services/institution-list-detail-page'
 import {
   parseInstitutionDetailRouteQuery,
+  serializeInstitutionDetailRoute,
 } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
+import { canRequestInstitutionService } from '../../runtime/institution-service-access'
 import {
   createInstitutionDetailErrorViewModel,
   createInstitutionDetailPageViewModel,
@@ -34,6 +36,9 @@ interface InstitutionDetailPageData {
   actionErrorKey: string
   actionErrorMessage: string
   isSwitchingRevision: boolean
+  expandedSections: Record<string, boolean>
+  coverLoadFailed: boolean
+  canRequestService: boolean
 }
 
 const routeByPage = new WeakMap<object, InstitutionDetailRoute>()
@@ -194,6 +199,9 @@ Page({
     actionErrorKey: '',
     actionErrorMessage: '',
     isSwitchingRevision: false,
+    expandedSections: {},
+    coverLoadFailed: false,
+    canRequestService: true,
   } as InstitutionDetailPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -219,6 +227,7 @@ Page({
   },
 
   buildRoute(route: InstitutionDetailRoute) {
+    this.setData({ canRequestService: canRequestInstitutionService(route.identity.institutionId) })
     const generation = nextGeneration(this)
     this.setData({
       pageState: 'loading',
@@ -227,6 +236,8 @@ Page({
       actionErrorKey: '',
       actionErrorMessage: '',
       isSwitchingRevision: false,
+      expandedSections: {},
+      coverLoadFailed: false,
     })
     buildInstitutionDetailPageSnapshot(route).then((result) => {
       if (!isCurrentGeneration(this, generation)) return
@@ -272,6 +283,23 @@ Page({
     this.buildRoute(route)
   },
 
+  onSectionToggle(event: WechatMiniprogram.BaseEvent) {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel) return
+    const key = event.currentTarget.dataset.sectionKey as string
+    if (!this.data.viewModel.overview.sections.some((section) => section.key === key)) return
+    this.setData({
+      expandedSections: {
+        ...this.data.expandedSections,
+        [key]: !this.data.expandedSections[key],
+      },
+    })
+  },
+
+  onCoverLoadError() {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel || !this.data.viewModel.media.hasCover) return
+    this.setData({ coverLoadFailed: true })
+  },
+
   onViewCurrentRevision() {
     if (this.data.pageState !== 'ready'
       || this.data.viewModel === null
@@ -287,6 +315,8 @@ Page({
       viewModel: null,
       errorViewModel: null,
       isSwitchingRevision: true,
+      expandedSections: {},
+      coverLoadFailed: false,
       actionErrorKey: '',
       actionErrorMessage: '',
     })
@@ -337,11 +367,14 @@ Page({
 
   onVrTap() {
     if (this.data.pageState !== 'ready' || this.data.viewModel === null) return
-    this.setData({
-      actionErrorKey: 'vr',
-      actionErrorMessage: this.data.viewModel.media.vrState === 'available'
-        ? 'VR看院入口正在开发验证中，当前不会打开。'
-        : '当前没有可用的 VR 看院资料。',
+    if (!this.data.viewModel.media.canOpenVr) return
+    const route = routeByPage.get(this)
+    if (!route) return
+    const detailUrl = serializeInstitutionDetailRoute(route.identity, route.source === 'recommendation' ? 'recommendation' : 'direct_link', route.sourceContextRef)
+    if (!detailUrl) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    navigateToWithGuard(this, 'institution.detail.vr', detailUrl.replace('/detail?', '/vr?'), undefined, () => {
+      this.setData({ actionErrorKey: 'vr', actionErrorMessage: '暂时无法打开全景，请重试。' })
     })
   },
 
@@ -369,6 +402,10 @@ Page({
   },
 
   onAppointmentTap() {
+    if (!this.data.canRequestService) {
+      this.setData({ actionErrorKey: 'appointment', actionErrorMessage: '本机构目前仅提供公开资料查询，平台尚未开放预约。' })
+      return
+    }
     const route = routeByPage.get(this)
     const viewModel = this.data.viewModel
     if (this.data.pageState !== 'ready' || !route || !viewModel || this.data.isSwitchingRevision) return
@@ -398,35 +435,25 @@ Page({
     if (!navigationStarted) discardAppointmentInstitutionDisplaySnapshotV1(identity.institutionId, identity.recordRevision)
   },
 
-  // Platform consultant entry uses the existing global Tab. It does not select
-  // an institution-assigned consultant or invent an official contact source.
+  onAIChatTap() {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    navigateToWithGuard(this, 'institution.detail.faq', '/pages/service/ai-chat/index', undefined, () => {
+      this.setData({ actionErrorKey: 'faq', actionErrorMessage: '暂时无法打开常见问题，请稍后重试。' })
+    })
+  },
+
+  // Push the shared public consultant page to keep this exact detail instance
+  // (including its revision, recommendation context, expansion and scroll) alive.
   onConsultantTap() {
     if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
-    const guard = getNavigationGuard(this)
-    const action = 'institution.detail.consultant'
-    if (!guard.acquire(action)) return
-    let succeeded = false
-    let reported = false
-    const fail = () => {
-      guard.release(action)
-      if (reported) return
-      reported = true
+    navigateToWithGuard(this, 'institution.detail.consultant', '/pages/consultant/consultation', undefined, () => {
       this.setData({
         actionErrorKey: 'consultant',
         actionErrorMessage: '暂时无法打开养老顾问，请稍后重试。',
       })
-    }
-    try {
-      wx.switchTab({
-        url: '/pages/consultant/index',
-        success: () => { succeeded = true },
-        fail,
-        complete: () => { if (!succeeded) fail() },
-      })
-    } catch (_error) {
-      fail()
-    }
+    })
   },
 
   onBackToList() {

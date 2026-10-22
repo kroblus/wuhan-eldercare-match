@@ -1,19 +1,19 @@
-// 武汉养老机构精准匹配小程序 - Bootstrap design tokens
+// Shared Classic B brand aliases; Assessment spacing and interaction remain unchanged.
 // 只提供稳定的基础语义，不在此批次扩展完整视觉稿。
 
-@color-brand: #B86B45;
-@color-brand-dark: #8F4E32;
-@color-brand-soft: #F8EDE7;
-@color-accent: #D79A5B;
-@color-page-background: #F8F6F2;
-@color-surface: #FFFFFF;
-@color-border: #E9E4DE;
-@color-text-primary: #27313D;
-@color-text-secondary: #65707B;
-@color-text-muted: #8C949D;
+@color-brand: #1F676D;
+@color-brand-dark: #193835;
+@color-brand-soft: #E7EFEB;
+@color-accent: #A84F25;
+@color-page-background: #F7F2EA;
+@color-surface: #FFFBF7;
+@color-border: #E5DAD0;
+@color-text-primary: #193835;
+@color-text-secondary: #665E55;
+@color-text-muted: #665E55;
 @color-success: #477A63;
 @color-warning: #9A6A2F;
-@color-error: #B5524D;
+@color-error: #963C33;
 @color-info: #4E6B86;
 
 @font-family-base: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -34,8 +34,8 @@
 @space-7: 64rpx;
 
 @radius-sm: 12rpx;
-@radius-md: 20rpx;
-@radius-lg: 28rpx;
+@radius-md: 12rpx;
+@radius-lg: 12rpx;
 @radius-pill: 999rpx;
 @touch-target-min: 88rpx;
 
@@ -43,14 +43,14 @@
 
 // Warm Swiss V1.1: opt-in presentation for the UI-0 representative pages.
 // Keep Bootstrap aliases and business status colors stable for other routes.
-@ws-background: #FBFAF7;
+@ws-background: @color-page-background;
 @ws-surface: @color-surface;
-@ws-ink: #111827;
-@ws-secondary: #4B5563;
-@ws-muted: #6B7280;
-@ws-border: #D9D6D0;
-@ws-accent: #D9572A;
-@ws-accent-soft: #FAEEE8;
+@ws-ink: @color-text-primary;
+@ws-secondary: @color-text-secondary;
+@ws-muted: @color-text-muted;
+@ws-border: @color-border;
+@ws-accent: @color-brand;
+@ws-accent-soft: @color-brand-soft;
 @ws-page-title: @font-size-title;
 @ws-hero-title: 56rpx;
 @ws-section-title: @font-size-body-large;
@@ -70,3 +70,7 @@
 @ws-input-height: @touch-target-min;
 @ws-rule-width: 1rpx;
 @ws-footer-reserve: @ws-primary-height + @space-3 * 2 + @space-7 + @space-6;
+
+@color-control-border: #8A8177;
+@color-disabled-surface: #E9E0D3;
+@color-disabled-text: @color-text-secondary;

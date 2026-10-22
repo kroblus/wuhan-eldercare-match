@@ -1,0 +1,20 @@
+<view class="showcase">
+  <text wx:if="{{!allowed}}" class="error">功能演示仅在开发构建中开放；未加载地图。</text>
+  <block wx:if="{{allowed}}">
+  <button id="back" class="back" bindtap="back">返回功能演示</button>
+  <text class="eyebrow">微信原生 MAP / 非机构位置</text>
+  <text class="title">看看武汉。</text>
+  <text class="boundary">真实腾讯地图底图 · 仅城市视野 · 无机构标记</text>
+  <map wx:if="{{mapVisible}}" id="{{mapId}}" class="native-map" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" enable-scroll="{{true}}" enable-zoom="{{true}}" enable-rotate="{{false}}" show-location="{{false}}" bindupdated="mapUpdated" bindregionchange="regionChanged"></map>
+  <text class="body" wx:if="{{loading}}">等待原生地图更新…</text>
+  <text class="body" wx:else>请目视确认真实道路底图；组件更新事件不代表地图网络请求全部成功。</text>
+  <text class="source">当前中心：{{center}}</text>
+  <text class="error" wx:if="{{error}}" role="alert">{{error}}</text>
+  <view class="controls">
+    <button id="reset-map" bindtap="resetMap">回到武汉视野</button>
+    <button id="retry-map" bindtap="retryMap">重试</button>
+  </view>
+  <button id="report-blank" bindtap="reportBlank">底图空白 / 加载失败</button>
+  <text class="footnote">可拖动、双指缩放。地图服务会产生网络读取；本页不请求用户定位、不调用导航、不保存业务数据。尚未核验公共 POI，因此没有标记点及点选演示。正式机构地址状态保持原合同门禁。</text>
+  </block>
+</view>

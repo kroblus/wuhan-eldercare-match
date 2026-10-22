@@ -7,14 +7,15 @@ import type {
 import { assessmentDraftStore } from '../../store/assessment-draft'
 import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
-import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getAssessmentBackText, navigateBackFromAssessment } from '../../utils/assessment-navigation'
+import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, onHideAssessmentPhasePage, onUnloadAssessmentPhasePage, resetAssessmentPageNavigation } from '../../utils/assessment-phase-navigation'
 
 type ChoiceOption = { value: string; label: string }
 type CognitiveQuestionId = 'cognitive.symptoms' | 'cognitive.specialCareNeeds'
 
 interface AssessmentCognitiveData {
   backEnabled: boolean
+  backText: string
   warmSwissHeaderHeight: number
   symptoms: CognitiveSymptomV2[]
   specialCareNeeds: CognitiveSpecialCareNeedV2[]
@@ -71,6 +72,7 @@ const readMultiAnswer = <K extends CognitiveQuestionId>(answers: DraftAnswers, q
 Page({
   data: {
     backEnabled: true,
+    backText: '返回上一页',
     warmSwissHeaderHeight: 0,
     symptoms: [],
     specialCareNeeds: [],
@@ -94,8 +96,17 @@ Page({
   },
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
+    this.setData({ backText: getAssessmentBackText('cognitive') })
     this.syncFromDraft()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   syncFromDraft() {
@@ -158,7 +169,12 @@ Page({
   },
 
   onBack() {
+    invalidateAssessmentPageAction(this)
     navigateBackFromAssessment('cognitive')
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请重试。', icon: 'none' })
   },
 
   onNext() {
@@ -185,15 +201,24 @@ Page({
       return
     }
 
-    const result = assessmentDraftStore.setCurrentStep('preference')
-    if (!result.persistence.ok) {
-      this.setData({
-        formError: '本机保存失败，暂时无法进入下一步，请重试',
-        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
-        persistenceFailed: true,
-      })
-      return
-    }
-    navigateToWithGuard(this, 'cognitive.next', '/pages/assessment/preference')
+    navigateAssessmentForwardWithCapacity(
+      this,
+      'cognitive',
+      'preference',
+      'cognitive.next',
+      () => {
+        const result = assessmentDraftStore.setCurrentStep('preference')
+        if (!result.persistence.ok) {
+          this.setData({
+            formError: '本机保存失败，暂时无法进入下一步，请重试',
+            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+            persistenceFailed: true,
+          })
+          return false
+        }
+        return true
+      },
+      () => this.setData({ formError: '暂时无法进入下一步，请重试' }),
+    )
   },
 })

@@ -13,13 +13,14 @@ import type {
 import { assessmentDraftStore } from '../../store/assessment-draft'
 import type { AssessmentDraftMutationResult } from '../../store/assessment-draft'
 import { getAssessmentQuestionAnchorId, scrollToAssessmentQuestion } from '../../utils/assessment-validation'
-import { navigateBackFromAssessment } from '../../utils/assessment-navigation'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getAssessmentBackText, navigateBackFromAssessment } from '../../utils/assessment-navigation'
+import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, onHideAssessmentPhasePage, onUnloadAssessmentPhasePage, resetAssessmentPageNavigation } from '../../utils/assessment-phase-navigation'
 
 type ChoiceOption = { value: string; label: string }
 
 interface AssessmentHealthData {
   backEnabled: boolean
+  backText: string
   warmSwissHeaderHeight: number
   conditions: HealthCondition[]
   recentEvents: HealthRecentEvent[]
@@ -44,6 +45,10 @@ interface AssessmentHealthData {
   rehabilitationNeedAnchorId: string
   chewingAbilityAnchorId: string
   swallowingAbilityAnchorId: string
+}
+
+type AssessmentHealthPageMetadata = {
+  _warmSwissHeaderPatch?: Pick<AssessmentHealthData, 'warmSwissHeaderHeight'>
 }
 
 const conditionsOptions: ChoiceOption[] = [
@@ -113,9 +118,13 @@ const hasHealthAnswers = (
   || chewingAbility !== ''
   || swallowingAbility !== ''
 
+const sameStringArray = (left: string[], right: string[]): boolean =>
+  left.length === right.length && left.every((value, index) => value === right[index])
+
 Page({
   data: {
     backEnabled: true,
+    backText: '返回上一页',
     warmSwissHeaderHeight: 0,
     conditions: [],
     recentEvents: [],
@@ -145,24 +154,52 @@ Page({
   onLoad() {
     // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
     const system = wx.getSystemInfoSync()
-    this.setData({
+    const page = this as unknown as AssessmentHealthPageMetadata
+    page._warmSwissHeaderPatch = {
       warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
-    })
+    }
   },
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
     this.syncFromDraft()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   syncFromDraft() {
     const answers = assessmentDraftStore.getDraft().answers
+    const page = this as unknown as AssessmentHealthPageMetadata
     const conditions = answers['health.conditions'] || []
     const recentEvents = answers['health.recentEvents'] || []
     const rehabilitationNeed = answers['health.rehabilitationNeed'] || ''
     const chewingAbility = answers['health.chewingAbility'] || ''
     const swallowingAbility = answers['health.swallowingAbility'] || ''
-    this.setData({
+    const patch: Pick<AssessmentHealthData,
+      | 'warmSwissHeaderHeight'
+      | 'backText'
+      | 'conditions'
+      | 'recentEvents'
+      | 'rehabilitationNeed'
+      | 'chewingAbility'
+      | 'swallowingAbility'
+      | 'conditionsError'
+      | 'recentEventsError'
+      | 'rehabilitationNeedError'
+      | 'chewingAbilityError'
+      | 'swallowingAbilityError'
+      | 'formError'
+      | 'persistenceFailed'
+      | 'saveStatus'
+    > = {
+      ...(page._warmSwissHeaderPatch || { warmSwissHeaderHeight: this.data.warmSwissHeaderHeight }),
+      backText: getAssessmentBackText('health'),
       conditions: [...conditions],
       recentEvents: [...recentEvents],
       rehabilitationNeed,
@@ -178,7 +215,24 @@ Page({
       saveStatus: hasHealthAnswers(conditions, recentEvents, rehabilitationNeed, chewingAbility, swallowingAbility)
         ? '已从本机草稿恢复（开发态）'
         : '选择后会尝试保存到本机开发态草稿',
-    })
+    }
+    const changedPatch: Partial<AssessmentHealthData> = {}
+    if (this.data.backText !== patch.backText) changedPatch.backText = patch.backText
+    if (this.data.warmSwissHeaderHeight !== patch.warmSwissHeaderHeight) changedPatch.warmSwissHeaderHeight = patch.warmSwissHeaderHeight
+    if (!sameStringArray(this.data.conditions, patch.conditions)) changedPatch.conditions = patch.conditions
+    if (!sameStringArray(this.data.recentEvents, patch.recentEvents)) changedPatch.recentEvents = patch.recentEvents
+    if (this.data.rehabilitationNeed !== patch.rehabilitationNeed) changedPatch.rehabilitationNeed = patch.rehabilitationNeed
+    if (this.data.chewingAbility !== patch.chewingAbility) changedPatch.chewingAbility = patch.chewingAbility
+    if (this.data.swallowingAbility !== patch.swallowingAbility) changedPatch.swallowingAbility = patch.swallowingAbility
+    if (this.data.conditionsError !== patch.conditionsError) changedPatch.conditionsError = patch.conditionsError
+    if (this.data.recentEventsError !== patch.recentEventsError) changedPatch.recentEventsError = patch.recentEventsError
+    if (this.data.rehabilitationNeedError !== patch.rehabilitationNeedError) changedPatch.rehabilitationNeedError = patch.rehabilitationNeedError
+    if (this.data.chewingAbilityError !== patch.chewingAbilityError) changedPatch.chewingAbilityError = patch.chewingAbilityError
+    if (this.data.swallowingAbilityError !== patch.swallowingAbilityError) changedPatch.swallowingAbilityError = patch.swallowingAbilityError
+    if (this.data.formError !== patch.formError) changedPatch.formError = patch.formError
+    if (this.data.persistenceFailed !== patch.persistenceFailed) changedPatch.persistenceFailed = patch.persistenceFailed
+    if (this.data.saveStatus !== patch.saveStatus) changedPatch.saveStatus = patch.saveStatus
+    if (Object.keys(changedPatch).length > 0) this.setData(changedPatch)
   },
 
   applyPersistenceResult(result: AssessmentDraftMutationResult) {
@@ -255,7 +309,12 @@ Page({
   },
 
   onBack() {
+    invalidateAssessmentPageAction(this)
     navigateBackFromAssessment('health')
+  },
+
+  onNavigationFailure() {
+    wx.showToast({ title: '暂时无法返回，请重试。', icon: 'none' })
   },
 
   onNext() {
@@ -285,14 +344,23 @@ Page({
       return
     }
 
-    const result = assessmentDraftStore.setCurrentStep('adl')
-    if (!result.persistence.ok) {
-      this.setData({
-        formError: '本机保存失败，暂时无法进入下一步，请重试',
-        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
-      })
-      return
-    }
-    navigateToWithGuard(this, 'health.next', '/pages/assessment/adl')
+    navigateAssessmentForwardWithCapacity(
+      this,
+      'health',
+      'adl',
+      'health.next',
+      () => {
+        const result = assessmentDraftStore.setCurrentStep('adl')
+        if (!result.persistence.ok) {
+          this.setData({
+            formError: '本机保存失败，暂时无法进入下一步，请重试',
+            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+          })
+          return false
+        }
+        return true
+      },
+      () => this.setData({ formError: '暂时无法进入下一步，请重试' }),
+    )
   },
 })

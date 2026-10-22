@@ -1,6 +1,16 @@
 import { buildProfileApplicationSnapshot } from '../../services/profile-application-v2'
 import type { AssessmentStepId } from '../../types/assessment'
-import { getNavigationGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import {
+  beginAssessmentPageAction,
+  endAssessmentPageAction,
+  getAssessmentStepFromRoute,
+  isAssessmentPageActionActive,
+  navigateProfileToAssessmentStep,
+  navigateProfileToIntro,
+  onHideAssessmentPhasePage,
+  onUnloadAssessmentPhasePage,
+  resetAssessmentPageNavigation,
+} from '../../utils/assessment-phase-navigation'
 import { createProfilePageViewModel } from './profile-view-model'
 import { createProfilePageViewModelV2 } from './profile-v2-view-model'
 import type { ProfileEditSection, ProfilePageViewModel } from './profile-view-model'
@@ -10,6 +20,7 @@ type ProfilePageState = 'loading' | 'ready' | 'incomplete' | 'error'
 
 interface ProfilePageData {
   backEnabled: boolean
+  isRootProfile: boolean
   pageState: ProfilePageState
   viewModel: ProfilePageViewModel | ProfilePageViewModelV2 | null
   stateTitle: string
@@ -46,6 +57,8 @@ const STEP_LABELS: Record<AssessmentStepId, string> = {
   budget: '预算与入住计划',
 }
 
+const MAX_PROFILE_NAVIGATION_STACK_SIZE = 10
+
 const isProfileEditSection = (value: unknown): value is ProfileEditSection =>
   typeof value === 'string' && Object.prototype.hasOwnProperty.call(EDIT_ROUTES, value)
 
@@ -55,19 +68,15 @@ const runGuardedNavigation = (
   invoke: GuardedNavigationInvoker,
   onFailure: () => void,
 ): boolean => {
-  const guard = getNavigationGuard(instance)
-  if (!guard.acquire(action)) {
-    return false
-  }
+  if (!beginAssessmentPageAction(instance, action)) return false
 
   let succeeded = false
   let failureNotified = false
   const notifyFailure = () => {
-    guard.release(action)
-    if (!failureNotified) {
-      failureNotified = true
-      onFailure()
-    }
+    if (failureNotified || !isAssessmentPageActionActive(instance, action)) return
+    failureNotified = true
+    endAssessmentPageAction(instance, action)
+    onFailure()
   }
 
   try {
@@ -103,6 +112,7 @@ const questionRoute = (questionId: string): { route: string, label: string } => 
 Page({
   data: {
     backEnabled: true,
+    isRootProfile: false,
     pageState: 'loading',
     viewModel: null,
     stateTitle: '正在生成需求画像',
@@ -114,8 +124,27 @@ Page({
   } as ProfilePageData,
 
   onShow() {
-    resetNavigationGuard(this)
+    resetAssessmentPageNavigation(this)
+    let isRootProfile = false
+    try {
+      const pages = getCurrentPages()
+      const current = pages[pages.length - 1]
+      isRootProfile = pages.length === 1
+        && current === this
+        && current.route === 'pages/assessment/profile'
+    } catch (_error) {
+      isRootProfile = false
+    }
+    this.setData({ isRootProfile })
     this.refreshProfile()
+  },
+
+  onHide() {
+    onHideAssessmentPhasePage(this)
+  },
+
+  onUnload() {
+    onUnloadAssessmentPhasePage(this)
   },
 
   refreshProfile() {
@@ -196,41 +225,15 @@ Page({
   },
 
   navigateToExistingOrRedirect(
-    targetRoute: string,
+    targetStep: AssessmentStepId,
     action: string,
     actionErrorKey: string,
   ) {
     this.clearActionError()
-    const normalizedTarget = targetRoute.charAt(0) === '/' ? targetRoute.slice(1) : targetRoute
-    const pages = getCurrentPages()
-    let targetIndex = -1
-    for (let index = pages.length - 2; index >= 0; index -= 1) {
-      if (pages[index].route === normalizedTarget) {
-        targetIndex = index
-        break
-      }
-    }
-
     const onFailure = () => {
       this.showNavigationFailure(actionErrorKey, '暂时无法返回修改，请稍后重试。')
     }
-    if (targetIndex >= 0) {
-      const delta = pages.length - 1 - targetIndex
-      runGuardedNavigation(this, action, (callbacks) => wx.navigateBack({
-        delta,
-        success: callbacks.success,
-        fail: callbacks.fail,
-        complete: callbacks.complete,
-      }), onFailure)
-      return
-    }
-
-    runGuardedNavigation(this, action, (callbacks) => wx.redirectTo({
-      url: targetRoute,
-      success: callbacks.success,
-      fail: callbacks.fail,
-      complete: callbacks.complete,
-    }), onFailure)
+    navigateProfileToAssessmentStep(this, targetStep, 'profile-edit', action, onFailure)
   },
 
   onEdit(event: WechatMiniprogram.BaseEvent) {
@@ -239,22 +242,42 @@ Page({
       return
     }
     this.navigateToExistingOrRedirect(
-      EDIT_ROUTES[section],
+      section,
       `profile.edit.${section}`,
       `edit-${section}`,
     )
   },
 
   onRecover() {
-    this.navigateToExistingOrRedirect(
-      this.data.recoveryRoute,
-      'profile.recover',
-      'recovery',
-    )
+    const step = getAssessmentStepFromRoute(this.data.recoveryRoute)
+    this.clearActionError()
+    const onFailure = () => {
+      this.showNavigationFailure('recovery', '暂时无法返回补充评估，请稍后重试。')
+    }
+    if (step) {
+      navigateProfileToAssessmentStep(this, step, 'profile-recovery', 'profile.recover', onFailure)
+    } else {
+      navigateProfileToIntro(this, 'profile.recover', onFailure)
+    }
   },
 
   onOpenRecommendation() {
     this.clearActionError()
+    let pages: WechatMiniprogram.Page.Instance<WechatMiniprogram.IAnyObject, WechatMiniprogram.IAnyObject>[] | null = null
+    try {
+      pages = getCurrentPages()
+    } catch (_error) {
+      pages = null
+    }
+    const current = pages && pages.length > 0 ? pages[pages.length - 1] : null
+    if (!pages || !current || current !== this || current.route !== 'pages/assessment/profile') {
+      this.showNavigationFailure('recommendation', '当前页面状态已变化，请返回后再查看机构推荐。')
+      return
+    }
+    if (pages.length >= MAX_PROFILE_NAVIGATION_STACK_SIZE) {
+      this.showNavigationFailure('recommendation', '页面层级已满，请先返回首页后再查看机构推荐。')
+      return
+    }
     runGuardedNavigation(this, 'profile.openRecommendation', (callbacks) => wx.navigateTo({
       url: '/pages/recommendation/result',
       success: callbacks.success,
@@ -267,5 +290,17 @@ Page({
 
   onBackNavigationFailure() {
     this.showNavigationFailure('back', '暂时无法返回，请稍后重试。')
+  },
+
+  onHome() {
+    this.clearActionError()
+    runGuardedNavigation(this, 'profile.home', (callbacks) => wx.switchTab({
+      url: '/pages/home/index',
+      success: callbacks.success,
+      fail: callbacks.fail,
+      complete: callbacks.complete,
+    }), () => {
+      this.showNavigationFailure('home', '暂时无法返回首页，请稍后重试。')
+    })
   },
 })

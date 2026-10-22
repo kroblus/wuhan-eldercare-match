@@ -1,37 +1,8 @@
-<navigation-bar warmSwiss="{{true}}" title="VR 看院" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
-<page-container extraClass="vr-page">
-  <view class="page-shell vr-shell">
-    <view class="page-head vr-head">
-      <text class="page-title">{{pageTitle}}</text>
-      <text class="page-description">{{description}}</text>
-      <text class="vr-development">开发 Mock 结构 · VR 内容模块</text>
-    </view>
-    <view class="vr-section">
-      <view class="ws-section-heading">
-        <text class="ws-section-number">01</text>
-        <text class="vr-section__title">当前 VR 内容</text>
-      </view>
-      <view class="vr-empty" role="status">
-        <text class="vr-empty__label">暂未开放查看</text>
-        <text class="vr-empty__title">暂无真实 VR 内容</text>
-        <text class="vr-empty__message">当前没有可访问的真实 VR 地址或场景，暂不展示虚构 Viewer。</text>
-      </view>
-    </view>
-    <view class="vr-section">
-      <view class="ws-section-heading">
-        <text class="ws-section-number">02</text>
-        <text class="vr-section__title">关于 VR 资料</text>
-      </view>
-      <text class="vr-note">VR 用于辅助了解机构环境；实际环境与服务情况仍需进一步确认。</text>
-    </view>
-    <view wx:if="{{showNext}}" class="vr-section vr-service">
-      <view class="ws-section-heading">
-        <text class="ws-section-number">03</text>
-        <text class="vr-section__title">进一步了解</text>
-      </view>
-      <view class="vr-service__action">
-        <primary-button warmSwiss="{{true}}" text="{{nextLabel}}" bind:action="navigateNext"></primary-button>
-      </view>
-    </view>
-  </view>
-</page-container>
+<navigation-bar warmSwiss="{{true}}" title="VR 看院" back="{{true}}" fallbackUrl="/pages/institution/index" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<web-view wx:if="{{url}}" src="{{url}}" binderror="onWebError"></web-view>
+<page-container wx:else extraClass="vr-page"><view class="page-shell vr-shell">
+  <text class="page-title">VR 看院</text>
+  <state-panel wx:if="{{loading}}" state="loading" title="正在读取全景资料"></state-panel>
+  <state-panel wx:else state="empty" title="全景暂不可用" message="{{message}}" actionText="重试" bind:action="loadResource"></state-panel>
+  <text class="vr-note">全景用于辅助了解机构环境，实际环境和服务请到院确认。</text>
+</view></page-container>

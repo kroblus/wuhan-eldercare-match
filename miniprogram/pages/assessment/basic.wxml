@@ -1,8 +1,8 @@
-<navigation-bar warmSwiss="{{true}}" title="老人基本情况" back="{{backEnabled}}" fallbackUrl="/pages/assessment/intro" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="老人基本情况" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/intro" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
   <view class="page-shell">
     <progress-header warmSwiss="{{true}}" current="1" total="6" label="养老需求评估"></progress-header>
-    <text class="basic-intro">先了解老人的基本生活情况。已填内容会保存在本机，回来可以继续。</text>
+    <text class="basic-intro">先了解老人的基本生活情况。草稿成功保存在本机后，回来可以继续；请留意页面底部的保存提示。</text>
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>
 
     <view class="basic-section">
@@ -36,7 +36,7 @@
       <question-section warmSwiss="{{true}}" title="目前居住状态" hint="选填，帮助顾问理解当前生活环境">
         <single-choice warmSwiss="{{true}}" options="{{livingStatusOptions}}" value="{{livingStatus}}" bindchange="onLivingStatusChange"></single-choice>
       </question-section>
-      <question-section warmSwiss="{{true}}" title="主要照护者" hint="选填，选择一位主要照护者">
+      <question-section warmSwiss="{{true}}" title="主要照护者" hint="选填，请选择目前承担主要照护责任的一方；如多人共同照护，请选择主要负责人。">
         <single-choice warmSwiss="{{true}}" options="{{caregiverOptions}}" value="{{primaryCaregiver}}" bindchange="onCaregiverChange"></single-choice>
       </question-section>
     </view>
@@ -51,6 +51,6 @@
       </question-section>
     </view>
     <text class="save-status">{{saveStatus}}</text>
-    <assessment-footer warmSwiss="{{true}}" backText="上一步" bindback="onBack" bindnext="onNext"></assessment-footer>
+    <assessment-footer warmSwiss="{{true}}" backText="{{backText}}" bindback="onBack" bindnext="onNext"></assessment-footer>
   </view>
 </page-container>

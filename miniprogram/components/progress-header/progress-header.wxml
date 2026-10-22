@@ -1,7 +1,7 @@
 <view class="progress-header {{warmSwiss ? 'is-warm-swiss' : ''}}">
   <view class="progress-header__row">
     <text class="progress-header__label">{{label}}</text>
-    <text class="progress-header__count">{{current}} / {{total}}</text>
+    <text class="progress-header__count">第 {{current}} 步 / 共 {{total}} 步</text>
   </view>
   <view wx:if="{{warmSwiss}}" class="progress-header__segments">
     <view wx:for="{{[1, 2, 3, 4, 5, 6]}}" wx:key="*this" class="progress-header__segment {{item === current ? 'is-current' : ''}} {{item < current ? 'is-completed' : ''}}"></view>

@@ -62,6 +62,7 @@ import {
 } from './institution-v1-2-1-presentation'
 import { resolveCurrentPublishedPublicContent, resolveExactPublishedPublicContentRevision } from '../domain/institution/v1-2-1/public-content'
 import { projectInstitutionRecordV121ToV11 } from '../domain/institution/v1-2-1/project-to-v1-1'
+import { institutionValidationOptions } from '../runtime/institution-validation'
 
 export interface InstitutionListApplicationDependenciesV12 {
   currentCatalogResolver: InstitutionCurrentCatalogResolver
@@ -616,7 +617,7 @@ const sourceV121ForDataset = (
     return { ok: false, error: { code: 'V121_SOURCE_RECORD_DUPLICATE' } }
   }
 
-  const projected = projectInstitutionRecordV121ToV11(matches[0])
+  const projected = projectInstitutionRecordV121ToV11(matches[0], institutionValidationOptions)
   if (!projected.ok) {
     return { ok: false, error: { code: 'V121_TO_V11_PROJECTION_ERROR' } }
   }

@@ -1,9 +1,10 @@
-<navigation-bar warmSwiss="{{true}}" title="养老咨询助手" back="{{true}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="养老咨询助手" back="{{true}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="assistant-page">
   <view class="page-shell ai-chat-shell">
     <view class="page-head ai-chat-head">
       <text class="page-title">养老咨询助手</text>
       <text class="page-description">只解释已经批准的公开资料，不替代医疗、机构或顾问的正式判断。</text>
+      <text class="ai-chat-provenance">当前使用已批准 FAQ，未接入在线模型；本页未读取本次老人画像、推荐或机构上下文。</text>
     </view>
 
     <view wx:if="{{viewModel}}" class="ai-chat-section ai-chat-status" role="status">
@@ -18,6 +19,7 @@
 
     <view class="ai-chat-section">
       <view class="ws-section-heading"><text class="ws-section-number">02</text><text>想先了解什么？</text></view>
+      <text class="ai-chat-provenance">点选问题会填入输入框，确认后点击“发送问题”。</text>
       <view class="ai-chat-quick-list">
         <button wx:for="{{quickQuestions}}" wx:key="*this" class="ai-chat-quick-button" data-question="{{item}}" disabled="{{isSending}}" bindtap="onQuickQuestion">
           <text>{{item}}</text><text class="ai-chat-quick-arrow" aria-hidden="true">→</text>
@@ -27,7 +29,7 @@
 
     <view wx:if="{{viewModel && viewModel.hasMessages}}" class="ai-chat-section ai-chat-conversation">
       <view class="ws-section-heading"><text class="ws-section-number">03</text><text>当前会话</text></view>
-      <view wx:for="{{viewModel.messages}}" wx:key="messageId" class="ai-chat-message {{item.isUser ? 'ai-chat-message--user' : 'ai-chat-message--assistant'}} ai-chat-message--{{item.kind}}">
+      <view wx:for="{{viewModel.messages}}" wx:key="messageId" id="{{item.messageId}}" class="ai-chat-message {{item.isUser ? 'ai-chat-message--user' : 'ai-chat-message--assistant'}} ai-chat-message--{{item.kind}}">
         <text class="ai-chat-message__role">{{item.roleLabel}}</text>
         <text class="ai-chat-message__content">{{item.content}}</text>
         <view wx:if="{{item.sourceLabels.length}}" class="ai-chat-source-list">

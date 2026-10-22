@@ -23,11 +23,6 @@ interface AppointmentSuccessPageData {
   actionErrorMessage: string
 }
 
-const PAGE_ACTIONS: Record<'consultant' | 'home', string> = {
-  consultant: '/pages/consultant/index',
-  home: '/pages/home/index',
-}
-
 const hasExactQuery = (query: Record<string, string | undefined>): boolean => {
   const keys = Object.keys(query).sort()
   return keys.length === 1 && keys[0] === 'handoffId'
@@ -35,7 +30,7 @@ const hasExactQuery = (query: Record<string, string | undefined>): boolean => {
 
 const runTabAction = (
   instance: WechatMiniprogram.Page.Instance<AppointmentSuccessPageData, WechatMiniprogram.IAnyObject>,
-  action: 'consultant' | 'home',
+  action: 'home',
 ): void => {
   if (instance.data.pageState !== 'ready' || instance.data.handoff === null) return
   const guard = getNavigationGuard(instance)
@@ -49,14 +44,12 @@ const runTabAction = (
     failureReported = true
     instance.setData({
       actionErrorKey: action,
-      actionErrorMessage: action === 'consultant'
-        ? '暂时无法打开养老顾问页面，请稍后重试。'
-        : '暂时无法返回首页，请稍后重试。',
+      actionErrorMessage: '暂时无法返回首页，请稍后重试。',
     })
   }
   try {
     wx.switchTab({
-      url: PAGE_ACTIONS[action],
+      url: '/pages/home/index',
       success: () => { succeeded = true },
       fail,
       complete: () => { if (!succeeded) fail() },
@@ -112,7 +105,13 @@ Page({
   },
 
   onContactConsultant() {
-    runTabAction(this, 'consultant')
+    if (this.data.pageState !== 'ready' || this.data.handoff === null) return
+    navigateToWithGuard(this, 'appointment.success.consultant', '/pages/consultant/consultation', undefined, () => {
+      this.setData({
+        actionErrorKey: 'consultant',
+        actionErrorMessage: '暂时无法打开养老顾问页面，请稍后重试。',
+      })
+    })
   },
 
   onViewAppointments() {

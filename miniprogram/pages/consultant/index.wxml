@@ -1,4 +1,4 @@
-<navigation-bar warmSwiss="{{true}}" title="养老顾问" back="{{backEnabled}}" color="#111827" background="#FBFAF7"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="养老顾问" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/consultant/index" fallbackIsTab="{{true}}" navigationFailureMessage="暂时无法返回，请稍后重试。" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="consultant-page">
   <view class="page-shell consultant-shell">
     <view class="page-head consultant-head">
@@ -22,6 +22,7 @@
           </view>
           <text class="consultant-state-title">{{viewModel.stateTitle}}</text>
           <text class="consultant-state-message">{{viewModel.stateMessage}}</text>
+          <text wx:if="{{!viewModel.showContactSection}}" class="consultant-state-message">当前暂无可执行的平台顾问电话或企业微信二维码；本页尚未发起联系。机构官方电话请查看机构详情。</text>
           <view wx:if="{{viewModel.showReloadAction}}" class="consultant-reload">
             <primary-button warmSwiss="{{true}}" text="重新加载" variant="quiet" bind:action="onRetry"></primary-button>
           </view>

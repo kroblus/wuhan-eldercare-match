@@ -4,9 +4,12 @@ import type { RouteScaffoldData } from '../../utils/route-scaffold'
 
 const APPOINTMENT_LIST_URL = '/pages/appointment/index'
 const APPOINTMENT_NAVIGATION_ACTION = 'mine.openAppointments'
+const HISTORY_LIST_URL = '/pages/assessment/history'
+const HISTORY_NAVIGATION_ACTION = 'mine.openAssessmentHistory'
 
 interface MinePageData extends RouteScaffoldData {
   appointmentNavigationErrorMessage: string
+  historyNavigationErrorMessage: string
 }
 
 const routeData = createRouteScaffoldData({
@@ -23,6 +26,7 @@ Component({
   data: {
     ...routeData,
     appointmentNavigationErrorMessage: '',
+    historyNavigationErrorMessage: '',
   } as MinePageData,
 
   pageLifetimes: {
@@ -39,7 +43,24 @@ Component({
         wx.switchTab({ url: nextUrl })
         return
       }
-      wx.navigateTo({ url: nextUrl })
+      navigateToWithGuard(this, 'mine.navigateNext', nextUrl, undefined, () => {
+        wx.showToast({ title: '暂时无法打开老人档案，请稍后重试。', icon: 'none' })
+      })
+    },
+
+    openAssessmentHistory() {
+      this.setData({ historyNavigationErrorMessage: '' })
+      navigateToWithGuard(
+        this,
+        HISTORY_NAVIGATION_ACTION,
+        HISTORY_LIST_URL,
+        undefined,
+        () => {
+          this.setData({
+            historyNavigationErrorMessage: '暂时无法打开我的评估，请稍后重试。',
+          })
+        },
+      )
     },
 
     openAppointments() {

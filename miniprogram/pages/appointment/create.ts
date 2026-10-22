@@ -11,6 +11,7 @@ import {
   validateAppointmentCreateFormV1,
 } from '../../services/appointment-create-client'
 import type { AppointmentCreateClientV1, AppointmentElderPrepareResultV1 } from '../../services/appointment-create-client'
+import { canRequestInstitutionService } from '../../runtime/institution-service-access'
 import {
   createElderRecordReadOnlyDiagnosticClientV1,
   isElderRecordDiagnosticDevelopRuntimeV1,
@@ -25,7 +26,12 @@ import type {
   AppointmentCreateFormV1,
   AppointmentCreateInstitutionV1,
 } from '../../types/appointment-create-v1'
-import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import {
+  hasExistingRouteAncestor,
+  navigateToExistingRouteWithGuard,
+  navigateToWithGuard,
+  resetNavigationGuard,
+} from '../../utils/navigation-guard'
 
 type AppointmentCreatePageState = 'loading' | 'ready' | 'route_error' | 'institution_unavailable'
 type ElderDiagnosticPageState = 'idle' | 'loading' | ElderRecordReadOnlyDiagnosticResultV1['kind']
@@ -49,6 +55,7 @@ interface AppointmentCreatePageData {
   formLocked: boolean
   receiptReady: boolean
   successNavigationFailed: boolean
+  returnInstitutionButtonText: string
   showElderReadOnlyDiagnostic: boolean
   elderDiagnosticState: ElderDiagnosticPageState
 }
@@ -67,6 +74,8 @@ interface AppointmentPagePrivateState {
   terminalConflict: boolean
   successHandoffId: string | null
   navigationPending: boolean
+  alive: boolean
+  foreground: boolean
   elderReadOnlyDiagnosticClient: ElderRecordReadOnlyDiagnosticClientV1
   elderReadOnlyDiagnosticRunning: boolean
 }
@@ -84,6 +93,8 @@ const createPrivateState = (): AppointmentPagePrivateState => ({
   terminalConflict: false,
   successHandoffId: null,
   navigationPending: false,
+  alive: false,
+  foreground: false,
   elderReadOnlyDiagnosticClient: createElderRecordReadOnlyDiagnosticClientV1(),
   elderReadOnlyDiagnosticRunning: false,
 })
@@ -94,6 +105,18 @@ const getPrivateState = (instance: object): AppointmentPagePrivateState => {
   const created = createPrivateState()
   pagePrivateState.set(instance, created)
   return created
+}
+
+const isCurrentPageGeneration = (instance: object, state: AppointmentPagePrivateState): boolean =>
+  pagePrivateState.get(instance) === state
+
+const isForegroundPageInstance = (instance: object): boolean => {
+  try {
+    const pages = getCurrentPages()
+    return Array.isArray(pages) && pages.length > 0 && pages[pages.length - 1] === instance
+  } catch (_error) {
+    return false
+  }
 }
 
 const readTextValue = (event: AppointmentInputEvent): string =>
@@ -166,8 +189,9 @@ const phoneCallbackMessage = (event: AppointmentInputEvent): string =>
 const navigateToSuccess = (
   instance: WechatMiniprogram.Page.Instance<AppointmentCreatePageData, WechatMiniprogram.IAnyObject>,
 ): void => {
-  const state = getPrivateState(instance)
-  if (!state.successHandoffId || state.navigationPending) return
+  const state = pagePrivateState.get(instance)
+  if (!state || !isCurrentPageGeneration(instance, state) || !state.alive || !state.foreground
+    || !isForegroundPageInstance(instance) || !state.successHandoffId || state.navigationPending) return
   state.navigationPending = true
   instance.setData({ successNavigationFailed: false })
   let succeeded = false
@@ -176,11 +200,14 @@ const navigateToSuccess = (
     if (failed) return
     failed = true
     state.navigationPending = false
-    instance.setData({
-      successNavigationFailed: true,
-      actionMessage: '预约申请已提交，但结果页暂时无法打开。可以重试查看，不会重复提交。',
-      actionMessageTone: 'info',
-    })
+    if (isCurrentPageGeneration(instance, state) && state.alive && state.foreground
+      && isForegroundPageInstance(instance)) {
+      instance.setData({
+        successNavigationFailed: true,
+        actionMessage: '预约申请已提交，但结果页暂时无法打开。可以重试查看，不会重复提交。',
+        actionMessageTone: 'info',
+      })
+    }
   }
   try {
     wx.redirectTo({
@@ -228,6 +255,7 @@ const resolveInstitutionDisplayName = async (
       return
     }
     const result = await buildInstitutionDetailPageSnapshot(route.value)
+    if (!state.alive || !isCurrentPageGeneration(instance, state)) return
     if (!result.ok) {
       instance.setData({
         pageState: 'institution_unavailable',
@@ -260,6 +288,7 @@ const resolveInstitutionDisplayName = async (
       pageDescription: '填写本次看院意向和联系人信息。提交后以服务端回执为准。',
     })
   } catch (_error) {
+    if (!state.alive || !isCurrentPageGeneration(instance, state)) return
     instance.setData({
       pageState: 'institution_unavailable',
       institution: null,
@@ -296,11 +325,16 @@ Page({
     formLocked: false,
     receiptReady: false,
     successNavigationFailed: false,
+    returnInstitutionButtonText: '重新浏览合作机构',
     showElderReadOnlyDiagnostic: isElderRecordDiagnosticDevelopRuntimeV1(),
     elderDiagnosticState: 'idle',
   } as AppointmentCreatePageData,
 
   onLoad(query: Record<string, string | undefined>) {
+    if (!canRequestInstitutionService(query && query.institutionId || '')) {
+      this.setData({ pageState: 'institution_unavailable', institution: null, pageDescription: '本机构目前仅提供公开资料查询，平台尚未开放预约。' })
+      return
+    }
     // Match the existing Warm Swiss header; only the visual anchor box changes.
     if (typeof wx.getSystemInfoSync === 'function') {
       const system = wx.getSystemInfoSync()
@@ -309,6 +343,8 @@ Page({
       })
     }
     const state = createPrivateState()
+    state.alive = true
+    state.foreground = true
     pagePrivateState.set(this, state)
     const parsed = parseInstitutionDetailRouteQuery(query)
     if (!parsed.ok) {
@@ -323,7 +359,38 @@ Page({
   },
 
   onShow() {
+    const state = pagePrivateState.get(this)
+    if (!state || !state.alive) return
+    if (!isCurrentPageGeneration(this, state)) return
+    state.foreground = true
     resetNavigationGuard(this)
+    this.setData({
+      returnInstitutionButtonText: hasExistingRouteAncestor(APPOINTMENT_LIST_URL)
+        ? '返回合作机构列表'
+        : '重新浏览合作机构',
+    })
+    if (state.successHandoffId) {
+      state.navigationPending = false
+      this.setData({
+        receiptReady: true,
+        phoneSubmitting: false,
+        formLocked: true,
+      })
+      navigateToSuccess(this)
+    }
+  },
+
+  onHide() {
+    const state = pagePrivateState.get(this)
+    if (state) state.foreground = false
+  },
+
+  onUnload() {
+    const state = pagePrivateState.get(this)
+    if (state) {
+      state.foreground = false
+      state.alive = false
+    }
   },
 
   onChooseInstitution() {
@@ -344,8 +411,10 @@ Page({
     try {
       this.setData({ elderDiagnosticState: 'loading' })
       const result = await state.elderReadOnlyDiagnosticClient.resolveCurrentElderRecordReadOnly()
+      if (!state.alive || !isCurrentPageGeneration(this, state)) return
       this.setData({ elderDiagnosticState: result.kind })
     } catch (_error) {
+      if (!state.alive || !isCurrentPageGeneration(this, state)) return
       this.setData({ elderDiagnosticState: 'service_unavailable' })
     } finally {
       state.elderReadOnlyDiagnosticRunning = false
@@ -382,6 +451,7 @@ Page({
       || state.outcomeUnknown || state.terminalConflict || this.data.receiptReady) return
     const validation = validateAppointmentCreateFormV1(this.data.form, state.institution)
     if (!validation.valid) {
+      state.preparedElderId = null
       const order: AppointmentCreateFieldV1[] = [
         'institution', 'visitDate', 'visitTimePreference', 'participantCount', 'contactName', 'phone', 'notes',
       ]
@@ -394,6 +464,7 @@ Page({
       }
       const anchor = firstError && firstError !== 'institution' ? `appointment-field-${firstError}` : ''
       this.setData({
+        prepared: false,
         formErrors: validation.errors,
         firstErrorAnchor: anchor,
         actionMessage: firstError === 'institution' ? validation.errors.institution || '' : '',
@@ -421,6 +492,7 @@ Page({
       result = { kind: 'unavailable' }
     }
     state.prepareRunning = false
+    if (!state.alive || !isCurrentPageGeneration(this, state)) return
     if (result.kind !== 'ready') {
       this.setData({
         preparingElder: false,
@@ -443,8 +515,10 @@ Page({
 
   async onPhoneAuthorization(event: AppointmentInputEvent) {
     const state = getPrivateState(this)
+    const institution = state.institution
+    const elderId = state.preparedElderId
     if (state.phoneRunning || !this.data.prepared
-      || !state.preparedElderId || !state.institution || state.terminalConflict) return
+      || !elderId || !institution || state.terminalConflict) return
     const phoneCode = event && event.detail && typeof event.detail.code === 'string'
       ? event.detail.code : ''
     if (phoneCode.trim().length === 0) {
@@ -456,7 +530,8 @@ Page({
       return
     }
 
-    const validation = validateAppointmentCreateFormV1(this.data.form, state.institution)
+    const submittedForm: AppointmentCreateFormV1 = { ...this.data.form }
+    const validation = validateAppointmentCreateFormV1(submittedForm, institution)
     if (!validation.valid) {
       state.preparedElderId = null
       this.setData({
@@ -474,9 +549,9 @@ Page({
     let result
     try {
       result = await state.client.submit({
-        institution: state.institution,
-        elderId: state.preparedElderId,
-        form: this.data.form,
+        institution,
+        elderId,
+        form: submittedForm,
         phoneCode,
       })
     } catch (_error) {
@@ -485,38 +560,44 @@ Page({
     state.phoneRunning = false
 
     if (result.kind === 'accepted') {
-      const normalized = validateAppointmentCreateFormV1(this.data.form, state.institution)
+      const normalized = validateAppointmentCreateFormV1(submittedForm, institution)
       if (!normalized.valid || !normalized.normalized) {
         state.outcomeUnknown = true
-        this.setData({
-          phoneSubmitting: false,
-          outcomeUnknown: true,
-          formLocked: true,
-          actionMessage: '预约申请已收到服务端回执，但本地摘要无法校验。请从“我的预约”查看当前记录。',
-          actionMessageTone: 'info',
-        })
+        if (isCurrentPageGeneration(this, state) && state.alive) {
+          this.setData({
+            phoneSubmitting: false,
+            outcomeUnknown: true,
+            formLocked: true,
+            actionMessage: '预约申请已收到服务端回执，但本地摘要无法校验。请从“我的预约”查看当前记录。',
+            actionMessageTone: 'info',
+          })
+        }
         return
       }
-      const revision = String(state.institution.identity.recordRevision)
+      const revision = String(institution.identity.recordRevision)
       const handoff = createAppointmentSuccessHandoffV1(result.receipt, {
-        institutionId: state.institution.identity.institutionId,
+        institutionId: institution.identity.institutionId,
         institutionRecordRevision: revision,
-        institutionName: state.institution.displayName,
+        institutionName: institution.displayName,
         visitDate: normalized.normalized.visitDate,
         visitTimePreference: normalized.normalized.visitTimePreference,
         participantCount: normalized.normalized.participantCount,
       })
       state.successHandoffId = handoff.id
-      this.setData({
-        phoneSubmitting: false,
-        formLocked: true,
-        receiptReady: true,
-        actionMessage: '预约申请已提交，正在打开结果页。',
-        actionMessageTone: 'info',
-      })
-      navigateToSuccess(this)
+      if (state.alive && isCurrentPageGeneration(this, state)) {
+        this.setData({
+          phoneSubmitting: false,
+          formLocked: true,
+          receiptReady: true,
+          actionMessage: '预约申请已提交，正在打开结果页。',
+          actionMessageTone: 'info',
+        })
+        navigateToSuccess(this)
+      }
       return
     }
+
+    if (!state.alive || !isCurrentPageGeneration(this, state)) return
 
     if (result.kind === 'outcome_unknown' || result.kind === 'attempt_unresolved') {
       state.outcomeUnknown = true
@@ -548,11 +629,24 @@ Page({
   },
 
   onReturnToInstitution() {
-    navigateToWithGuard(this, 'appointment.create.returnInstitutionList', APPOINTMENT_LIST_URL, undefined, () => {
-      this.setData({
-        actionMessage: '暂时无法返回合作机构列表，请使用页面左上角返回。',
-        actionMessageTone: 'error',
-      })
+    navigateToExistingRouteWithGuard(
+      this,
+      'appointment.create.returnInstitutionList',
+      APPOINTMENT_LIST_URL,
+      'redirectTo',
+      () => {
+        this.setData({
+          actionMessage: '暂时无法返回合作机构列表，请使用页面左上角返回。',
+          actionMessageTone: 'error',
+        })
+      },
+    )
+  },
+
+  onNavigationFailure() {
+    this.setData({
+      actionMessage: '暂时无法返回，请稍后重试。',
+      actionMessageTone: 'error',
     })
   },
 })

@@ -23,9 +23,16 @@ miniprogram/
 ├─ domain/      不依赖页面、Store、wx 或网络的纯领域规则
 ├─ services/    页面唯一的数据访问入口
 ├─ store/       评估草稿等跨页状态
+├─ runtime/     构建适配端口：草稿存储、目录展示元数据与可选演示素材
 ├─ mock/        仅开发使用的显式 Mock provider
 └─ utils/       无业务状态的通用工具
 ```
+
+`modes/demo/` 只包含合成数据、独立内存 Session、启动隔离及模拟服务组件；正式与演示均由
+`scripts/build-run-mode.mjs` 组合 `miniprogram/` 的同一页面、组件与领域规则，生成忽略目录
+`dist/production`、`dist/demo`。构建时选择数据提供者及草稿存储适配器，不使用页面参数或 Storage
+开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
+正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
 
 ### 2.1 页面与组件
 
