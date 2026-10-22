@@ -47,6 +47,7 @@ npm run check:institution-vr-runtime
 ```
 
 打开生成的 `dist/production/project.config.json` 或 `dist/demo/project.config.json`。
+构建会压缩运行时 JavaScript 和样式，并检查源码文件总量不超过 1984 KiB，为 2 MiB 主包预留 64 KiB 余量；也可执行 `npm run check:run-mode-package-size`。此为本地体积检查，最终微信包和真机调试仍以开发者工具结果为准。
 `dist/` 是可重建产物，不是第二套源码；修改页面、组件、Assessment/Profile/Recommendation 时仍只改
 `miniprogram/`。构建复用本机微信 TypeScript 4.1.2、Less 和 WXML 编译器；非默认安装位置可传
 `-- --install-root <开发者工具安装目录>`。检查双模式前先生成两个构建。

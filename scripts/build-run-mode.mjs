@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
 import { loadInstalledLess } from './support/installed-less.mjs'
+import { minify } from 'terser'
+import { checkRunModePackageSize } from './check-run-mode-package-size.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const mode = process.argv[2]
@@ -154,11 +156,22 @@ for (const [file, data] of source) {
     if (file.startsWith('components/demo-tools/')) {
       for (const [name, content] of source) if (name.startsWith('styles/') && name.endsWith('.less')) put(staged, name, content)
     }
-    const result = await less.render(data.toString(), { filename, javascriptEnabled: false })
+    const result = await less.render(data.toString(), { filename, javascriptEnabled: false, compress: true })
     put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
   }
 }
-for (const file of modules) put(runtime, file, emitted.get(file))
+for (const file of modules) {
+  // CommonJS modules stay separate. Preserve all public properties, callbacks
+  // and require paths; only shorten lexical names and remove formatting.
+  const result = await minify(emitted.get(file), {
+    ecma: 5,
+    compress: false,
+    mangle: { toplevel: true, properties: false, reserved: ['require', 'module', 'exports'] },
+    format: { comments: false },
+  })
+  assert.ok(result.code, 'Empty minified module: ' + file)
+  put(runtime, file, result.code + '\n')
+}
 // Remove stale generated files only, never the open project directory itself.
 for (const file of walk(runtime)) if (!writtenRuntime.has(path.resolve(file))) {
   assert.ok(path.resolve(file).startsWith(path.resolve(runtime) + path.sep))
@@ -169,7 +182,7 @@ config.projectname = 'eldercare-shared-' + mode
 config.miniprogramRoot = 'miniprogram/'
 config.srcMiniprogramRoot = 'miniprogram/'
 // Output contains already compiled JS/WXSS. Source compiler plugins stay unchanged.
-config.setting = { ...config.setting, useCompilerPlugins: [] }
+config.setting = { ...config.setting, useCompilerPlugins: [], minified: true, minifyWXSS: true, minifyWXML: true, uploadWithSourceMap: false }
 assert.ok(!config.cloudfunctionRoot && !config.cloudbaseRoot)
 put(out, 'project.config.json', JSON.stringify(config, null, 2) + '\n')
 // Offline native WXML compiler: local files only, no preview/upload side effect.
@@ -177,5 +190,6 @@ const compiler = path.join(install, 'resources/app.asar.unpacked/node_modules/wc
 const templates = [...source.keys()].filter(f => f.endsWith('.wxml'))
 const compiled = spawnSync(compiler, ['-o', path.join(out, 'wxml-compiled.js'), ...templates], { cwd: runtime, encoding: 'utf8', windowsHide: true, timeout: 60000 })
 assert.equal(compiled.status, 0, (compiled.stdout || '') + (compiled.stderr || '') + (compiled.error || ''))
-put(out, '.shared-build.json', JSON.stringify({ ...marker, status: 'PASS_LOCAL_BUILD', routes: app.pages.length, modules: modules.size, provider: mode === 'demo' ? 'ISOLATED_SYNTHETIC_MEMORY' : 'REVIEWED_PUBLIC_DIRECTORY_READ_ONLY' }, null, 2) + '\n')
+const packageBytes = checkRunModePackageSize(out)
+put(out, '.shared-build.json', JSON.stringify({ ...marker, status: 'PASS_LOCAL_BUILD', routes: app.pages.length, modules: modules.size, packageBytes, provider: mode === 'demo' ? 'ISOLATED_SYNTHETIC_MEMORY' : 'REVIEWED_PUBLIC_DIRECTORY_READ_ONLY' }, null, 2) + '\n')
 console.log(`${mode.toUpperCase()}: TypeScript 4.1.2 + Less + native WXML + generated syntax PASS; ${app.pages.length} routes; ${modules.size} modules. Open dist/${mode}/project.config.json.`)
