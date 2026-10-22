@@ -25,17 +25,17 @@ for(const mode of ['production','demo']){
   assert.equal(home.data.empty,true)
   await load('demo/session').loadDemo();home.retryLoad();await flush()
  }
- const total=mode==='production'?1:12
+ const total=mode==='production'?11:12
  assert.equal(home.data.institutions.length,total);assert.equal(home.data.isLoading,false)
  assert.equal(home.data.natureOptions.length,5);assert.equal(home.data.districtOptions.length,15)
  const input=value=>home.onSearchInput({detail:{value}})
  const pick=(method,value)=>home[method]({detail:{value:String(value)}})
- input(mode==='production'?'  社会福利院  ':'春和');assert.equal(home.data.institutions.length,mode==='production'?1:3)
+ input(mode==='production'?'  社会福利院  ':'春和');assert.equal(home.data.institutions.length,mode==='production'?7:3)
  pick('onDistrictChange',2);assert.equal(home.data.institutions.length,1)
  pick('onNatureChange',1);assert.equal(home.data.institutions.length,0) // No inference of real ownership; synthetic Jianghan example is public-built/private-operated.
  if(mode==='production'){
   pick('onNatureChange',4);assert.equal(home.data.institutions.length,1)
-  pick('onDistrictChange',1);assert.equal(home.data.institutions.length,0)
+  pick('onDistrictChange',10);assert.equal(home.data.institutions.length,0)
  }else{
   pick('onNatureChange',2);assert.equal(home.data.institutions.length,1)
   pick('onDistrictChange',3);assert.equal(home.data.institutions.length,0)
@@ -95,7 +95,7 @@ for(const mode of ['production','demo']){
  if(mode==='production'){
   vm.runInContext("Date.now = () => Date.parse('2027-01-21T00:00:00Z')",rt.context)
   home.clearSearch();pick('onDistrictChange',2);assert.equal(home.data.institutions.length,0)
-  pick('onDistrictChange',14);assert.equal(home.data.institutions.length,1) // Expired address cannot support a Jianghan filter fact.
+  pick('onDistrictChange',14);assert.equal(home.data.institutions.length,total) // Expired addresses cannot support a district filter fact.
  }
  const count=navigations.length;home.openReading(event('topic','../../appointment/create'));assert.equal(navigations.length,count)
  console.log('PASS '+mode+': Home compound search/reset/empty/invalid filters, guarded canonical detail, old directory, three content pages, source-copy failure, Home return, no real business APIs')
