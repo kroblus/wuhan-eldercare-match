@@ -689,10 +689,10 @@ const main = async () => {
     c.equal(vm.cards.every((card) => card.detailLabel === '查看机构详情'), true)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
-  await run('RESULT-UI-V2-022', 'list action exposes the canonical source-context path', async (c) => {
+  await run('RESULT-UI-V2-022', 'list action exposes ordinary directory browsing', async (c) => {
     const { vm } = await view('exact')
-    c.equal(vm.actions.listLabel, '查看合作机构列表')
-    c.equal(wxml.includes('bindtap="onRecommendationListTap"'), true)
+    c.equal(vm.actions.listLabel, '浏览已收录的养老机构')
+    c.equal(wxml.includes('bindtap="onBrowseDirectory"'), true)
     c.equal(wxml.includes('viewModel.actions.listLabel'), true)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 
@@ -700,8 +700,8 @@ const main = async () => {
     const { result, vm } = await view('exact')
     c.equal(result.value.sourceContext.datasetMode, 'MOCK_DEVELOPMENT_ONLY')
     c.equal(vm.hasMockDisclosure, true)
-    c.equal(vm.mockDisclosure, '以下机构、价格与护理能力均为功能测试示例，不代表真实合作机构信息。')
-    c.equal(vm.datasetLabel, '开发 Mock 数据')
+    c.equal(vm.mockDisclosure, '以下机构、价格与护理能力均为虚构演示资料，不代表真实养老机构信息。')
+    c.equal(vm.datasetLabel, '虚构机构演示目录')
     c.equal(vm.cards.every((card) => /^示例机构 [A-H]（Mock）$/.test(card.name)), true)
   }, executedUi, RESULT_V2_UI_FIXTURE_MANIFEST)
 

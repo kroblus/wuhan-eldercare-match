@@ -65,6 +65,9 @@ export interface RecommendationInstitutionCardViewModelV2 {
   hasCover: boolean
   tags: ResultTagViewModelV2[]
   reasons: ResultReasonViewModelV2[]
+  primaryReasons: ResultReasonViewModelV2[]
+  additionalReasons: ResultReasonViewModelV2[]
+  matchLabel: string
   differences: ResultDifferenceViewModelV2[]
   compactFacts: ResultCompactFactViewModelV2[]
   advisories: string[]
@@ -147,12 +150,12 @@ const PRIORITY_LABELS: Record<string, string> = {
 }
 
 const NO_EXACT_LABELS: Record<string, string> = {
-  NO_VERIFIED_INSTITUTION_POOL: '当前没有可确认的机构资料可供安全推荐。',
+  NO_VERIFIED_INSTITUTION_POOL: '现有机构护理服务资料还不足以确认哪些机构适合当前需求。',
   ALL_CANDIDATES_HAVE_HARD_CONFLICT: '当前机构池与已报告的关键护理需求存在较大差异。',
-  REQUIRED_CAPABILITY_UNRESOLVED: '有关键护理需求仍需要进一步确认。',
-  ONLY_SOFT_NEAR_MATCHES: '暂时没有完全符合全部偏好条件的合作机构。',
+  REQUIRED_CAPABILITY_UNRESOLVED: '关键护理条件缺少足够核验资料，目前还不能确认机构是否适合。',
+  ONLY_SOFT_NEAR_MATCHES: '暂时没有完全符合全部偏好条件的机构。',
   ONLY_CONDITIONAL_CANDIDATES: '当前候选机构都需要先完成进一步评估。',
-  NO_EXACT_MATCH_WITHIN_DECLARED_PREFERENCES: '暂时没有完全符合全部偏好条件的合作机构。',
+  NO_EXACT_MATCH_WITHIN_DECLARED_PREFERENCES: '暂时没有完全符合全部偏好条件的机构。',
 }
 
 const isProvided = <T>(fact: InstitutionDisplayFactV11<T>): fact is Extract<InstitutionDisplayFactV11<T>, { availability: 'provided' }> =>
@@ -320,22 +323,34 @@ const cardFromCandidate = (
   const display = displayFor(snapshot, candidate)
   const name = displayText(display.identity.name)
   const region = displayText(display.identity.regionDisplayName)
+  // An unverified synthetic label may identify a disclosed demo case. It is
+  // never a verified institutional fact and never feeds matching or ranking.
+  const syntheticIdentity = snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY'
+    && display.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
+  const demoName = syntheticIdentity && display.identity.name.availability === 'provided'
+    && display.identity.name.effectiveVerification === 'unverified' ? display.identity.name.value : null
+  const demoRegion = syntheticIdentity && display.identity.regionDisplayName.availability === 'provided'
+    && display.identity.regionDisplayName.effectiveVerification === 'unverified' ? display.identity.regionDisplayName.value : null
   const cover = display.media.cover
   const advisories: string[] = []
+  const reasons = mapReasons(candidate.reasons)
   if (operationalKeys.has(institutionKey(candidate.institutionId, candidate.recordRevision))) {
     advisories.push('床位可用性需向机构确认；该提示不改变匹配结论。')
   }
   return {
     institutionId: candidate.institutionId,
     recordRevision: candidate.recordRevision,
-    name: name === null ? '机构名称待核验' : name,
-    region: region === null ? '区域信息待核验' : region,
+    name: name === null ? demoName === null ? '机构名称待核验' : `演示名称：${demoName}` : name,
+    region: region === null ? demoRegion === null ? '区域信息待核验' : `演示区域：${demoRegion}` : region,
     type: formatType(display),
     price: formatPrice(display),
     coverUrl: cover.url || '',
     hasCover: cover.state === 'current_verified' && cover.url !== null,
     tags: formatTags(display),
-    reasons: mapReasons(candidate.reasons),
+    reasons,
+    primaryReasons: reasons.slice(0, 3),
+    additionalReasons: reasons.slice(3),
+    matchLabel: isConditional ? '需要进一步评估' : candidate.matchTier === 'EXACT' ? '主要护理条件可确认' : '相近候选 · 部分偏好待确认',
     differences: mapDifferences(candidate.differences),
     compactFacts: buildCompactFacts(candidate, display),
     advisories,
@@ -402,10 +417,10 @@ const stateFor = (
 }
 
 const visitAdvice = [
-  '建议实地确认护理员配置与日常照护安排。',
-  '建议确认夜间巡查和应急响应方式。',
-  '建议确认康复服务是否另行收费。',
-  '建议确认无障碍环境和医疗急救支持。',
+  '是否接收符合老人当前照护情况的住户，所需护理能力如何确认。',
+  '当前收费、包含项目和另行收费项目分别是什么。',
+  '近期是否有可入住床位，是否需要等候。',
+  '入住条件、所需材料，以及是否支持参观、如何安排。',
 ]
 
 export const createRecommendationResultViewModelV2 = (
@@ -417,19 +432,19 @@ export const createRecommendationResultViewModelV2 = (
   const selected = deriveCards(snapshot, operationalKeys)
   const state = stateFor(semantics, selected.cards, selected.conditionalCards)
   let headline = '先看清老人需要什么'
-  let summary = '以下内容依据本次评估与开发目录中的结构化资料整理。'
+  let summary = '照护需求已整理，以下依据本次画像与机构资料说明判断结果。'
   if (state.state === 'ready_exact') {
     headline = '关键护理需求已找到可确认匹配的候选机构'
     summary = '这些机构在当前资料和评估时间点下，满足主要护理条件；入住前仍建议实地确认。'
   } else if (state.state === 'ready_soft_near') {
-    headline = '暂时没有完全符合全部偏好条件的合作机构'
-    summary = '以下机构已经满足当前关键护理需求，但仍存在偏好差异，或部分生活适配资料需要进一步确认。'
+    headline = '有相近候选，部分偏好仍需确认'
+    summary = '以下机构已经满足当前关键护理需求，但部分偏好尚未完全符合或确认，请逐项查看差异。'
   } else if (state.state === 'ready_conditional') {
-    headline = '需要机构进一步评估的候选'
-    summary = '这些候选不能直接视为已匹配，需要由机构进一步确认护理条件。'
+    headline = '需要进一步评估的机构'
+    summary = '这些机构尚不能直接视为满足全部护理需求，需要机构进一步确认。'
   } else if (state.emptyReason === 'ELDER_READINESS_BLOCKED') {
     headline = '还需要补充或确认老人信息'
-    summary = '需要先补充/确认老人相关信息；完成确认后系统才能继续评估机构，当前未生成机构推荐卡片。'
+    summary = '还需要补充或确认部分照护信息，完成后才能继续判断机构是否适合。当前未生成机构推荐卡片。'
   } else if (semantics.noExactMatch !== undefined) {
     headline = '当前还没有可直接确认的安全推荐'
     summary = NO_EXACT_LABELS[semantics.noExactMatch.reasonCode]
@@ -451,19 +466,19 @@ export const createRecommendationResultViewModelV2 = (
     resultAdvisories,
     visitAdvice,
     mockDisclosure: snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY'
-      ? '以下机构、价格与护理能力均为功能测试示例，不代表真实合作机构信息。' : null,
+      ? '以下机构、价格与护理能力均为虚构演示资料，不代表真实养老机构信息。' : null,
     hasMockDisclosure: snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY',
-    datasetLabel: snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? '开发 Mock 数据' : '合作机构资料',
+    datasetLabel: snapshot.sourceContext.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? '虚构机构演示目录' : '公开机构资料',
     emptyReason: state.emptyReason,
     noSafeMessage: state.emptyReason === 'ELDER_READINESS_BLOCKED'
       ? '请返回画像补充或确认信息。' : state.state === 'no_safe_recommendation'
-        ? '可以调整需求后重新生成，或咨询养老顾问确认下一步。' : '',
+        ? '未确认不代表机构不提供相关服务。可以先浏览已收录机构，查看公开资料，再向机构核实；普通目录不是推荐名单。' : '',
     actions: {
       canRetry: false,
       canAdjustNeeds: true,
       canContactConsultant: true,
       detailLabel: '查看机构详情',
-      listLabel: '查看合作机构列表',
+      listLabel: '浏览已收录的养老机构',
     },
   }
 }

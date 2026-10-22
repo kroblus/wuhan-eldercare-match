@@ -351,7 +351,7 @@ failures.push(await runCase('RESULT-004', 'SoftNear is a no-exact result with di
   }
   const vm = viewModelModule.createRecommendationResultViewModel(soft)
   c.equal(vm.state, 'ready_soft_near')
-  c.equal(vm.headline, '暂时没有完全符合全部偏好条件的合作机构')
+  c.equal(vm.headline, '暂时没有完全符合全部偏好条件的已收录机构')
   c.ok(vm.cards[0].differences.length > 0)
 }))
 
@@ -366,7 +366,7 @@ failures.push(await runCase('RESULT-005', 'conditional-only candidates stay in a
   c.equal(vm.state, 'ready_conditional')
   c.equal(vm.cards.length, 0)
   c.equal(vm.conditionalCards.length, 1)
-  c.ok(source.includes('需要机构进一步评估的候选'))
+  c.ok(source.includes('需要进一步评估的机构'))
 }))
 
 failures.push(await runCase('RESULT-006', 'unverified candidate never becomes a card', async (c) => {
@@ -534,7 +534,7 @@ failures.push(await runCase('RESULT-016', 'unavailable VR has no CTA', async (c)
   c.equal(source.includes('pages/institution/vr'), false)
 }))
 
-failures.push(await runCase('RESULT-017', 'missing media uses a neutral placeholder', async (c) => {
+failures.push(await runCase('RESULT-017', 'missing media never introduces an invented photo', async (c) => {
   const value = await getSnapshot()
   const baseItem = firstCandidate(value)
   const record = recordForItem(value, baseItem)
@@ -545,7 +545,7 @@ failures.push(await runCase('RESULT-017', 'missing media uses a neutral placehol
   const source = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.wxml'), 'utf8')
   c.equal(vm.cards[0].hasCover, false)
   c.equal(vm.cards[0].coverUrl, '')
-  c.ok(source.includes('暂无机构图片'))
+  c.equal(source.includes('<image'), false)
 }))
 
 failures.push(await runCase('RESULT-018', 'incomplete assessment exposes error and recovery actions', async (c) => {
@@ -689,17 +689,17 @@ failures.push(await runCase('RESULT-028', 'Detail navigation releases only throu
   c.ok(pageSource.includes('registerInstitutionRecommendationSourceContextV2'))
   c.ok(pageSource.includes('serializeInstitutionDetailRoute'))
   c.ok(pageSource.includes("'recommendation'"))
-  c.ok(pageSource.includes('当前推荐结果暂不支持机构详情入口'))
+  c.ok(pageSource.includes('当前推荐资料已失效，请重新生成后再查看详情'))
   c.equal(/detail\?id=|[?&]id=/.test(source + pageSource), false)
 }))
 
 failures.push(await runCase('RESULT-029', 'List navigation shares the current V2 source context and keeps V1 safe', async (c) => {
   const source = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.wxml'), 'utf8')
   const pageSource = readFileSync(path.join(appRoot, 'pages', 'recommendation', 'result.ts'), 'utf8')
-  c.ok(source.includes('bindtap="onRecommendationListTap"'))
+  c.ok(source.includes('bindtap="onBrowseDirectory"'))
   c.ok(pageSource.includes('/pages/institution/index?sourceContextRef='))
   c.ok(pageSource.includes('resultSnapshots.get(this)'))
-  c.ok(pageSource.includes('当前推荐结果暂不支持机构列表入口'))
+  c.ok(pageSource.includes('本次候选列表已失效'))
 }))
 
 failures.push(await runCase('RESULT-030', 'ViewModel preserves Domain ranking order', async (c) => {

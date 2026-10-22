@@ -68,7 +68,8 @@
     "check:institution-vr-runtime": "node scripts/check-institution-vr-runtime.mjs",
     "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs",
     "check:production-directory-data": "node scripts/check-production-directory-data.mjs",
-    "check:v1-7-homepage": "node scripts/check-v1-7-homepage.mjs"
+    "check:v1-7-homepage": "node scripts/check-v1-7-homepage.mjs",
+    "check:v1-9-assessment-recommendation": "node scripts/check-v1-9-assessment-recommendation.mjs"
   },
   "keywords": [],
   "author": "",

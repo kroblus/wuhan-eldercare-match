@@ -63,8 +63,8 @@ const checks = [
     assert.match(resultSource, /onRecommendationListTap/)
     assert.match(resultSource, /recommendation\.result\.openInstitution/)
     assert.match(resultViewModel, /查看机构详情/)
-    assert.match(resultViewModel, /查看合作机构列表/)
-    assert.match(resultWxml, /bindtap="onRecommendationListTap"/)
+    assert.match(resultViewModel, /浏览已收录的养老机构/)
+    assert.match(resultWxml, /bindtap="onBrowseDirectory"/)
     assert.doesNotMatch(resultWxml, /匹配度|百分比|概率|评分/)
     assert.doesNotMatch(resultViewModel, /InstitutionRecordV11/)
   }],
