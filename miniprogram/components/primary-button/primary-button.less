@@ -1,5 +1,6 @@
 @import '../../styles/tokens.less';
 @import '../../styles/mixins.less';
+@import '../../styles/browse-buttons.less';
 
 .primary-button {
   .touch-target();
@@ -62,3 +63,6 @@
   color: @ws-ink;
 }
 .is-warm-swiss.is-disabled { background: @color-disabled-surface; color: @color-disabled-text; }
+.primary-button.is-browsing { .browse-button-layout(); background: @ws-accent; color: #fff; }
+.is-browsing.primary-button--secondary, .is-browsing.primary-button--quiet { background: @ws-surface; color: @ws-accent; }
+.primary-button.is-browsing.is-disabled { background: @color-disabled-surface; border-color: @ws-border; color: @color-disabled-text; }

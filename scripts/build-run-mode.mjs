@@ -36,6 +36,8 @@ if (mode === 'production') {
   for (const file of walk(path.join(root, 'modes/production'))) source.set('production/' + path.relative(path.join(root, 'modes/production'), file).replaceAll('\\', '/'), fs.readFileSync(file))
   source.set('runtime/institution-validation.ts', Buffer.from("import { administrativeDivisionResolver } from '../production/administrative-divisions'\nexport const institutionValidationOptions = {administrativeDivisionResolver}\n"))
   source.set('runtime/institution-service-access.ts', Buffer.from("export { canRequestInstitutionService } from '../production/catalog'\n"))
+  source.set('runtime/directory-metadata.ts', Buffer.from("export { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../production/directory-metadata'\n"))
+  source.set('runtime/institution-source-notes.ts', Buffer.from("export { readInstitutionSourceNotes } from '../production/source-notes'\n"))
   for (const [file, bytes] of source) if (/^pages\/(home|institution)\/.*\.(ts|wxml)$/.test(file)) {
     source.set(file, Buffer.from(bytes.toString().replaceAll('合作机构', '养老机构').replaceAll('仅加载当前本地开发目录', '仅展示已核对的公开机构资料').replaceAll('当前本地开发目录未能读取', '机构公开资料暂时未能读取')))
   }
@@ -69,7 +71,13 @@ if (mode === 'demo') {
   const homeConfig = JSON.parse(source.get('pages/home/index.json'))
   homeConfig.usingComponents['demo-tools'] = '/components/demo-tools/demo-tools'
   source.set('pages/home/index.json', Buffer.from(JSON.stringify(homeConfig)))
-  source.set('pages/home/index.wxml', Buffer.from(source.get('pages/home/index.wxml').toString().replace('<page-container', '<demo-tools id="demo-tools" bind:changed="retryLoad"></demo-tools>\n<page-container')))
+  const homeMarkup = source.get('pages/home/index.wxml').toString()
+  assert.ok(homeMarkup.includes('<!-- demo-home-entry -->'), 'Missing auxiliary demo entry slot')
+  source.set('pages/home/index.wxml', Buffer.from(homeMarkup.replace('<!-- demo-home-entry -->', '<demo-tools id="demo-tools" compact-home="{{true}}" bind:changed="retryLoad"></demo-tools>')))
+  const mineConfig = JSON.parse(source.get('pages/mine/index.json'))
+  mineConfig.usingComponents['demo-tools'] = '/components/demo-tools/demo-tools'
+  source.set('pages/mine/index.json', Buffer.from(JSON.stringify(mineConfig)))
+  source.set('pages/mine/index.wxml', Buffer.from(source.get('pages/mine/index.wxml').toString().replace('</page-container>', '<demo-tools id="demo-settings"></demo-tools>\n</page-container>')))
   // Native open-type phone authorization cannot be intercepted by patching wx.
   // These demo surfaces use the same isolated service component instead of exposing
   // the real contact/submission form. Routes and production source stay intact.

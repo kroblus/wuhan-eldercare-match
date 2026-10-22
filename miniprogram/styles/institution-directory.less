@@ -1,0 +1,41 @@
+@import './base.less';
+@import './mixins.less';
+@import './brand-content.less';
+@import './browse-buttons.less';
+page { .ws-page-surface(); }
+.directory-search { margin: 16px 0; }
+.directory-input-wrap { position: relative; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; }
+.directory-input-wrap input { box-sizing: border-box; width: 100%; min-height: 52px; height: calc(var(--browse-control-size, 17px) + 36px); padding: 10px 84px 10px 14px; color: @ws-ink; font-size: var(--browse-control-size, 17px); line-height: 1.5; }
+.directory-clear, .directory-clear:not([size='mini']) { .browse-button-layout(); position: absolute; right: 0; top: 0; width: 76px; min-height: 50px; height: 100%; padding: 8px; background: transparent; color: @ws-accent; border: 0; font-size: var(--browse-control-size, 16px); font-weight: 400; }
+.directory-clear::after { border: 0; }
+.directory-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.directory-filters picker { flex: 1 1 calc(var(--browse-control-size, 16px) * 8); min-width: 0; }
+.directory-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 50px; height: 100%; padding: 10px 12px; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: var(--browse-control-size, 16px); line-height: 1.6; }
+.directory-filter > text:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.directory-arrow { flex: 0 0 auto; font-size: 18px; line-height: 1; color: @ws-accent; }
+.directory-filter.is-selected { border-color: @ws-accent; background: @ws-accent-soft; }
+.directory-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; margin: 8px 0 12px; }
+.directory-heading__title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+.section-kicker { color: @ws-ink; font-size: var(--browse-title-size, 21px); font-weight: 600; line-height: 1.5; }
+.directory-count { color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.6; }
+.directory-reset:not([size='mini']) { margin-left: auto; }
+.institution-card { margin: 0 0 14px; padding: 18px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; }
+.institution-card__head { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.institution-name { flex: 1 1 160px; min-width: 0; display: block; color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.institution-demo-label { flex: 0 0 auto; padding: 2px 6px; background: @ws-accent-soft; border-radius: 4px; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.6; }
+.institution-region, .institution-feature { display: block; margin-top: 8px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
+.institution-price { display: block; margin-top: 12px; color: @ws-ink; font-size: var(--browse-body-size, 17px); line-height: 1.6; }
+.institution-card__footer { .browse-button-layout(); margin-top: 16px; background: @ws-surface; color: @ws-accent; font-size: var(--browse-control-size, 16px); }
+.institution-group-heading { display: block; margin-bottom: 12px; color: @ws-accent; font-size: var(--browse-body-size, 16px); }
+.directory-search-empty, .directory-state { padding: 24px 0; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.75; }
+.directory-search-empty > text, .directory-state > text { display: block; }
+.directory-empty-title { margin-bottom: 8px; color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; }
+.directory-search-empty .browse-button { margin-top: 16px; }
+.action-error { margin-top: 12px; color: @color-error; font-size: var(--browse-body-size, 16px); line-height: 1.65; }
+.institution-list-shell { padding-top: 16px; }
+.institution-list-head { padding: 0; }
+.page-title { color: @ws-ink; font-size: 26px; line-height: 1.45; }
+.page-description, .mock-disclosure { display: block; margin-top: 12px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; }
+.directory-state__title { color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; }
+.directory-state .primary-action, .directory-state .secondary-action { .browse-button-layout(); margin-top: 12px; background: @ws-surface; color: @ws-accent; }
+.directory-state .primary-action { background: @ws-accent; color: #fff; }

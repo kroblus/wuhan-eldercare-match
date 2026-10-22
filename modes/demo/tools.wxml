@@ -1,29 +1,23 @@
-<view class="demo-tools">
-  <text class="demo-title">演示资料</text>
-  <text>{{status}}</text>
-  <text>机构、老人、价格和能力均为虚构样例，不提供真实预约或顾问服务。</text>
-  <button class="primary" disabled="{{loading}}" loading="{{loading}}" bindtap="load">加载演示数据</button>
-  <button disabled="{{loading}}" bindtap="reset">重置演示数据</button>
+<view wx:if="{{compactHome}}" class="demo-home">
+  <text class="demo-home__notice">演示资料，非真实机构信息。</text>
+  <button wx:if="{{!ready}}" class="browse-button" disabled="{{loading}}" loading="{{loading}}" bindtap="load">载入演示案例</button>
+  <text wx:if="{{error}}" class="error" role="alert">{{error}}</text>
+</view>
+<view wx:else class="demo-tools">
+  <text class="demo-title">演示设置</text><text>{{status}}</text>
+  <text>以下案例与记录仅供体验，不会联系真实机构。</text>
+  <view class="demo-load-actions"><button class="browse-button" disabled="{{loading || confirming}}" loading="{{loading}}" bindtap="load">重新载入案例</button><button class="browse-button" disabled="{{loading || confirming}}" bindtap="reset">重置演示记录</button></view>
   <view wx:if="{{ready && !serviceOnly}}" class="demo-links">
-    <button data-target="institutions" bindtap="open">搜索与查看机构</button>
-    <button data-target="profile" bindtap="open">查看评估画像</button>
-    <button data-target="recommendation" bindtap="open">查看匹配结果</button>
-    <button data-target="vr" bindtap="open">体验合成全景</button>
-    <button data-target="map" bindtap="open">查看武汉城区地图</button>
+    <button class="browse-button" data-target="institutions" bindtap="open">浏览演示机构</button><button class="browse-button" data-target="profile" bindtap="open">查看需求评估</button><button class="browse-button" data-target="recommendation" bindtap="open">查看匹配结果</button><button class="browse-button" data-target="vr" bindtap="open">体验演示全景</button><button class="browse-button" data-target="map" bindtap="open">查看城区地图</button>
   </view>
   <view wx:if="{{ready}}" class="simulation">
-    <text class="demo-title">预约与带看体验</text>
-    <text>以下操作只保存在本次演示会话；不是正式预约或评价记录。</text>
+    <text class="demo-title">预约与带看体验</text><text>仅模拟操作，不是真实预约或评价。</text>
     <text wx:if="{{institutionId}}">{{selectedName}}</text>
-    <picker wx:else range="{{names}}" value="{{selectedIndex}}" bindchange="selectInstitution"><view class="picker">选择机构：{{selectedName}} ▾</view></picker>
-    <button wx:if="{{!serviceState}}" data-action="appointment" bindtap="simulate">模拟预约</button>
-    <block wx:elif="{{serviceState === 'appointment_simulated'}}"><text>演示预约已创建，未联系机构。</text><button data-action="visit" bindtap="simulate">模拟完成带看</button></block>
-    <block wx:elif="{{serviceState === 'visit_simulated'}}">
-      <text>演示带看已完成，可体验评价。</text>
-      <picker range="{{ratings}}" value="{{ratingIndex}}" bindchange="selectRating"><view class="picker">总体感受：{{ratings[ratingIndex]}} ▾</view></picker>
-      <button data-action="evaluation" bindtap="simulate">保存演示评价</button>
-    </block>
-    <text wx:elif="{{serviceState === 'evaluation_simulated'}}">演示评价已保存在本次会话，未提交到真实服务。</text>
+    <picker wx:else range="{{names}}" value="{{selectedIndex}}" bindchange="selectInstitution"><view class="picker">选择机构：{{selectedName}} ⌄</view></picker>
+    <button wx:if="{{!serviceState}}" class="browse-button browse-button--primary" data-action="appointment" bindtap="simulate">模拟预约</button>
+    <block wx:elif="{{serviceState === 'appointment_simulated'}}"><text>演示预约已创建，未联系机构。</text><button class="browse-button" data-action="visit" bindtap="simulate">模拟完成带看</button></block>
+    <block wx:elif="{{serviceState === 'visit_simulated'}}"><text>演示带看已完成，可体验评价。</text><picker range="{{ratings}}" value="{{ratingIndex}}" bindchange="selectRating"><view class="picker">总体感受：{{ratings[ratingIndex]}} ⌄</view></picker><button class="browse-button" data-action="evaluation" bindtap="simulate">保存演示评价</button></block>
+    <text wx:elif="{{serviceState === 'evaluation_simulated'}}">演示评价已保存，未提交到真实服务。</text>
   </view>
   <text wx:if="{{error}}" class="error" role="alert">{{error}}</text>
 </view>

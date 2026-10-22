@@ -7,6 +7,8 @@ import {
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
+import { filterInstitutionDirectory } from '../../services/institution-directory-search'
+import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 
 interface HomePageData {
   institutions: readonly InstitutionListItemViewModel[]
@@ -19,10 +21,20 @@ interface HomePageData {
   institutionListActionError: string
   consultantActionError: string
   aiActionError: string
+  readingActionError: string
+  keyword: string
+  natureIndex: number
+  districtIndex: number
+  natureOptions: typeof directoryNatureOptions
+  districtOptions: typeof directoryDistrictOptions
+  hasMetadataFilters: boolean
+  actionErrorKey: string
 }
 
 const loadGenerations = new WeakMap<object, number>()
 const homeLoadsInFlight = new WeakSet<object>()
+const homeReloadRequested = new WeakSet<object>()
+const homeDirectories = new WeakMap<object, readonly InstitutionListItemViewModel[]>()
 
 const nextGeneration = (instance: object): number => {
   const generation = (loadGenerations.get(instance) || 0) + 1
@@ -75,23 +87,62 @@ Component({
     institutionListActionError: '',
     consultantActionError: '',
     aiActionError: '',
+    readingActionError: '',
+    keyword: '', natureIndex: 0, districtIndex: 0,
+    natureOptions: directoryNatureOptions, districtOptions: directoryDistrictOptions,
+    hasMetadataFilters: true, actionErrorKey: '',
   } as HomePageData,
 
   lifetimes: {
     attached() {
       this.loadInstitutions()
     },
+    detached() {
+      nextGeneration(this)
+      homeDirectories.delete(this)
+      homeReloadRequested.delete(this)
+    },
   },
 
   pageLifetimes: {
     show() {
       resetNavigationGuard(this)
+      this.loadInstitutions()
     },
   },
 
   methods: {
+    filterDirectory() {
+      this.setData({ institutions: filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex), institutionActionError: '', actionErrorKey: '' })
+    },
+    onSearchInput(event: WechatMiniprogram.Input) {
+      this.setData({ keyword: event.detail.value }); this.filterDirectory()
+    },
+    onNatureChange(event: WechatMiniprogram.PickerChange) {
+      const index = Number(event.detail.value)
+      if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
+      this.setData({ natureIndex: index }); this.filterDirectory()
+    },
+    onDistrictChange(event: WechatMiniprogram.PickerChange) {
+      const index = Number(event.detail.value)
+      if (!Number.isInteger(index) || !directoryDistrictOptions[index]) return
+      this.setData({ districtIndex: index }); this.filterDirectory()
+    },
+    clearSearch() {
+      this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
+    },
+    clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
+    onCardTap(event: WechatMiniprogram.BaseEvent) { this.openInstitution(event) },
+    openReading(event: WechatMiniprogram.BaseEvent) {
+      const topic = event.currentTarget.dataset.topic
+      if (typeof topic !== 'string' || ['policy', 'education', 'admission'].indexOf(topic) < 0) return
+      this.setData({ readingActionError: '' })
+      navigateToWithGuard(this, 'home.openReading', '/pages/service/' + topic + '/index', undefined, () => {
+        this.setData({ readingActionError: '暂时无法打开内容，请重试。' })
+      })
+    },
     loadInstitutions() {
-      if (homeLoadsInFlight.has(this)) return
+      if (homeLoadsInFlight.has(this)) { homeReloadRequested.add(this); return }
       homeLoadsInFlight.add(this)
       const generation = nextGeneration(this)
       this.setData({
@@ -104,6 +155,7 @@ Component({
       buildInstitutionListPageSnapshot(null).then((result) => {
         homeLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
+        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         if (!result.ok) {
           this.setData({
             isLoading: false,
@@ -116,18 +168,21 @@ Component({
           return
         }
         const viewModel = createInstitutionListPageViewModel(result.value)
+        homeDirectories.set(this, viewModel.items)
         this.setData({
           isLoading: false,
           loadError: false,
           empty: viewModel.pageState === 'empty',
           // Preview follows the existing directory order; it is not a recommendation.
-          institutions: viewModel.items.slice(0, 2),
+          institutions: viewModel.items,
           mockDisclosure: viewModel.disclosure,
           showMockDisclosure: viewModel.hasDisclosure,
         })
+        this.filterDirectory()
       }).catch(() => {
         homeLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
+        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         this.setData({
           isLoading: false,
           loadError: true,
@@ -192,7 +247,7 @@ Component({
       if (!itemKey) return
       const item = this.data.institutions.find((candidate) => candidate.key === itemKey)
       if (item === undefined) return
-      this.setData({ institutionActionError: '' })
+      this.setData({ institutionActionError: '', actionErrorKey: itemKey })
       const guard = getNavigationGuard(this)
       if (!guard.acquire('home.openInstitution')) return
       const url = serializeInstitutionDetailRoute(

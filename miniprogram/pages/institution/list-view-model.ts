@@ -43,6 +43,7 @@ export interface InstitutionListItemViewModel {
   showGroupHeading: boolean
   placementLabel: string
   navigationIntent: InstitutionListNavigationIntentViewModel
+  card: { title: string; region: string; price: string; feature: string; isDemo: boolean }
 }
 
 export interface InstitutionListPageViewModelV12 {
@@ -178,6 +179,14 @@ const formatItem = (
       recordRevision: item.recordRevision,
       source,
       sourceContextRef,
+    },
+    card: {
+      title: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
+        ? name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '') || '机构名称待确认' : name.value || '机构名称待确认',
+      region: item.region.availability === 'provided' && item.region.effectiveVerification === 'current_verified' ? region.value : '区域待确认',
+      price: item.referenceMonthlyPrice.availability === 'provided' && item.referenceMonthlyPrice.effectiveVerification === 'current_verified' ? '参考月费 ' + price.value : '费用待咨询',
+      feature: item.institutionType.availability === 'provided' && item.institutionType.effectiveVerification === 'current_verified' ? type.value : '',
+      isDemo: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY',
     },
   }
 }

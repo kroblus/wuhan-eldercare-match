@@ -1,3 +1,4 @@
+import { directoryNatureOptions, directoryDistrictOptions } from '../runtime/directory-options'
 import directory from './directory.json'
 // TEST_ONLY. Independent synthetic directory; never an Institution or Recommendation record.
 // Names, nature and district assignments below are fictional test scenarios.
@@ -19,29 +20,8 @@ export interface SearchCatalogValidationIssue { readonly recordIndex:number; rea
 export type SearchCatalogValidation = {readonly ok:true} | {readonly ok:false;readonly errors:readonly SearchCatalogValidationIssue[]}
 export type SearchCatalogReadResult = {readonly ok:true;readonly record:SyntheticSearchCatalogRecord} | {readonly ok:false;readonly code:'INVALID_CATALOG_ID' | 'CATALOG_NOT_FOUND'}
 
-const natureOptions:readonly SearchCatalogOption<SearchCatalogNature>[] = Object.freeze([
- Object.freeze({value:'public' as SearchCatalogNature,label:'公办'}),
- Object.freeze({value:'public_built_private_operated' as SearchCatalogNature,label:'公建民营'}),
- Object.freeze({value:'private' as SearchCatalogNature,label:'民办'}),
- Object.freeze({value:'unknown' as SearchCatalogNature,label:'性质待确认'})
-])
-// Application enum keys, NOT official administrative codes. Administrative districts only.
-const districtOptions:readonly SearchCatalogOption<SearchCatalogDistrict>[] = Object.freeze([
- Object.freeze({value:'jiangan' as SearchCatalogDistrict,label:'江岸区'}),
- Object.freeze({value:'jianghan' as SearchCatalogDistrict,label:'江汉区'}),
- Object.freeze({value:'qiaokou' as SearchCatalogDistrict,label:'硚口区'}),
- Object.freeze({value:'hanyang' as SearchCatalogDistrict,label:'汉阳区'}),
- Object.freeze({value:'wuchang' as SearchCatalogDistrict,label:'武昌区'}),
- Object.freeze({value:'qingshan' as SearchCatalogDistrict,label:'青山区'}),
- Object.freeze({value:'hongshan' as SearchCatalogDistrict,label:'洪山区'}),
- Object.freeze({value:'dongxihu' as SearchCatalogDistrict,label:'东西湖区'}),
- Object.freeze({value:'hannan' as SearchCatalogDistrict,label:'汉南区'}),
- Object.freeze({value:'caidian' as SearchCatalogDistrict,label:'蔡甸区'}),
- Object.freeze({value:'jiangxia' as SearchCatalogDistrict,label:'江夏区'}),
- Object.freeze({value:'huangpi' as SearchCatalogDistrict,label:'黄陂区'}),
- Object.freeze({value:'xinzhou' as SearchCatalogDistrict,label:'新洲区'}),
- Object.freeze({value:'unknown' as SearchCatalogDistrict,label:'区域待确认'})
-])
+const natureOptions = Object.freeze(directoryNatureOptions.slice(1)) as readonly SearchCatalogOption<SearchCatalogNature>[]
+const districtOptions = Object.freeze(directoryDistrictOptions.slice(1)) as readonly SearchCatalogOption<SearchCatalogDistrict>[]
 const catalogInfo = Object.freeze({
  schemaVersion:'daqian-synthetic-search-catalog-v1',
  datasetRevision:1,
