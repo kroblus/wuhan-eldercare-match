@@ -9,6 +9,7 @@
       <view class="institution-detail-head">
         <text wx:if="{{viewModel.hasDisclosure}}" class="detail-demo-note">演示资料，非真实机构信息。</text>
         <text class="page-title">{{reading.title}}</text><text wx:if="{{reading.region}}" class="detail-region">{{reading.region}}</text>
+        <text wx:if="{{directoryInfo.natureLabel}}" class="detail-source-note">{{directoryInfo.natureLabel}}</text>
         <text wx:if="{{viewModel.historyLabel}}" class="history-label">{{viewModel.historyLabel}}</text><text wx:if="{{viewModel.revisionNotice}}" class="revision-notice">{{viewModel.revisionNotice}}</text>
         <view wx:if="{{viewModel.recommendation}}" class="detail-recommendation-overview"><text class="detail-subheading">本次推荐 · {{viewModel.recommendation.tierLabel}}</text><text wx:for="{{viewModel.recommendation.reasons}}" wx:key="key" class="detail-summary">{{item.value}}</text><view wx:if="{{viewModel.recommendation.differences.length}}" class="detail-important-note"><text class="detail-subheading">与本次需求有关的待确认事项</text><text wx:for="{{viewModel.recommendation.differences}}" wx:key="key" class="detail-summary">{{item.value}}</text></view></view>
         <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
@@ -16,14 +17,28 @@
       <view wx:if="{{viewModel.media.hasCover && !coverLoadFailed}}" class="detail-cover-wrap"><image class="detail-cover" src="{{viewModel.media.coverUrl}}" mode="aspectFill" aria-label="{{viewModel.title}}封面" binderror="onCoverLoadError"></image></view>
       <view class="detail-contact-card">
         <text class="detail-subheading">机构位置</text><text class="detail-summary">{{viewModel.location.address}}</text>
-        <text wx:if="{{viewModel.location.addressState !== 'ready'}}" class="detail-source-note">{{viewModel.location.addressStatus}}</text>
+        <text wx:if="{{viewModel.location.addressState !== 'ready' && viewModel.location.addressStatus !== viewModel.location.address}}" class="detail-source-note">{{viewModel.location.addressStatus}}</text>
         <button wx:if="{{viewModel.location.mapAction.available}}" class="browse-button detail-map-button" data-action-key="map" bindtap="onMapTap">查看地图</button>
         <view wx:if="{{actionErrorKey === 'map'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         <text class="detail-subheading detail-contact-title">机构官方电话</text>
         <view wx:if="{{viewModel.officialContact.hasPhones}}">
-          <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key" class="official-phone-row"><text class="detail-summary">{{item.purposeLabel}} · {{item.displayValue || item.statusLabel}}</text><text wx:if="{{item.displayValue && item.state !== 'verified'}}" class="detail-source-note">{{item.statusLabel}}</text><button wx:if="{{item.callAction.available}}" class="browse-button" data-phone-key="{{item.key}}" bindtap="onOfficialPhoneTap">{{item.callAction.label}}</button><text wx:else class="detail-source-note">{{item.callAction.label}}</text></view>
+          <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key" class="official-phone-row"><text class="detail-summary">{{item.purposeLabel}} · {{item.displayValue || item.statusLabel}}</text><text wx:if="{{item.displayValue && item.state !== 'verified'}}" class="detail-source-note">{{item.statusLabel}}</text><button wx:if="{{item.callAction.available}}" class="browse-button" data-phone-key="{{item.key}}" bindtap="onOfficialPhoneTap">拨打机构电话</button><text wx:else class="detail-source-note">{{item.callAction.label}}</text></view>
         </view><text wx:else class="detail-summary">{{viewModel.officialContact.statusLabel}}</text>
         <view wx:if="{{actionErrorKey === 'phone'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <text wx:if="{{sourceNotes.length && viewModel.officialContact.hasPhones}}" class="detail-source-note">电话来自公开资料，尚未实拨确认，不代表机构已确认接听。</text>
+        <text wx:for="{{directoryInfo.notes}}" wx:key="*this" class="detail-source-note">{{item}}</text>
+        <view class="contact-guide">
+          <button class="detail-section-toggle" aria-expanded="{{consultationExpanded ? 'true' : 'false'}}" bindtap="onConsultationToggle"><text class="detail-subheading">联系机构前，先准备什么？</text><text class="detail-section-state">{{consultationExpanded ? '收起' : '展开'}}</text></button>
+          <view wx:if="{{consultationExpanded}}">
+            <text class="detail-source-note">以下是建议向机构询问的事项，不代表该机构已经提供或承诺相关服务。</text>
+            <text class="contact-guide__item">· 是否接收符合老人当前照护需求的住户</text>
+            <text class="contact-guide__item">· 近期是否有可入住床位，是否需要等候</text>
+            <text class="contact-guide__item">· 当前收费项目、包含内容及支付方式</text>
+            <text class="contact-guide__item">· 是否支持参观，如何向机构确认安排</text>
+            <text class="contact-guide__item">· 入住条件及需要准备的材料</text>
+            <text class="detail-source-note">只需说明与咨询有关的情况；无需为浏览资料授权手机号或提交完整健康信息。</text>
+          </view>
+        </view>
       </view>
       <view wx:for="{{reading.groups}}" wx:key="key" wx:for-item="section" class="detail-section">
         <button class="detail-section-toggle" data-section-key="{{section.key}}" aria-label="{{section.title}}，{{expandedSections[section.key] ? '收起' : '展开'}}" aria-expanded="{{expandedSections[section.key] ? 'true' : 'false'}}" bindtap="onSectionToggle"><text class="detail-section-title">{{section.title}}</text><text class="detail-section-state">{{expandedSections[section.key] ? '收起' : '展开'}}</text></button>
@@ -31,7 +46,7 @@
         <view wx:if="{{section.key === 'care' && viewModel.overview.careAlert}}" class="detail-important-note">{{viewModel.overview.careAlert}}</view>
         <view wx:if="{{expandedSections[section.key]}}" class="detail-section-content">
           <template is="detailRows" data="{{rows: section.rows}}" />
-          <view wx:if="{{section.pendingLabels}}" class="detail-pending"><text class="detail-source-note">以下资料尚待补充，不代表机构没有相关服务：</text><text class="detail-summary detail-summary--secondary">{{section.pendingLabels}}</text></view>
+          <view wx:if="{{section.pendingLabels}}" class="detail-pending"><text class="detail-summary detail-summary--secondary">{{section.key === 'fees' ? '具体费用请向机构咨询。' : section.key === 'care' ? '部分服务信息尚待确认，请以机构实际答复为准。' : '部分基础与资质资料尚待补充。'}}</text><text class="detail-source-note">资料缺失不代表机构没有相关服务。</text></view>
           <block wx:if="{{section.key === 'fees'}}"><text class="detail-source-note">参考费用不是最终报价。请确认房型、照护等级、包含项目、押金及其他收费。</text><text class="detail-source-note">实际入住条件、材料与接收安排，以机构当期确认为准。</text></block>
           <block wx:if="{{section.key === 'care'}}"><text class="detail-source-note">护理管理与交接制度不代表特殊护理能力，请核实老人需要的具体服务。</text><view wx:for="{{reading.rooms}}" wx:key="key" class="detail-room"><text class="detail-subheading">{{item.name}} · {{item.type}}</text><template is="detailRows" data="{{rows: item.rows}}" /><text wx:if="{{item.pendingLabels}}" class="detail-source-note">待补充：{{item.pendingLabels}}</text></view></block>
           <block wx:if="{{section.key === 'info'}}">
@@ -40,7 +55,7 @@
             <text wx:if="{{viewModel.hasDisclosure}}" class="detail-demo-note">演示资料，非真实机构信息。所列服务与费用均为案例内容。</text>
             <text class="detail-source-note">{{viewModel.location.addressStatus}}；{{viewModel.location.mapStatus}}；{{viewModel.media.vrLabel}}。</text>
             <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key"><text class="detail-source-note">{{item.purposeLabel}}：{{item.statusLabel}} {{item.verifiedDateLabel}}</text></view>
-            <view wx:for="{{sourceNotes}}" wx:key="key" class="detail-source"><text class="detail-subheading">{{item.title}}</text><text class="detail-source-note">对应资料：{{item.fields}}</text><text class="detail-source-note">核对日期：{{item.verifiedOn}}；本次核验有效至：{{item.validUntil}}</text><text selectable="{{true}}" class="detail-source-url">{{item.url}}</text></view>
+            <view wx:for="{{sourceNotes}}" wx:key="key" class="detail-source"><text class="detail-subheading">{{item.title}}</text><text class="detail-source-note">{{item.publisher}}；发布：{{item.publishedOn || '页面未标注'}}</text><text wx:if="{{item.publicationNote}}" class="detail-source-note">{{item.publicationNote}}</text><text class="detail-source-note">对应资料：{{item.fields}}</text><text class="detail-source-note">公开资料核对：{{item.verifiedOn}}；复核期限：{{item.validUntil}}</text><text selectable="{{true}}" class="detail-source-url">{{item.url}}</text></view>
             <text wx:if="{{sourceNotes.length}}" class="detail-source-note">以上为公开页面核对，未实拨电话或现场确认；有效期为平台内部复核期限，不代表服务承诺。</text>
             <text wx:if="{{viewModel.historyLabel}}" class="detail-source-note">{{viewModel.disclosure}}</text>
             <view wx:if="{{viewModel.canViewCurrentRevision}}"><text class="detail-summary">本页保留原资料版本。</text><button class="browse-button" loading="{{isSwitchingRevision}}" disabled="{{isSwitchingRevision}}" bindtap="onViewCurrentRevision">{{viewModel.currentRevisionLabel}}</button></view>

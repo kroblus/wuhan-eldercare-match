@@ -8,7 +8,7 @@ import {
 } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
-import { readInstitutionSourceNotes } from '../../runtime/institution-source-notes'
+import { readInstitutionSourceNotes, readInstitutionDirectoryInfo } from '../../runtime/institution-source-notes'
 import { createDetailReading } from './detail-reading'
 import {
   createInstitutionDetailErrorViewModel,
@@ -43,6 +43,8 @@ interface InstitutionDetailPageData {
   canRequestService: boolean
   reading: ReturnType<typeof createDetailReading> | null
   sourceNotes: ReturnType<typeof readInstitutionSourceNotes>
+  directoryInfo: ReturnType<typeof readInstitutionDirectoryInfo>
+  consultationExpanded: boolean
 }
 
 const routeByPage = new WeakMap<object, InstitutionDetailRoute>()
@@ -206,7 +208,7 @@ Page({
     expandedSections: {},
     coverLoadFailed: false,
     canRequestService: true,
-    reading: null, sourceNotes: [],
+    reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, consultationExpanded: false,
   } as InstitutionDetailPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -243,7 +245,7 @@ Page({
       isSwitchingRevision: false,
       expandedSections: {},
       coverLoadFailed: false,
-      reading: null, sourceNotes: [],
+      reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, consultationExpanded: false,
     })
     buildInstitutionDetailPageSnapshot(route).then((result) => {
       if (!isCurrentGeneration(this, generation)) return
@@ -254,6 +256,7 @@ Page({
           viewModel,
           reading: createDetailReading(viewModel),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
+          directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           actionErrorKey: '',
           actionErrorMessage: '',
@@ -303,6 +306,11 @@ Page({
     })
   },
 
+  onConsultationToggle() {
+    if (this.data.pageState !== 'ready') return
+    this.setData({ consultationExpanded: !this.data.consultationExpanded })
+  },
+
   onCoverLoadError() {
     if (this.data.pageState !== 'ready' || !this.data.viewModel || !this.data.viewModel.media.hasCover) return
     this.setData({ coverLoadFailed: true })
@@ -344,6 +352,7 @@ Page({
           viewModel,
           reading: createDetailReading(viewModel),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
+          directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           isSwitchingRevision: false,
           actionErrorKey: '',

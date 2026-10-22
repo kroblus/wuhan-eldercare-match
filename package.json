@@ -61,18 +61,21 @@
     "check:mine-appointment-entry-runtime": "node scripts/check-mine-appointment-entry-runtime.mjs",
     "check:ai-b6-runtime": "node scripts/check-ai-b6-runtime.mjs",
     "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs",
+    "check:run-mode-package-size": "node scripts/check-run-mode-package-size.mjs",
     "build:production": "node scripts/build-run-mode.mjs production",
     "build:demo": "node scripts/build-run-mode.mjs demo",
     "check:run-mode-convergence": "node scripts/check-run-mode-convergence.mjs",
     "check:institution-vr-runtime": "node scripts/check-institution-vr-runtime.mjs",
     "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs",
+    "check:production-directory-data": "node scripts/check-production-directory-data.mjs",
     "check:v1-7-homepage": "node scripts/check-v1-7-homepage.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "",
-  "dependencies": {},
   "devDependencies": {
-    "miniprogram-api-typings": "^2.8.3-1"
+    "miniprogram-api-typings": "^2.8.3-1",
+    "terser": "5.44.1",
+    "typescript": "4.1.2"
   }
 }
