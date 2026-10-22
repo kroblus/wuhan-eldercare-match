@@ -1,3 +1,4 @@
+import { filterInstitutionDirectory } from '../../services/institution-directory-search'
 import {
   buildInstitutionListPageSnapshot,
 } from '../../services/institution-list-detail-page'
@@ -12,7 +13,7 @@ import {
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
-import { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
+import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 import type { InstitutionListItemViewModel } from './list-view-model'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
@@ -162,20 +163,8 @@ Page({
   },
 
   filterDirectory() {
-    const items = this.data.viewModel ? this.data.viewModel.items : []
-    const keyword = this.data.keyword.trim().toLowerCase()
-    const metadata = readDirectoryMetadata()
-    const nature = directoryNatureOptions[this.data.natureIndex].value
-    const district = directoryDistrictOptions[this.data.districtIndex].value
-    this.setData({
-      hasMetadataFilters: metadata.length > 0,
-      visibleItems: items.filter(item => {
-        if (keyword && item.name.toLowerCase().indexOf(keyword) < 0) return false
-        const entry = metadata.find(row => row.institutionId === item.institutionId)
-        return (nature === 'all' || !!entry && entry.nature === nature)
-          && (district === 'all' || !!entry && entry.district === district)
-      }),
-    })
+    this.setData({ hasMetadataFilters: true,
+      visibleItems: filterInstitutionDirectory(this.data.viewModel ? this.data.viewModel.items : [], this.data.keyword, this.data.natureIndex, this.data.districtIndex) })
   },
   onSearchInput(event: WechatMiniprogram.Input) {
     this.setData({ keyword: event.detail.value }); this.filterDirectory()

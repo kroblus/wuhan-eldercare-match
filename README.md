@@ -2,6 +2,18 @@
 
 面向武汉本地老人及其家庭的养老需求评估与机构匹配微信小程序。
 
+## V1.7 首页
+
+首页直接按名称、武汉区级区域和性质组合搜索，复用独立目录的筛选函数、卡片和详情身份。
+正式目录仅展示已有真实资料；性质未核验时保留“性质待确认”，不从名称推断。
+养老补贴、科普及入住指南使用共享阅读页，保留官方来源、资料核对日期及适用范围；内容不判定个人补贴资格或医疗状况。
+演示模式保留12家合成机构、启动隔离和内存模拟服务；首页的更多演示工具可展开。
+
+双构建后运行 `npm run check:v1-7-homepage` 验证组合搜索、重置、空结果、详情、内容页和返回。
+新历史的来源和导出范围见 [SOURCE_BASELINE.md](SOURCE_BASELINE.md)。
+构建模式的生成 JS 检查显式选择本次产物：`npm run check:wechat-js-compat -- --artifact-dir dist/production/miniprogram`
+或 `dist/demo/miniprogram`，避免误读其他源码工程遗留的 DevTools 编译缓存。
+
 ## 项目入口
 
 - [当前产品资料](docs/product/README.md)

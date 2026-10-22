@@ -1,9 +1,13 @@
-<view class="demo-tools">
+<view class="demo-tools {{compactHome ? 'demo-tools--compact' : ''}}">
   <text class="demo-title">演示资料</text>
-  <text>{{status}}</text>
-  <text>机构、老人、价格和能力均为虚构样例，不提供真实预约或顾问服务。</text>
+  <text wx:if="{{!compactHome}}">{{status}}</text>
+  <text wx:if="{{!compactHome}}">机构、老人、价格和能力均为虚构样例，不提供真实预约或顾问服务。</text>
+  <view class="demo-load-actions">
   <button class="primary" disabled="{{loading}}" loading="{{loading}}" bindtap="load">加载演示数据</button>
   <button disabled="{{loading}}" bindtap="reset">重置演示数据</button>
+  </view>
+  <button wx:if="{{compactHome && ready}}" bindtap="toggleExpanded">{{expanded ? '收起演示体验' : '更多演示体验'}}</button>
+  <block wx:if="{{!compactHome || expanded}}">
   <view wx:if="{{ready && !serviceOnly}}" class="demo-links">
     <button data-target="institutions" bindtap="open">搜索与查看机构</button>
     <button data-target="profile" bindtap="open">查看评估画像</button>
@@ -25,5 +29,6 @@
     </block>
     <text wx:elif="{{serviceState === 'evaluation_simulated'}}">演示评价已保存在本次会话，未提交到真实服务。</text>
   </view>
+  </block>
   <text wx:if="{{error}}" class="error" role="alert">{{error}}</text>
 </view>

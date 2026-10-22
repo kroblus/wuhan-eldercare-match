@@ -3,7 +3,12 @@
 `miniprogram/app.json` 是物理 route 的 runtime truth。本文只提供人类与 Agent 可读的同步注册表，
 不记录项目进度、实现完成度或阶段顺序，也不授权增加尚未注册的 route。
 
-“老人档案”是一个业务模块，在工程中使用列表和详情两个物理 route，因此当前共有 21 个物理 route。
+“老人档案”是一个业务模块，在工程中使用列表和详情两个物理 route。当前注册30个物理 route，以 app.json 为准。
+
+V1.7 首页直接查询机构，独立 `pages/institution/index` 路由继续可用。
+新增非 Tab 阅读入口 `pages/service/policy/index`（养老补贴）、`pages/service/education/index`（科普）、
+`pages/service/admission/index`（入住指南）；共用静态内容与阅读页面实现，返回首页使用 switchTab。
+这些入口不要求登录、评估或健康资料，也不开放真实预约。
 
 | 业务页面 | 物理 route | 类型 | 稳定用途 |
 |---|---|---|---|

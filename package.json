@@ -65,7 +65,8 @@
     "build:demo": "node scripts/build-run-mode.mjs demo",
     "check:run-mode-convergence": "node scripts/check-run-mode-convergence.mjs",
     "check:institution-vr-runtime": "node scripts/check-institution-vr-runtime.mjs",
-    "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs"
+    "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs",
+    "check:v1-7-homepage": "node scripts/check-v1-7-homepage.mjs"
   },
   "keywords": [],
   "author": "",

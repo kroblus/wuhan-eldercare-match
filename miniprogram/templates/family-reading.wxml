@@ -1,0 +1,16 @@
+<template name="family-reading">
+  <navigation-bar warmSwiss="{{true}}" title="{{article.title}}" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" bind:navigationfail="onNavigationFailure"></navigation-bar>
+  <page-container extraClass="reading-page">
+    <view class="reading-head"><text class="reading-kicker">{{article.kicker}}</text><text class="reading-title">{{article.title}}</text><text class="reading-intro">{{article.introduction}}</text></view>
+    <text class="reading-date">资料核对：{{reviewedOn}} · 公开来源已核对</text>
+    <view wx:if="{{expired}}" class="reading-notice" role="alert">2026年度消费补贴已超出本页所列适用期，请重新核对官方最新政策。本页保留历史说明。</view>
+    <view class="reading-notice">{{article.notice}}</view>
+    <view wx:for="{{article.sections}}" wx:key="title" class="reading-section"><text class="reading-section__title">{{item.title}}</text><text wx:for="{{item.paragraphs}}" wx:key="*this" wx:for-item="paragraph" class="reading-paragraph">{{paragraph}}</text></view>
+    <view class="reading-sources"><text class="reading-section__title">官方来源与核验范围</text><text class="reading-paragraph">以下为摘要与阅读提示，原文及后续更新请到官方渠道核对；核对日期不等于政策发布日期。</text>
+      <view wx:for="{{article.sources}}" wx:key="id" class="reading-source"><text class="reading-source__title">{{item.title}}</text><text class="reading-date">{{item.scope}} · 发布：{{item.published}}</text><text selectable="{{true}}" class="reading-url">{{item.url}}</text><button class="reading-source__copy" disabled="{{copyPending}}" data-source-id="{{item.id}}" bindtap="onCopySource">复制官方来源网址</button></view>
+      <view wx:if="{{copyMessage}}" class="reading-message" role="status">{{copyMessage}}</view>
+    </view>
+    <view wx:if="{{navigationError}}" class="reading-error" role="alert">{{navigationError}}</view>
+    <button class="reading-home" bindtap="goHome">返回首页 →</button>
+  </page-container>
+</template>

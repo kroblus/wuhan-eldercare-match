@@ -36,6 +36,12 @@ miniprogram/
 
 ### 2.1 页面与组件
 
+V1.7 首页与独立机构目录通过 `services/institution-directory-search.ts` 复用原名称/性质/区域谓词，
+通过 `templates/institution-directory.wxml` 和对应共享 Less 复用搜索控件及卡片。筛选保留目录顺序，
+不参与 Recommendation V2。正式的目录元数据仅消费当前已核对地址，机构性质未知时不推断。
+`content/family-reading.ts` 提供三类静态阅读内容和来源，三个 service 路由复用 reading-page 注册与阅读模板，
+无身份、健康答案读取或业务写入；官方网址复制失败时保留可选择的网址及反馈，不绕过演示 API 隔离。
+
 - `pages/` 负责页面展示、页面级交互、页面生命周期和应用层调用；
 - `components/` 只承载小而稳定、可复用的 UI/交互单元；
 - 页面和组件不得复制 Frozen Contract 中的领域算法；

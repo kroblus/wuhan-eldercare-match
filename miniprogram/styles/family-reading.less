@@ -1,0 +1,20 @@
+@import './base.less';
+@import './mixins.less';
+@import './brand-content.less';
+page { .ws-page-surface(); }
+.reading-head { padding: 28px 0 20px; }
+.reading-kicker, .reading-date { display: block; color: @ws-muted; font-size: 14px; line-height: 1.75; }
+.reading-title { display: block; margin: 10px 0 16px; color: @ws-ink; font-size: 30px; font-weight: 600; line-height: 1.4; }
+.reading-intro, .reading-paragraph { display: block; color: @ws-secondary; font-size: 16px; line-height: 1.9; }
+.reading-notice { margin: 20px 0; padding: 16px; color: @ws-ink; background: @ws-accent-soft; font-size: 16px; line-height: 1.8; border-radius: @ws-radius; }
+.reading-section { padding: 24px 0; border-top: 1px solid @ws-border; }
+.reading-section__title { display: block; color: @ws-accent; font-size: 20px; font-weight: 600; line-height: 1.6; margin-bottom: 14px; }
+.reading-paragraph + .reading-paragraph { margin-top: 12px; }
+.reading-sources { border-top: 1px solid @ws-border; padding: 24px 0 0; }
+.reading-source { padding: 20px 0; border-bottom: 1px solid @ws-border; }
+.reading-source__title { display: block; color: @ws-ink; font-size: 16px; line-height: 1.75; }
+.reading-url { display: block; margin-top: 10px; font-size: 14px; line-height: 1.8; color: @ws-secondary; word-break: break-all; }
+.reading-source__copy, .reading-home { min-height: 48px; margin: 16px 0 0; padding: 12px; background: transparent; border: 1px solid @ws-accent; color: @ws-accent; font-size: 16px; line-height: 1.6; text-align: left; border-radius: @ws-radius; }
+.reading-home { width: 100%; margin: 24px 0; background: @ws-accent; color: @ws-surface; }
+.reading-message { font-size: 14px; color: @ws-ink; line-height: 1.75; }
+.reading-error { font-size: 16px; color: @color-error; line-height: 1.75; }

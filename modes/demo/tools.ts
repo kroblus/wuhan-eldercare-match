@@ -4,16 +4,18 @@ import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigatio
 
 Component({
   properties: {
+    compactHome: { type: Boolean, value: false },
     serviceOnly: { type: Boolean, value: false },
     institutionId: { type: String, value: '', observer(value: string) {
       const index = directory.findIndex(row => row.institutionId === value)
       if (index >= 0) { this.setData({ selectedIndex: index }); this.refresh() }
     } },
   },
-  data: { ready: false, loading: false, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '', ratingIndex: 3, ratings: ['1 分','2 分','3 分','4 分','5 分'] },
+  data: { expanded: false, ready: false, loading: false, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '', ratingIndex: 3, ratings: ['1 分','2 分','3 分','4 分','5 分'] },
   lifetimes: { attached() { this.refresh() } },
   pageLifetimes: { show() { resetNavigationGuard(this); this.refresh() } },
   methods: {
+    toggleExpanded() { this.setData({ expanded: !this.data.expanded }) },
     refresh() {
       const state = readDemo(), selected = directory[this.data.selectedIndex]
       const flow = state.flows.find(f => f.institutionId === selected.institutionId)
