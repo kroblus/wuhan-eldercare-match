@@ -109,20 +109,24 @@
       </view>
 
       <view wx:if="{{viewModel.clarifications.length}}" class="profile-section profile-pending">
-        <view class="section-heading"><text class="nutrition-title">待确认</text><text class="pending-count">{{viewModel.clarifications.length}} 项</text></view>
-        <text class="section-subtitle">这些信息不会被当作确定结论；补充后再次进入本页即可更新画像。</text>
+        <view class="section-heading"><text class="nutrition-title">仍需核对的照护事项</text><text class="pending-count">{{viewModel.clarifications.length}} 项</text></view>
+        <text class="section-subtitle">本次问卷已填写完成。以下事项是根据回答发现的具体待确认条件，不代表漏填；仅在实际情况或回答有变化时修改，重复勾选相同答案不会消除真实待确认项。</text>
         <view class="clarification-list">
           <view wx:for="{{viewModel.clarifications}}" wx:key="text" class="clarification">
             <text class="clarification__priority">{{item.priorityLabel}}</text>
             <text class="clarification__text">{{item.text}}</text>
             <button class="clarification__edit" data-section="{{item.editSection}}" catchtap="onEdit">{{item.editLabel}} →</button>
             <view wx:if="{{actionErrorKey === item.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            <view wx:for="{{item.relatedEdits}}" wx:for-item="relatedEdit" wx:key="section">
+              <button class="clarification__edit" data-section="{{relatedEdit.section}}" catchtap="onEdit">{{relatedEdit.label}} →</button>
+              <view wx:if="{{actionErrorKey === relatedEdit.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            </view>
           </view>
         </view>
       </view>
 
       <view class="recommendation-boundary">
-        <text class="recommendation-boundary__note">下一页将基于当前画像与开发 Mock 机构目录生成推荐预览，并说明推荐理由与需要确认的差异。</text>
+        <text class="recommendation-boundary__note">下一页会核对本次照护需求与机构资料。资料不足时不会生成推荐，你仍可浏览机构目录并了解公开联系方式。</text>
       </view>
       <view class="profile-footer">
         <view wx:if="{{actionErrorKey === 'recommendation'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>

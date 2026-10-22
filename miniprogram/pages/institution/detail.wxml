@@ -31,6 +31,10 @@
           <button class="detail-section-toggle" aria-expanded="{{consultationExpanded ? 'true' : 'false'}}" bindtap="onConsultationToggle"><text class="detail-subheading">联系机构前，先准备什么？</text><text class="detail-section-state">{{consultationExpanded ? '收起' : '展开'}}</text></button>
           <view wx:if="{{consultationExpanded}}">
             <text class="detail-source-note">以下是建议向机构询问的事项，不代表该机构已经提供或承诺相关服务。</text>
+            <view wx:if="{{viewModel.recommendation && viewModel.recommendation.differences.length}}" class="contact-guide__recommendation">
+              <text class="detail-subheading">本次候选还需确认</text>
+              <text wx:for="{{viewModel.recommendation.differences}}" wx:key="key" class="contact-guide__item">· {{item.value}}</text>
+            </view>
             <text class="contact-guide__item">· 是否接收符合老人当前照护需求的住户</text>
             <text class="contact-guide__item">· 近期是否有可入住床位，是否需要等候</text>
             <text class="contact-guide__item">· 当前收费项目、包含内容及支付方式</text>

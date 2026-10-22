@@ -18,11 +18,12 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const read = (relativePath) => readFileSync(path.join(root, relativePath), 'utf8')
 
 const homeTs = read('miniprogram/pages/home/index.ts')
-const homeWxml = read('miniprogram/pages/home/index.wxml')
+const sharedDirectoryWxml = read('miniprogram/templates/institution-directory.wxml')
+const homeWxml = read('miniprogram/pages/home/index.wxml') + sharedDirectoryWxml
 const introWxml = read('miniprogram/pages/assessment/intro.wxml')
 const navigationBarTs = read('miniprogram/components/navigation-bar/navigation-bar.ts')
 const listTs = read('miniprogram/pages/institution/index.ts')
-const listWxml = read('miniprogram/pages/institution/index.wxml')
+const listWxml = read('miniprogram/pages/institution/index.wxml') + sharedDirectoryWxml
 const detailTs = read('miniprogram/pages/institution/detail.ts')
 const resultTs = read('miniprogram/pages/recommendation/result.ts')
 const resultWxml = read('miniprogram/pages/recommendation/result.wxml')
@@ -187,6 +188,7 @@ const runHomeAssessmentEntryHarness = () => {
   const page = {
     data: { ...componentConfig.data },
     setData(patch) { this.data = { ...this.data, ...patch } },
+    loadInstitutions() {}, // Directory behavior is exercised by the shared browsing gate.
   }
   const startAssessment = componentConfig.methods.startAssessment
   const guard = guardModule.getNavigationGuard(page)
@@ -575,7 +577,7 @@ const runExecutableNavigationHarness = () => {
   page.onRecommendationListTap()
   assert.equal(registerCount, registrationsBeforeLegacyActions, 'legacy Result must not register a V2 source context')
   assert.equal(navigations.length, navigationsBeforeLegacyActions, 'legacy Result must remain explicitly non-navigating')
-  assert.match(page.data.actionErrorMessage, /暂不支持机构列表入口/)
+  assert.match(page.data.actionErrorMessage, /本次候选列表已失效/)
 
   return {
     registerCount,
@@ -589,7 +591,8 @@ const runExecutableNavigationHarness = () => {
 }
 
 const functionBody = (source, name) => {
-  const start = source.indexOf(`${name}(`)
+  const match = new RegExp(`^\\s*(?:async\\s+)?${name}\\([^\\n]*\\)\\s*\\{`, 'm').exec(source)
+  const start = match ? match.index : -1
   if (start < 0) return ''
   const open = source.indexOf('{', start)
   if (open < 0) return ''
@@ -669,7 +672,7 @@ const main = () => {
   })
   run('NAV-004', 'Home card WXML carries canonical view-model key only', () => {
     assert.match(homeWxml, /data-item-key="\{\{item\.key\}\}"/)
-    assert.match(homeWxml, /bindtap="openInstitution"/)
+    assert.match(homeWxml, /bindtap="onCardTap"/)
     assert.doesNotMatch(homeWxml, /data-id=|detail\?id=/)
   })
   run('NAV-005', 'List card consumes existing ViewModel navigation intent', () => {
@@ -753,8 +756,10 @@ const main = () => {
     assert.match(navGuardTs, /reset\(/)
   })
   run('NAV-019', 'VR unknown remains unavailable and does not create fake route', () => {
-    assert.match(detailTs, /当前没有可用的 VR 看院资料/)
-    assert.doesNotMatch(functionBody(detailTs, 'onVrTap'), /navigateTo|redirectTo|switchTab|reLaunch/)
+    const vrAction = functionBody(detailTs, 'onVrTap')
+    assert.match(vrAction, /!this\.data\.viewModel\.media\.canOpenVr/)
+    assert.match(vrAction, /serializeInstitutionDetailRoute/)
+    assert.match(vrAction, /if \(!route\) return/)
   })
   run('NAV-020', 'Canonical navigation code contains no legacy id-only route', () => {
     const all = `${homeTs}\n${homeWxml}\n${listTs}\n${listWxml}\n${resultTs}\n${resultWxml}`

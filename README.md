@@ -18,6 +18,7 @@
 演示模式保留12家合成机构、启动隔离和内存模拟服务；首页仅保留“载入演示案例”和简短身份提示。重置、评估样例、匹配结果及模拟预约／带看／评价位于“我的 → 演示设置”；重置需确认，只清理本次内存演示记录。
 
 双构建后运行 `npm run check:v1-7-homepage` 验证组合搜索、重置、空结果、详情、内容页和返回。
+V1.9 继续使用冻结的 Assessment / ElderProfile / Recommendation V2，产品 Source of Truth 仍为 V1.2。结果页区分护理条件可确认、相近候选、需进一步评估、老人信息待澄清及无法安全推荐；不补卡、不引入评分。正式11家机构的护理资料不足时不生成推荐卡；“浏览已收录的养老机构”走普通目录，不携带推荐上下文，候选详情仍使用同源版本上下文。卡片默认最多展示3条依据，安全差异全部保留，补充资料可展开。运行 `npm run check:v1-9-assessment-recommendation` 验证双模式闭环；`-- --source-only` 为不依赖微信构建的CI子集。
 新历史的来源和导出范围见 [SOURCE_BASELINE.md](SOURCE_BASELINE.md)。
 构建模式的生成 JS 检查显式选择本次产物：`npm run check:wechat-js-compat -- --artifact-dir dist/production/miniprogram`
 或 `dist/demo/miniprogram`，避免误读其他源码工程遗留的 DevTools 编译缓存。

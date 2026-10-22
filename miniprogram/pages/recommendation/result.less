@@ -1,5 +1,6 @@
 @import '../../styles/base.less';
 @import '../../styles/mixins.less';
+@import '../../styles/browse-buttons.less';
 page { .ws-page-surface(); }
 .recommendation-shell { padding: @space-4 0 calc(@space-5 + env(safe-area-inset-bottom)); }
 .result-intro { display: block; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
@@ -65,6 +66,18 @@ page { .ws-page-surface(); }
 .no-safe-section .adjust-needs-action { margin-top: @space-3; }
 .adjust-needs-action primary-button { display: block; }
 .result-state .state-panel, .no-safe-section .state-panel { padding: @space-4 0; border: 0; background: transparent; box-shadow: none; }
+.summary-title { margin-top: @space-3; font-size: var(--browse-title-size, @ws-page-title); overflow-wrap: anywhere; }
+.candidate-count { margin-top: @space-3; font-size: @ws-body; line-height: @line-height-body; }
+.summary-message, .section-subtitle, .no-safe-note, .detail-line, .compact-fact, .institution-status__item, .visit-advice-line { font-size: var(--browse-body-size, 16px); }
+.institution-card { margin-top: @space-3; padding: @space-4; background: @ws-surface; border: @ws-rule-width solid @ws-border; border-radius: @ws-radius; }
+.institution-card--conditional { border-left: 6rpx solid @ws-accent; }
+.institution-card .institution-name { margin-top: @space-2; }
+.institution-card .detail-list { margin-top: @space-3; }
+.result-card-toggle, .result-card-toggle:not([size='mini']) { width: 100%; min-height: 48px; margin: @space-2 0 0; padding: @space-2 0; display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; background: transparent; color: @ws-secondary; font-size: var(--browse-control-size, 16px); line-height: @line-height-body; }
+.result-card-toggle::after { border: 0; }
+.result-detail-button, .directory-browse-button { display: flex; align-items: center; justify-content: center; margin-top: @space-3; width: 100%; min-height: @touch-target-min; text-align: center; white-space: normal; }
+.directory-fallback { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
+.recommendation-shell text { overflow-wrap: anywhere; }
 @media (max-width: 360px) {
   .institution-decision-body { display: block; }
   .institution-explanation { margin-top: @space-3; }

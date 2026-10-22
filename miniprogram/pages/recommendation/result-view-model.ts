@@ -158,12 +158,12 @@ const NO_EXACT_LABELS: Record<string, string> = {
   NO_VERIFIED_INSTITUTION_POOL: '当前没有可确认的机构资料可供安全推荐。',
   ALL_CANDIDATES_HAVE_HARD_CONFLICT: '当前机构池与已报告的关键护理需求存在较大差异。',
   REQUIRED_CAPABILITY_UNRESOLVED: '有关键护理需求仍需要进一步确认。',
-  ONLY_SOFT_NEAR_MATCHES: '暂时没有完全符合全部偏好条件的合作机构。',
+  ONLY_SOFT_NEAR_MATCHES: '暂时没有完全符合全部偏好条件的已收录机构。',
   ONLY_CONDITIONAL_CANDIDATES: '当前候选机构都需要先完成进一步评估。',
-  NO_EXACT_MATCH_WITHIN_DECLARED_PREFERENCES: '暂时没有完全符合全部偏好条件的合作机构。',
+  NO_EXACT_MATCH_WITHIN_DECLARED_PREFERENCES: '暂时没有完全符合全部偏好条件的已收录机构。',
 }
 
-const NO_SAFE_DEFAULT = '当前合作机构中，暂时没有能够安全确认满足全部关键护理需求的机构。'
+const NO_SAFE_DEFAULT = '当前已收录机构中，暂时没有能够安全确认满足全部关键护理需求的机构。'
 
 const uniqueStrings = (values: readonly string[]): string[] => {
   const result: string[] = []
@@ -511,12 +511,12 @@ export const createRecommendationResultViewModel = (
   const semantics = snapshot.preview.semantics
   const state = deriveState(semantics, selected.cards, selected.conditionalCards)
   let headline = '先看清老人需要什么'
-  let summary = '以下内容依据本次评估与开发目录中的结构化资料整理。'
+  let summary = '以下内容依据本次评估、需求画像与机构资料整理。'
   if (state === 'ready_exact') {
     headline = '关键护理需求已找到可确认匹配的候选机构'
     summary = '这些机构在当前资料和评估时间点下，满足主要护理条件；入住前仍建议实地确认。'
   } else if (state === 'ready_soft_near') {
-    headline = '暂时没有完全符合全部偏好条件的合作机构'
+    headline = '暂时没有完全符合全部偏好条件的已收录机构'
     summary = '以下机构已经满足当前关键护理需求，但在预算、区域或机构类型等偏好上存在差异。'
   } else if (state === 'ready_conditional') {
     headline = '需要机构进一步评估的候选'
@@ -541,7 +541,7 @@ export const createRecommendationResultViewModel = (
     conditionalCards: selected.conditionalCards,
     visitAdvice,
     hasMockDisclosure: snapshot.datasetMode === 'MOCK_DEVELOPMENT_ONLY',
-    datasetLabel: snapshot.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? '开发 Mock 数据' : '合作机构资料',
+    datasetLabel: snapshot.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? '开发 Mock 数据' : '已收录机构资料',
     noSafeMessage: state === 'no_safe_recommendation'
       ? '可以调整需求后重新生成，或咨询养老顾问确认下一步。'
       : '',
