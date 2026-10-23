@@ -940,6 +940,16 @@
       "owner": "main_session",
       "superseded_by": null,
       "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_ORDINARY_DIRECTORY_DISPLAY_AMENDMENT_V1.md",
+      "doc_id": "institution.ordinary_directory.display.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "project_owner",
+      "superseded_by": null,
+      "archive_target": null
     }
   ]
 }

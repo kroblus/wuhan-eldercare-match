@@ -71,8 +71,8 @@ for (const mode of ['production', 'demo']) {
   if(mode === 'production') {
     home.clearSearch();home.toggleDirectory()
     check(home.data.institutions.some(item => item.card.notes.length), 'specific institution risks retained')
-    check(home.data.institutions.some(item => item.card.phone.includes('未实拨')), 'phone existence never means called')
-    check(home.data.institutions.every(item => ['地址资料已提供 · 详情可查','机构地址待确认','当前暂无可提供的机构地址','地址资料待核验','地址资料已过核验期'].includes(item.card.address)), 'directory shows projected address state only')
+    check(home.data.institutions.every(item => !item.card.phone), 'ordinary directory omits generic contact rows; Detail owns phone operation')
+    check(home.data.institutions.every(item => !item.card.addressStatus && (!item.card.address || !/详情可查|地址资料/.test(item.card.address))), 'ordinary directory uses only eligible direct address, no status substitute')
   }
   home.clearSearch();check(home.data.institutions.length === 2 && !home.data.expanded, 'clear restores preview')
   // Error isolation and load generations: inject only the page-facing application seam.
@@ -110,21 +110,29 @@ for (const mode of ['production', 'demo']) {
   application.build=originalDetailBuild
   check(JSON.stringify(itemWithRisk.card)===originalCard,'supplemental projection never mutates existing card')
   const detailProjection=load('pages/institution/detail-view-model'),originalDetailProjection=detailProjection.createInstitutionDetailPageViewModel
+  const originalDetailSnapshot=await originalDetailBuild({identity:{institutionId:itemWithRisk.institutionId,recordRevision:itemWithRisk.recordRevision},source:'direct',sourceContextRef:null,evaluationAsOf:snapshot.value.evaluationAsOf})
   for(const [state,status] of [['ready','地址已核验'],['address_unknown','机构地址待确认'],['address_unavailable','当前暂无可提供的机构地址'],['address_unverified','地址资料待核验'],['address_expired','地址资料已过核验期']]) {
-    application.build=()=>Promise.resolve({ok:true,value:{}})
+    application.build=()=>Promise.resolve(originalDetailSnapshot)
     detailProjection.createInstitutionDetailPageViewModel=()=>({location:{address:'TEST_ONLY full address',addressState:state,addressStatus:status},officialContact:{phones:[],statusLabel:'TEST_ONLY contact status'}})
     const stateOnly=await decorate([itemWithRisk],snapshot.value.evaluationAsOf)
-    check(stateOnly[0].card.address===(state==='ready'?'地址资料已提供 · 详情可查':status) && !JSON.stringify(stateOnly[0].card).includes('TEST_ONLY full address'),'directory '+state+' preserves exact state without full address')
+    check(stateOnly[0].card.address===(state==='ready'?'TEST_ONLY full address':'') && (!['address_unverified','address_expired'].includes(state)||stateOnly[0].card.notes.includes(status)),'ordinary directory '+state+' follows approved direct-address disclosure and preserves important warning')
   }
   const phoneCases=[['verified','已核验'],['pending','机构提供，平台待核验'],['expired','电话资料已过核验期'],['unavailable','当前暂无可提供的官方联系电话'],['unknown','官方联系电话待确认']]
-  const withPhones=async phones=>{
-    detailProjection.createInstitutionDetailPageViewModel=()=>({location:{addressState:'address_unknown',addressStatus:'机构地址待确认'},officialContact:{phones,statusLabel:'机构官方联系方式'}})
-    return (await decorate([{...itemWithRisk,card:{...itemWithRisk.card,isDemo:false}}],snapshot.value.evaluationAsOf))[0].card.phone
+  const withPhones=async (phones,state='ready',statusLabel='机构官方联系方式')=>{
+    detailProjection.createInstitutionDetailPageViewModel=()=>({location:{addressState:'address_unknown',addressStatus:'机构地址待确认'},officialContact:{state,phones,statusLabel}})
+    return (await decorate([itemWithRisk],snapshot.value.evaluationAsOf))[0].card
   }
   const phones=phoneCases.map(([state,statusLabel])=>({state,statusLabel,displayValue:'TEST_ONLY complete phone'}))
-  for(const phone of phones) check(await withPhones([phone])===(phone.state==='verified'?'有公开电话记录 · 未实拨':phone.statusLabel),'phone '+phone.state+' status preserved without number')
+  for(const phone of phones) {
+    const card=await withPhones([phone]),risk=phone.state==='pending'?'官方电话：'+phone.statusLabel:phone.statusLabel
+    check(!card.phone && card.notes.includes('TEST_ONLY institution-specific risk') && (phone.state==='verified'?!card.notes.includes(phone.statusLabel):card.notes.includes(risk)), 'ordinary phone '+phone.state+' omits generic row but keeps exact concrete warning and original risk')
+  }
   const mixed=await withPhones([phones[0],phones[1],phones[2],phones[1],phones[4]])
-  check(mixed==='有公开电话记录 · 未实拨；机构提供，平台待核验；电话资料已过核验期；官方联系电话待确认','mixed phone states retained and deduplicated in projected order')
+  check(!mixed.phone && mixed.notes.filter(note=>note==='官方电话：机构提供，平台待核验').length===1 && mixed.notes.includes('电话资料已过核验期') && mixed.notes.includes('官方联系电话待确认') && !JSON.stringify(mixed).includes('TEST_ONLY complete phone'),'mixed concrete warnings retain distinct states once, never full phone numbers')
+  const unavailable=await withPhones([],'unavailable','当前暂无可提供的官方联系电话')
+  check(unavailable.notes.includes('当前暂无可提供的官方联系电话'),'explicitly unavailable official contact remains a visible institution risk')
+  const unknown=await withPhones([],'unknown','官方联系电话待确认')
+  check(!unknown.notes.includes('官方联系电话待确认') && unknown.notes.includes('TEST_ONLY institution-specific risk'),'generic unknown contact does not add a repeated status row or erase specific source risks')
   application.build=originalDetailBuild;detailProjection.createInstitutionDetailPageViewModel=originalDetailProjection
   // Expired source facts cannot gain positive contact/address tags or overwrite history.
   vm.runInContext("Date.now = () => Date.parse('2027-02-01T00:00:00Z')", rt.context)

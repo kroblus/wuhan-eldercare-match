@@ -12,6 +12,7 @@ This file routes; it does not define business semantics.
 | ElderProfile V2 | `ELDER_PROFILE_CONTRACT_V2.md` | Assessment V2; Preview V2 |
 | Recommendation V2 | `RECOMMENDATION_CONTRACT_V2.md` + `RECOMMENDATION_RULE_CONTRACT_V2.md` | ElderProfile/Institution only when dependency changes |
 | Institution current schema/contact/address/Geo/public content | `INSTITUTION_CONTRACT_V1_2_1.md` | V1.2/V1.1 only for explicit compatibility/projection paths |
+| Institution ordinary direct directory address disclosure | `INSTITUTION_ORDINARY_DIRECTORY_DISPLAY_AMENDMENT_V1.md` | V1.2.1 official-address projection; excludes Recommendation-context List |
 | Institution list/detail UI/application | relevant List/Detail integration Contract + V1.2.1 | current PRD page; frontend structure; WeChat Skills |
 | Consultant / public contact / assignment / permission / privacy | `CONSULTANT_PERMISSION_CONTRACT_V1.md` | Institution V1.2.1 or Recommendation V2 only for an affected isolation boundary |
 | Global Consultant selection / contextless public application snapshot | `GLOBAL_CONSULTANT_SNAPSHOT_CONTRACT_V1.md` | `CONSULTANT_PERMISSION_CONTRACT_V1.md`; B2 handoff/runtime only for implementation conformance |

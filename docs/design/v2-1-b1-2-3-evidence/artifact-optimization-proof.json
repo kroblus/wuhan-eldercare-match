@@ -1,0 +1,24 @@
+{
+  "production": {
+    "beforeBytes": 1363327,
+    "bytes": 1355213,
+    "removed": [
+      "styles\\institution-directory.wxss"
+    ],
+    "removedBytes": 8114,
+    "changedRemainingFiles": [],
+    "remainingFiles": 353,
+    "remainingBudget": 676403
+  },
+  "demo": {
+    "beforeBytes": 2033625,
+    "bytes": 2025511,
+    "removed": [
+      "styles\\institution-directory.wxss"
+    ],
+    "removedBytes": 8114,
+    "changedRemainingFiles": [],
+    "remainingFiles": 352,
+    "remainingBudget": 6105
+  }
+}

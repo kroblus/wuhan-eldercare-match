@@ -157,7 +157,9 @@ for (const [file, data] of source) {
       for (const [name, content] of source) if (name.startsWith('styles/') && name.endsWith('.less')) put(staged, name, content)
     }
     const result = await less.render(data.toString(), { filename, javascriptEnabled: false, compress: true })
-    put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
+    // This shared Less is fully inlined into its page consumers. Do not also
+    // package an unused standalone copy; retain source and compile validation.
+    if (file !== 'styles/institution-directory.less') put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
   }
 }
 for (const file of modules) {
@@ -176,6 +178,10 @@ for (const file of modules) {
 for (const file of walk(runtime)) if (!writtenRuntime.has(path.resolve(file))) {
   assert.ok(path.resolve(file).startsWith(path.resolve(runtime) + path.sep))
   fs.unlinkSync(file)
+}
+// Fail closed if a future runtime consumer starts importing the omitted copy.
+for (const file of walk(runtime).filter(file => /\.(wxss|wxml|json|js)$/.test(file))) {
+  assert.ok(!fs.readFileSync(file, 'utf8').includes('institution-directory.wxss'), 'Standalone directory WXSS now has a runtime consumer: ' + file)
 }
 if (mode === 'production') assert.ok(![...modules].some(f => f.startsWith('demo/') || f.includes('demo-tools')))
 config.projectname = 'eldercare-shared-' + mode

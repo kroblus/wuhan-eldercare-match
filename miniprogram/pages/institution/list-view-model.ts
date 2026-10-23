@@ -46,6 +46,7 @@ export interface InstitutionListItemViewModel {
   placementLabel: string
   navigationIntent: InstitutionListNavigationIntentViewModel
   card: {
+    compact?: boolean
     title: string; region: string; price: string; feature: string; isDemo: boolean
     nature: string; address: string; addressStatus: string; phone: string
     notes: readonly string[]; factTags: readonly string[]

@@ -48,7 +48,7 @@ for (const mode of ['production', 'demo']) {
   if (mode === 'production') {
     check(items.some(item => item.card.factTags.length === 1), 'real current nature facts render chips')
     check(items.some(item => item.card.factTags.length === 0 && item.card.nature === '性质待确认'), 'real unknown nature keeps explicit text and zero tags')
-    check(items.some(item => item.card.phone.includes('未实拨')), 'phone existence not promoted to connected claim')
+    check(items.every(item => !item.card.phone), 'ordinary directory omits generic phone status and never claims a connection')
   } else check(items.every(item => item.card.isDemo && !item.card.factTags.length), 'demo provider semantics untouched; no new synthetic facts')
   const noEvidence = { ...list[0], institutionId: 'TEST_ONLY-no-evidence', recordRevision: 999, name: '公办低价医养结合康复中心', card: { ...list[0].card, nature: '性质待确认', notes: ['TEST_ONLY 电话来源冲突'] } }
   const fallback = (await decorateDirectoryCards([noEvidence], snapshot.value.evaluationAsOf))[0]

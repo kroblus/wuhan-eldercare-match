@@ -1,0 +1,48 @@
+{
+  "measurement": "Local runtime bytes only; final WeChat compiled/signed main package NOT_AVAILABLE",
+  "budget": 2031616,
+  "modes": {
+    "production": {
+      "baseBytes": 1361113,
+      "bytes": 1355460,
+      "delta": -5653,
+      "remaining": 676156,
+      "fileCount": 353,
+      "resourceBytes": 5299,
+      "changed": [
+        "pages/home/index.wxss",
+        "pages/institution/directory-presentation.js",
+        "pages/institution/index.wxss",
+        "templates/institution-directory.wxml"
+      ],
+      "removed": [
+        "styles/institution-directory.wxss"
+      ],
+      "finalFollowupAfterOptimizationProof": [
+        "pages/institution/directory-presentation.js"
+      ],
+      "allRemainingCssHashesIdenticalToBeforeOptimization": true
+    },
+    "demo": {
+      "baseBytes": 2031411,
+      "bytes": 2025758,
+      "delta": -5653,
+      "remaining": 5858,
+      "fileCount": 352,
+      "resourceBytes": 423329,
+      "changed": [
+        "pages/home/index.wxss",
+        "pages/institution/directory-presentation.js",
+        "pages/institution/index.wxss",
+        "templates/institution-directory.wxml"
+      ],
+      "removed": [
+        "styles/institution-directory.wxss"
+      ],
+      "finalFollowupAfterOptimizationProof": [
+        "pages/institution/directory-presentation.js"
+      ],
+      "allRemainingCssHashesIdenticalToBeforeOptimization": true
+    }
+  }
+}

@@ -1,0 +1,85 @@
+[
+  {
+    "case": "Chinese input",
+    "method": "native element input",
+    "expected": 7,
+    "actual": 7
+  },
+  {
+    "case": "name+district+nature AND",
+    "method": "native page handler",
+    "keyword": "社会福利",
+    "district": 4,
+    "nature": 1,
+    "count": 1
+  },
+  {
+    "case": "whole card opens exact detail",
+    "method": "native tap",
+    "stack": 2,
+    "route": "pages/institution/detail",
+    "institutionId": "wh-hanyang-social-welfare",
+    "recordRevision": 1,
+    "source": "direct_link",
+    "pageState": "ready"
+  },
+  {
+    "case": "return restores AND",
+    "keyword": "社会福利",
+    "district": 4,
+    "nature": 1,
+    "count": 1
+  },
+  {
+    "case": "AND empty",
+    "count": 0,
+    "active": true
+  },
+  {
+    "case": "clear keyword keeps filters",
+    "keyword": "",
+    "district": 4,
+    "nature": 3,
+    "count": 2,
+    "active": true
+  },
+  {
+    "case": "clear all returns preview",
+    "keyword": "",
+    "district": 0,
+    "nature": 0,
+    "count": 2,
+    "active": false
+  },
+  {
+    "case": "Recommendation-context list",
+    "route": "pages/institution/index",
+    "sourceContext": true,
+    "count": 12,
+    "compact": false,
+    "sources": [
+      "recommendation",
+      "recommendation",
+      "recommendation"
+    ],
+    "sameContext": false
+  },
+  {
+    "case": "Recommendation exact Detail",
+    "route": "pages/institution/detail",
+    "options": {
+      "institutionId": "demo-inst-chunhe-center",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "state": "ready",
+    "context": true
+  },
+  {
+    "case": "recommendation and rest identities stay separate",
+    "candidateContexts": true,
+    "directContexts": true,
+    "compact": false
+  }
+]

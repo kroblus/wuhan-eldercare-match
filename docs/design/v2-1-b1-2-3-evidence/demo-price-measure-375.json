@@ -1,0 +1,76 @@
+{
+  "width": 375,
+  "font": 16,
+  "count": 3,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "demo-inst-chunhe-center",
+        "itemKey": "demo-inst-chunhe-center#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 20,
+      "right": 355.3333435058594,
+      "top": 100.13542175292969,
+      "bottom": 334.65626525878906,
+      "width": 335.3333435058594,
+      "height": 234.52084350585938
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "demo-inst-chunhe-garden",
+        "itemKey": "demo-inst-chunhe-garden#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 20,
+      "right": 355.3333435058594,
+      "top": 346.65625,
+      "bottom": 522.78125,
+      "width": 335.3333435058594,
+      "height": 176.125
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "demo-inst-chunhe-home",
+        "itemKey": "demo-inst-chunhe-home#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 20,
+      "right": 355.3333435058594,
+      "top": 534.78125,
+      "bottom": 769.3020935058594,
+      "width": 335.3333435058594,
+      "height": 234.52084350585938
+    }
+  ],
+  "addresses": [],
+  "risks": [],
+  "prices": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 36.66666793823242,
+      "right": 338.6666679382324,
+      "top": 213.59375,
+      "bottom": 240.79166793823242,
+      "width": 302,
+      "height": 27.197917938232422
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 36.66666793823242,
+      "right": 338.6666679382324,
+      "top": 648.2396240234375,
+      "bottom": 675.4375419616699,
+      "width": 302,
+      "height": 27.197917938232422
+    }
+  ]
+}

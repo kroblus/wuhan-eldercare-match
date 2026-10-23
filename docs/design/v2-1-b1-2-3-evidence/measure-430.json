@@ -1,0 +1,84 @@
+{
+  "width": 430,
+  "font": 16,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-baiquan-eldercare",
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 84.125,
+      "bottom": 290.65625,
+      "width": 386,
+      "height": 206.53125
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 302.65625,
+      "bottom": 585.9791870117188,
+      "width": 386,
+      "height": 283.32293701171875
+    }
+  ],
+  "addresses": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 38.66666793823242,
+      "right": 391.3333549499512,
+      "top": 196.7916717529297,
+      "bottom": 223.9895896911621,
+      "width": 352.66668701171875,
+      "height": 27.197917938232422
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 38.66666793823242,
+      "right": 391.3333549499512,
+      "top": 415.32293701171875,
+      "bottom": 442.5208549499512,
+      "width": 352.66668701171875,
+      "height": 27.197917938232422
+    }
+  ],
+  "risks": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 38.66666793823242,
+      "right": 391.3333549499512,
+      "top": 450.5208435058594,
+      "bottom": 519.3125152587891,
+      "width": 352.66668701171875,
+      "height": 68.79167175292969
+    }
+  ],
+  "prices": [],
+  "services": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": -376.4895935058594,
+      "bottom": -225.80209350585938,
+      "width": 386,
+      "height": 150.6875
+    }
+  ]
+}
