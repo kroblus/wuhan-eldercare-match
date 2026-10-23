@@ -1,0 +1,22 @@
+{
+  "production": {
+    "rawExportSha256": "fa3731622de249f23119997bcf9053b90c13d94e95729814ff75d53f9a259b9f",
+    "sourceBytes": 1361113,
+    "uniquePaths": 354,
+    "subpackageCount": 0,
+    "duplicateResourceContentCount": 0,
+    "unusedSourceBytes": 19394,
+    "foreignModeFiles": [],
+    "finalWeChatPackageBytes": "NOT_AVAILABLE"
+  },
+  "demo": {
+    "rawExportSha256": "c11a2009c9e95290f89e824b70197f6075e79ae8085205b5981dbf11a91fa7c9",
+    "sourceBytes": 2031411,
+    "uniquePaths": 353,
+    "subpackageCount": 0,
+    "duplicateResourceContentCount": 0,
+    "unusedSourceBytes": 19394,
+    "foreignModeFiles": [],
+    "finalWeChatPackageBytes": "NOT_AVAILABLE"
+  }
+}

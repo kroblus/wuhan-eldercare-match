@@ -15,7 +15,7 @@
   </view>
   <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
   <view class="home-services" aria-label="查找机构与了解照护需求">
-    <button class="home-service" bindtap="focusSearch"><view class="home-service__top"><view class="home-search-icon" aria-hidden="true"></view><text class="home-service__action" aria-hidden="true">↓</text></view><text class="home-service__title">查找养老机构</text><text class="home-service__summary">名称、区域、性质筛选</text></button>
+    <button class="home-service" bindtap="focusSearch"><view class="home-service__top"><view class="home-search-icon" aria-hidden="true"></view><text class="home-service__action" aria-hidden="true">↓</text></view><text class="home-service__title">查找养老机构</text><view class="home-service__summary home-service__search"><text class="home-service__measure" aria-hidden="true">名称、区域、性质筛选</text><text class="home-service__copy">搜索与筛选机构</text></view></button>
     <button class="home-service home-service--assessment" bindtap="startAssessment"><view class="home-service__top"><text class="home-service__icon" aria-hidden="true">▤</text><text class="home-service__action" aria-hidden="true">→</text></view><text class="home-service__title">了解照护需求</text><text class="home-service__summary">六步整理家庭需求</text></button>
   </view>
   <!-- demo-home-entry -->

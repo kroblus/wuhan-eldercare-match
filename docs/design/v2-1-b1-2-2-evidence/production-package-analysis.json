@@ -1,0 +1,152 @@
+{
+  "source": "DevTools code dependency analysis export; source bytes, not signed/upload package",
+  "stats": {
+    "allSize": 1361113,
+    "codeSize": 1355814,
+    "resourceSize": 5299,
+    "unusedCodeFilesSize": 19394,
+    "ignoredSize": 0,
+    "ignoredFileNum": 0,
+    "includedSize": 0,
+    "includedFileNum": 0
+  },
+  "fileCount": 354,
+  "subpackages": [
+    null
+  ],
+  "byExtension": {
+    ".js": 991925,
+    ".json": 14100,
+    ".wxss": 166934,
+    ".png": 5299,
+    ".wxml": 182855
+  },
+  "resources": [
+    {
+      "path": "assets/tabbar/consultant-active.png",
+      "ext": ".png",
+      "size": 1016,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/consultant.png",
+      "ext": ".png",
+      "size": 1310,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/home-active.png",
+      "ext": ".png",
+      "size": 483,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/home.png",
+      "ext": ".png",
+      "size": 638,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/mine-active.png",
+      "ext": ".png",
+      "size": 761,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/mine.png",
+      "ext": ".png",
+      "size": 1091,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    }
+  ],
+  "unused": [
+    {
+      "path": "pages/showcase/shared.wxss",
+      "size": 1588
+    },
+    {
+      "path": "styles/assessment-warm-swiss.wxss",
+      "size": 2113
+    },
+    {
+      "path": "styles/base.wxss",
+      "size": 969
+    },
+    {
+      "path": "styles/brand-content.wxss",
+      "size": 27
+    },
+    {
+      "path": "styles/browse-buttons.wxss",
+      "size": 892
+    },
+    {
+      "path": "styles/family-reading.wxss",
+      "size": 5807
+    },
+    {
+      "path": "styles/institution-directory.wxss",
+      "size": 7998
+    },
+    {
+      "path": "styles/mixins.wxss",
+      "size": 0
+    },
+    {
+      "path": "styles/tokens.wxss",
+      "size": 0
+    }
+  ],
+  "largest": [
+    {
+      "path": "domain/recommendation/v2/profile-v2.js",
+      "size": 33614
+    },
+    {
+      "path": "pages/institution/detail-view-model.js",
+      "size": 30599
+    },
+    {
+      "path": "services/completed-assessment-user-loop.js",
+      "size": 27408
+    },
+    {
+      "path": "domain/recommendation/profile.js",
+      "size": 23344
+    },
+    {
+      "path": "domain/recommendation/core.js",
+      "size": 22725
+    },
+    {
+      "path": "domain/institution/validate-institution.js",
+      "size": 22380
+    },
+    {
+      "path": "pages/visit/evaluation.wxml",
+      "size": 21198
+    },
+    {
+      "path": "domain/elder-profile/derive-elder-profile.js",
+      "size": 20736
+    }
+  ]
+}

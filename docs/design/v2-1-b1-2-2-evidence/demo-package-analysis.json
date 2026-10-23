@@ -1,0 +1,162 @@
+{
+  "source": "DevTools code dependency analysis export; source bytes, not signed/upload package",
+  "stats": {
+    "allSize": 2031411,
+    "codeSize": 1608082,
+    "resourceSize": 423329,
+    "unusedCodeFilesSize": 19394,
+    "ignoredSize": 0,
+    "ignoredFileNum": 0,
+    "includedSize": 0,
+    "includedFileNum": 0
+  },
+  "fileCount": 353,
+  "subpackages": [
+    null
+  ],
+  "byExtension": {
+    ".js": 1276846,
+    ".json": 14086,
+    ".wxss": 168727,
+    ".png": 5299,
+    ".jpg": 418030,
+    ".wxml": 148423
+  },
+  "resources": [
+    {
+      "path": "assets/tabbar/consultant-active.png",
+      "ext": ".png",
+      "size": 1016,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/consultant.png",
+      "ext": ".png",
+      "size": 1310,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/home-active.png",
+      "ext": ".png",
+      "size": 483,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/home.png",
+      "ext": ".png",
+      "size": 638,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/mine-active.png",
+      "ext": ".png",
+      "size": 761,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/tabbar/mine.png",
+      "ext": ".png",
+      "size": 1091,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    },
+    {
+      "path": "assets/vr-synthetic-test.jpg",
+      "ext": ".jpg",
+      "size": 418030,
+      "moduleId": null,
+      "subPackage": null,
+      "agentPackage": null,
+      "packageType": null
+    }
+  ],
+  "unused": [
+    {
+      "path": "pages/showcase/shared.wxss",
+      "size": 1588
+    },
+    {
+      "path": "styles/assessment-warm-swiss.wxss",
+      "size": 2113
+    },
+    {
+      "path": "styles/base.wxss",
+      "size": 969
+    },
+    {
+      "path": "styles/brand-content.wxss",
+      "size": 27
+    },
+    {
+      "path": "styles/browse-buttons.wxss",
+      "size": 892
+    },
+    {
+      "path": "styles/family-reading.wxss",
+      "size": 5807
+    },
+    {
+      "path": "styles/institution-directory.wxss",
+      "size": 7998
+    },
+    {
+      "path": "styles/mixins.wxss",
+      "size": 0
+    },
+    {
+      "path": "styles/tokens.wxss",
+      "size": 0
+    }
+  ],
+  "largest": [
+    {
+      "path": "assets/vr-synthetic-test.jpg",
+      "size": 418030
+    },
+    {
+      "path": "demo/institutions.data.js",
+      "size": 313212
+    },
+    {
+      "path": "domain/recommendation/v2/profile-v2.js",
+      "size": 33614
+    },
+    {
+      "path": "pages/institution/detail-view-model.js",
+      "size": 30599
+    },
+    {
+      "path": "services/completed-assessment-user-loop.js",
+      "size": 27408
+    },
+    {
+      "path": "domain/recommendation/profile.js",
+      "size": 23344
+    },
+    {
+      "path": "domain/recommendation/core.js",
+      "size": 22725
+    },
+    {
+      "path": "domain/institution/validate-institution.js",
+      "size": 22380
+    }
+  ]
+}

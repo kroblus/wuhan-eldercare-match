@@ -27,11 +27,11 @@ page { .ws-page-surface(); }
 .institution-identity { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-top: 4px; }
 .institution-region { color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-info { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; }
-.institution-info > view, .institution-price { flex: 1 1 calc(var(--browse-body-size, 16px) * 6); min-width: 0; }
-.institution-price { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; }
+.institution-info > view { flex: 1 1 calc(var(--browse-body-size, 16px) * 5); min-width: 0; }
+.institution-info > view:first-child { flex: 2 1 calc(var(--browse-body-size, 16px) * 12); }
 .institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; margin-top: 8px; color: @ws-accent; }
-.institution-address { display: block; color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
-.institution-meta { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-address, .institution-meta, .institution-price { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-address { color: @ws-ink; word-break: keep-all; }
 .institution-detail-link { display: flex; align-items: center; min-height: 44px; margin-left: auto; padding: 4px 10px; border-radius: 24px; background: mix(@color-accent, @ws-surface, 8%); color: @color-accent; font-size: var(--browse-control-size, 16px); font-weight: 600; }
 .institution-risk { display: block; margin-top: 8px; padding: 8px 10px; border-left: 2px solid @color-control-border; background: @ws-background; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-fact-tags { display: flex; flex-wrap: wrap; gap: 6px; }

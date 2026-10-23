@@ -1,0 +1,117 @@
+{
+  "success": true,
+  "result": {
+    "result": {
+      "width": 430,
+      "font": 16,
+      "serviceGroup": {
+        "id": "",
+        "dataset": {},
+        "left": 22,
+        "right": 408,
+        "top": 440.1770935058594,
+        "bottom": 590.8645935058594,
+        "width": 386,
+        "height": 150.6875
+      },
+      "services": [
+        {
+          "id": "",
+          "dataset": {},
+          "left": 22,
+          "right": 209,
+          "top": 440.1770935058594,
+          "bottom": 590.8645935058594,
+          "width": 187,
+          "height": 150.6875
+        },
+        {
+          "id": "",
+          "dataset": {},
+          "left": 221,
+          "right": 408,
+          "top": 440.1770935058594,
+          "bottom": 590.8645935058594,
+          "width": 187,
+          "height": 150.6875
+        }
+      ],
+      "addresses": [
+        {
+          "id": "",
+          "dataset": {},
+          "left": 38.66666793823242,
+          "right": 275.1145896911621,
+          "top": 1042.65625,
+          "bottom": 1069.8541679382324,
+          "width": 236.4479217529297,
+          "height": 27.197917938232422
+        },
+        {
+          "id": "",
+          "dataset": {},
+          "left": 38.66666793823242,
+          "right": 275.1145896911621,
+          "top": 1290.385498046875,
+          "bottom": 1317.5834159851074,
+          "width": 236.4479217529297,
+          "height": 27.197917938232422
+        }
+      ],
+      "fees": [
+        {
+          "id": "",
+          "dataset": {},
+          "left": 289.1145935058594,
+          "right": 391.3333435058594,
+          "top": 1042.65625,
+          "bottom": 1069.8541679382324,
+          "width": 102.21875,
+          "height": 27.197917938232422
+        },
+        {
+          "id": "",
+          "dataset": {},
+          "left": 289.1145935058594,
+          "right": 391.3333435058594,
+          "top": 1290.385498046875,
+          "bottom": 1317.5834159851074,
+          "width": 102.21875,
+          "height": 27.197917938232422
+        }
+      ],
+      "cards": [
+        {
+          "id": "",
+          "dataset": {
+            "institutionId": "wh-dongxihu-baiquan-eldercare",
+            "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+            "recordRevision": 1,
+            "routeSource": "direct_list"
+          },
+          "left": 22,
+          "right": 408,
+          "top": 900.7916870117188,
+          "bottom": 1136.5208587646484,
+          "width": 386,
+          "height": 235.7291717529297
+        },
+        {
+          "id": "",
+          "dataset": {
+            "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+            "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+            "recordRevision": 1,
+            "routeSource": "direct_list"
+          },
+          "left": 22,
+          "right": 408,
+          "top": 1148.5208740234375,
+          "bottom": 1461.0417175292969,
+          "width": 386,
+          "height": 312.5208435058594
+        }
+      ]
+    }
+  }
+}
