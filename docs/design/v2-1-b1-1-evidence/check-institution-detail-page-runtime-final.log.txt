@@ -1,0 +1,40 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:institution-detail-page-runtime
+> node scripts/check-institution-detail-page-runtime.mjs
+
+PASS DETAIL-UI-001 canonical route parses institutionId and revision
+PASS DETAIL-UI-002 missing identity becomes route error
+PASS DETAIL-UI-003 legacy id-only route is rejected
+PASS DETAIL-UI-004 direct route does not require recommendation context
+PASS DETAIL-UI-005 direct application snapshot is ready
+PASS DETAIL-UI-006 basic identity rows use display projection
+PASS DETAIL-UI-007 all legal V1.1 section arrays are represented
+PASS DETAIL-UI-008 development disclosure remains visible
+PASS DETAIL-UI-009 historical snapshots are labelled read-only
+PASS DETAIL-UI-010 historical records expose no appointment or edit action
+PASS DETAIL-UI-011 revision drift is disclosed with current switch affordance
+PASS DETAIL-UI-012 current-revision view clears pinned recommendation semantics
+PASS DETAIL-UI-013 pinned recommendation shows only snapshot reason codes
+PASS DETAIL-UI-014 direct detail hides recommendation section
+PASS DETAIL-UI-015 source-context error has retryable, visible copy
+PASS DETAIL-UI-016 route error has no unsafe retry fallback
+PASS DETAIL-UI-017 revision-not-found remains distinct
+PASS DETAIL-UI-018 verification axes show unknown/unverified separately
+PASS DETAIL-UI-019 expired verification remains a warning
+PASS DETAIL-UI-020 capability status and verification are separate fields
+PASS DETAIL-UI-021 bounded price keeps both bounds
+PASS DETAIL-UI-022 starting price does not invent an upper bound
+PASS DETAIL-UI-023 unknown price is not zero or a promise
+PASS DETAIL-UI-024 empty rooms are non-negative and explicit
+PASS DETAIL-UI-025 modified food remains a meal fact, never tube feeding
+PASS DETAIL-UI-026 VR unknown is display-only and non-navigable
+PASS DETAIL-UI-027 current V1.1 CareProcess stays hidden while Consultant stays hidden from body
+PASS DETAIL-UI-028 public rating is not rendered
+PASS DETAIL-UI-029 page uses canonical route/application and no legacy fallback
+PASS DETAIL-UI-030 page lifecycle has one initial build and declared blocked interactions
+PASS DETAIL-UI-031 appointment CTA component is registered on the detail page
+PASS DETAIL-UI-032 live page application exact-resolves a canonical development record
+PARSER: WeChat TypeScript 4.1.2 (C:\Users\16562\AppData\Local\微信开发者工具\User Data\b16711abcdea0f43eb8b0ce9c389cc39\WeappForeignPkgs\mptslib\ts_4.1.2_5.2.3\lib\typescript.js)
+DETAIL_UI_CASES: 32/32 PASS
+DETAIL_UI_DATASET_VERSION: institution-catalog-v1.2-test-20260901
+DETAIL_UI_RUNTIME = PASS

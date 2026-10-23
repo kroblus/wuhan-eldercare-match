@@ -1,0 +1,16 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:wechat-js-compat
+> node scripts/check-wechat-js-compat.mjs --artifact-dir dist/production/miniprogram
+
+PARSER: TypeScript 4.1.2 (C:\Users\16562\WeChatProjects\wuhan-eldercare-v2-1-b1-1\node_modules\typescript\lib\typescript.js)
+ARTIFACT_SOURCE: explicit artifact path
+ARTIFACT_ROOT: C:\Users\16562\WeChatProjects\wuhan-eldercare-v2-1-b1-1\dist\production\miniprogram
+GENERATED_JS_MODULES: 211
+CHECK_SCOPE: all
+CLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js
+A1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js
+A1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, pages/consultant/consultant-page.js, pages/appointment/success.js
+B6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js
+B7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js
+HISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/assessment/history-view-model.js, pages/assessment/history-user-loop.js
+PASS (all scope): 211 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators

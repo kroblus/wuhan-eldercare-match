@@ -19,19 +19,20 @@ page { .ws-page-surface(); }
 .section-kicker { color: @ws-ink; font-size: var(--browse-title-size, 21px); font-weight: 600; line-height: 1.5; }
 .directory-count { color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.6; }
 .directory-reset:not([size='mini']) { margin-left: auto; }
-.institution-card { margin: 0 0 14px; padding: 18px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; }
+.institution-card { margin: 0 0 18px; padding: 18px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; }
 .institution-card__head { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
 .institution-name { flex: 1 1 160px; min-width: 0; display: block; color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
 .institution-demo-label { flex: 0 0 auto; padding: 2px 6px; background: @ws-accent-soft; border-radius: 4px; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.6; }
 .institution-region, .institution-feature { display: block; margin-top: 8px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-price { display: block; margin-top: 12px; color: @ws-ink; font-size: var(--browse-body-size, 17px); line-height: 1.6; }
-.institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid @ws-border; color: @ws-accent; }
+.institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid @ws-border; color: @ws-accent; }
 .institution-address { display: block; margin-top: 10px; color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
-.institution-meta { display: block; color: @ws-secondary; font-size: var(--browse-meta-size, 14px); line-height: 1.7; overflow-wrap: anywhere; }
-.institution-detail-link { min-height: 44px; display: flex; align-items: center; margin-left: auto; font-size: var(--browse-control-size, 16px); }
-.institution-risk { display: block; margin-top: 12px; padding-left: 10px; border-left: 2px solid @color-warning; color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.75; overflow-wrap: anywhere; }
+.institution-meta { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-detail-link { min-height: 44px; display: flex; align-items: center; margin-left: auto; font-size: var(--browse-control-size, 16px); font-weight: 600; }
+.institution-risk { display: block; margin-top: 12px; padding: 8px 10px; border-left: 2px solid @color-control-border; background: @ws-background; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-fact-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.institution-fact-tag { padding: 2px 6px; background: @ws-accent-soft; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.7; }
+.institution-fact-tag { padding: 3px 8px; border-radius: 4px; background: mix(@color-accent, @ws-surface, 8%); color: @color-accent; font-size: var(--browse-body-size, 16px); line-height: 1.5; }
+.institution-fact-tag--teal { background: @ws-accent-soft; color: @ws-accent; }
 .institution-group-heading { display: block; margin-bottom: 12px; color: @ws-accent; font-size: var(--browse-body-size, 16px); }
 .directory-search-empty, .directory-state { padding: 24px 0; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.75; }
 .directory-search-empty > text, .directory-state > text { display: block; }
@@ -40,7 +41,7 @@ page { .ws-page-surface(); }
 .action-error { margin-top: 12px; color: @color-error; font-size: var(--browse-body-size, 16px); line-height: 1.65; }
 .institution-list-shell { padding-top: 16px; }
 .institution-list-head { padding: 0; }
-.page-title { color: @ws-ink; font-size: 26px; line-height: 1.45; }
+.page-title { color: @ws-ink; font-size: var(--browse-hero-size, 26px); line-height: 1.45; }
 .page-description, .mock-disclosure { display: block; margin-top: 12px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; }
 .directory-state__title { color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; }
 .directory-state .primary-action, .directory-state .secondary-action { .browse-button-layout(); margin-top: 12px; background: @ws-surface; color: @ws-accent; }

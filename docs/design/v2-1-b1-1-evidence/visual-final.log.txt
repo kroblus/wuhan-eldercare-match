@@ -1,0 +1,13 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:v2-1-b1-1-visual
+> node scripts/check-v2-1-b1-1-visual.mjs
+
+PASS production: nature allocation, evidence, expiry, risk, identity, isolation
+PASS demo: nature allocation, evidence, expiry, risk, identity, isolation
+CONTRAST #A84F25/#f8ede6 = 4.79:1
+CONTRAST #A84F25/#f8ede6 = 4.79:1
+CONTRAST #1F676D/#E7EFEB = 5.57:1
+CONTRAST #fff/#1F676D = 6.52:1
+CONTRAST #665E55/#E7EFEB = 5.44:1
+CONTRAST #665E55/#F7F2EA = 5.72:1
+V2_1_B1_1_VISUAL = PASS (86 assertions; generated CSS and Node VM, not device layout evidence)

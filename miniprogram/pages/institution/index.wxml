@@ -1,4 +1,5 @@
 <import src="../../templates/institution-directory.wxml" />
+<page-meta page-style="{{browseFontStyle}}" />
 <navigation-bar warmSwiss="{{true}}" title="合作机构" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" bind:navigationfail="onNavigationFailure"></navigation-bar>
 <page-container extraClass="institution-list-page">
   <view class="page-shell institution-list-shell">

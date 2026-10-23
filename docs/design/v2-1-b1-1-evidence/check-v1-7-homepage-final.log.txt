@@ -1,0 +1,6 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:v1-7-homepage
+> node scripts/check-v1-7-homepage.mjs
+
+PASS production: Home compound search/reset/empty/invalid filters, guarded canonical detail, old directory, three content pages, source-copy failure, Home return, no real business APIs
+PASS demo: Home compound search/reset/empty/invalid filters, guarded canonical detail, old directory, three content pages, source-copy failure, Home return, no real business APIs

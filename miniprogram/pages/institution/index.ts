@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import { filterInstitutionDirectory } from '../../services/institution-directory-search'
 import {
   buildInstitutionListPageSnapshot,
@@ -20,6 +21,7 @@ import { decorateDirectoryCards } from './directory-presentation'
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
 interface InstitutionListPageData {
+  browseFontStyle: string
   pageState: ListPageState
   viewModel: InstitutionListPageViewModelV12 | null
   sourceContextRef: string | null
@@ -93,6 +95,7 @@ const runBack = (
 
 Page({
   data: {
+    browseFontStyle: '',
     pageState: 'loading',
     viewModel: null,
     sourceContextRef: null,
@@ -114,6 +117,8 @@ Page({
   },
 
   onShow() {
+    const browseFontStyle = readBrowseFontStyle()
+    if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
     resetNavigationGuard(this)
   },
 

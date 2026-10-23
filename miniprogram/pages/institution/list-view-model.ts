@@ -192,8 +192,8 @@ const formatItem = (
       nature: metadata && metadata.natureLabel ? metadata.natureLabel : '性质待确认',
       address: '地址资料请查看详情', addressStatus: '', phone: '公开电话状态请查看详情',
       notes: readInstitutionDirectoryInfo(item.institutionId, item.recordRevision).notes,
-      // Region/nature, address and phone already have dedicated positions.
-      // No duplicate T1 chips, and no service/type-derived T2/T3 chips.
+      // Ordinary directory decoration may allocate evidence-gated nature to one chip.
+      // Other sources keep basic facts; no service/type-derived T2/T3 chips.
       factTags: [],
       title: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
         ? name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '') || '机构名称待确认' : name.value || '机构名称待确认',

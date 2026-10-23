@@ -3,6 +3,11 @@ import { readInstitutionDirectoryInfo } from '../../runtime/institution-source-n
 import { createInstitutionDetailPageViewModel } from './detail-view-model'
 import type { InstitutionListItemViewModel } from './list-view-model'
 
+// Allocate the existing evidence-gated nature label once, never infer from name/type.
+export const presentDirectoryNature = (nature: string): { nature: string; factTags: readonly string[] } =>
+  ['公办', '民办', '公建民营'].indexOf(nature) >= 0
+    ? { nature: '', factTags: [nature] } : { nature, factTags: [] }
+
 // Ordinary directory display only. Reuse the exact revision and evaluation time
 // through the existing application projector; never read raw provider facts here.
 export const decorateDirectoryCards = async (
@@ -11,7 +16,7 @@ export const decorateDirectoryCards = async (
   const card = { ...item.card }
   try {
     const info = readInstitutionDirectoryInfo(item.institutionId, item.recordRevision)
-    card.nature = info.natureLabel || item.card.nature
+    Object.assign(card, presentDirectoryNature(info.natureLabel || item.card.nature))
     card.notes = Array.from(new Set(item.card.notes.concat(info.notes)))
     const result = await institutionDetailApplicationV12.build({
       identity: { institutionId: item.institutionId, recordRevision: item.recordRevision },

@@ -64,7 +64,7 @@ for (const mode of ['production', 'demo']) {
   unloadedScroll.complete();pendingActions.focusSearch()
   check(scroll===newScroll,'old lifetime callbacks cannot unlock new lifetime action')
   newScroll.success();newScroll.complete()
-  check(home.data.institutions.every(item => !item.card.factTags.length), 'zero deduplicated T1 chips; no T2/T3')
+  check(home.data.institutions.every(item => item.card.factTags.length <= 1 && item.card.factTags.every(tag => ['公办','民办','公建民营'].includes(tag)) && (!item.card.factTags.length || !item.card.nature)), 'evidence-gated nature appears once; no T2/T3')
   if(mode === 'production') {
     home.clearSearch();home.toggleDirectory()
     check(home.data.institutions.some(item => item.card.notes.length), 'specific institution risks retained')

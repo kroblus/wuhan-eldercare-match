@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import { buildInstitutionListPageSnapshot } from '../../services/institution-list-detail-page'
 import type { InstitutionListItemViewModel } from '../institution/list-view-model'
 import { createInstitutionListPageViewModel } from '../institution/list-view-model'
@@ -13,6 +14,7 @@ import { decorateDirectoryCards } from '../institution/directory-presentation'
 import { reviewedOn } from '../../content/family-reading'
 
 interface HomePageData {
+  browseFontStyle: string
   institutions: readonly InstitutionListItemViewModel[]
   isLoading: boolean
   loadError: boolean
@@ -88,6 +90,7 @@ const switchToConsultantWithGuard = (
 
 Component({
   data: {
+    browseFontStyle: '',
     institutions: [],
     isLoading: true,
     loadError: false,
@@ -107,6 +110,7 @@ Component({
 
   lifetimes: {
     attached() {
+      this.syncBrowseFont()
       this.loadInstitutions()
     },
     detached() {
@@ -121,12 +125,17 @@ Component({
 
   pageLifetimes: {
     show() {
+      this.syncBrowseFont()
       resetNavigationGuard(this)
       this.loadInstitutions()
     },
   },
 
   methods: {
+    syncBrowseFont() {
+      const browseFontStyle = readBrowseFontStyle()
+      if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
+    },
     filterDirectory() {
       const matches = filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex)
       const activeQuery = this.data.keyword.trim().length > 0 || this.data.natureIndex !== 0 || this.data.districtIndex !== 0
