@@ -97,4 +97,3 @@ Owner Android重点检查：标准和系统大字号首屏查找可见性、查�
 B2前置条件：Owner完成B1.2.1视觉及Android验收并明确授权B2；先独立评估N1顾问Tab消费者、机构目录目标与推荐来源上下文迁移，再单独实施导航Contract兼容方案。本轮不自行开始。
 
 NEXT = OWNER_B1_2_1_VISUAL_AND_ANDROID_REVIEW
-
