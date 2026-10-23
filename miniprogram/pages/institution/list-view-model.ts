@@ -8,6 +8,7 @@ import type {
 } from '../../types/institution-list-detail'
 import type { InstitutionTypeCode } from '../../types/institution'
 import { readDirectoryMetadata } from '../../runtime/directory-metadata'
+import { readInstitutionDirectoryInfo } from '../../runtime/institution-source-notes'
 
 export interface InstitutionListNavigationIntentViewModel {
   institutionId: string
@@ -44,7 +45,11 @@ export interface InstitutionListItemViewModel {
   showGroupHeading: boolean
   placementLabel: string
   navigationIntent: InstitutionListNavigationIntentViewModel
-  card: { title: string; region: string; price: string; feature: string; isDemo: boolean }
+  card: {
+    title: string; region: string; price: string; feature: string; isDemo: boolean
+    nature: string; address: string; addressStatus: string; phone: string
+    notes: readonly string[]; factTags: readonly string[]
+  }
 }
 
 export interface InstitutionListPageViewModelV12 {
@@ -184,6 +189,12 @@ const formatItem = (
       sourceContextRef,
     },
     card: {
+      nature: metadata && metadata.natureLabel ? metadata.natureLabel : '性质待确认',
+      address: '地址资料请查看详情', addressStatus: '', phone: '公开电话状态请查看详情',
+      notes: readInstitutionDirectoryInfo(item.institutionId, item.recordRevision).notes,
+      // Region/nature, address and phone already have dedicated positions.
+      // No duplicate T1 chips, and no service/type-derived T2/T3 chips.
+      factTags: [],
       title: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
         ? name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '') || '机构名称待确认' : name.value || '机构名称待确认',
       region: item.region.availability === 'provided' && item.region.effectiveVerification === 'current_verified' ? region.value : '区域待确认',

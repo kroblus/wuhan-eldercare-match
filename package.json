@@ -72,7 +72,8 @@
     "check:v1-9-assessment-recommendation": "node scripts/check-v1-9-assessment-recommendation.mjs",
     "check:profile-clarification-guidance": "node scripts/check-profile-clarification-guidance.mjs",
     "check:capability-evidence": "node scripts/check-capability-evidence.mjs",
-    "check:capability-evidence-runtime": "node scripts/check-capability-evidence.mjs --with-build"
+    "check:capability-evidence-runtime": "node scripts/check-capability-evidence.mjs --with-build",
+    "check:v2-1-b1-ui": "node scripts/check-v2-1-b1-ui.mjs"
   },
   "keywords": [],
   "author": "",

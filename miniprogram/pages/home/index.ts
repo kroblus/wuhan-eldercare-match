@@ -9,6 +9,8 @@ import {
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
 import { filterInstitutionDirectory } from '../../services/institution-directory-search'
 import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
+import { decorateDirectoryCards } from '../institution/directory-presentation'
+import { reviewedOn } from '../../content/family-reading'
 
 interface HomePageData {
   institutions: readonly InstitutionListItemViewModel[]
@@ -29,12 +31,21 @@ interface HomePageData {
   districtOptions: typeof directoryDistrictOptions
   hasMetadataFilters: boolean
   actionErrorKey: string
+  expanded: boolean
+  activeQuery: boolean
+  resultCount: number
+  searchFocus: boolean
+  searchActionError: string
+  reviewedOn: string
 }
 
 const loadGenerations = new WeakMap<object, number>()
 const homeLoadsInFlight = new WeakSet<object>()
 const homeReloadRequested = new WeakSet<object>()
 const homeDirectories = new WeakMap<object, readonly InstitutionListItemViewModel[]>()
+const homeLifetimes = new WeakMap<object, number>()
+
+const currentLifetime = (instance: object): number => homeLifetimes.get(instance) || 0
 
 const nextGeneration = (instance: object): number => {
   const generation = (loadGenerations.get(instance) || 0) + 1
@@ -91,6 +102,7 @@ Component({
     keyword: '', natureIndex: 0, districtIndex: 0,
     natureOptions: directoryNatureOptions, districtOptions: directoryDistrictOptions,
     hasMetadataFilters: true, actionErrorKey: '',
+    expanded: false, activeQuery: false, resultCount: 0, searchFocus: false, searchActionError: '', reviewedOn,
   } as HomePageData,
 
   lifetimes: {
@@ -99,8 +111,11 @@ Component({
     },
     detached() {
       nextGeneration(this)
+      homeLifetimes.set(this, currentLifetime(this) + 1)
+      homeLoadsInFlight.delete(this)
       homeDirectories.delete(this)
       homeReloadRequested.delete(this)
+      resetNavigationGuard(this)
     },
   },
 
@@ -113,23 +128,60 @@ Component({
 
   methods: {
     filterDirectory() {
-      this.setData({ institutions: filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex), institutionActionError: '', actionErrorKey: '' })
+      const matches = filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex)
+      const activeQuery = this.data.keyword.trim().length > 0 || this.data.natureIndex !== 0 || this.data.districtIndex !== 0
+      this.setData({ institutions: activeQuery || this.data.expanded ? matches : matches.slice(0, 2), activeQuery, resultCount: matches.length, institutionActionError: '', actionErrorKey: '' })
+    },
+    toggleDirectory() { this.setData({ expanded: !this.data.expanded }); this.filterDirectory() },
+    onSearchBlur() { this.setData({ searchFocus: false }) },
+    focusSearch() {
+      const guard = getNavigationGuard(this), action = 'home.focusSearch'
+      if (!guard.acquire(action)) return
+      const lifetime = currentLifetime(this)
+      const isCurrent = () => currentLifetime(this) === lifetime
+      this.setData({ searchActionError: '', searchFocus: false })
+      const fail = () => {
+        if (!isCurrent()) return
+        guard.release(action)
+        this.setData({ searchActionError: '暂时无法定位，请向下滑动到搜索区域后重试。' })
+      }
+      try {
+        wx.pageScrollTo({ selector: '#home-search', duration: 200,
+          success: () => { if (isCurrent()) this.setData({ searchFocus: true }) }, fail,
+          complete: () => { if (isCurrent()) guard.release(action) } })
+      } catch (_error) { fail() }
+    },
+    openAnnouncements() {
+      const guard = getNavigationGuard(this), action = 'home.announcements'
+      if (!guard.acquire(action)) return
+      const lifetime = currentLifetime(this)
+      const isCurrent = () => currentLifetime(this) === lifetime
+      this.setData({ searchActionError: '' })
+      const fail = () => {
+        if (!isCurrent()) return
+        guard.release(action)
+        this.setData({ searchActionError: '暂时无法打开公告，请重试。' })
+      }
+      try {
+        wx.showModal({ title: '平台公告', content: '当前暂无可展示的公告。', showCancel: false, confirmText: '关闭',
+          fail, complete: () => { if (isCurrent()) guard.release(action) } })
+      } catch (_error) { fail() }
     },
     onSearchInput(event: WechatMiniprogram.Input) {
-      this.setData({ keyword: event.detail.value }); this.filterDirectory()
+      this.setData({ keyword: event.detail.value, expanded: false }); this.filterDirectory()
     },
     onNatureChange(event: WechatMiniprogram.PickerChange) {
       const index = Number(event.detail.value)
       if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
-      this.setData({ natureIndex: index }); this.filterDirectory()
+      this.setData({ natureIndex: index, expanded: false }); this.filterDirectory()
     },
     onDistrictChange(event: WechatMiniprogram.PickerChange) {
       const index = Number(event.detail.value)
       if (!Number.isInteger(index) || !directoryDistrictOptions[index]) return
-      this.setData({ districtIndex: index }); this.filterDirectory()
+      this.setData({ districtIndex: index, expanded: false }); this.filterDirectory()
     },
     clearSearch() {
-      this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
+      this.setData({ keyword: '', natureIndex: 0, districtIndex: 0, expanded: false }); this.filterDirectory()
     },
     clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
     onCardTap(event: WechatMiniprogram.BaseEvent) { this.openInstitution(event) },
@@ -146,17 +198,20 @@ Component({
       homeLoadsInFlight.add(this)
       const generation = nextGeneration(this)
       this.setData({
-        isLoading: true,
+        // Retain result height/input nodes while returning from Detail. Demo
+        // resets still refresh the cache, without flashing an empty directory.
+        isLoading: !homeDirectories.has(this),
         loadError: false,
-        empty: false,
+        empty: homeDirectories.has(this) ? this.data.empty : false,
         institutionActionError: '',
         institutionListActionError: '',
       })
-      buildInstitutionListPageSnapshot(null).then((result) => {
-        homeLoadsInFlight.delete(this)
+      buildInstitutionListPageSnapshot(null).then(async (result) => {
         if (!isCurrentGeneration(this, generation)) return
-        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         if (!result.ok) {
+          homeLoadsInFlight.delete(this)
+          if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
+          homeDirectories.delete(this)
           this.setData({
             isLoading: false,
             loadError: true,
@@ -168,21 +223,25 @@ Component({
           return
         }
         const viewModel = createInstitutionListPageViewModel(result.value)
-        homeDirectories.set(this, viewModel.items)
+        const items = await decorateDirectoryCards(viewModel.items, result.value.evaluationAsOf)
+        if (!isCurrentGeneration(this, generation)) return
+        homeLoadsInFlight.delete(this)
+        if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
+        homeDirectories.set(this, items)
         this.setData({
           isLoading: false,
           loadError: false,
           empty: viewModel.pageState === 'empty',
           // Preview follows the existing directory order; it is not a recommendation.
-          institutions: viewModel.items,
           mockDisclosure: viewModel.disclosure,
           showMockDisclosure: viewModel.hasDisclosure,
         })
         this.filterDirectory()
       }).catch(() => {
-        homeLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
+        homeLoadsInFlight.delete(this)
         if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
+        homeDirectories.delete(this)
         this.setData({
           isLoading: false,
           loadError: true,

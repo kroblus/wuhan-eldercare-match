@@ -25,7 +25,13 @@ page { .ws-page-surface(); }
 .institution-demo-label { flex: 0 0 auto; padding: 2px 6px; background: @ws-accent-soft; border-radius: 4px; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.6; }
 .institution-region, .institution-feature { display: block; margin-top: 8px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-price { display: block; margin-top: 12px; color: @ws-ink; font-size: var(--browse-body-size, 17px); line-height: 1.6; }
-.institution-card__footer { .browse-button-layout(); margin-top: 16px; background: @ws-surface; color: @ws-accent; font-size: var(--browse-control-size, 16px); }
+.institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid @ws-border; color: @ws-accent; }
+.institution-address { display: block; margin-top: 10px; color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-meta { display: block; color: @ws-secondary; font-size: var(--browse-meta-size, 14px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-detail-link { min-height: 44px; display: flex; align-items: center; margin-left: auto; font-size: var(--browse-control-size, 16px); }
+.institution-risk { display: block; margin-top: 12px; padding-left: 10px; border-left: 2px solid @color-warning; color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.75; overflow-wrap: anywhere; }
+.institution-fact-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.institution-fact-tag { padding: 2px 6px; background: @ws-accent-soft; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.7; }
 .institution-group-heading { display: block; margin-bottom: 12px; color: @ws-accent; font-size: var(--browse-body-size, 16px); }
 .directory-search-empty, .directory-state { padding: 24px 0; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.75; }
 .directory-search-empty > text, .directory-state > text { display: block; }

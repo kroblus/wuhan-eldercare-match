@@ -26,7 +26,7 @@ for(const mode of ['production','demo']){
   await load('demo/session').loadDemo();home.retryLoad();await flush()
  }
  const total=mode==='production'?11:12
- assert.equal(home.data.institutions.length,total);assert.equal(home.data.isLoading,false)
+ assert.equal(home.data.institutions.length,2);assert.equal(home.data.resultCount,total);assert.equal(home.data.isLoading,false)
  assert.equal(home.data.natureOptions.length,5);assert.equal(home.data.districtOptions.length,15)
  const input=value=>home.onSearchInput({detail:{value}})
  const pick=(method,value)=>home[method]({detail:{value:String(value)}})
@@ -40,12 +40,12 @@ for(const mode of ['production','demo']){
   pick('onNatureChange',2);assert.equal(home.data.institutions.length,1)
   pick('onDistrictChange',3);assert.equal(home.data.institutions.length,0)
  }
- home.clearSearch();assert.equal(home.data.institutions.length,total)
+ home.clearSearch();assert.equal(home.data.institutions.length,2)
  pick('onDistrictChange',2);input('不存在的机构');home.clearKeyword()
  assert.equal(home.data.keyword,'');assert.equal(home.data.districtIndex,2);assert.equal(home.data.institutions.length,1)
  home.clearSearch()
  input('不存在的机构');assert.equal(home.data.institutions.length,0)
- home.clearSearch();pick('onDistrictChange','999');pick('onNatureChange','NaN');assert.equal(home.data.institutions.length,total)
+ home.clearSearch();pick('onDistrictChange','999');pick('onNatureChange','NaN');assert.equal(home.data.institutions.length,2)
  const item=home.data.institutions[0]
  failNavigation=true;home.onCardTap(event('itemKey',item.key));assert.ok(home.data.institutionActionError)
  failNavigation=false;home.onCardTap(event('itemKey',item.key));home.onCardTap(event('itemKey',item.key));assert.equal(navigations.length,2)
@@ -90,7 +90,7 @@ for(const mode of ['production','demo']){
   tools.reset();modal.success({confirm:true});modal.complete();assert.equal(session.readDemo().ready,false)
   // Return from Mine while a previous onShow read is still in flight.
   home.retryLoad();await flush();assert.equal(home.data.empty,true)
-  await tools.load();home.retryLoad();await flush();assert.equal(home.data.institutions.length,12)
+  await tools.load();home.retryLoad();await flush();assert.equal(home.data.institutions.length,2);assert.equal(home.data.resultCount,12)
  }
  if(mode==='production'){
   vm.runInContext("Date.now = () => Date.parse('2027-01-21T00:00:00Z')",rt.context)

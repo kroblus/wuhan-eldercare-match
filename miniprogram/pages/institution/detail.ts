@@ -465,6 +465,14 @@ Page({
     })
   },
 
+  onAdmissionGuideTap() {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    navigateToWithGuard(this, 'institution.detail.admission', '/pages/service/admission/index', undefined, () => {
+      this.setData({ actionErrorKey: 'admission', actionErrorMessage: '暂时无法打开入住指南，请重试。' })
+    })
+  },
+
   // Push the shared public consultant page to keep this exact detail instance
   // (including its revision, recommendation context, expansion and scroll) alive.
   onConsultantTap() {

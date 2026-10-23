@@ -1,10 +1,14 @@
 import { familyReading, reviewedOn } from '../../content/family-reading'
-import { getNavigationGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { getNavigationGuard, navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 export const registerReadingPage = (topic: keyof typeof familyReading): void => {
   const article = familyReading[topic]
   Page({
-    data: { article, reviewedOn, copyMessage: '', copyPending: false, navigationError: '',
+    data: { article, topic, reviewedOn, copyMessage: '', copyPending: false, navigationError: '',
+      sections: article.sections.map((section, index) => ({ ...section, number: '0' + (index + 1),
+        heading: topic === 'admission' && index === 3 ? '与机构确认参观' : section.title.split(' / ')[1] || section.title })),
+      related: (['policy', 'education', 'admission'] as const).filter(key => key !== topic).map(key => ({ topic: key, title: familyReading[key].title })),
+      primarySource: article.sources[0],
       expired: topic === 'policy' && Date.now() > Date.parse('2026-12-31T23:59:59+08:00') },
     onShow() { resetNavigationGuard(this) },
     onCopySource(event: WechatMiniprogram.BaseEvent) {
@@ -19,6 +23,14 @@ export const registerReadingPage = (topic: keyof typeof familyReading): void => 
       } catch (_error) { fail() }
     },
     onNavigationFailure() { this.setData({ navigationError: '暂时无法返回，请重试。' }) },
+    openRelated(event: WechatMiniprogram.BaseEvent) {
+      const key = event.currentTarget.dataset.topic
+      if (['policy', 'education', 'admission'].indexOf(key) < 0 || key === topic) return
+      this.setData({ navigationError: '' })
+      navigateToWithGuard(this, 'reading.related', '/pages/service/' + key + '/index', undefined, () => {
+        this.setData({ navigationError: '暂时无法打开相关内容，请重试。' })
+      })
+    },
     goHome() {
       const guard = getNavigationGuard(this), action = 'reading.home'
       if (!guard.acquire(action)) return

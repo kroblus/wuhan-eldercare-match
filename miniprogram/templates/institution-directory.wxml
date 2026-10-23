@@ -1,7 +1,7 @@
 <template name="directory-controls">
   <view class="directory-search">
     <view class="directory-input-wrap">
-      <input aria-label="搜索养老机构名称" placeholder="搜索养老机构名称" value="{{keyword}}" bindinput="onSearchInput" confirm-type="search" adjust-position="{{true}}" cursor-spacing="32" />
+      <input aria-label="搜索养老机构名称" placeholder="搜索养老机构名称" value="{{keyword}}" focus="{{searchFocus}}" bindblur="onSearchBlur" bindinput="onSearchInput" confirm-type="search" adjust-position="{{true}}" cursor-spacing="32" />
       <button wx:if="{{keyword}}" class="directory-clear" bindtap="clearKeyword" aria-label="清除机构名称">清除</button>
     </view>
     <view wx:if="{{hasMetadataFilters}}" class="directory-filters">
@@ -16,10 +16,13 @@
   <view wx:for="{{visibleItems}}" wx:key="key" class="institution-card" data-item-key="{{item.key}}" data-institution-id="{{item.navigationIntent.institutionId}}" data-record-revision="{{item.navigationIntent.recordRevision}}" data-route-source="{{item.navigationIntent.source}}" bindtap="onCardTap" role="button" aria-label="查看{{item.card.title}}详情">
     <text wx:if="{{item.showGroupHeading && item.recommendationGroup !== 'other'}}" class="institution-group-heading">{{item.groupLabel}}</text>
     <view class="institution-card__head"><text class="institution-name">{{item.card.title}}</text><text wx:if="{{item.card.isDemo}}" class="institution-demo-label">演示机构</text></view>
-    <text class="institution-region">{{item.card.region}}</text>
-    <text wx:if="{{item.card.feature}}" class="institution-feature">{{item.card.feature}}</text>
+    <text class="institution-region">{{item.card.region}} · {{item.card.nature}}</text>
+    <text class="institution-address">{{item.card.address}}</text>
+    <text wx:if="{{item.card.addressStatus}}" class="institution-meta">{{item.card.addressStatus}}</text>
+    <view wx:if="{{item.card.factTags.length}}" class="institution-fact-tags"><text wx:for="{{item.card.factTags}}" wx:key="*this" wx:for-item="tag" class="institution-fact-tag">{{tag}}</text></view>
+    <text wx:for="{{item.card.notes}}" wx:key="*this" wx:for-item="note" class="institution-risk">{{note}}</text>
     <text class="institution-price">{{item.card.price}}</text>
-    <view class="institution-card__footer"><text>查看详情</text></view>
+    <view class="institution-card__footer"><text class="institution-meta">{{item.card.phone}}</text><text class="institution-detail-link">查看详情 ›</text></view>
     <view wx:if="{{actionErrorKey === item.key}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
   </view>
 </template>

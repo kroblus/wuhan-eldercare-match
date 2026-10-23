@@ -414,7 +414,7 @@ const main = async () => {
     assert.equal(direct.sections.careProcess.state, 'not_applicable_for_schema')
     assert.equal(view.careProcess, null)
     assert.equal(wxml.includes('护理管理与交接'), true)
-    assert.match(wxml, /section\.key === 'team'/)
+    assert.match(wxml, /section\.key === 'care'/)
     assert.match(wxml, /expandedSections\[section\.key\]/)
     assert.equal(wxml.includes('consultantVisit'), false)
   })
@@ -425,7 +425,7 @@ const main = async () => {
   await run('DETAIL-UI-029', 'page uses canonical route/application and no legacy fallback', () => {
     assert.match(pageSource, /parseInstitutionDetailRouteQuery/)
     assert.match(pageSource, /buildInstitutionDetailPageSnapshot/)
-    assert.equal(/\?id=|query\.id|name lookup|latest|fallback|institutionService|institutionCatalog/i.test(pageSource), false)
+    assert.equal(/\?id=|query\.id|name lookup|latest|fallback|\binstitutionService\b|\binstitutionCatalog\b/i.test(pageSource), false)
     assert.equal(/institutionFixtures|fixtures\/institution|rawInstitutionRecord|InstitutionRecordV11/i.test(pageSource), false)
   })
   await run('DETAIL-UI-030', 'page lifecycle has one initial build and declared blocked interactions', () => {
@@ -441,7 +441,8 @@ const main = async () => {
     assert.equal(Object.keys(view).some((key) => /evaluator|raw|mock|latest/i.test(key)), false)
   })
   await run('DETAIL-UI-031', 'appointment CTA component is registered on the detail page', () => {
-    assert.match(wxml, /<primary-button\b(?=[^>]*\btext="预约看院 →")(?=[^>]*\bbind:action="onAppointmentTap")[^>]*>/)
+    assert.match(wxml, /<primary-button\b(?=[^>]*\bwx:if="{{canRequestService}}")(?=[^>]*\bbind:action="onAppointmentTap")[^>]*>/)
+    assert.ok(wxml.includes('text="{{viewModel.hasDisclosure ? \'体验模拟预约\' : \'预约看院\'}}"'))
     assert.equal(json.usingComponents['primary-button'], '/components/primary-button/primary-button')
   })
   await run('DETAIL-UI-032', 'live page application exact-resolves a canonical development record', async () => {

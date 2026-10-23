@@ -7,6 +7,7 @@
     <view wx:if="{{pageState === 'loading'}}"><state-panel state="loading" title="正在读取机构资料"></state-panel></view>
     <block wx:elif="{{pageState === 'ready' && viewModel && reading}}">
       <view class="institution-detail-head">
+        <text class="detail-eyebrow">机构资料 · 了解之后，再联系核实</text>
         <text wx:if="{{viewModel.hasDisclosure}}" class="detail-demo-note">演示资料，非真实机构信息。</text>
         <text class="page-title">{{reading.title}}</text><text wx:if="{{reading.region}}" class="detail-region">{{reading.region}}</text>
         <text wx:if="{{directoryInfo.natureLabel}}" class="detail-source-note">{{directoryInfo.natureLabel}}</text>
@@ -16,6 +17,7 @@
       </view>
       <view wx:if="{{viewModel.media.hasCover && !coverLoadFailed}}" class="detail-cover-wrap"><image class="detail-cover" src="{{viewModel.media.coverUrl}}" mode="aspectFill" aria-label="{{viewModel.title}}封面" binderror="onCoverLoadError"></image></view>
       <view class="detail-contact-card">
+        <text class="detail-eyebrow">01 / 位置与联系</text>
         <text class="detail-subheading">机构位置</text><text class="detail-summary">{{viewModel.location.address}}</text>
         <text wx:if="{{viewModel.location.addressState !== 'ready' && viewModel.location.addressStatus !== viewModel.location.address}}" class="detail-source-note">{{viewModel.location.addressStatus}}</text>
         <button wx:if="{{viewModel.location.mapAction.available}}" class="browse-button detail-map-button" data-action-key="map" bindtap="onMapTap">查看地图</button>
@@ -46,11 +48,13 @@
         </view>
       </view>
       <view wx:if="{{capabilityReview}}" class="detail-section capability-review">
+        <text class="detail-eyebrow">02 / 护理与费用仍需确认</text>
         <text class="detail-section-title">护理与入住资料</text>
         <text class="detail-summary">{{capabilityReview.stateLabel}}</text>
         <text class="detail-source-note">{{capabilityReview.summary}}</text>
         <text class="detail-source-note">公开资料核对日期：{{capabilityReview.reviewedOn}}；具体费用请向机构咨询。</text>
       </view>
+      <view class="detail-visit-guide"><text class="detail-subheading">带着问题，做好看院准备</text><text class="detail-summary">先联系核实接收条件、照护安排和完整费用，再与机构确认参观。入住指南提供通用清单，不代表已预约成功。</text><button class="browse-button" bindtap="onAdmissionGuideTap">阅读六步入住指南 →</button><view wx:if="{{actionErrorKey === 'admission'}}" class="action-error" role="alert">{{actionErrorMessage}}</view></view>
       <view wx:for="{{reading.groups}}" wx:key="key" wx:for-item="section" class="detail-section">
         <button class="detail-section-toggle" data-section-key="{{section.key}}" aria-label="{{section.title}}，{{expandedSections[section.key] ? '收起' : '展开'}}" aria-expanded="{{expandedSections[section.key] ? 'true' : 'false'}}" bindtap="onSectionToggle"><text class="detail-section-title">{{section.title}}</text><text class="detail-section-state">{{expandedSections[section.key] ? '收起' : '展开'}}</text></button>
         <text wx:if="{{!expandedSections[section.key]}}" class="detail-summary detail-summary--secondary">{{section.key === 'fees' ? '具体收费与接收条件，请向机构确认。' : section.key === 'care' ? '了解照护安排、人员及日常服务。' : '查看信息来源、核验日期与补充说明。'}}</text>

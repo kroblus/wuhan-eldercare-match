@@ -15,6 +15,7 @@ import {
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
 import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 import type { InstitutionListItemViewModel } from './list-view-model'
+import { decorateDirectoryCards } from './directory-presentation'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
@@ -127,11 +128,17 @@ Page({
       actionErrorKey: '',
       actionErrorMessage: '',
     })
-    buildInstitutionListPageSnapshot(sourceContextRef).then((result) => {
-      listLoadsInFlight.delete(this)
+    buildInstitutionListPageSnapshot(sourceContextRef).then(async (result) => {
       if (!isCurrentGeneration(this, generation)) return
       if (result.ok) {
         const viewModel = createInstitutionListPageViewModel(result.value)
+        // Recommendation lists keep their existing pinned presentation/context.
+        if (!sourceContextRef) {
+          viewModel.items = await decorateDirectoryCards(viewModel.items, result.value.evaluationAsOf)
+          viewModel.otherItems = viewModel.items
+        }
+        listLoadsInFlight.delete(this)
+        if (!isCurrentGeneration(this, generation)) return
         this.setData({
           pageState: viewModel.pageState,
           viewModel,
@@ -141,6 +148,7 @@ Page({
         this.filterDirectory()
         return
       }
+      listLoadsInFlight.delete(this)
       const pageState = pageStateForError(result.error.code)
       const viewModel = createInstitutionListErrorViewModel(pageState)
       this.setData({
@@ -169,6 +177,7 @@ Page({
   onSearchInput(event: WechatMiniprogram.Input) {
     this.setData({ keyword: event.detail.value }); this.filterDirectory()
   },
+  onSearchBlur() { /* Shared input: only Home requests focus programmatically. */ },
   onNatureChange(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value)
     if (!Number.isInteger(index) || !directoryNatureOptions[index]) return

@@ -305,7 +305,8 @@ const main = async () => {
     assert.match(pageSource, /intent\.source/)
     assert.match(pageSource, /intent\.sourceContextRef/)
     assert.match(pageSource, /wx\.navigateTo/)
-    assert.match(wxml, /bindtap="onCardTap"/)
+    assert.match(wxml, /template is="directory-results"/)
+    assert.equal((readFileSync(path.join(root, 'miniprogram/templates/institution-directory.wxml'), 'utf8').match(/bindtap="onCardTap"/g) || []).length, 1)
     assert.doesNotMatch(pageSource, /不会打开详情页面|开发验证中/)
   })
   await run('LIST-UI-020', 'legacy id/name/array fallback and direct fixture imports are absent', () => {

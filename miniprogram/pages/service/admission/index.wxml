@@ -1,2 +1,2 @@
 <import src="../../../templates/family-reading.wxml" />
-<template is="family-reading" data="{{article: article, reviewedOn: reviewedOn, copyPending: copyPending, copyMessage: copyMessage, navigationError: navigationError, expired: expired}}" />
+<template is="family-reading" data="{{article: article, topic: topic, sections: sections, related: related, primarySource: primarySource, reviewedOn: reviewedOn, copyPending: copyPending, copyMessage: copyMessage, navigationError: navigationError, expired: expired}}" />

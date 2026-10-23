@@ -63,10 +63,10 @@ const makeBar = () => {
 
 await check('N01 Home has one Assessment CTA and no untested time promise', () => {
   const wxml = read('miniprogram/pages/home/index.wxml')
-  assert.equal((wxml.match(/bind:action="startAssessment"/g) || []).length, 1)
+  assert.equal((wxml.match(/bindtap="startAssessment"/g) || []).length, 1)
   assert.doesNotMatch(wxml, /3[–—-]5|分钟完成|home-editorial-row/)
-  assert.match(wxml, /直接查看机构/)
-  assert.match(wxml, /查看全部机构/)
+  assert.match(wxml, /查找养老机构/)
+  assert.match(wxml, /展开完整目录/)
   home.startAssessment(); home.startAssessment()
   assert.equal(calls.launch.length, 0)
   assert.equal(calls.push.length, 1)
@@ -81,7 +81,7 @@ await check('N02 Home previews two unchanged directory items and opens complete 
   const vm = runtime.load(path.join(root, 'miniprogram/pages/institution/list-view-model.ts')).createInstitutionListPageViewModel(list.value)
   assert.ok(vm.items.length > 2, 'development catalogue provides a meaningful truncation case')
   assert.equal(home.data.institutions.length, 2)
-  assert.equal(JSON.stringify(home.data.institutions), JSON.stringify(vm.items.slice(0, 2)))
+  assert.equal(JSON.stringify(home.data.institutions.map(item => item.navigationIntent)), JSON.stringify(vm.items.slice(0, 2).map(item => item.navigationIntent)))
   home.openInstitutions(); home.openInstitutions()
   assert.equal(calls.push.length, 1)
   assert.equal(calls.push[0].url, '/pages/institution/index')

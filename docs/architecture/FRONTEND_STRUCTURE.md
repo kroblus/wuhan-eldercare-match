@@ -1,5 +1,7 @@
 # 小程序前端结构与所有权
 
+V2.1-B1：首页采用 A2 资讯与双服务入口，继续使用 N1 TabBar。原位查询共用 `institution-directory-search`；首页仅在无查询条件且未展开时截取普通目录前 2 条，主动查询显示全部匹配。`pages/institution/directory-presentation.ts` 为普通目录卡片复用现有详情应用投影，保持同一 identity/revision/evaluationAsOf，只补充地址资料状态、电话状态与原有风险；List 不展示完整地址或电话号码；不生成护理特质或改变推荐。三个静态阅读路由继续共用内容 Service / 阅读模板。公告入口仅打开原生空状态，不读取公告数据或保存已读。
+
 V1.9 结果页仍消费冻结 Recommendation V2 应用快照，`result-v2-view-model.ts` 仅映射原有状态、依据和差异。普通目录入口不注册推荐 sourceContext；候选详情继续使用 canonical identity 和同源上下文。页面隐藏/卸载使未完成的刷新失效，重新显示时读取最新画像。详情的咨询清单只读取已有候选差异，不重新计算推荐。
 
 > 适用项目：武汉养老机构精准匹配小程序 / 养老对接小程序
