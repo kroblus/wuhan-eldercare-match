@@ -40,9 +40,16 @@
             <text class="contact-guide__item">· 当前收费项目、包含内容及支付方式</text>
             <text class="contact-guide__item">· 是否支持参观，如何向机构确认安排</text>
             <text class="contact-guide__item">· 入住条件及需要准备的材料</text>
+            <view wx:if="{{capabilityReview}}"><text class="detail-subheading">这家机构还建议核对</text><text wx:for="{{capabilityReview.questions}}" wx:key="*this" class="contact-guide__item">· {{item}}</text></view>
             <text class="detail-source-note">只需说明与咨询有关的情况；无需为浏览资料授权手机号或提交完整健康信息。</text>
           </view>
         </view>
+      </view>
+      <view wx:if="{{capabilityReview}}" class="detail-section capability-review">
+        <text class="detail-section-title">护理与入住资料</text>
+        <text class="detail-summary">{{capabilityReview.stateLabel}}</text>
+        <text class="detail-source-note">{{capabilityReview.summary}}</text>
+        <text class="detail-source-note">公开资料核对日期：{{capabilityReview.reviewedOn}}；具体费用请向机构咨询。</text>
       </view>
       <view wx:for="{{reading.groups}}" wx:key="key" wx:for-item="section" class="detail-section">
         <button class="detail-section-toggle" data-section-key="{{section.key}}" aria-label="{{section.title}}，{{expandedSections[section.key] ? '收起' : '展开'}}" aria-expanded="{{expandedSections[section.key] ? 'true' : 'false'}}" bindtap="onSectionToggle"><text class="detail-section-title">{{section.title}}</text><text class="detail-section-state">{{expandedSections[section.key] ? '收起' : '展开'}}</text></button>
@@ -61,6 +68,7 @@
             <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key"><text class="detail-source-note">{{item.purposeLabel}}：{{item.statusLabel}} {{item.verifiedDateLabel}}</text></view>
             <view wx:for="{{sourceNotes}}" wx:key="key" class="detail-source"><text class="detail-subheading">{{item.title}}</text><text class="detail-source-note">{{item.publisher}}；发布：{{item.publishedOn || '页面未标注'}}</text><text wx:if="{{item.publicationNote}}" class="detail-source-note">{{item.publicationNote}}</text><text class="detail-source-note">对应资料：{{item.fields}}</text><text class="detail-source-note">公开资料核对：{{item.verifiedOn}}；复核期限：{{item.validUntil}}</text><text selectable="{{true}}" class="detail-source-url">{{item.url}}</text></view>
             <text wx:if="{{sourceNotes.length}}" class="detail-source-note">以上为公开页面核对，未实拨电话或现场确认；有效期为平台内部复核期限，不代表服务承诺。</text>
+            <view wx:if="{{capabilityReview}}" class="detail-pending"><text class="detail-subheading">本轮护理资料查阅来源</text><text class="detail-source-note">以下资料用于说明尚待确认的问题，不是已核实护理能力，也不是当前入住或费用承诺。</text><view wx:for="{{capabilityReview.sources}}" wx:key="key" class="detail-source"><text class="detail-subheading">{{item.title}}</text><text class="detail-source-note">{{item.publisher}}；资料发布：{{item.publishedOn || '未标注独立发布日期'}}；本轮核对：{{capabilityReview.reviewedOn}}</text><text wx:if="{{item.publicationNote}}" class="detail-source-note">{{item.publicationNote}}</text><text selectable="{{true}}" class="detail-source-url">{{item.url}}</text></view></view>
             <text wx:if="{{viewModel.historyLabel}}" class="detail-source-note">{{viewModel.disclosure}}</text>
             <view wx:if="{{viewModel.canViewCurrentRevision}}"><text class="detail-summary">本页保留原资料版本。</text><button class="browse-button" loading="{{isSwitchingRevision}}" disabled="{{isSwitchingRevision}}" bindtap="onViewCurrentRevision">{{viewModel.currentRevisionLabel}}</button></view>
           </block>

@@ -1,4 +1,7 @@
-import { readModeCatalog } from './catalog'
+import { readProductionRevision } from './catalog'
+import { capabilitySources } from './capability-reviews'
+import { capabilityFieldPaths } from './capability-evidence'
+export { readCapabilityReview as readInstitutionCapabilityReview } from './capability-review-matrix'
 import { publicSources } from './sources'
 import { publicDirectoryEntries } from './directory-data'
 import { buildPublicDirectoryEntry } from './record-builder'
@@ -7,15 +10,15 @@ import type { InstitutionSourceNote } from '../runtime/institution-source-note-t
 
 // Exact identity/revision only; current sources must never replace a historical institution revision.
 export const readInstitutionSourceNotes = (id: string, revision: number): readonly InstitutionSourceNote[] => {
-  const record = readModeCatalog().records.find(row => row.institutionId === id && row.recordRevision === revision)
+  const record = readProductionRevision(id, revision)
   if (!record) return []
-  const entry = publicDirectoryEntries.find(row => row.institutionId === id && row.recordRevision === revision)
-  const evidence = [...record.evidence, ...(entry ? buildPublicDirectoryEntry(entry).natureEvidence : [])]
+  const entry = publicDirectoryEntries.find(row => row.institutionId === id)
+  const evidence = [...record.evidence, ...(entry ? buildPublicDirectoryEntry({ ...entry, recordRevision: revision }).natureEvidence : [])]
   const notes: InstitutionSourceNote[] = []
   for (const item of evidence) {
     if (typeof item.sourceReference !== 'string' || !item.sourceReference.startsWith('https://')) continue
-    const document = Object.values(publicSources).find(source => source.url === item.sourceReference)
-    const field = item.fieldPath === 'identity.name' ? '机构名称' : item.fieldPath.startsWith('identity.region') ? '所在区域' : item.fieldPath === 'publicLocation.address' ? '地址' : item.fieldPath.startsWith('officialContact.') ? '联系方式' : item.fieldPath === 'directory.nature' ? '机构性质' : ''
+    const document = [...Object.values(publicSources), ...Object.values(capabilitySources)].find(source => source.url === item.sourceReference)
+    const field = item.fieldPath === 'identity.name' ? '机构名称' : item.fieldPath.startsWith('identity.region') ? '所在区域' : item.fieldPath === 'publicLocation.address' ? '地址' : item.fieldPath.startsWith('officialContact.') ? '联系方式' : item.fieldPath === 'directory.nature' ? '机构性质' : capabilityFieldPaths.indexOf(item.fieldPath) >= 0 ? '逐项护理资料（状态见照护服务）' : ''
     if (!field) continue
     const verifiedOn = (item.verifiedAt || '').slice(0, 10), validUntil = (item.validUntil || '').slice(0, 10)
     const prior = notes.find(note => note.url === item.sourceReference && note.verifiedOn === verifiedOn && note.validUntil === validUntil)
@@ -25,9 +28,9 @@ export const readInstitutionSourceNotes = (id: string, revision: number): readon
   return notes
 }
 export const readInstitutionDirectoryInfo = (id: string, revision: number): { natureLabel: string; notes: readonly string[] } => {
-  const record = readModeCatalog().records.find(row => row.institutionId === id && row.recordRevision === revision)
+  const record = readProductionRevision(id, revision)
   if (!record) return { natureLabel: '', notes: [] }
   const metadata = readDirectoryMetadata().find(row => row.institutionId === id && row.recordRevision === revision)
-  const entry = publicDirectoryEntries.find(row => row.institutionId === id && row.recordRevision === revision)
+  const entry = publicDirectoryEntries.find(row => row.institutionId === id)
   return { natureLabel: metadata ? metadata.natureLabel : '', notes: entry && entry.notes || [] }
 }

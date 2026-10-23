@@ -39,7 +39,7 @@ if (mode === 'production') {
   source.set('runtime/institution-validation.ts', Buffer.from("import { administrativeDivisionResolver } from '../production/administrative-divisions'\nexport const institutionValidationOptions = {administrativeDivisionResolver}\n"))
   source.set('runtime/institution-service-access.ts', Buffer.from("export { canRequestInstitutionService } from '../production/catalog'\n"))
   source.set('runtime/directory-metadata.ts', Buffer.from("export { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../production/directory-metadata'\n"))
-  source.set('runtime/institution-source-notes.ts', Buffer.from("export { readInstitutionSourceNotes, readInstitutionDirectoryInfo } from '../production/source-notes'\n"))
+  source.set('runtime/institution-source-notes.ts', Buffer.from("export { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../production/source-notes'\n"))
   for (const [file, bytes] of source) if (/^pages\/(home|institution)\/.*\.(ts|wxml)$/.test(file)) {
     source.set(file, Buffer.from(bytes.toString().replaceAll('合作机构', '养老机构').replaceAll('仅加载当前本地开发目录', '仅展示已核对的公开机构资料').replaceAll('当前本地开发目录未能读取', '机构公开资料暂时未能读取')))
   }

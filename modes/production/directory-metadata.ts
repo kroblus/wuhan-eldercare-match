@@ -9,8 +9,10 @@ export const readDirectoryMetadata = () => readModeCatalog().records.map(record 
   const address = record.publicLocation.address
   const current = isCurrentPublicField(institutionId, recordRevision, 'publicLocation.address', address, record.evidence)
   const district = current && address.value ? reviewedDistricts.find(row => row.code === address.value!.district.code) : undefined
-  const entry = publicDirectoryEntries.find(row => row.institutionId === institutionId && row.recordRevision === recordRevision)
-  const supplemental = entry ? buildPublicDirectoryEntry(entry) : null
+  const entry = publicDirectoryEntries.find(row => row.institutionId === institutionId)
+  // Capability-only successors carry unchanged directory facts and original
+  // review times, with evidence bound to the exact successor identity.
+  const supplemental = entry ? buildPublicDirectoryEntry({ ...entry, recordRevision }) : null
   const nature = supplemental && isCurrentPublicField(institutionId, recordRevision, 'directory.nature', supplemental.nature, supplemental.natureEvidence) && supplemental.nature.availability === 'provided' ? supplemental.nature.value : 'unknown'
   return { institutionId, recordRevision, nature, natureLabel: nature === 'unknown' ? '' : natureLabels[nature], district: district ? district.searchKey : 'unknown' }
 })
