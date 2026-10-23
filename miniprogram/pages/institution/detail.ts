@@ -8,7 +8,7 @@ import {
 } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
-import { readInstitutionSourceNotes, readInstitutionDirectoryInfo } from '../../runtime/institution-source-notes'
+import { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../../runtime/institution-source-notes'
 import { createDetailReading } from './detail-reading'
 import {
   createInstitutionDetailErrorViewModel,
@@ -44,6 +44,7 @@ interface InstitutionDetailPageData {
   reading: ReturnType<typeof createDetailReading> | null
   sourceNotes: ReturnType<typeof readInstitutionSourceNotes>
   directoryInfo: ReturnType<typeof readInstitutionDirectoryInfo>
+  capabilityReview: ReturnType<typeof readInstitutionCapabilityReview>
   consultationExpanded: boolean
 }
 
@@ -208,7 +209,7 @@ Page({
     expandedSections: {},
     coverLoadFailed: false,
     canRequestService: true,
-    reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, consultationExpanded: false,
+    reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, capabilityReview: null, consultationExpanded: false,
   } as InstitutionDetailPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -245,7 +246,7 @@ Page({
       isSwitchingRevision: false,
       expandedSections: {},
       coverLoadFailed: false,
-      reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, consultationExpanded: false,
+      reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, capabilityReview: null, consultationExpanded: false,
     })
     buildInstitutionDetailPageSnapshot(route).then((result) => {
       if (!isCurrentGeneration(this, generation)) return
@@ -257,6 +258,7 @@ Page({
           reading: createDetailReading(viewModel),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
+          capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           actionErrorKey: '',
           actionErrorMessage: '',
@@ -353,6 +355,7 @@ Page({
           reading: createDetailReading(viewModel),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
+          capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           isSwitchingRevision: false,
           actionErrorKey: '',
