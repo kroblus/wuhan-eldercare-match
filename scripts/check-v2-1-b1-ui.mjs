@@ -11,9 +11,10 @@ const host = def => ({ ...def, ...def.methods, data: JSON.parse(JSON.stringify(d
 let assertions = 0
 const check = (condition, message) => { assert.ok(condition, message); assertions++ }
 for (const mode of ['production', 'demo']) {
-  let component, page, modal, scroll, failScroll = false, failModal = false, failNav = false
+  let component, page, modal, scroll, failScroll = false, failModal = false, failNav = false, failCapsule = false
   const pushes = []
   const wx = { cloud: {}, nextTick: fn => fn(),
+    getMenuButtonBoundingClientRect() { if (failCapsule) throw new Error('TEST_ONLY geometry unavailable'); return { bottom: 89 } },
     getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }),
     navigateTo(o) { pushes.push(o); if (failNav) { o.fail(); if (o.complete) o.complete() } else { if(o.success)o.success();if(o.complete)o.complete() } },
     pageScrollTo(o) { scroll = o; if(failScroll) { o.fail();o.complete() } },
@@ -47,6 +48,8 @@ for (const mode of ['production', 'demo']) {
   failScroll = true;home.focusSearch();check(!!home.data.searchActionError && !home.data.searchFocus, 'scroll failure visible/retryable')
   failScroll = false;home.focusSearch();const pendingScroll=scroll;home.focusSearch();check(scroll === pendingScroll, 'single pending focus action')
   scroll.success();scroll.complete();check(home.data.searchFocus && scroll.selector === '#home-search', 'native scroll and focus')
+  check(scroll.offsetTop === -97, 'search input stays below capsule and fixed navigation')
+  failCapsule = true;home.focusSearch();check(scroll.offsetTop === -96, 'missing capsule geometry retains usable safe offset');scroll.success();scroll.complete();failCapsule = false
   home.onSearchBlur();check(!home.data.searchFocus, 'blur resets requested focus')
   failNav=true;home.openReading(event('topic','admission'))
   check(!!home.data.readingActionError,'home admission navigation failure has visible feedback')
@@ -145,8 +148,8 @@ const homeMarkup = fs.readFileSync('miniprogram/pages/home/index.wxml','utf8')
 check((homeMarkup.match(/bindtap="startAssessment"/g)||[]).length===1,'one physical assessment event path')
 check(homeMarkup.indexOf('home-news') < homeMarkup.indexOf('home-services') && homeMarkup.indexOf('home-services') < homeMarkup.indexOf('id="home-search"'),'A2 order')
 check(!/TEST_ONLY|unread|badge|data.js/.test(homeMarkup),'no fixture announcements or badges')
-const homeReadingMarkup=homeMarkup.slice(homeMarkup.indexOf('<view class="home-reading">'),homeMarkup.indexOf('<view class="home-boundary">'))
-check(/data-topic="admission"[\s\S]*data-topic="education"[\s\S]*<view\b[^>]*wx:if="\{\{readingActionError\}\}"[^>]*role="alert"[^>]*>\{\{readingActionError\}\}<\/view>/.test(homeReadingMarkup),'bottom reading actions have adjacent failure alert before boundary')
+const homeReadingMarkup=homeMarkup.slice(homeMarkup.indexOf('<view class="home-news"'),homeMarkup.indexOf('<view class="home-services"'))
+check(/data-topic="policy"[\s\S]*data-topic="education"[\s\S]*data-topic="admission"[\s\S]*<view\b[^>]*wx:if="\{\{readingActionError\}\}"[^>]*role="alert"[^>]*>\{\{readingActionError\}\}<\/view>/.test(homeReadingMarkup),'grouped reading actions have adjacent failure alert before services')
 const app=JSON.parse(fs.readFileSync('miniprogram/app.json'))
 assert.deepEqual(app.tabBar.list.map(tab=>tab.pagePath),['pages/home/index','pages/consultant/index','pages/mine/index'])
 console.log('V2_1_B1_UI = PASS ('+assertions+' assertions + N1 routes; Node VM evidence, not device input)')

@@ -1,0 +1,6 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 build:production
+> node scripts/build-run-mode.mjs production
+
+PRODUCTION: runtime files 1329 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)
+PRODUCTION: TypeScript 4.1.2 + Less + native WXML + generated syntax PASS; 30 routes; 211 modules. Open dist/production/project.config.json.

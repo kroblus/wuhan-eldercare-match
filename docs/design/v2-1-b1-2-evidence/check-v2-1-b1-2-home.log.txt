@@ -1,0 +1,5 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:v2-1-b1-2-home
+> node scripts/check-v2-1-b1-2-home.mjs
+
+V2_1_B1_2_HOME = PASS (43 assertions; native source/build structure, not device layout evidence)

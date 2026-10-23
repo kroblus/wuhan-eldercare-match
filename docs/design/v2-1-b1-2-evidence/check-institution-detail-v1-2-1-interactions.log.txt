@@ -1,0 +1,23 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:institution-detail-v1-2-1-interactions
+> node scripts/check-institution-detail-v1-2-1-interactions.mjs
+
+PASS DETAIL-V121-INTERACTION-001 map success invokes wx.openLocation once with ViewModel payload
+PASS DETAIL-V121-INTERACTION-002 rapid map taps are guarded to one pending wx.openLocation
+PASS DETAIL-V121-INTERACTION-003 map fail reports feedback and releases guard for retry
+PASS DETAIL-V121-INTERACTION-004 map unavailable state never invokes wx.openLocation
+PASS DETAIL-V121-INTERACTION-005 map action success never navigates the page
+PASS DETAIL-V121-INTERACTION-006 verified phone success invokes wx.makePhoneCall once with exact dial value
+PASS DETAIL-V121-INTERACTION-007 rapid verified-phone taps are guarded to one pending call
+PASS DETAIL-V121-INTERACTION-008 phone fail reports feedback and releases guard for retry
+PASS DETAIL-V121-INTERACTION-009 unverified sourced phone is physically rendered as blocked and invokes no API
+PASS DETAIL-V121-INTERACTION-010 expired phone is blocked without exposing or dialing its hidden number
+PASS DETAIL-V121-INTERACTION-011 unknown phone is blocked without fallback to another contact
+PASS DETAIL-V121-INTERACTION-012 multiple phone action selects the requested ordered item without Page-side sorting
+PASS DETAIL-V121-INTERACTION-013 phone complete releases guard and never navigates
+PASS DETAIL-V121-INTERACTION-014 Back remains available after a failed map action
+PASS DETAIL-V121-INTERACTION-015 Back stays one channel and still uses existing fallback behavior
+PASS DETAIL-V121-INTERACTION-016 WXML and Page expose exactly one explicit handler per new action
+PARSER: WeChat TypeScript 4.1.2 (C:\Users\16562\AppData\Local\微信开发者工具\User Data\b16711abcdea0f43eb8b0ce9c389cc39\WeappForeignPkgs\mptslib\ts_4.1.2_5.2.3\lib\typescript.js)
+DETAIL_V121_INTERACTION_CASES: 16/16 PASS
+INSTITUTION_DETAIL_V1_2_1_INTERACTIONS = PASS

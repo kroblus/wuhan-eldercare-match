@@ -4,31 +4,33 @@
 @import './browse-buttons.less';
 page { .ws-page-surface(); }
 .directory-search { margin: 16px 0; }
-.directory-input-wrap { position: relative; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; }
-.directory-input-wrap input { box-sizing: border-box; width: 100%; min-height: 52px; height: calc(var(--browse-control-size, 17px) + 36px); padding: 10px 84px 10px 14px; color: @ws-ink; font-size: var(--browse-control-size, 17px); line-height: 1.5; }
+.directory-input-wrap { position: relative; border: 1px solid @ws-accent; border-radius: 28px; background: @ws-surface; }
+.directory-search-mark { position: absolute; left: 14px; top: 10px; color: @ws-accent; font-size: 27px; line-height: 1; }
+.directory-input-wrap input { box-sizing: border-box; width: 100%; min-height: 52px; height: calc(var(--browse-control-size, 17px) + 36px); padding: 10px 76px 10px 42px; color: @ws-ink; font-size: var(--browse-control-size, 17px); line-height: 1.5; }
 .directory-clear, .directory-clear:not([size='mini']) { .browse-button-layout(); position: absolute; right: 0; top: 0; width: 76px; min-height: 50px; height: 100%; padding: 8px; background: transparent; color: @ws-accent; border: 0; font-size: var(--browse-control-size, 16px); font-weight: 400; }
 .directory-clear::after { border: 0; }
 .directory-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 .directory-filters picker { flex: 1 1 calc(var(--browse-control-size, 16px) * 8); min-width: 0; }
-.directory-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 50px; height: 100%; padding: 10px 12px; border: 1px solid @color-control-border; border-radius: @ws-radius; background: @ws-surface; color: @ws-ink; font-size: var(--browse-control-size, 16px); line-height: 1.6; }
+.directory-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 50px; height: 100%; padding: 10px 12px; border: 1px solid @color-control-border; border-radius: 24px; background: @ws-surface; color: @ws-ink; font-size: var(--browse-control-size, 16px); line-height: 1.6; }
 .directory-filter > text:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .directory-arrow { flex: 0 0 auto; font-size: 18px; line-height: 1; color: @ws-accent; }
 .directory-filter.is-selected { border-color: @ws-accent; background: @ws-accent-soft; }
 .directory-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; margin: 8px 0 12px; }
 .directory-heading__title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
-.section-kicker { color: @ws-ink; font-size: var(--browse-title-size, 21px); font-weight: 600; line-height: 1.5; }
+.section-kicker { padding-left: 10px; border-left: 4px solid @color-accent; color: @ws-ink; font-size: var(--browse-title-size, 21px); font-weight: 600; line-height: 1.5; }
 .directory-count { color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.6; }
 .directory-reset:not([size='mini']) { margin-left: auto; }
-.institution-card { margin: 0 0 18px; padding: 18px; border: 1px solid @ws-border; border-radius: @ws-radius; background: @ws-surface; }
+.institution-card { margin-bottom: 14px; padding: 16px; border: 1px solid @ws-border; border-top: 3px solid @ws-accent-soft; border-radius: 12px; background: @ws-surface; }
 .institution-card__head { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
 .institution-name { flex: 1 1 160px; min-width: 0; display: block; color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
 .institution-demo-label { flex: 0 0 auto; padding: 2px 6px; background: @ws-accent-soft; border-radius: 4px; color: @ws-accent; font-size: var(--browse-meta-size, 14px); line-height: 1.6; }
-.institution-region, .institution-feature { display: block; margin-top: 8px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
-.institution-price { display: block; margin-top: 12px; color: @ws-ink; font-size: var(--browse-body-size, 17px); line-height: 1.6; }
+.institution-region { display: block; margin-top: 6px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
+.institution-info { margin-top: 12px; padding-top: 10px; border-top: 1px solid @ws-border; }
+.institution-price { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; }
 .institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid @ws-border; color: @ws-accent; }
-.institution-address { display: block; margin-top: 10px; color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-address { display: block; color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
 .institution-meta { display: block; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
-.institution-detail-link { min-height: 44px; display: flex; align-items: center; margin-left: auto; font-size: var(--browse-control-size, 16px); font-weight: 600; }
+.institution-detail-link { display: flex; align-items: center; min-height: 44px; margin-left: auto; padding: 6px 12px; border-radius: 24px; background: mix(@color-accent, @ws-surface, 8%); color: @color-accent; font-size: var(--browse-control-size, 16px); font-weight: 600; }
 .institution-risk { display: block; margin-top: 12px; padding: 8px 10px; border-left: 2px solid @color-control-border; background: @ws-background; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
 .institution-fact-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .institution-fact-tag { padding: 3px 8px; border-radius: 4px; background: mix(@color-accent, @ws-surface, 8%); color: @color-accent; font-size: var(--browse-body-size, 16px); line-height: 1.5; }

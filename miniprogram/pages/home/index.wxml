@@ -1,27 +1,27 @@
 <import src="../../templates/institution-directory.wxml" />
 <page-meta page-style="{{browseFontStyle}}" />
-<navigation-bar warmSwiss="{{true}}" title="武汉养老" back="{{false}}"></navigation-bar>
+<navigation-bar warmSwiss="{{true}}" title="" back="{{false}}"></navigation-bar>
 <page-container extraClass="home-page">
-  <view class="home-brand"><text class="home-eyebrow">武汉家庭养老选择辅助平台</text><text class="home-brand__title">养老选择，从了解开始。</text></view>
-  <button class="home-notice" bindtap="openAnnouncements" aria-label="查看平台公告"><text class="home-notice__title">公告</text><text class="home-muted">查看平台提示</text><text class="home-arrow" aria-hidden="true">›</text></button>
+  <view class="home-brand"><view><text class="home-brand__title">武汉养老</text><text class="home-source">机构资料与家庭养老信息</text></view><button class="home-notice" bindtap="openAnnouncements" aria-label="查看平台公告"><view class="home-bell" aria-hidden="true"></view><text>公告</text></button></view>
   <view wx:if="{{searchActionError}}" class="home-action-error" role="alert">{{searchActionError}}</view>
-  <view class="home-news">
-    <view class="home-heading"><text class="home-number">01</text><text class="home-section-title">养老资讯</text></view>
-    <button class="home-news__row" data-topic="policy" bindtap="openReading"><text class="home-news__category">政策</text><view class="home-news__copy"><text class="home-news__title">养老补贴，先看适用范围</text><text class="home-news__summary">分清全国、省级与武汉办理。</text></view></button>
-    <button class="home-news__row" data-topic="education" bindtap="openReading"><text class="home-news__category">科普</text><view class="home-news__copy"><text class="home-news__title">参观机构，看什么、问什么</text><text class="home-news__summary">核实夜间照护与完整收费。</text></view></button>
-    <button class="home-news__guide" data-topic="admission" bindtap="openReading"><text class="home-news__category">指南</text><text>入住前，按六步做好准备</text><text class="home-arrow" aria-hidden="true">›</text></button>
-    <text class="home-source">沿用 {{reviewedOn}} 资料核对记录 · 非实时资讯</text>
-    <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
+  <view class="home-hero">
+    <view class="home-hero__copy"><text class="home-hero__eyebrow">为家人的养老选择做好准备</text><text class="home-hero__title">了解养老需求<text class="home-hero__accent">查找机构资料</text></text><text class="home-hero__summary">从了解、筛选，到联系核实。</text></view>
+    <view class="home-hero__art" aria-hidden="true"><view class="home-hero__arch"></view><view class="home-person home-person--elder"></view><view class="home-person home-person--family"></view><text>家人 · 陪伴</text></view>
   </view>
+  <view class="home-news" aria-label="养老资讯与入住准备">
+    <button class="home-news__row home-news__row--policy" data-topic="policy" bindtap="openReading" aria-label="阅读养老补贴政策"><text class="home-news__icon" aria-hidden="true">▤</text><text class="home-news__title">补贴政策</text><text class="home-news__summary">适用范围 ›</text></button>
+    <button class="home-news__row home-news__row--education" data-topic="education" bindtap="openReading"><text class="home-news__icon" aria-hidden="true">▥</text><text class="home-news__title">养老科普</text><text class="home-news__summary">看院与收费 ›</text></button>
+    <button class="home-news__row home-news__row--admission" data-topic="admission" bindtap="openReading"><text class="home-news__icon" aria-hidden="true">↗</text><text class="home-news__title">入住指南</text><text class="home-news__summary">六步准备 ›</text></button>
+  </view>
+  <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
   <view class="home-services" aria-label="查找机构与了解照护需求">
-    <button class="home-service" bindtap="focusSearch"><text class="home-service__title">查找养老机构</text><text class="home-service__summary">按名称、区域、性质筛选</text><text class="home-service__action">开始查找 ↓</text></button>
-    <button class="home-service home-service--assessment" bindtap="startAssessment"><text class="home-service__title">了解照护需求</text><text class="home-service__summary">用六步评估整理家庭需求</text><text class="home-service__action">梳理需求 →</text></button>
-  </view>
-  <view id="home-search" class="home-search" aria-label="查找武汉养老机构">
-    <view class="home-heading"><text class="home-number">02</text><text class="home-section-title">查找武汉养老机构</text></view>
-    <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters, searchFocus: searchFocus}}" />
+    <button class="home-service" bindtap="focusSearch"><view class="home-service__top"><view class="home-search-icon" aria-hidden="true"></view><text class="home-service__action" aria-hidden="true">↓</text></view><text class="home-service__title">查找养老机构</text><text class="home-service__summary">名称、区域、性质筛选</text></button>
+    <button class="home-service home-service--assessment" bindtap="startAssessment"><view class="home-service__top"><text class="home-service__icon" aria-hidden="true">▤</text><text class="home-service__action" aria-hidden="true">→</text></view><text class="home-service__title">了解照护需求</text><text class="home-service__summary">六步整理家庭需求</text></button>
   </view>
   <!-- demo-home-entry -->
+  <view id="home-search" class="home-search" aria-label="查找武汉养老机构">
+    <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters, searchFocus: searchFocus}}" />
+  </view>
   <view class="home-results">
     <text class="home-directory-note">普通公开目录，不作推荐排序。收费、护理与入住条件需向机构核实。</text>
     <text wx:if="{{showMockDisclosure}}" class="home-disclosure">{{mockDisclosure}}</text>
@@ -36,13 +36,8 @@
     <button class="browse-button browse-button--link home-directory-link" bindtap="openInstitutions">打开独立机构目录 →</button>
     <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
   </view>
-  <view class="home-reading">
-    <view class="home-heading"><text class="home-number">03</text><text class="home-section-title">继续做好入住准备</text></view>
-    <button class="home-reading__entry" data-topic="admission" bindtap="openReading"><text class="home-reading__number">01</text><view><text class="home-source">入住指南 · 通用六步清单</text><text class="home-reading__title">从联系核实，到费用合同与入住准备</text></view><text class="home-arrow" aria-hidden="true">›</text></button>
-    <button class="home-reading__entry" data-topic="education" bindtap="openReading"><text class="home-reading__number">02</text><view><text class="home-source">养老知识 · 收费常识</text><text class="home-reading__title">把床位、照护、餐费与押金拆开看</text></view><text class="home-arrow" aria-hidden="true">›</text></button>
-    <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
-  </view>
   <view class="home-boundary"><text class="home-section-title">资料说明与服务边界</text><text class="home-description">公开资料用于了解机构，不代表平台合作或接收承诺。资料未知不等于机构没有该项服务；公开电话不代表已实拨确认。政策与科普供阅读参考，不作个人诊断或补贴资格判断。</text>
+    <text class="home-source">阅读资料核对记录：{{reviewedOn}} · 非实时资讯</text>
     <view class="home-help"><button class="browse-button browse-button--link" bindtap="openConsultant">养老顾问服务说明</button><button class="browse-button browse-button--link" bindtap="openAIConsultation">养老常见问题</button></view>
     <view wx:if="{{consultantActionError || aiActionError}}" class="home-action-error" role="alert">{{consultantActionError || aiActionError}}</view>
   </view>

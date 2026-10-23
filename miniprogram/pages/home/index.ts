@@ -155,9 +155,17 @@ Component({
         this.setData({ searchActionError: '暂时无法定位，请向下滑动到搜索区域后重试。' })
       }
       try {
-        wx.pageScrollTo({ selector: '#home-search', duration: 200,
+        let offsetTop = -96
+        try {
+          const capsule = wx.getMenuButtonBoundingClientRect()
+          if (capsule && Number.isFinite(capsule.bottom) && capsule.bottom > 0) offsetTop = -capsule.bottom - 8
+        } catch (_error) { /* Keep the fixed-navigation fallback when geometry is unavailable. */ }
+        // The bundled legacy typings omit offsetTop; verified against the native runtime.
+        const scrollOptions: WechatMiniprogram.PageScrollToOption & { offsetTop: number } = {
+          selector: '#home-search', offsetTop, duration: 200,
           success: () => { if (isCurrent()) this.setData({ searchFocus: true }) }, fail,
-          complete: () => { if (isCurrent()) guard.release(action) } })
+          complete: () => { if (isCurrent()) guard.release(action) } }
+        wx.pageScrollTo(scrollOptions)
       } catch (_error) { fail() }
     },
     openAnnouncements() {

@@ -1,0 +1,7 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:v2-1-b1-ui
+> node scripts/check-v2-1-b1-ui.mjs
+
+PASS production: preview/expand/search/return, focus/modal failure and retry, load races/unload, evidence expiry, reading/navigation
+PASS demo: preview/expand/search/return, focus/modal failure and retry, load races/unload, evidence expiry, reading/navigation
+V2_1_B1_UI = PASS (126 assertions + N1 routes; Node VM evidence, not device input)

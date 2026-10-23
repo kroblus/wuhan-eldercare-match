@@ -1,0 +1,6 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:run-mode-package-size
+> node scripts/check-run-mode-package-size.mjs
+
+PRODUCTION: runtime files 1329 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)
+DEMO: runtime files 1984 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)

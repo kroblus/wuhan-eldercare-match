@@ -1,0 +1,5 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:run-mode-convergence
+> node scripts/check-run-mode-convergence.mjs
+
+PASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo

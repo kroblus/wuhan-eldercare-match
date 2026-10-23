@@ -1,0 +1,6 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 build:demo
+> node scripts/build-run-mode.mjs demo
+
+DEMO: runtime files 1984 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)
+DEMO: TypeScript 4.1.2 + Less + native WXML + generated syntax PASS; 30 routes; 206 modules. Open dist/demo/project.config.json.

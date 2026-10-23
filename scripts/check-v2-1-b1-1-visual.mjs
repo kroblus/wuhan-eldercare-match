@@ -74,7 +74,7 @@ const luminance = color => {
   return [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0)
 }
 for (const [foreground, background] of [
-  [rule('.home-news__category').color, rule('.home-news__category').background],
+  [rule('.home-news__row').color, rule('.home-news__row').background],
   [rule('.institution-fact-tag').color, rule('.institution-fact-tag').background],
   [rule('.institution-fact-tag--teal').color, rule('.institution-fact-tag--teal').background],
   [rule('.home-service__title').color, rule('.home-service').background],
@@ -91,6 +91,6 @@ check(rule('.institution-fact-tags')['flex-wrap'] === 'wrap' && rule('.instituti
 check(!/line-clamp|text-overflow:\s*ellipsis/.test(css), 'no ellipsis/clamp hides card or home content at large font')
 check(['home','institution'].every(name => fs.readFileSync(`miniprogram/pages/${name}/index.wxml`, 'utf8').includes('<page-meta page-style="{{browseFontStyle}}" />')), 'font variables attached to both native browsing pages')
 const home = fs.readFileSync('miniprogram/pages/home/index.wxml', 'utf8')
-check((home.match(/class="home-news__row"/g) || []).length === 2 && /home-news__guide[^>]+data-topic="admission"/.test(home), 'two real-content news rows and compact guide')
+check((home.match(/class="home-news__row /g) || []).length === 3 && /home-news__row--admission[^>]+data-topic="admission"/.test(home), 'three real-content reading cards include policy, education and compact guide')
 check(!/TEST_ONLY|unread|badge/.test(home), 'no fake announcements, badge or synthetic fixture in home')
 console.log(`V2_1_B1_1_VISUAL = PASS (${assertions} assertions; generated CSS and Node VM, not device layout evidence)`)

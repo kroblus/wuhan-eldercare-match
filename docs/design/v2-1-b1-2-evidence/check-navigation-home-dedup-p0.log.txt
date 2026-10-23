@@ -1,0 +1,15 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:navigation-home-dedup-p0
+> node scripts/check-navigation-home-dedup-p0.mjs
+
+PASS N01 Home has one Assessment CTA and no untested time promise
+PASS N02 Home previews two unchanged directory items and opens complete directory
+PASS N03 Detail consult pushes one non-Tab route without context payload
+PASS N04 Shared consultant retains lawful missing state and the original Detail instance
+PASS N05 Navigation failure, complete-only failure and exception release for retry
+PASS N06 Consultant Back failure can retry, root arrow uses lawful Tab fallback
+PASS N07 Appointment result consult and My Appointments retain result as parent
+PASS N08 Tab registration and deliberate Home/Consultant Tab actions stay unchanged
+PASS N09 Frozen FAQ and appointment-card Tab consumers remain deferred per Owner decision
+PASS N10 Consultant appointment returns to an existing directory ancestor and falls back to guarded push
+NAVIGATION_HOME_DEDUP_P0 = PASS (10/10; FAQ/card stack changes deferred)

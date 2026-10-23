@@ -1,0 +1,31 @@
+
+> miniprogram-ts-less-quickstart@1.0.0 check:institution-list-page-runtime
+> node scripts/check-institution-list-page-runtime.mjs
+
+PASS LIST-UI-001 loading state is explicit
+PASS LIST-UI-002 ready state comes from the application snapshot
+PASS LIST-UI-003 empty copy is the approved product copy
+PASS LIST-UI-004 catalog error exposes retry
+PASS LIST-UI-005 source-context error is distinct
+PASS LIST-UI-006 projection error is distinct
+PASS LIST-UI-007 the complete eight-record order is preserved
+PASS LIST-UI-008 canonical item keys contain both identity parts
+PASS LIST-UI-009 future intent uses canonical identity and direct_list source
+PASS LIST-UI-010 development disclosure is snapshot-provided
+PASS LIST-UI-011 cards do not expose public rating, count, match, or bed facts
+PASS LIST-UI-012 bounded prices retain both bounds
+PASS LIST-UI-013 starting prices do not invent an upper bound
+PASS LIST-UI-014 unknown prices do not become zero
+PASS LIST-UI-015 unverified and expired status remain visible
+PASS LIST-UI-016 VR unknown remains unknown and non-navigable data
+PASS LIST-UI-017 VR unavailable and available labels are projected without inventing URLs
+PASS LIST-UI-018 verified display tags are read-only projection fields
+PASS LIST-UI-019 page and WXML expose one canonical detail action using the item intent
+PASS LIST-UI-020 legacy id/name/array fallback and direct fixture imports are absent
+PASS LIST-UI-021 live page application resolves the canonical development catalog
+PASS LIST-UI-022 recommendation-context list scopes source and opaque ref to frozen candidates
+PARSER: WeChat TypeScript 4.1.2 (C:\Users\16562\AppData\Local\微信开发者工具\User Data\b16711abcdea0f43eb8b0ce9c389cc39\WeappForeignPkgs\mptslib\ts_4.1.2_5.2.3\lib\typescript.js)
+LIST_UI_CASES: 22/22 PASS
+LIST_UI_FIXTURE_RECORDS: 8
+LIST_UI_DATASET_VERSION: institution-catalog-v1.2-test-20260901
+LIST_UI_RUNTIME = PASS
