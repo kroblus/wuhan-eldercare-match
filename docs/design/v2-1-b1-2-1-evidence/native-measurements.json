@@ -1,0 +1,208 @@
+{
+  "kind": "WECHAT_DEVTOOLS_NATIVE_MEASUREMENTS",
+  "baseCommit": "1809633f40f62c7c3cd8cd0a8070b6b6523de22f",
+  "units": "CSS px; wx.createSelectorQuery boundingClientRect at scrollTop=0 except focus measurement",
+  "before": {
+    "before430": {
+      "hero": 164.3854217529297,
+      "normal": 313.4583435058594,
+      "risk": 394.25,
+      "actionTop": 478.57293701171875
+    },
+    "before320font150": {
+      "hero": 292.5625,
+      "normal": 571.21875,
+      "risk": 716.8021240234375,
+      "actionTop": 930.03125
+    }
+  },
+  "after430": {
+    "system": {
+      "width": 430,
+      "height": 850,
+      "font": 16,
+      "capsule": {
+        "width": 87,
+        "height": 31,
+        "left": 336,
+        "top": 58,
+        "right": 423,
+        "bottom": 89
+      }
+    },
+    "hero": {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": 176.7916717529297,
+      "bottom": 304.78125762939453,
+      "width": 386,
+      "height": 127.98958587646484
+    },
+    "cards": [
+      {
+        "id": "",
+        "dataset": {
+          "institutionId": "wh-dongxihu-baiquan-eldercare",
+          "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+          "recordRevision": 1,
+          "routeSource": "direct_list"
+        },
+        "left": 22,
+        "right": 408,
+        "top": 900.7916870117188,
+        "bottom": 1136.5208587646484,
+        "width": 386,
+        "height": 235.7291717529297
+      },
+      {
+        "id": "",
+        "dataset": {
+          "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+          "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+          "recordRevision": 1,
+          "routeSource": "direct_list"
+        },
+        "left": 22,
+        "right": 408,
+        "top": 1148.5208740234375,
+        "bottom": 1461.0417175292969,
+        "width": 386,
+        "height": 312.5208435058594
+      }
+    ],
+    "services": {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": 440.1770935058594,
+      "bottom": 590.8645935058594,
+      "width": 386,
+      "height": 150.6875
+    },
+    "compactAction": {
+      "id": "",
+      "dataset": {},
+      "left": 0,
+      "right": 0,
+      "top": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "bell": {
+      "id": "",
+      "dataset": {},
+      "left": 362,
+      "right": 408,
+      "top": 110.39583587646484,
+      "bottom": 156.39583587646484,
+      "width": 46,
+      "height": 46
+    },
+    "searchInput": null
+  },
+  "after320font150": {
+    "system": {
+      "width": 320,
+      "height": 514,
+      "font": 24,
+      "capsule": {
+        "width": 87,
+        "height": 31,
+        "left": 227,
+        "top": 28,
+        "right": 314,
+        "bottom": 59
+      }
+    },
+    "hero": {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": 128.5,
+      "bottom": 343.4791717529297,
+      "width": 286,
+      "height": 214.9791717529297
+    },
+    "cards": [
+      {
+        "id": "",
+        "dataset": {
+          "institutionId": "wh-dongxihu-baiquan-eldercare",
+          "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+          "recordRevision": 1,
+          "routeSource": "direct_list"
+        },
+        "left": 17,
+        "right": 303,
+        "top": 1600.010498046875,
+        "bottom": 2080.3021850585938,
+        "width": 286,
+        "height": 480.29168701171875
+      },
+      {
+        "id": "",
+        "dataset": {
+          "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+          "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+          "recordRevision": 1,
+          "routeSource": "direct_list"
+        },
+        "left": 17,
+        "right": 303,
+        "top": 2092.30224609375,
+        "bottom": 2714.17724609375,
+        "width": 286,
+        "height": 621.875
+      }
+    ],
+    "services": {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": 775.2604370117188,
+      "bottom": 1127.0521240234375,
+      "width": 286,
+      "height": 351.79168701171875
+    },
+    "compactAction": {
+      "id": "",
+      "dataset": {},
+      "left": 31,
+      "right": 289,
+      "top": 287.47918701171875,
+      "bottom": 331.47918701171875,
+      "width": 258,
+      "height": 44
+    },
+    "bell": {
+      "id": "",
+      "dataset": {},
+      "left": 257,
+      "right": 303,
+      "top": 71.25,
+      "bottom": 117.25,
+      "width": 46,
+      "height": 46
+    },
+    "searchInput": null
+  },
+  "focus320font150": {
+    "inputDocumentTop": 1147.71875,
+    "scrollTop": 1080,
+    "inputViewportTop": 67.71875,
+    "capsuleBottom": 59,
+    "searchFocus": true,
+    "heroTitleComputedFontSize": "34.5px"
+  },
+  "notes": [
+    "Before measured from a read-only copy of B1.2 production dist in this worktree output/baseline-production.",
+    "searchInput null in page query is a native selector limitation; focus measured separately with automator element offset and page.scrollTop.",
+    "No height inferred from PNG pixel dimensions."
+  ]
+}

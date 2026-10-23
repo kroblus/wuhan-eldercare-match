@@ -2,11 +2,11 @@
 <page-meta page-style="{{browseFontStyle}}" />
 <navigation-bar warmSwiss="{{true}}" title="" back="{{false}}"></navigation-bar>
 <page-container extraClass="home-page">
-  <view class="home-brand"><view><text class="home-brand__title">武汉养老</text><text class="home-source">机构资料与家庭养老信息</text></view><button class="home-notice" bindtap="openAnnouncements" aria-label="查看平台公告"><view class="home-bell" aria-hidden="true"></view><text>公告</text></button></view>
+  <view class="home-brand"><view><text class="home-brand__title">武汉养老</text><text class="home-source">机构资料与家庭养老信息</text></view><button class="home-notice" bindtap="openAnnouncements" aria-label="查看平台公告"><view class="home-bell" aria-hidden="true"></view></button></view>
   <view wx:if="{{searchActionError}}" class="home-action-error" role="alert">{{searchActionError}}</view>
   <view class="home-hero">
-    <view class="home-hero__copy"><text class="home-hero__eyebrow">为家人的养老选择做好准备</text><text class="home-hero__title">了解养老需求<text class="home-hero__accent">查找机构资料</text></text><text class="home-hero__summary">从了解、筛选，到联系核实。</text></view>
-    <view class="home-hero__art" aria-hidden="true"><view class="home-hero__arch"></view><view class="home-person home-person--elder"></view><view class="home-person home-person--family"></view><text>家人 · 陪伴</text></view>
+    <view class="home-hero__copy"><text class="home-hero__title">了解养老需求<text class="home-hero__accent">查找机构资料</text></text><text class="home-hero__summary">为家人做好养老准备</text><button class="browse-button home-hero__find" bindtap="focusSearch">查找机构 ↓</button></view>
+    <view class="home-hero__art" aria-hidden="true"><view class="home-hero__arch"></view><view class="home-person home-person--elder"></view><view class="home-person home-person--family"></view></view>
   </view>
   <view class="home-news" aria-label="养老资讯与入住准备">
     <button class="home-news__row home-news__row--policy" data-topic="policy" bindtap="openReading" aria-label="阅读养老补贴政策"><text class="home-news__icon" aria-hidden="true">▤</text><text class="home-news__title">补贴政策</text><text class="home-news__summary">适用范围 ›</text></button>

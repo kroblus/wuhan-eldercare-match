@@ -75,7 +75,8 @@
     "check:capability-evidence-runtime": "node scripts/check-capability-evidence.mjs --with-build",
     "check:v2-1-b1-ui": "node scripts/check-v2-1-b1-ui.mjs",
     "check:v2-1-b1-1-visual": "node scripts/check-v2-1-b1-1-visual.mjs",
-    "check:v2-1-b1-2-home": "node scripts/check-v2-1-b1-2-home.mjs"
+    "check:v2-1-b1-2-home": "node scripts/check-v2-1-b1-2-home.mjs",
+    "check:v2-1-b1-2-1-visual": "node scripts/check-v2-1-b1-2-1-visual.mjs"
   },
   "keywords": [],
   "author": "",
