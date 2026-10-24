@@ -1,0 +1,5 @@
+<view wx:if="{{story}}" class="story-preview" style="{{fontStyle}}">
+  <view class="story-media-module" id="story-map-preview"><text class="story-section-title">位置与周边</text><view class="story-map-sketch"><view class="story-road story-road--one"></view><view class="story-road story-road--two"></view><text>武汉城市视野</text><text class="story-muted">城区示意 · 不标示机构院址</text></view><text class="story-muted">{{story.name}}的区位讲解演示，非已核验院址，不提供真实导航。</text><button class="story-button" data-action="map" bindtap="open">查看地图演示</button></view>
+  <view class="story-media-module" id="story-vr-preview"><text class="story-section-title">VR 看院</text><image class="story-vr-cover" src="/assets/vr-synthetic-test.jpg" mode="aspectFill" aria-label="合成演示空间预览，非真实机构实景"></image><text class="story-muted">演示空间 · 非真实机构实景</text><text>拖动环顾空间，体验看院前的环境了解方式。</text><button class="story-button story-button--primary" data-action="vr" bindtap="open">进入全景演示</button></view>
+  <text wx:if="{{error}}" class="story-error" role="alert">{{error}}</text>
+</view>

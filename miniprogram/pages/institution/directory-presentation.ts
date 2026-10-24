@@ -9,6 +9,22 @@ export const presentDirectoryNature = (nature: string): { nature: string; factTa
   ['公办', '民办', '公建民营'].indexOf(nature) >= 0
     ? { nature: '', factTags: [nature] } : { nature, factTags: [] }
 
+export const directorySnapshotMatches = (snapshot: InstitutionDetailApplicationSnapshotV12,
+  item: InstitutionListItemViewModel, evaluationAsOf: string): boolean =>
+  snapshot.identity.institutionId === item.institutionId && snapshot.identity.recordRevision === item.recordRevision
+  && snapshot.source === 'direct' && snapshot.contextKind === 'DIRECT_CURRENT' && !snapshot.recommendationContext
+  && snapshot.recordStatus === 'published' && snapshot.evaluationAsOf === evaluationAsOf
+  && snapshot.datasetMode === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION')
+  && snapshot.recordProvenance === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION_CANDIDATE')
+
+export const directoryPhone = (snapshot: InstitutionDetailApplicationSnapshotV12) => {
+  const contact = snapshot.sections.futureV121 && snapshot.sections.futureV121.officialContact
+  if (!contact || contact.status !== 'provided' || contact.directory.availability !== 'provided'
+    || contact.directory.effectiveVerification !== 'current_verified' || contact.directory.value !== 'present') return undefined
+  return createInstitutionDetailPageViewModel(snapshot).officialContact.phones.find(phone =>
+    phone.state === 'verified' && phone.callAction.available && !!phone.callAction.dialValue)
+}
+
 // Only the existing application-safe reference total; qualifiers stay in Detail.
 export const presentDirectoryPrice = (price: InstitutionDetailApplicationSnapshotV12['sections']['price']): string => {
   const fact = price.referenceMonthlyPrice as InstitutionListDisplayItemV12['referenceMonthlyPrice']
@@ -39,7 +55,7 @@ export const decorateDirectoryCards = async (
   items: readonly InstitutionListItemViewModel[], evaluationAsOf: string,
 ): Promise<readonly InstitutionListItemViewModel[]> => Promise.all(items.map(async item => {
   if (item.navigationIntent.source !== 'direct_list' || item.navigationIntent.sourceContextRef) return item
-  const card = { ...item.card, compact: true, address: '', addressStatus: '', price: '', phone: '' }
+  const card = { ...item.card, compact: true, address: '', addressStatus: '', price: '', phone: '', phoneKey: '' }
   try {
     const info = readInstitutionDirectoryInfo(item.institutionId, item.recordRevision)
     Object.assign(card, presentDirectoryNature(info.natureLabel || item.card.nature))
@@ -50,11 +66,7 @@ export const decorateDirectoryCards = async (
     })
     if (!result.ok) return { ...item, card }
     const snapshot = result.value
-    if (snapshot.identity.institutionId !== item.institutionId || snapshot.identity.recordRevision !== item.recordRevision
-      || snapshot.source !== 'direct' || snapshot.contextKind !== 'DIRECT_CURRENT'
-      || snapshot.recordStatus !== 'published' || snapshot.evaluationAsOf !== evaluationAsOf
-      || (snapshot.datasetMode === 'MOCK_DEVELOPMENT_ONLY') !== card.isDemo
-      || (snapshot.recordProvenance === 'MOCK_DEVELOPMENT_ONLY') !== card.isDemo) return { ...item, card }
+    if (!directorySnapshotMatches(snapshot, item, evaluationAsOf)) return { ...item, card }
     const detail = createInstitutionDetailPageViewModel(snapshot)
     // institution-ordinary-directory-display-v1; Recommendation remains unchanged.
     card.address = detail.location.addressState === 'ready' ? detail.location.address : ''
@@ -68,6 +80,8 @@ export const decorateDirectoryCards = async (
     if (contact.state === 'unavailable') contactRisks.push(contact.statusLabel)
     card.notes = Array.from(new Set(card.notes.concat(contactRisks)))
     card.price = presentDirectoryPrice(snapshot.sections.price)
+    const phone = directoryPhone(snapshot)
+    card.phoneKey = !card.isDemo && phone ? phone.key : ''
     return { ...item, card }
   } catch (_error) {
     // Supplemental display failure does not hide the basic directory or risks.

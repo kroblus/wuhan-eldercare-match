@@ -35,6 +35,9 @@ import type {
 } from './visit-evaluation-application'
 import type { ProductionVisitEvaluationContextV1 } from './visit-evaluation-production-context'
 import type { ProductionVisitEvaluationSubmitResultV1 } from './visit-evaluation-production-submit'
+import { isolatedEvaluationProviders, readEvaluationSession, saveEvaluationSession, readEvaluationDisplay } from '../../runtime/evaluation-session'
+import { readBrowseFontStyle } from '../../utils/browse-font'
+import { formatChinaDateTime } from '../../utils/display-date'
 
 type VisitEvaluationPageState =
   | 'loading_context'
@@ -57,6 +60,12 @@ interface VisitEvaluationTagGroupViewModel {
 }
 
 interface VisitEvaluationPageData {
+  footerReserve: number
+  keyboardOpen: boolean
+  fontStyle: string
+  step: number
+  sessionEpoch: number
+  summaryGroups: Array<{ title: string; step: number; rows: Array<{ label: string; value: string }> }>
   pageState: VisitEvaluationPageState
   contextMode: 'none' | 'test_only' | 'production'
   visitId: string
@@ -83,6 +92,7 @@ interface VisitEvaluationPageData {
   commentRemaining: number
   serverEvaluationId: string
   serverSubmittedAt: string
+  submittedAtLabel: string
 }
 
 interface VisitEvaluationRouteData {
@@ -185,9 +195,55 @@ const isFeeAnswer = (value: string): value is VisitEvaluationFeeAnswerV1 => valu
 const isDraftEditable = (pageState: VisitEvaluationPageState): boolean =>
   pageState === 'editing' || pageState === 'submit_failed'
 
+const reserveFooter = (page: EvaluationPageInstance): void => {
+  if (typeof wx.nextTick !== 'function' || typeof wx.createSelectorQuery !== 'function') return
+  wx.nextTick(() => {
+    wx.createSelectorQuery().in(page as unknown as WechatMiniprogram.Component.TrivialInstance)
+      .select('.evaluation-footer').boundingClientRect(rect => {
+        if (rect && rect.height > 0) page.setData({ footerReserve: Math.ceil(rect.height) + 24 })
+        else page.setData({ footerReserve: 24 })
+      }).exec()
+  })
+}
+const keyboards = new WeakMap<object, (event: { height: number }) => void>()
+const observeKeyboard = (page: EvaluationPageInstance): void => {
+  if (keyboards.has(page) || typeof wx.onKeyboardHeightChange !== 'function') return
+  const listener = (event: { height: number }) => {
+    page.setData({ keyboardOpen: event.height > 0 })
+    if (!event.height) reserveFooter(page)
+  }
+  keyboards.set(page, listener)
+  wx.onKeyboardHeightChange(listener)
+}
+const releaseKeyboard = (page: object): void => {
+  const listener = keyboards.get(page)
+  if (listener && typeof wx.offKeyboardHeightChange === 'function') wx.offKeyboardHeightChange(listener)
+  keyboards.delete(page)
+}
+
 const createFormPatch = (draft: VisitEvaluationDraftV1): Partial<VisitEvaluationPageData> => {
   const ratingViewModel = createVisitEvaluationRatingViewModel(draft)
+  const label = (options: ReadonlyArray<{ key: string; label: string }>, key: string) => {
+    const found = options.find(o => o.key === key)
+    return found ? found.label : '未填写'
+  }
   return {
+    summaryGroups: [
+      { title: '总体体验', step: 1, rows: [{ label: '整体印象', value: draft.overallRating === null ? '未填写' : draft.overallRating + ' / 5' },
+        { label: '继续考虑意愿', value: label(VISIT_EVALUATION_CONSIDERATION_OPTIONS, draft.consideration) }] },
+      ...ratingViewModel.sections.map(s => ({ title: s.title, step: 2, rows: s.items.map(i => ({ label: i.label,
+        value: draft.ratings[i.key] === null ? '未填写' : draft.ratings[i.key] + ' / 5' })) })),
+      { title: '护理管理观察', step: 2, rows: [
+        { label: '完整护理记录', value: label(VISIT_EVALUATION_OBSERVATION_OPTIONS, draft.careRecordLearned) },
+        { label: '24小时交接', value: label(VISIT_EVALUATION_OBSERVATION_OPTIONS, draft.handoverLearned) },
+        { label: '交接内容', value: draft.handoverTopics.map(k => label(VISIT_EVALUATION_HANDOVER_TOPICS, k)).join('、') || '未填写' }] },
+      { title: '费用说明', step: 2, rows: [{ label: '收费介绍', value: draft.feeExplanationClear === 'clear' ? '清楚' : draft.feeExplanationClear === 'unclear' ? '不清楚' : '未填写' },
+        ...VISIT_EVALUATION_FEE_TOPICS.map(t => ({ label: t.label, value: label(VISIT_EVALUATION_FEE_ANSWER_OPTIONS, draft.feeTopicExplanations[t.key]) }))] },
+      { title: '标签与补充说明', step: 3, rows: [
+        { label: '最满意', value: draft.likedTags.map(k => label(VISIT_EVALUATION_TAGS, k)).join('、') || '未选择' },
+        { label: '最担心', value: draft.concernTags.map(k => label(VISIT_EVALUATION_TAGS, k)).join('、') || '未选择' },
+        { label: '补充说明', value: draft.comment || '未填写' }] },
+    ],
     draft,
     overallOptions: ratingViewModel.overallOptions,
     ratingSections: ratingViewModel.sections,
@@ -244,6 +300,7 @@ const getApplication = (page: EvaluationPageInstance): EvaluationPageApplication
   const application = createVisitEvaluationUiApplicationV1({
     productionContextProvider: providers.contextProvider,
     productionSubmitProvider: providers.submitProvider,
+    ...isolatedEvaluationProviders(),
   })
   page._visitEvaluationApplication = application
   return application
@@ -273,16 +330,19 @@ const loadContext = async (page: EvaluationPageInstance, visitId: string, preser
     if (requestSequence !== page._contextLoadSequence || page.data.visitId !== visitId) return
 
     if (result.kind === 'ready' && result.context.visitId === visitId) {
-      const draft = preserveDraft ? cloneVisitEvaluationDraft(page.data.draft) : createEmptyVisitEvaluationDraft()
+      const saved = readEvaluationSession(visitId)
+      const draft = saved ? saved.draft : preserveDraft ? cloneVisitEvaluationDraft(page.data.draft) : createEmptyVisitEvaluationDraft()
       page._visitEvaluationContext = result.context
       page.setData({
         ...createFormPatch(draft),
-        pageState: 'editing',
+        pageState: saved && saved.submitted ? 'submitted' : 'editing',
+        step: saved ? saved.step : 1,
+        sessionEpoch: saved ? saved.epoch : -1,
         contextMode: 'test_only',
-        contextMessage: `开发测试上下文 · ${result.context.institutionId} · ${result.context.institutionRecordRevision}`,
-        statusMessage: '开发测试流程不会写入真实评价、机构资料或推荐结果。',
-        submitButtonText: '提交测试评价',
-        serverEvaluationId: '',
+        contextMessage: (() => { const display = readEvaluationDisplay(visitId); return display ? display.institutionName + ' · ' + display.elderName : '本次演示看院记录' })(),
+        statusMessage: '仅记录您的个人感受和现场观察。',
+        submitButtonText: '提交看院评价',
+        serverEvaluationId: saved && saved.submitted ? saved.evaluationId : '',
         serverSubmittedAt: '',
       })
       return
@@ -352,14 +412,19 @@ const loadContext = async (page: EvaluationPageInstance, visitId: string, preser
     }
   } finally {
     if (requestSequence === page._contextLoadSequence) page._contextLoadLocked = false
+    reserveFooter(page)
   }
 }
 
 const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): void => {
+  if (page.data.contextMode === 'test_only' && !saveEvaluationSession(page.data.visitId, page.data.sessionEpoch, draft, page.data.step)) {
+    page.setData({ pageState: 'unavailable', contextMode: 'none', contextMessage: '演示会话已重置，请返回预约列表重新进入。' })
+    return
+  }
   page.setData({
     ...createFormPatch(draft),
     pageState: page.data.pageState === 'submit_failed' ? 'editing' : page.data.pageState,
-    submitButtonText: page.data.contextMode === 'test_only' ? '提交测试评价' : '提交看院评价',
+    submitButtonText: '提交看院评价',
     feedbackMessage: '',
     tagFeedbackGroup: '',
     tagFeedbackMessage: '',
@@ -367,6 +432,7 @@ const setDraft = (page: EvaluationPageInstance, draft: VisitEvaluationDraftV1): 
     overallRatingValidationMessage: '',
     considerationValidationMessage: '',
   })
+  reserveFooter(page)
 }
 
 // Presentation only: reveal the existing inline error below the fixed navigation bar.
@@ -403,6 +469,11 @@ const revealEvaluationError = (page: EvaluationPageInstance): void => {
 
 Page({
   data: {
+    footerReserve: 0,
+    keyboardOpen: false,
+    fontStyle: '',
+    step: 1,
+    sessionEpoch: -1,
     pageState: 'loading_context',
     contextMode: 'none',
     visitId: '',
@@ -414,11 +485,56 @@ Page({
     validationMessage: '',
     overallRatingValidationMessage: '',
     considerationValidationMessage: '',
-    submitButtonText: '提交测试评价',
+    submitButtonText: '提交看院评价',
     serverEvaluationId: '',
     serverSubmittedAt: '',
+    submittedAtLabel: '',
     ...createFormPatch(createEmptyVisitEvaluationDraft()),
   } as VisitEvaluationPageData,
+
+  onShow() {
+    this.setData({ fontStyle: readBrowseFontStyle(), keyboardOpen: false })
+    observeKeyboard(this)
+    reserveFooter(this)
+    if (this.data.contextMode !== 'test_only' || this.data.sessionEpoch < 0) return
+    const saved = readEvaluationSession(this.data.visitId)
+    if (!saved || saved.epoch !== this.data.sessionEpoch) {
+      const page = this as unknown as EvaluationPageInstance
+      page._visitEvaluationContext = undefined
+      page._visitEvaluationApplication = undefined
+      this.setData({ pageState: 'unavailable', contextMode: 'none', contextMessage: '演示会话已重置，请返回预约列表重新进入。' })
+    } else if (saved.submitted) {
+      this.setData({ ...createFormPatch(saved.draft), step: 3, pageState: 'submitted', serverEvaluationId: saved.evaluationId })
+    }
+  },
+  onHide() { releaseKeyboard(this) },
+  onUnload() { releaseKeyboard(this) },
+
+  onPreviousStep() {
+    if (!isDraftEditable(this.data.pageState) || this.data.step <= 1) return
+    this.changeStep(this.data.step - 1)
+  },
+  onNextStep() {
+    if (!isDraftEditable(this.data.pageState) || this.data.step >= 3) return
+    if (this.data.step === 1) {
+      const issues = validateVisitEvaluationDraft(this.data.draft)
+      const overall = issues.some(i => i.path === 'overallRating'), consideration = issues.some(i => i.path === 'consideration')
+      this.setData({ overallRatingValidationMessage: overall ? '请选择整体印象评分。' : '', considerationValidationMessage: consideration ? '请选择后续考虑。' : '' })
+      if (overall || consideration) { revealEvaluationError(this); return }
+    }
+    this.changeStep(this.data.step + 1)
+  },
+  onEditGroup(event: DatasetEvent<{ step?: number }>) {
+    if (!isDraftEditable(this.data.pageState)) return
+    const step = Number(event.currentTarget.dataset.step)
+    if ([1, 2, 3].includes(step)) this.changeStep(step)
+  },
+  changeStep(step: number) {
+    this.setData({ step })
+    reserveFooter(this)
+    if (this.data.contextMode === 'test_only') saveEvaluationSession(this.data.visitId, this.data.sessionEpoch, this.data.draft, step)
+    wx.pageScrollTo({ scrollTop: 0, duration: 0, fail: () => {} })
+  },
 
   async onLoad(query: VisitEvaluationRouteData) {
     const page = this as unknown as EvaluationPageInstance
@@ -565,7 +681,7 @@ Page({
     const isTestOnly = Boolean(testContext)
     page.setData({
       pageState: 'submitting',
-      submitButtonText: isTestOnly ? '正在提交测试评价' : '正在提交评价',
+      submitButtonText: isTestOnly ? '正在提交评价' : '正在提交评价',
       validationMessage: '',
       feedbackMessage: '',
     })
@@ -574,16 +690,18 @@ Page({
       if (testContext) {
         const result = await application.submit(testContext, cloneVisitEvaluationDraft(page.data.draft))
         if (result.kind === 'submitted_test_only') {
+          const saved = readEvaluationSession(page.data.visitId)
           page.setData({
             pageState: 'submitted',
-            submitButtonText: '测试流程已完成',
-            feedbackMessage: '测试提交已完成；内容未写入真实评价，也不是机构确认。',
+            submitButtonText: '评价已保存',
+            feedbackMessage: '演示评价已保存，可返回预约记录再次查看。',
+            serverEvaluationId: saved ? saved.evaluationId : '',
           })
         } else {
           page.setData({
             pageState: 'submit_failed',
-            submitButtonText: '重试测试提交',
-            feedbackMessage: '测试提交暂未成功，已保留全部填写内容，可重试。',
+            submitButtonText: '重试提交',
+            feedbackMessage: '暂未保存成功，已保留全部填写内容，可重试。',
           })
         }
         return
@@ -597,6 +715,7 @@ Page({
           submitButtonText: '评价已提交',
           serverEvaluationId: result.receipt.evaluationId,
           serverSubmittedAt: result.receipt.submittedAt,
+          submittedAtLabel: formatChinaDateTime(result.receipt.submittedAt),
           feedbackMessage: result.replayed
             ? '已确认这份评价此前提交成功。'
             : '看院评价已提交。评价仅代表本次用户观察。',
@@ -670,13 +789,14 @@ Page({
     } catch (_error) {
       page.setData({
         pageState: 'submit_failed',
-        submitButtonText: isTestOnly ? '重试测试提交' : '重试提交评价',
+        submitButtonText: isTestOnly ? '重试提交' : '重试提交评价',
         feedbackMessage: isTestOnly
-          ? '测试提交暂未成功，已保留全部填写内容，可重试。'
+          ? '暂未保存成功，已保留全部填写内容，可重试。'
           : '暂时无法确认提交结果，已保留全部内容；可用相同内容重试。',
       })
     } finally {
       page._visitEvaluationSubmitLocked = false
+      reserveFooter(page)
     }
   },
 })

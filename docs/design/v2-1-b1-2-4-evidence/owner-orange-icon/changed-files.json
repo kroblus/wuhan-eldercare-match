@@ -1,0 +1,247 @@
+[
+  {
+    "path": "docs/architecture/CONTRACT_INDEX.md",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\architecture\\CONTRACT_INDEX.md",
+    "gitStatus": " M"
+  },
+  {
+    "path": "docs/architecture/DOC_REGISTRY.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\architecture\\DOC_REGISTRY.json",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/pages/home/index.less",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\home\\index.less",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/pages/home/index.ts",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\home\\index.ts",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/pages/institution/directory-presentation.ts",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\institution\\directory-presentation.ts",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/pages/institution/index.ts",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\institution\\index.ts",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/pages/institution/list-view-model.ts",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\institution\\list-view-model.ts",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/styles/institution-directory.less",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\styles\\institution-directory.less",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/styles/tokens.less",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\styles\\tokens.less",
+    "gitStatus": " M"
+  },
+  {
+    "path": "miniprogram/templates/institution-directory.wxml",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\templates\\institution-directory.wxml",
+    "gitStatus": " M"
+  },
+  {
+    "path": "package.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\package.json",
+    "gitStatus": " M"
+  },
+  {
+    "path": "scripts/build-run-mode.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\build-run-mode.mjs",
+    "gitStatus": " M"
+  },
+  {
+    "path": "scripts/check-v2-1-b1-1-visual.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\check-v2-1-b1-1-visual.mjs",
+    "gitStatus": " M"
+  },
+  {
+    "path": "scripts/check-v2-1-b1-2-1-visual.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\check-v2-1-b1-2-1-visual.mjs",
+    "gitStatus": " M"
+  },
+  {
+    "path": "scripts/check-v2-1-b1-2-home.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\check-v2-1-b1-2-home.mjs",
+    "gitStatus": " M"
+  },
+  {
+    "path": "scripts/check-v2-1-b1-ui.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\check-v2-1-b1-ui.mjs",
+    "gitStatus": " M"
+  },
+  {
+    "path": "docs/architecture/INSTITUTION_ORDINARY_DIRECTORY_CALL_AMENDMENT_V1.md",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\architecture\\INSTITUTION_ORDINARY_DIRECTORY_CALL_AMENDMENT_V1.md",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/V2_1_B1_2_4_CARD_ACTIONS_VISUAL_HANDOFF.md",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\V2_1_B1_2_4_CARD_ACTIONS_VISUAL_HANDOFF.md",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/artifact-optimization-proof.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\artifact-optimization-proof.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/before-cards-430.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\before-cards-430.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/before-home-390.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\before-home-390.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/cards-390.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\cards-390.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/cards-390.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\cards-390.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/cards-430.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\cards-430.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/cards-430.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\cards-430.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/demo-simulation-430.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\demo-simulation-430.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/demo-simulation-430.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\demo-simulation-430.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/home-390.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\home-390.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/home-390.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\home-390.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/home-430.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\home-430.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/home-430.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\home-430.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/build-sizes.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\build-sizes.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/changed-files.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\changed-files.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/demo-430-font150-projection.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\demo-430-font150-projection.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/demo-430-font150-projection.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\demo-430-font150-projection.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/demo-430.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\demo-430.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/demo-430.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\demo-430.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/layout-assertions.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\layout-assertions.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/native-actions.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\native-actions.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320-font150-projection.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320-font150-projection.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320-font150-projection.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320-font150-projection.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320-font150-risk-bottom.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320-font150-risk-bottom.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320-font150-risk.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320-font150-risk.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/production-320.png",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\production-320.png",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/owner-orange-icon/verification.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\owner-orange-icon\\verification.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "docs/design/v2-1-b1-2-4-evidence/package-audit.json",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\v2-1-b1-2-4-evidence\\package-audit.json",
+    "gitStatus": "??"
+  },
+  {
+    "path": "miniprogram/pages/institution/directory-call.ts",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\miniprogram\\pages\\institution\\directory-call.ts",
+    "gitStatus": "??"
+  },
+  {
+    "path": "scripts/check-v2-1-b1-2-4-card-actions.mjs",
+    "absolutePath": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\scripts\\check-v2-1-b1-2-4-card-actions.mjs",
+    "gitStatus": "??"
+  }
+]

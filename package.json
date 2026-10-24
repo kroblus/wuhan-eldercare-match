@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:b1-2-6-story": "node scripts/check-b1-2-6-story.mjs",
+    "check:visit-evaluation-runtime": "node scripts/check-visit-evaluation-runtime.mjs",
+    "check:wechat-js-compat:demo": "node scripts/check-wechat-js-compat.mjs --demo --artifact-dir dist/demo/miniprogram",
+    "check:b1-2-5-continuity": "node scripts/check-b1-2-5-continuity.mjs",
     "check:showcase-native-vr-map": "node scripts/check-showcase-native-vr-map.mjs",
     "check:assessment-history-presentation": "node scripts/check-assessment-history-presentation-runtime.mjs",
     "check:completed-assessment-history-provider": "node scripts/check-completed-assessment-history-provider-runtime.mjs",
@@ -77,7 +81,8 @@
     "check:v2-1-b1-1-visual": "node scripts/check-v2-1-b1-1-visual.mjs",
     "check:v2-1-b1-2-home": "node scripts/check-v2-1-b1-2-home.mjs",
     "check:v2-1-b1-2-1-visual": "node scripts/check-v2-1-b1-2-1-visual.mjs",
-    "check:v2-1-b1-2-3-cards": "node scripts/check-v2-1-b1-2-3-cards.mjs"
+    "check:v2-1-b1-2-3-cards": "node scripts/check-v2-1-b1-2-3-cards.mjs",
+    "check:v2-1-b1-2-4-card-actions": "node scripts/check-v2-1-b1-2-4-card-actions.mjs"
   },
   "keywords": [],
   "author": "",

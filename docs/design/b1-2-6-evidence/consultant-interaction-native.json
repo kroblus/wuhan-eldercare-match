@@ -1,0 +1,1629 @@
+{
+  "scope": "B1.2.6 consultant interaction local defect repair",
+  "evidenceType": "DEVTOOLS_NATIVE_COORDINATE_TOUCH_AND_READONLY_RUNTIME_OBSERVATION",
+  "androidRetest": "NOT_RUN",
+  "before": {
+    "directTabTap": {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/consultant/index",
+          "contacting": true,
+          "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+          "loading": false,
+          "story": null
+        }
+      }
+    },
+    "offscreenGeometry": {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/consultant/index",
+          "width": 430,
+          "height": 850,
+          "rects": [
+            [],
+            {
+              "id": "",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 1182.8333740234375,
+              "bottom": 1294.0208740234375,
+              "width": 390,
+              "height": 111.1875
+            },
+            {
+              "id": "consultant-faq",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 882.4375,
+              "bottom": 1318.6875,
+              "width": 390,
+              "height": 436.25
+            },
+            {
+              "id": "",
+              "dataset": {},
+              "scrollLeft": 0,
+              "scrollTop": 0,
+              "scrollWidth": 430,
+              "scrollHeight": 1673
+            }
+          ]
+        }
+      }
+    },
+    "institutionEntry": {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/consultant/consultation",
+          "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+          "rect": [
+            {
+              "id": "",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 1209.229248046875,
+              "bottom": 1320.416748046875,
+              "width": 390,
+              "height": 111.1875
+            }
+          ],
+          "story": "demo-inst-chunhe-home"
+        }
+      }
+    }
+  },
+  "afterDirectTab": {
+    "success": true,
+    "result": {
+      "result": {
+        "route": "pages/consultant/index",
+        "contacting": true,
+        "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+        "story": null,
+        "rects": [
+          {
+            "id": "consultant-faq",
+            "dataset": {},
+            "left": 20,
+            "right": 410,
+            "top": 113.77083587646484,
+            "bottom": 550.0208358764648,
+            "width": 390,
+            "height": 436.25
+          },
+          {
+            "id": "",
+            "dataset": {},
+            "left": 20,
+            "right": 410,
+            "top": 414.16668701171875,
+            "bottom": 525.3541870117188,
+            "width": 390,
+            "height": 111.1875
+          },
+          {
+            "id": "",
+            "dataset": {},
+            "scrollLeft": 0,
+            "scrollTop": 768.6666870117188,
+            "scrollWidth": 430,
+            "scrollHeight": 1673
+          }
+        ]
+      }
+    }
+  },
+  "detailContext": {
+    "success": true,
+    "result": {
+      "result": {
+        "route": "pages/institution/detail",
+        "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 22,
+          "right": 408,
+          "top": 3369.447998046875,
+          "bottom": 3427.979248046875,
+          "width": 386,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 0,
+          "scrollWidth": 430,
+          "scrollHeight": 3585
+        }
+      }
+    }
+  },
+  "returnContext": {
+    "success": true,
+    "result": {
+      "result": {
+        "route": "pages/consultant/consultation",
+        "story": {
+          "institutionId": "demo-inst-chunhe-home",
+          "recordRevision": 1,
+          "name": "虚构示例·春和颐养中心",
+          "epoch": 0,
+          "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+          "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+          "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+          "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+          "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+          "mediaAvailable": true
+        },
+        "stack": [
+          "pages/consultant/index",
+          "pages/recommendation/result",
+          "pages/institution/detail",
+          "pages/consultant/consultation"
+        ]
+      }
+    }
+  },
+  "nativeDoubleClick": {
+    "action": "Windows native sky.click click_count=2 at DevTools simulator booking button",
+    "windowCoordinates": {
+      "x": 1185,
+      "y": 234
+    },
+    "result": {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/appointment/create",
+          "bookingPages": 1,
+          "story": {
+            "institutionId": "demo-inst-chunhe-home",
+            "recordRevision": 1,
+            "name": "虚构示例·春和颐养中心",
+            "epoch": 0,
+            "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "mediaAvailable": true
+          }
+        }
+      }
+    }
+  },
+  "nativeTaps": [
+    {
+      "key": "care",
+      "coordinate": {
+        "x": 215,
+        "y": 246.1666717529297
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 246.1666717529297
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "width": 430,
+            "height": 850,
+            "font": 16,
+            "reply": "演示回复：先整理老人行动、饮食与日常协助需求，再逐项向机构了解接收条件、人员安排和交接方式。当前摘要不是医疗判断。",
+            "rect": {
+              "id": "",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 359.5,
+              "bottom": 470.6875,
+              "width": 390,
+              "height": 111.1875
+            },
+            "story": null
+          }
+        }
+      }
+    },
+    {
+      "key": "fees",
+      "coordinate": {
+        "x": 215,
+        "y": 255.5
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 255.5
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "width": 430,
+            "height": 850,
+            "font": 16,
+            "reply": "演示回复：不能。本演示不提供实时床位或具体报价，需要进一步人工确认房型、照护等级、费用包含项和押金。",
+            "rect": {
+              "id": "",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 359.5,
+              "bottom": 470.6875,
+              "width": 390,
+              "height": 111.1875
+            },
+            "story": null
+          }
+        }
+      }
+    },
+    {
+      "key": "medical",
+      "coordinate": {
+        "x": 215,
+        "y": 319.5
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 319.5
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "width": 430,
+            "height": 850,
+            "font": 16,
+            "reply": "演示回复：请进一步人工确认具体服务、合法资质、适用条件和紧急处置安排。不能从演示介绍推断机构具备某项医疗能力。",
+            "rect": {
+              "id": "",
+              "dataset": {},
+              "left": 20,
+              "right": 410,
+              "top": 359.5,
+              "bottom": 470.6875,
+              "width": 390,
+              "height": 111.1875
+            },
+            "story": null
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 215.0000114440918,
+        "y": 169.56771850585938
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 389.3333549499512,
+          "top": 140.30209350585938,
+          "bottom": 198.83334350585938,
+          "width": 348.66668701171875,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 461.3333435058594,
+          "scrollWidth": 430,
+          "scrollHeight": 2205
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215.0000114440918,
+        "y": 169.56771850585938
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 114.20833587646484,
+                "bottom": 689.4375228881836,
+                "width": 390,
+                "height": 575.2291870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 474.3958435058594,
+                "bottom": 664.7708435058594,
+                "width": 390,
+                "height": 190.375
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1046.6666259765625,
+                "scrollWidth": 430,
+                "scrollHeight": 2205
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 1,
+      "coordinate": {
+        "x": 215,
+        "y": 354.5989685058594
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 410,
+          "top": 325.3333435058594,
+          "bottom": 383.8645935058594,
+          "width": 390,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 1046.6666259765625,
+          "scrollWidth": 430,
+          "scrollHeight": 2205
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 354.5989685058594
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "contacting": true,
+            "reply": "演示回复：不能。本演示不提供实时床位或具体报价，需要进一步人工确认房型、照护等级、费用包含项和押金。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": -193.7916717529297,
+                "bottom": 381.43751525878906,
+                "width": 390,
+                "height": 575.2291870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 166.39584350585938,
+                "bottom": 356.7708435058594,
+                "width": 390,
+                "height": 190.375
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1354.6666259765625,
+                "scrollWidth": 430,
+                "scrollHeight": 2205
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "browse",
+      "index": 1,
+      "coordinate": {
+        "x": 215,
+        "y": 168.94271850585938
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 410,
+          "top": 139.67709350585938,
+          "bottom": 198.20834350585938,
+          "width": 390,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 938,
+          "scrollWidth": 430,
+          "scrollHeight": 2205
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 168.94271850585938
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/recommendation/result",
+            "stack": [
+              "pages/consultant/index",
+              "pages/recommendation/result"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "needsPresent": false,
+            "rects": [
+              null,
+              null,
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 0,
+                "scrollWidth": 430,
+                "scrollHeight": 3266
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 215.0000114440918,
+        "y": 630.9010620117188
+      },
+      "before": {
+        "route": "pages/consultant/consultation",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 389.3333549499512,
+          "top": 601.6354370117188,
+          "bottom": 660.1666870117188,
+          "width": 348.66668701171875,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 0,
+          "scrollWidth": 430,
+          "scrollHeight": 2003
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215.0000114440918,
+        "y": 630.9010620117188
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/consultation",
+            "stack": [
+              "pages/consultant/index",
+              "pages/recommendation/result",
+              "pages/institution/detail",
+              "pages/consultant/consultation"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            },
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 113.80208587646484,
+                "bottom": 689.0312728881836,
+                "width": 390,
+                "height": 575.2291870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 473.9895935058594,
+                "bottom": 664.3645935058594,
+                "width": 390,
+                "height": 190.375
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1086.6666259765625,
+                "scrollWidth": 430,
+                "scrollHeight": 2244
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 2,
+      "coordinate": {
+        "x": 215,
+        "y": 428.7239685058594
+      },
+      "before": {
+        "route": "pages/consultant/consultation",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 410,
+          "top": 399.4583435058594,
+          "bottom": 457.9895935058594,
+          "width": 390,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 1086.6666259765625,
+          "scrollWidth": 430,
+          "scrollHeight": 2244
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 428.7239685058594
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/consultation",
+            "stack": [
+              "pages/consultant/index",
+              "pages/recommendation/result",
+              "pages/institution/detail",
+              "pages/consultant/consultation"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "contacting": true,
+            "reply": "演示回复：请进一步人工确认具体服务、合法资质、适用条件和紧急处置安排。不能从演示介绍推断机构具备某项医疗能力。",
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            },
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": -111.53125,
+                "bottom": 463.69793701171875,
+                "width": 390,
+                "height": 575.2291870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 410,
+                "top": 248.65625,
+                "bottom": 439.03125,
+                "width": 390,
+                "height": 190.375
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1312,
+                "scrollWidth": 430,
+                "scrollHeight": 2244
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "book",
+      "index": 1,
+      "coordinate": {
+        "x": 215,
+        "y": 169.203125
+      },
+      "before": {
+        "route": "pages/consultant/consultation",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 410,
+          "top": 139.9375,
+          "bottom": 198.46875,
+          "width": 390,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 977.3333129882812,
+          "scrollWidth": 430,
+          "scrollHeight": 2244
+        },
+        "width": 430,
+        "height": 850,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 215,
+        "y": 169.203125
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/appointment/create",
+            "stack": [
+              "pages/consultant/index",
+              "pages/recommendation/result",
+              "pages/institution/detail",
+              "pages/consultant/consultation",
+              "pages/appointment/create"
+            ],
+            "width": 430,
+            "height": 850,
+            "font": 24,
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            },
+            "needsPresent": false,
+            "error": "",
+            "state": "completed",
+            "rects": [
+              null,
+              null,
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 0,
+                "scrollWidth": 430,
+                "scrollHeight": 932
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 160.00000381469727,
+        "y": 446.76043701171875
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 279.3333396911621,
+          "top": 422.76043701171875,
+          "bottom": 470.76043701171875,
+          "width": 238.6666717529297,
+          "height": 48
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 0,
+          "scrollWidth": 320,
+          "scrollHeight": 1479
+        },
+        "width": 320,
+        "height": 514,
+        "font": 16
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 160.00000381469727,
+        "y": 446.76043701171875
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 320,
+            "height": 514,
+            "font": 16,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 80.19792175292969,
+                "bottom": 542.8437652587891,
+                "width": 280,
+                "height": 462.6458435058594
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 380.59375,
+                "bottom": 518.1770935058594,
+                "width": 280,
+                "height": 137.58334350585938
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 791.3333129882812,
+                "scrollWidth": 320,
+                "scrollHeight": 1655
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 0,
+      "coordinate": {
+        "x": 160,
+        "y": 212.59375
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 300,
+          "top": 188.59375,
+          "bottom": 236.59375,
+          "width": 280,
+          "height": 48
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 791.3333129882812,
+          "scrollWidth": 320,
+          "scrollHeight": 1655
+        },
+        "width": 320,
+        "height": 514,
+        "font": 16
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 160,
+        "y": 212.59375
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 320,
+            "height": 514,
+            "font": 16,
+            "contacting": true,
+            "reply": "演示回复：先整理老人行动、饮食与日常协助需求，再逐项向机构了解接收条件、人员安排和交接方式。当前摘要不是医疗判断。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": -220.46875,
+                "bottom": 242.17709350585938,
+                "width": 280,
+                "height": 462.6458435058594
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 79.92708587646484,
+                "bottom": 217.51042938232422,
+                "width": 280,
+                "height": 137.58334350585938
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1092,
+                "scrollWidth": 320,
+                "scrollHeight": 1655
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 160.00000381469727,
+        "y": 169.171875
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 279.3333396911621,
+          "top": 139.90625,
+          "bottom": 198.4375,
+          "width": 238.6666717529297,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 510.6666564941406,
+          "scrollWidth": 320,
+          "scrollHeight": 2554
+        },
+        "width": 320,
+        "height": 514,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 160.00000381469727,
+        "y": 169.171875
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 320,
+            "height": 514,
+            "font": 24,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 80.05208587646484,
+                "bottom": 806.4687728881836,
+                "width": 280,
+                "height": 726.4166870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 551.8333740234375,
+                "bottom": 781.8021240234375,
+                "width": 280,
+                "height": 229.96875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1204,
+                "scrollWidth": 320,
+                "scrollHeight": 2515
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 1,
+      "coordinate": {
+        "x": 160,
+        "y": 376.23958587646484
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 300,
+          "top": 328.375,
+          "bottom": 424.1041717529297,
+          "width": 280,
+          "height": 95.72917175292969
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 1204,
+          "scrollWidth": 320,
+          "scrollHeight": 2515
+        },
+        "width": 320,
+        "height": 514,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 160,
+        "y": 376.23958587646484
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 320,
+            "height": 514,
+            "font": 24,
+            "contacting": true,
+            "reply": "演示回复：不能。本演示不提供实时床位或具体报价，需要进一步人工确认房型、照护等级、费用包含项和押金。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": -391.94793701171875,
+                "bottom": 334.46875,
+                "width": 280,
+                "height": 726.4166870117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 300,
+                "top": 79.83333587646484,
+                "bottom": 309.80208587646484,
+                "width": 280,
+                "height": 229.96875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1676,
+                "scrollWidth": 320,
+                "scrollHeight": 2515
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 187.66666793823242,
+        "y": 473.76043701171875
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 334.6666679382324,
+          "top": 449.76043701171875,
+          "bottom": 497.76043701171875,
+          "width": 294,
+          "height": 48
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 0,
+          "scrollWidth": 375,
+          "scrollHeight": 1540
+        },
+        "width": 375,
+        "height": 730,
+        "font": 16
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 187.66666793823242,
+        "y": 473.76043701171875
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 375,
+            "height": 730,
+            "font": 16,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 107.19792175292969,
+                "bottom": 543.4479217529297,
+                "width": 335.3333435058594,
+                "height": 436.25
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 407.59375,
+                "bottom": 518.78125,
+                "width": 335.3333435058594,
+                "height": 111.1875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 791.3333129882812,
+                "scrollWidth": 375,
+                "scrollHeight": 1689
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 2,
+      "coordinate": {
+        "x": 187.6666717529297,
+        "y": 367.59375
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 355.3333435058594,
+          "top": 343.59375,
+          "bottom": 391.59375,
+          "width": 335.3333435058594,
+          "height": 48
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 791.3333129882812,
+          "scrollWidth": 375,
+          "scrollHeight": 1689
+        },
+        "width": 375,
+        "height": 730,
+        "font": 16
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 187.6666717529297,
+        "y": 367.59375
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 375,
+            "height": 730,
+            "font": 16,
+            "contacting": true,
+            "reply": "演示回复：请进一步人工确认具体服务、合法资质、适用条件和紧急处置安排。不能从演示介绍推断机构具备某项医疗能力。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": -60.802085876464844,
+                "bottom": 375.44791412353516,
+                "width": 335.3333435058594,
+                "height": 436.25
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 239.59375,
+                "bottom": 350.78125,
+                "width": 335.3333435058594,
+                "height": 111.1875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 959.3333129882812,
+                "scrollWidth": 375,
+                "scrollHeight": 1689
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 187.66666793823242,
+        "y": 169.5260467529297
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 334.6666679382324,
+          "top": 140.2604217529297,
+          "bottom": 198.7916717529297,
+          "width": 294,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 502.6666564941406,
+          "scrollWidth": 375,
+          "scrollHeight": 2395
+        },
+        "width": 375,
+        "height": 730,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 187.66666793823242,
+        "y": 169.5260467529297
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 375,
+            "height": 730,
+            "font": 24,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 107.07292175292969,
+                "bottom": 721.8958587646484,
+                "width": 335.3333435058594,
+                "height": 614.8229370117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 467.26043701171875,
+                "bottom": 697.2291870117188,
+                "width": 335.3333435058594,
+                "height": 229.96875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1169.3333740234375,
+                "scrollWidth": 375,
+                "scrollHeight": 2395
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "faq",
+      "index": 0,
+      "coordinate": {
+        "x": 187.6666717529297,
+        "y": 272.9322967529297
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 20,
+          "right": 355.3333435058594,
+          "top": 243.6666717529297,
+          "bottom": 302.1979217529297,
+          "width": 335.3333435058594,
+          "height": 58.53125
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 1169.3333740234375,
+          "scrollWidth": 375,
+          "scrollHeight": 2395
+        },
+        "width": 375,
+        "height": 730,
+        "font": 24
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 187.6666717529297,
+        "y": 272.9322967529297
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 375,
+            "height": 730,
+            "font": 24,
+            "contacting": true,
+            "reply": "演示回复：先整理老人行动、饮食与日常协助需求，再逐项向机构了解接收条件、人员安排和交接方式。当前摘要不是医疗判断。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": -252.92709350585938,
+                "bottom": 361.8958435058594,
+                "width": 335.3333435058594,
+                "height": 614.8229370117188
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 107.26042175292969,
+                "bottom": 337.2291717529297,
+                "width": 335.3333435058594,
+                "height": 229.96875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 1529.3333740234375,
+                "scrollWidth": 375,
+                "scrollHeight": 2395
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "action": "contact",
+      "index": 0,
+      "coordinate": {
+        "x": 187.66666793823242,
+        "y": 163.7604217529297
+      },
+      "before": {
+        "route": "pages/consultant/index",
+        "rect": {
+          "id": "",
+          "dataset": {},
+          "left": 40.66666793823242,
+          "right": 334.6666679382324,
+          "top": 139.7604217529297,
+          "bottom": 187.7604217529297,
+          "width": 294,
+          "height": 48
+        },
+        "scroll": {
+          "id": "",
+          "dataset": {},
+          "scrollLeft": 0,
+          "scrollTop": 310,
+          "scrollWidth": 375,
+          "scrollHeight": 1689
+        },
+        "width": 375,
+        "height": 730,
+        "font": 16
+      },
+      "tap": {
+        "success": true,
+        "mode": "coordinate",
+        "x": 187.66666793823242,
+        "y": 163.7604217529297
+      },
+      "after": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "stack": [
+              "pages/consultant/index"
+            ],
+            "width": 375,
+            "height": 730,
+            "font": 16,
+            "contacting": true,
+            "reply": "模拟咨询已开始。先了解老人需求，再比较机构并安排看院。请选择下面的问题继续体验；不会联系真人或发送消息。",
+            "story": null,
+            "needsPresent": true,
+            "error": "",
+            "rects": [
+              {
+                "id": "consultant-faq",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 107.19792175292969,
+                "bottom": 543.4479217529297,
+                "width": 335.3333435058594,
+                "height": 436.25
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "left": 20,
+                "right": 355.3333435058594,
+                "top": 407.59375,
+                "bottom": 518.78125,
+                "width": 335.3333435058594,
+                "height": 111.1875
+              },
+              {
+                "id": "",
+                "dataset": {},
+                "scrollLeft": 0,
+                "scrollTop": 791.3333129882812,
+                "scrollWidth": 375,
+                "scrollHeight": 1689
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "Preparatory navigation, layout onShow/font projection and pageScrollTo are not counted as physical button taps. Business contact/FAQ/browse/book actions above were driven by coordinate touches, not direct page handler calls.",
+    "Font projection mocks only fontSizeSetting=24, never windowWidth. Logical widths were changed with the DevTools device menu.",
+    "An existing remote debugger initially caused mismatched runtime and screenshot contexts; its session was ended before local reproduction. No repaired build was run on that Android device.",
+    "A transient WXSS compile-error screen occurred during generated-output replacement. After build completion, clearing compile cache and recompiling restored native rendering. That screen and navigation timeouts are not PASS evidence.",
+    "Native coordinate taps at unbound recommendation text or before geometry settled were not successful entry evidence; successful institution entry used the actual View institution details button and consultant action."
+  ]
+}

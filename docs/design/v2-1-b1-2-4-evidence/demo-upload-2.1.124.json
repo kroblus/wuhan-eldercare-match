@@ -1,0 +1,34 @@
+{
+  "status": "UPLOAD_SUCCESS_AWAITING_OWNER_EXPERIENCE_SETUP",
+  "appid": "wx69f6bd834cebca33",
+  "version": "2.1.124",
+  "project": "C:/Users/16562/WeChatProjects/wuhan-eldercare-v2-1-b1-2-4/dist/demo",
+  "description": "B1.2.4 养老机构匹配演示版；含机构目录、照护评估与安全模拟操作；仅供授权体验成员测试。",
+  "uploadDateLocal": "2026-10-24",
+  "uploadExactTime": "NOT_RETURNED_BY_TOOL",
+  "receiptRecordedAtLocal": "2026-10-24T15:28:35+08:00",
+  "demoRuntimeFileBytes": 2031602,
+  "runtimeBudgetBytes": 2031616,
+  "runtimeBudgetRemainingBytes": 14,
+  "platformUploadResponse": {
+    "info": { "size": { "total": 1974828, "packages": [{ "name": "TOTAL", "size": 1974828 }] } },
+    "success": true
+  },
+  "trialGuard": "Expected AppID with develop or trial only; release and unknown rejected. All existing real API and cloud interceptors preserved.",
+  "tests": {
+    "demoBuild": "PASS",
+    "runModeConvergenceIncludingTrial": "PASS",
+    "b124CallSafety": "PASS_112_ASSERTIONS",
+    "homeRegression": "PASS_130_ASSERTIONS",
+    "nativeSimulatorSmoke": "PASS: Demo home load, TEST ONLY simulated dial feedback, directory detail ready, preloaded assessment profile ready, recommendation ready_soft_near, recommendation detail ready"
+  },
+  "experienceVersion": "NOT_VERIFIED",
+  "experienceQRCode": "NOT_OBTAINED",
+  "testerMembership": "OWNER_CONFIRMED_FRIEND_ALREADY_ADDED",
+  "friendCanAccess": "NOT_VERIFIED",
+  "realDeviceSmoke": "NOT_RUN",
+  "blocker": "Browser control connection timeout; upload tool has no experience-version configuration or QR retrieval capability. Owner requested setup instructions.",
+  "gitCommitCreated": false,
+  "gitPush": false,
+  "formalReviewOrRelease": false
+}

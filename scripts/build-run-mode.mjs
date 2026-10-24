@@ -7,6 +7,7 @@ import { loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
 import { loadInstalledLess } from './support/installed-less.mjs'
 import { minify } from 'terser'
 import { checkRunModePackageSize } from './check-run-mode-package-size.mjs'
+import { composeDemoStory } from './support/demo-story-composition.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const mode = process.argv[2]
@@ -66,7 +67,11 @@ if (mode === 'demo') {
   // and use the pre-App network/storage guard; do not claim platform identity isolation.
   for (const file of walk(path.join(root, 'modes/demo'))) {
     const name = path.basename(file)
-    const relative = ['draft-storage.ts','directory-metadata.ts','panorama-sample.ts'].includes(name) ? 'runtime/' + name : name.endsWith('.jpg') ? 'assets/' + name : /^tools\./.test(name) ? 'components/demo-tools/demo-tools' + path.extname(name) : 'demo/' + name
+    if (file.includes(path.sep + 'pages' + path.sep)) {
+      source.set(path.relative(path.join(root, 'modes/demo'), file).replaceAll('\\', '/'), fs.readFileSync(file))
+      continue
+    }
+    const relative = ['draft-storage.ts','directory-metadata.ts','panorama-sample.ts','evaluation-session.ts'].includes(name) ? 'runtime/' + name : name.endsWith('.jpg') ? 'assets/' + name : /^tools\./.test(name) ? 'components/demo-tools/demo-tools' + path.extname(name) : /^story-preview\./.test(name) ? 'components/demo-story-preview/demo-story-preview' + path.extname(name) : 'demo/' + name
     source.set(relative, fs.readFileSync(file))
   }
   source.set('app.ts', Buffer.from(`import { installDemoGuards } from './demo/guard'\ninstallDemoGuards(${JSON.stringify(config.appid)})\nApp({globalData:{runMode:'DEMO'}})\n`))
@@ -76,19 +81,8 @@ if (mode === 'demo') {
   const homeMarkup = source.get('pages/home/index.wxml').toString()
   assert.ok(homeMarkup.includes('<!-- demo-home-entry -->'), 'Missing auxiliary demo entry slot')
   source.set('pages/home/index.wxml', Buffer.from(homeMarkup.replace('<!-- demo-home-entry -->', '<demo-tools id="demo-tools" compact-home="{{true}}" bind:changed="retryLoad"></demo-tools>')))
-  const mineConfig = JSON.parse(source.get('pages/mine/index.json'))
-  mineConfig.usingComponents['demo-tools'] = '/components/demo-tools/demo-tools'
-  source.set('pages/mine/index.json', Buffer.from(JSON.stringify(mineConfig)))
-  source.set('pages/mine/index.wxml', Buffer.from(source.get('pages/mine/index.wxml').toString().replace('</page-container>', '<demo-tools id="demo-settings"></demo-tools>\n</page-container>')))
-  // Native open-type phone authorization cannot be intercepted by patching wx.
-  // These demo surfaces use the same isolated service component instead of exposing
-  // the real contact/submission form. Routes and production source stay intact.
-  for (const route of ['pages/appointment/create', 'pages/appointment/index', 'pages/visit/evaluation']) {
-    const json = JSON.parse(source.get(route + '.json'))
-    json.usingComponents = { ...json.usingComponents, 'demo-tools': '/components/demo-tools/demo-tools', 'navigation-bar': '/components/navigation-bar/navigation-bar' }
-    source.set(route + '.json', Buffer.from(JSON.stringify(json)))
-    source.set(route + '.wxml', Buffer.from('<navigation-bar warmSwiss="{{true}}" title="演示服务" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>\n<demo-tools id="demo-tools" service-only="{{true}}"' + (route.endsWith('/create') ? ' institution-id="{{institution.identity.institutionId}}"' : '') + '></demo-tools>\n'))
-  }
+  composeDemoStory(source)
+  source.set('app.ts', Buffer.from(source.get('app.ts').toString().replace('__APPID__', JSON.stringify(config.appid))))
   for (const [file, data] of source) if (file.endsWith('.wxml')) {
     const text = data.toString().replace(/<button\b[^>]*open-type="getPhoneNumber"[^>]*>[\s\S]*?<\/button>/g, '<view>演示环境不获取手机号，也不联系真人顾问。</view>')
     assert.ok(!/open-type=/.test(text), 'Unhandled native authorization surface in demo: ' + file)
@@ -159,7 +153,7 @@ for (const [file, data] of source) {
     const result = await less.render(data.toString(), { filename, javascriptEnabled: false, compress: true })
     // This shared Less is fully inlined into its page consumers. Do not also
     // package an unused standalone copy; retain source and compile validation.
-    if (file !== 'styles/institution-directory.less') put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
+    if (!['styles/institution-directory.less', 'styles/browse-buttons.less'].includes(file)) put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
   }
 }
 for (const file of modules) {
@@ -174,6 +168,20 @@ for (const file of modules) {
   assert.ok(result.code, 'Empty minified module: ' + file)
   put(runtime, file, result.code + '\n')
 }
+// Reuse the exact compiled base prefix in each style scope. Expanding this
+// import reproduces the previous bytes, including declaration order.
+const baseStyle = fs.readFileSync(path.join(runtime, 'styles/base.wxss'), 'utf8')
+let deduplicatedStyleBytes = 0
+for (const file of walk(runtime).filter(file => file.endsWith('.wxss') && file !== path.join(runtime, 'styles/base.wxss'))) {
+  const css = fs.readFileSync(file, 'utf8')
+  if (!css.startsWith(baseStyle)) continue
+  const ref = path.relative(path.dirname(file), path.join(runtime, 'styles/base.wxss')).replaceAll('\\', '/')
+  const prefix = `@import "${ref}";`
+  assert.equal(baseStyle + css.slice(baseStyle.length), css)
+  fs.writeFileSync(file, prefix + css.slice(baseStyle.length))
+  deduplicatedStyleBytes += Buffer.byteLength(baseStyle) - Buffer.byteLength(prefix)
+}
+console.log(`Exact base style reuse saved ${deduplicatedStyleBytes} bytes`)
 // Remove stale generated files only, never the open project directory itself.
 for (const file of walk(runtime)) if (!writtenRuntime.has(path.resolve(file))) {
   assert.ok(path.resolve(file).startsWith(path.resolve(runtime) + path.sep))
@@ -181,7 +189,8 @@ for (const file of walk(runtime)) if (!writtenRuntime.has(path.resolve(file))) {
 }
 // Fail closed if a future runtime consumer starts importing the omitted copy.
 for (const file of walk(runtime).filter(file => /\.(wxss|wxml|json|js)$/.test(file))) {
-  assert.ok(!fs.readFileSync(file, 'utf8').includes('institution-directory.wxss'), 'Standalone directory WXSS now has a runtime consumer: ' + file)
+  const cssSource = fs.readFileSync(file, 'utf8')
+  assert.ok(!['institution-directory.wxss', 'browse-buttons.wxss'].some(name => cssSource.includes(name)), 'Omitted standalone WXSS now has a runtime consumer: ' + file)
 }
 if (mode === 'production') assert.ok(![...modules].some(f => f.startsWith('demo/') || f.includes('demo-tools')))
 config.projectname = 'eldercare-shared-' + mode

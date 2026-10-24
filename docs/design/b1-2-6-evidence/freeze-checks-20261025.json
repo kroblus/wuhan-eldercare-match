@@ -1,0 +1,142 @@
+{
+  "recordedAt": "2026-10-25",
+  "ownerAcceptanceDate": "2026-10-24 Asia/Shanghai",
+  "ownerSource": "direct human manual feedback",
+  "ownerVisual": "PASS",
+  "ownerBusiness": "PASS",
+  "consultantChecks": "6/6 PASS",
+  "androidConsultantRetest": "OWNER_REPORTED_PASS",
+  "codexAdbAutomation": "NOT_RUN",
+  "finalWechatPackage": "NOT_RUN",
+  "builds": {
+    "production": {
+      "kind": "generated_shared_run_mode",
+      "mode": "production",
+      "source": "../..",
+      "builtAt": "2026-10-24T16:02:16.2Z",
+      "status": "PASS_LOCAL_BUILD",
+      "routes": 30,
+      "modules": 214,
+      "packageBytes": 1341026,
+      "provider": "REVIEWED_PUBLIC_DIRECTORY_READ_ONLY"
+    },
+    "demo": {
+      "kind": "generated_shared_run_mode",
+      "mode": "demo",
+      "source": "../..",
+      "builtAt": "2026-10-24T16:01:50.561Z",
+      "status": "PASS_LOCAL_BUILD",
+      "routes": 30,
+      "modules": 200,
+      "packageBytes": 1942871,
+      "provider": "ISOLATED_SYNTHETIC_MEMORY"
+    }
+  },
+  "checks": [
+    {
+      "cmd": "npm run check:b1-2-6-story",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "86232e",
+        "wall_time_seconds": 3.8881233,
+        "exit_code": 0,
+        "original_token_count": 165,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:b1-2-6-story\n> node scripts/check-b1-2-6-story.mjs\n\nPASS story identity/revision/source validation and main-only resource binding\nPASS local consultation reveals existing FAQ/reply below measured header; hidden page cannot scroll another page\nPASS clean personal centre, consultant tab without false context, contextual consultation, no external communication\nPASS idempotent booking, explicit completed Visit gate, immutable snapshots/facts, stale epoch rejection and cold/reset lifecycle\nPASS production excludes Demo consultant, management, story provider and synthetic media; all existing API guards retained\n"
+      }
+    },
+    {
+      "cmd": "npm run check:b1-2-5-continuity",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "0d1483",
+        "wall_time_seconds": 3.7405483,
+        "exit_code": 0,
+        "original_token_count": 182,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:b1-2-5-continuity\n> node scripts/check-b1-2-5-continuity.mjs\n\nBatch A PASS: stable IDs, validated snapshots, multiple elders, saved historical results, filters, show refresh, reassessment append, repeat load, no external effects\nBatch B PASS: exact institution/revision, no synthetic navigation, no unrelated VR fallback\nBatch C PASS: empty initial rating, three steps, 21 scores + fee clarity, optional observations, tag bounds, comment bounds, summary, back/re-entry, failure/retry, duplicate guard, immutable saved evaluation, reset epoch, no Institution/Recommendation writes\nPRODUCTION isolation PASS: no Demo providers, records, user context or persisted evaluation reader\n"
+      }
+    },
+    {
+      "cmd": "npm run check:run-mode-convergence",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "adfeb0",
+        "wall_time_seconds": 4.5735923,
+        "exit_code": 0,
+        "original_token_count": 88,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:run-mode-convergence\n> node scripts/check-run-mode-convergence.mjs\n\nPASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo\n"
+      }
+    },
+    {
+      "cmd": "npm run check:wechat-js-compat:demo",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "e3ff04",
+        "wall_time_seconds": 2.7615449,
+        "exit_code": 0,
+        "original_token_count": 566,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:wechat-js-compat:demo\n> node scripts/check-wechat-js-compat.mjs --demo --artifact-dir dist/demo/miniprogram\n\nPARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\demo\\miniprogram\nGENERATED_JS_MODULES: 200\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, demo/consultant.js, pages/appointment/success.js, demo/story.js, demo/story-name.js, components/demo-story-preview/demo-story-preview.js, pages/appointment/create.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/elder/index.js, pages/elder/detail.js, pages/appointment/index.js, demo/record-pages.js, demo/session.js, demo/scenario.js, runtime/evaluation-session.js, pages/visit/evaluation.js\nPASS (all scope): 200 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n"
+      }
+    },
+    {
+      "cmd": "npm run check:wechat-js-compat -- --artifact-dir dist/production/miniprogram",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "657044",
+        "wall_time_seconds": 2.6278852,
+        "exit_code": 0,
+        "original_token_count": 514,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:wechat-js-compat\n> node scripts/check-wechat-js-compat.mjs --artifact-dir dist/production/miniprogram\n\nPARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\production\\miniprogram\nGENERATED_JS_MODULES: 214\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, pages/consultant/consultant-page.js, pages/appointment/success.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/assessment/history-view-model.js, pages/assessment/history-user-loop.js\nPASS (all scope): 214 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n"
+      }
+    },
+    {
+      "cmd": "npm run check:run-mode-package-size",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "c912cd",
+        "wall_time_seconds": 1.3066636,
+        "exit_code": 0,
+        "original_token_count": 86,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:run-mode-package-size\n> node scripts/check-run-mode-package-size.mjs\n\nPRODUCTION: runtime files 1310 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\nDEMO: runtime files 1898 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\n"
+      }
+    },
+    {
+      "cmd": "npm run check:v2-1-b1-2-4-card-actions",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "090cfd",
+        "wall_time_seconds": 5.9640449,
+        "exit_code": 0,
+        "original_token_count": 80,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:v2-1-b1-2-4-card-actions\n> node scripts/check-v2-1-b1-2-4-card-actions.mjs\n\nPASS Production call safety: canonical projection, phone correspondence, invalidation, guards, recovery\nV2_1_B1_2_4_CARD_ACTIONS = PASS (112 assertions; mocked API, no external calls/device claim)\n"
+      }
+    },
+    {
+      "cmd": "npm run check:institution-vr-runtime",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "3c8761",
+        "wall_time_seconds": 3.706254,
+        "exit_code": 0,
+        "original_token_count": 69,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:institution-vr-runtime\n> node scripts/check-institution-vr-runtime.mjs\n\nPASS: VR exact revision, provenance, lifecycle availability, current verification, HTTPS, guarded canonical navigation, failure retry and unavailable action\n"
+      }
+    },
+    {
+      "cmd": "npm run check:doc-governance",
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "feb4b2",
+        "wall_time_seconds": 2.2933027,
+        "exit_code": 1,
+        "original_token_count": 546,
+        "output": "\n> miniprogram-ts-less-quickstart@1.0.0 check:doc-governance\n> node scripts/check-doc-governance.mjs\n\nDocumentation governance check failed with 21 issue(s):\n- active Markdown is not registered: docs/architecture/PRODUCTION_CAPABILITY_EVIDENCE.md\n- unresolved document reference in README.md: AGENTS.md\n- unresolved document reference in docs/architecture/APPOINTMENT_INSTITUTION_VISIT_CONTRACT_V1.md: server/README.md\n- unresolved document reference in docs/architecture/ASSESSMENT_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/AUTHENTICATED_VISIT_SUBMISSION_PERSISTENCE_CONTRACT_V1.md: server/README.md\n- unresolved document reference in docs/architecture/CONSULTANT_PERMISSION_CONTRACT_V1.md: AGENTS.md\n- unresolved document reference in docs/architecture/ELDER_PROFILE_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/ELDER_PROFILE_CONTRACT_V2.md: AGENTS.md\n- unresolved document reference in docs/architecture/INSTITUTION_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/INSTITUTION_CONTRACT_V1_1.md: AGENTS.md\n- unresolved document reference in docs/architecture/INSTITUTION_CONTRACT_V1_2.md: AGENTS.md\n- unresolved document reference in docs/architecture/INSTITUTION_CONTRACT_V1_2_1.md: AGENTS.md\n- unresolved document reference in docs/architecture/INSTITUTION_LIST_DETAIL_V1_2_INTEGRATION_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/PROFILE_UI_V2_INTEGRATION_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/RECOMMENDATION_CONTRACT_V2.md: AGENTS.md\n- unresolved document reference in docs/architecture/RECOMMENDATION_RESULT_UI_V2_INTEGRATION_CONTRACT.md: AGENTS.md\n- unresolved document reference in docs/architecture/V1_2_C1_PHASE_HANDOFF.md: server/README.md\n- unresolved document reference in docs/architecture/V1_2_C3_PHASE_HANDOFF.md: server/README.md\n- unresolved document reference in docs/architecture/V1_2_C4_IMPLEMENTATION_HANDOFF.md: server/README.md\n- unresolved document reference in docs/agent/MODEL_STRATEGIES.md: AGENTS.md\n- unresolved document reference in docs/agent/README_AGENT_ENGINEERING_V2_1.md: AGENTS.md\n"
+      }
+    }
+  ],
+  "docGovernanceBaseline": {
+    "head": "c109208",
+    "isolatedHeadIssues": 23,
+    "currentIssues": 21,
+    "explanation": "All 21 current issues are also in the isolated HEAD export. Two additional export-only failures are missing generated dist/demo/project.config.json and dist/production/project.config.json. Existing missing AGENTS.md/server README references and unregistered PRODUCTION_CAPABILITY_EVIDENCE were not introduced in this phase."
+  }
+}

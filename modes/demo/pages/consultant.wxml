@@ -1,0 +1,12 @@
+<template name="demoConsultant">
+<navigation-bar id="consultant-navigation" warmSwiss="{{true}}" title="养老顾问" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/consultant/index" fallbackIsTab="{{true}}"></navigation-bar>
+<view class="story-shell" style="{{fontStyle}}">
+  <text class="story-badge">演示数据 · 虚构顾问</text><text class="story-title">有人陪您，一起梳理。</text>
+  <view class="story-card story-card--accent" id="consultant-card"><text class="story-heading">{{name}}</text><text>{{role}}</text><text>服务区域：{{region}}</text><text class="story-status">{{status}}</text><text class="story-muted">协助理解需求、比较机构、整理看院问题与反馈。本页为固定演示服务，不提供未经核实的资质或真实联系方式。</text><view class="story-actions"><button class="story-primary" bindtap="contact">联系顾问（模拟）</button></view></view>
+  <text wx:if="{{loading}}" class="story-muted">正在准备演示资料…</text>
+  <view wx:if="{{needs}}" class="story-section" id="consultant-needs"><text class="story-heading">先了解家人的需求</text><text>{{needs.name}} · {{needs.summary}}</text><text class="story-muted">来自已保存的演示评估。顾问说明不会重算或改变推荐。</text></view>
+  <view class="story-section" id="consultant-institution"><text class="story-heading">{{story ? '这次想了解的机构' : '先比较，再选择机构'}}</text><text wx:if="{{story}}">{{story.name}}</text><text wx:else class="story-muted">还没有关联某家机构，您可以先了解服务，再从推荐结果进入机构详情咨询。</text><text wx:if="{{story}}" class="story-muted">可一起梳理该机构的接收条件、照护安排和费用问题；具体信息仍需人工确认。</text><view class="story-actions"><button wx:if="{{story}}" class="story-primary" bindtap="book">预约看院 · 演示安排</button><button wx:else bindtap="browse">查看推荐机构</button></view></view>
+  <view class="story-section" id="consultant-faq"><text class="story-heading">您可能想问</text><text wx:if="{{contacting}}" class="story-status">模拟咨询中 · 未联系真人</text><view wx:for="{{questions}}" wx:key="key" class="story-faq"><button data-key="{{item.key}}" bindtap="ask">{{item.title}}</button></view><text wx:if="{{reply}}" class="story-reply" aria-live="polite">{{reply}}</text></view>
+  <view class="story-section"><text class="story-heading">服务怎样进行</text><text>01 · 需求确认</text><text class="story-muted">梳理老人需求与家庭关注。</text><text>02 · 机构比较</text><text class="story-muted">阅读推荐差异，列出待确认问题。</text><text>03 · 看院安排</text><text class="story-muted">演示中仅创建模拟记录，不联系机构。</text><text>04 · 反馈跟进</text><text class="story-muted">完成看院后记录个人观察。</text></view>
+  <text wx:if="{{error}}" class="story-error" role="alert">{{error}}</text>
+</view></template>

@@ -1,0 +1,611 @@
+{
+  "description": "Actual boundingClientRect values in logical px from native WXML/WXSS. PNG dimensions are scaled DevTools export pixels, not logical viewport. Font projection mocks only fontSizeSetting=24 (default16), not windowWidth.",
+  "samples": [
+    {
+      "test": "320-default-institution",
+      "route": "pages/institution/detail",
+      "width": 320,
+      "font": 16,
+      "preview": {
+        "id": "",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 611.78125,
+        "bottom": 1409.7396240234375,
+        "width": 286,
+        "height": 797.9583740234375
+      },
+      "buttons": [],
+      "map": {
+        "id": "story-map-preview",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 611.78125,
+        "bottom": 981.125,
+        "width": 286,
+        "height": 369.34375
+      },
+      "vr": {
+        "id": "story-vr-preview",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 981.125,
+        "bottom": 1409.7395935058594,
+        "width": 286,
+        "height": 428.6145935058594
+      }
+    },
+    {
+      "test": "320-default-consultant",
+      "route": "pages/consultant/consultation",
+      "width": 320,
+      "height": 514,
+      "font": 16,
+      "safeArea": {
+        "top": 20,
+        "left": 0,
+        "right": 320,
+        "bottom": 568,
+        "width": 320,
+        "height": 548
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 320,
+        "top": 64,
+        "bottom": 1654.8021240234375,
+        "width": 320,
+        "height": 1590.8021240234375
+      },
+      "buttons": [],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": 130.42709350585938,
+        "bottom": 169.6250114440918,
+        "width": 280,
+        "height": 39.19791793823242
+      },
+      "map": null,
+      "vr": null,
+      "scrollTop": 0
+    },
+    {
+      "test": "320-font150-consultant",
+      "route": "pages/consultant/index",
+      "width": 320,
+      "height": 514,
+      "font": 24,
+      "safeArea": {
+        "top": 20,
+        "left": 0,
+        "right": 320,
+        "bottom": 568,
+        "width": 320,
+        "height": 548
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 320,
+        "top": 64,
+        "bottom": 2211.229248046875,
+        "width": 320,
+        "height": 2147.229248046875
+      },
+      "buttons": [
+        {
+          "left": 40.66666793823242,
+          "right": 279.3333396911621,
+          "top": 740.5729370117188,
+          "bottom": 799.1041870117188,
+          "width": 238.6666717529297,
+          "height": 58.53125
+        }
+      ],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": 142.3125,
+        "bottom": 238.89583587646484,
+        "width": 280,
+        "height": 96.58333587646484
+      },
+      "map": null,
+      "vr": null,
+      "scrollTop": 0
+    },
+    {
+      "test": "320-font150-institution",
+      "route": "pages/institution/detail",
+      "width": 320,
+      "font": 24,
+      "preview": {
+        "id": "",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 433.1770935058594,
+        "bottom": 1443.4895935058594,
+        "width": 286,
+        "height": 1010.3125
+      },
+      "buttons": [
+        {
+          "id": "",
+          "dataset": {
+            "action": "map"
+          },
+          "left": 17,
+          "right": 303,
+          "top": 863.5,
+          "bottom": 922.03125,
+          "width": 286,
+          "height": 58.53125
+        },
+        {
+          "id": "",
+          "dataset": {
+            "action": "vr"
+          },
+          "left": 17,
+          "right": 303,
+          "top": 1360.291748046875,
+          "bottom": 1418.822998046875,
+          "width": 286,
+          "height": 58.53125
+        }
+      ],
+      "map": {
+        "id": "story-map-preview",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 433.1770935058594,
+        "bottom": 946.6979675292969,
+        "width": 286,
+        "height": 513.5208740234375
+      },
+      "vr": {
+        "id": "story-vr-preview",
+        "dataset": {},
+        "left": 17,
+        "right": 303,
+        "top": 946.6979370117188,
+        "bottom": 1443.4896240234375,
+        "width": 286,
+        "height": 496.79168701171875
+      }
+    },
+    {
+      "test": "320-font150-map",
+      "route": "pages/showcase/map-real",
+      "width": 320,
+      "height": 514,
+      "font": 24,
+      "safeArea": {
+        "top": 20,
+        "left": 0,
+        "right": 320,
+        "bottom": 568,
+        "width": 320,
+        "height": 548
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 320,
+        "top": 64,
+        "bottom": 1091.666748046875,
+        "width": 320,
+        "height": 1027.666748046875
+      },
+      "buttons": [],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": 142.3125,
+        "bottom": 238.89583587646484,
+        "width": 280,
+        "height": 96.58333587646484
+      },
+      "map": {
+        "id": "city-1",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": 492.66668701171875,
+        "bottom": 792.6666870117188,
+        "width": 280,
+        "height": 300
+      },
+      "vr": null,
+      "scrollTop": 0
+    },
+    {
+      "test": "320-font150-vr",
+      "route": "pages/showcase/vr-real",
+      "width": 320,
+      "height": 514,
+      "font": 24,
+      "safeArea": {
+        "top": 20,
+        "left": 0,
+        "right": 320,
+        "bottom": 568,
+        "width": 320,
+        "height": 548
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 320,
+        "top": -224.6666717529297,
+        "bottom": 777.5833282470703,
+        "width": 320,
+        "height": 1002.25
+      },
+      "buttons": [],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": -146.3541717529297,
+        "bottom": -49.770835876464844,
+        "width": 280,
+        "height": 96.58333587646484
+      },
+      "map": null,
+      "vr": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 300,
+        "top": 90.16667175292969,
+        "bottom": 370.1666717529297,
+        "width": 280,
+        "height": 280
+      },
+      "scrollTop": 288.6666564941406
+    },
+    {
+      "test": "375-font150-consultant",
+      "route": "pages/consultant/index",
+      "width": 375,
+      "height": 730,
+      "font": 24,
+      "safeArea": {
+        "top": 47,
+        "left": 0,
+        "right": 375,
+        "bottom": 778,
+        "width": 375,
+        "height": 731
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 375.3333435058594,
+        "top": 91,
+        "bottom": 2157.9375,
+        "width": 375.3333435058594,
+        "height": 2066.9375
+      },
+      "buttons": [
+        {
+          "left": 40.66666793823242,
+          "right": 334.6666679382324,
+          "top": 687.9271240234375,
+          "bottom": 746.4583740234375,
+          "width": 294,
+          "height": 58.53125
+        }
+      ],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 169.3125,
+        "bottom": 265.89583587646484,
+        "width": 335.3333435058594,
+        "height": 96.58333587646484
+      },
+      "map": null,
+      "vr": null,
+      "scrollTop": 0
+    },
+    {
+      "test": "375-font150-institution",
+      "route": "pages/institution/detail",
+      "width": 375,
+      "font": 24,
+      "preview": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 89.77083587646484,
+        "bottom": 1065.4375228881836,
+        "width": 335.3333435058594,
+        "height": 975.6666870117188
+      },
+      "buttons": [
+        {
+          "id": "",
+          "dataset": {
+            "action": "map"
+          },
+          "left": 20,
+          "right": 355.3333435058594,
+          "top": 485.44793701171875,
+          "bottom": 543.9791870117188,
+          "width": 335.3333435058594,
+          "height": 58.53125
+        },
+        {
+          "id": "",
+          "dataset": {
+            "action": "vr"
+          },
+          "left": 20,
+          "right": 355.3333435058594,
+          "top": 982.2396240234375,
+          "bottom": 1040.7708740234375,
+          "width": 335.3333435058594,
+          "height": 58.53125
+        }
+      ],
+      "map": {
+        "id": "story-map-preview",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 89.77083587646484,
+        "bottom": 568.6458358764648,
+        "width": 335.3333435058594,
+        "height": 478.875
+      },
+      "vr": {
+        "id": "story-vr-preview",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 568.6458740234375,
+        "bottom": 1065.4375610351562,
+        "width": 335.3333435058594,
+        "height": 496.79168701171875
+      }
+    },
+    {
+      "test": "375-font150-vr",
+      "route": "pages/showcase/vr-real",
+      "width": 375,
+      "height": 730,
+      "font": 24,
+      "safeArea": {
+        "top": 47,
+        "left": 0,
+        "right": 375,
+        "bottom": 778,
+        "width": 375,
+        "height": 731
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 375.3333435058594,
+        "top": 91,
+        "bottom": 1024.0729370117188,
+        "width": 375.3333435058594,
+        "height": 933.0729370117188
+      },
+      "buttons": [],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 169.3125,
+        "bottom": 265.89583587646484,
+        "width": 335.3333435058594,
+        "height": 96.58333587646484
+      },
+      "map": null,
+      "vr": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 355.3333435058594,
+        "top": 405.8333435058594,
+        "bottom": 685.8333435058594,
+        "width": 335.3333435058594,
+        "height": 280
+      },
+      "scrollTop": 0
+    },
+    {
+      "test": "430-font150-institution",
+      "route": "pages/institution/detail",
+      "width": 430,
+      "font": 24,
+      "preview": {
+        "id": "",
+        "dataset": {},
+        "left": 22,
+        "right": 408,
+        "top": 122.75,
+        "bottom": 1063.7708740234375,
+        "width": 386,
+        "height": 941.0208740234375
+      },
+      "buttons": [
+        {
+          "id": "",
+          "dataset": {
+            "action": "map"
+          },
+          "left": 22,
+          "right": 408,
+          "top": 483.78125,
+          "bottom": 542.3125,
+          "width": 386,
+          "height": 58.53125
+        },
+        {
+          "id": "",
+          "dataset": {
+            "action": "vr"
+          },
+          "left": 22,
+          "right": 408,
+          "top": 980.5729370117188,
+          "bottom": 1039.1041870117188,
+          "width": 386,
+          "height": 58.53125
+        }
+      ],
+      "map": {
+        "id": "story-map-preview",
+        "dataset": {},
+        "left": 22,
+        "right": 408,
+        "top": 122.75,
+        "bottom": 566.9791870117188,
+        "width": 386,
+        "height": 444.22918701171875
+      },
+      "vr": {
+        "id": "story-vr-preview",
+        "dataset": {},
+        "left": 22,
+        "right": 408,
+        "top": 566.9791870117188,
+        "bottom": 1063.7708740234375,
+        "width": 386,
+        "height": 496.79168701171875
+      }
+    },
+    {
+      "test": "430-font150-consultant",
+      "route": "pages/consultant/consultation",
+      "width": 430,
+      "height": 850,
+      "font": 24,
+      "safeArea": {
+        "top": 54,
+        "left": 0,
+        "right": 430,
+        "bottom": 898,
+        "width": 430,
+        "height": 844
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 430,
+        "top": 98,
+        "bottom": 2047.354248046875,
+        "width": 430,
+        "height": 1949.354248046875
+      },
+      "buttons": [
+        {
+          "left": 40.66666793823242,
+          "right": 389.3333549499512,
+          "top": 646.6354370117188,
+          "bottom": 705.1666870117188,
+          "width": 348.66668701171875,
+          "height": 58.53125
+        },
+        {
+          "left": 20,
+          "right": 410,
+          "top": 1162.2708740234375,
+          "bottom": 1220.8021240234375,
+          "width": 390,
+          "height": 58.53125
+        }
+      ],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 410,
+        "top": 176.3125,
+        "bottom": 224.60416793823242,
+        "width": 390,
+        "height": 48.29166793823242
+      },
+      "map": null,
+      "vr": null,
+      "scrollTop": 0
+    },
+    {
+      "test": "430-font150-booking-final",
+      "route": "pages/appointment/create",
+      "width": 430,
+      "height": 850,
+      "font": 24,
+      "safeArea": {
+        "top": 54,
+        "left": 0,
+        "right": 430,
+        "bottom": 898,
+        "width": 430,
+        "height": 844
+      },
+      "root": {
+        "id": "",
+        "dataset": {},
+        "left": 0,
+        "right": 430,
+        "top": 98,
+        "bottom": 892.3854370117188,
+        "width": 430,
+        "height": 794.3854370117188
+      },
+      "buttons": [
+        {
+          "left": 20,
+          "right": 410,
+          "top": 674.65625,
+          "bottom": 733.1875,
+          "width": 390,
+          "height": 58.53125
+        }
+      ],
+      "title": {
+        "id": "",
+        "dataset": {},
+        "left": 20,
+        "right": 410,
+        "top": 176.3125,
+        "bottom": 224.60416793823242,
+        "width": 390,
+        "height": 48.29166793823242
+      },
+      "map": null,
+      "vr": null,
+      "scrollTop": 0
+    }
+  ]
+}

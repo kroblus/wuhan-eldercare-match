@@ -1,0 +1,120 @@
+{
+  "route": "pages/home/index",
+  "width": 390,
+  "font": 16,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-baiquan-eldercare",
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 20,
+      "right": 370,
+      "top": 893.7916870117188,
+      "bottom": 1100.3229370117188,
+      "width": 350,
+      "height": 206.53125
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 20,
+      "right": 370,
+      "top": 1112.322998046875,
+      "bottom": 1395.6459350585938,
+      "width": 350,
+      "height": 283.32293701171875
+    }
+  ],
+  "phones": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 36.66666793823242,
+      "right": 181.3333396911621,
+      "top": 1041.65625,
+      "bottom": 1085.65625,
+      "width": 144.6666717529297,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 36.66666793823242,
+      "right": 181.3333396911621,
+      "top": 1336.979248046875,
+      "bottom": 1380.979248046875,
+      "width": 144.6666717529297,
+      "height": 44
+    }
+  ],
+  "details": [
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1"
+      },
+      "left": 191.33334350585938,
+      "right": 353.3333435058594,
+      "top": 1041.65625,
+      "bottom": 1085.65625,
+      "width": 162,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1"
+      },
+      "left": 191.33334350585938,
+      "right": 353.3333435058594,
+      "top": 1336.979248046875,
+      "bottom": 1380.979248046875,
+      "width": 162,
+      "height": 44
+    }
+  ],
+  "search": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 20,
+      "right": 370,
+      "top": 603.8646240234375,
+      "bottom": 658.1979598999023,
+      "width": 350,
+      "height": 54.333335876464844
+    }
+  ],
+  "filters": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 20,
+      "right": 190,
+      "top": 668.1979370117188,
+      "bottom": 718.1979370117188,
+      "width": 170,
+      "height": 50
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 200,
+      "right": 370,
+      "top": 668.1979370117188,
+      "bottom": 718.1979370117188,
+      "width": 170,
+      "height": 50
+    }
+  ]
+}

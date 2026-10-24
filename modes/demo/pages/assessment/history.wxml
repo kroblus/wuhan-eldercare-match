@@ -1,0 +1,2 @@
+<import src="../records.wxml"/>
+<template is="demoRecords" data="{{title:title,viewKind:viewKind,fontStyle:fontStyle,ready:ready,error:error,rows:rows,filters:filters,filter:filter,selected:selected,selectedName:selectedName,basicRows:basicRows,profileRows:profileRows,recommendation:recommendation,recommendationGroups:recommendationGroups,snapshotTime:snapshotTime}}"/>

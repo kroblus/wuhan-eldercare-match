@@ -1,6 +1,6 @@
 <navigation-bar id="evaluation-navigation" title="看院评价" back="true" warmSwiss="{{true}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/appointment/index" fallbackIsTab="{{false}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="route-page">
-  <view class="page-shell evaluation-page">
+  <view class="page-shell evaluation-page {{fontStyle ? 'evaluation-page--large-type' : ''}}" style="{{fontStyle}}{{footerReserve ? ';padding-bottom:' + footerReserve + 'px' : ''}}">
     <view class="page-head">
       <text class="eyebrow">看院后的个人记录</text>
       <text class="page-title">看院评价</text>
@@ -59,26 +59,21 @@
 
     <block wx:else>
       <view class="evaluation-context">
-        <text wx:if="{{contextMode === 'test_only'}}" class="evaluation-context__label">TEST_ONLY · 开发测试上下文</text>
+        <text wx:if="{{contextMode === 'test_only'}}" class="evaluation-context__label">TEST ONLY · 演示看院记录</text>
         <text wx:else class="evaluation-context__label">已完成看院 · 当前账号的预约</text>
-        <text wx:if="{{contextMode === 'test_only'}}" class="evaluation-context__id">预约记录 {{visitId}}</text>
         <text class="evaluation-context__message">{{statusMessage}}</text>
         <text class="evaluation-context__message">{{contextMessage}}</text>
       </view>
 
       <view wx:if="{{pageState === 'submitted'}}" class="evaluation-result" aria-live="polite">
         <text class="evaluation-result__mark" aria-hidden="true">✓</text>
-        <text class="evaluation-result__title">{{contextMode === 'test_only' ? '测试流程已完成' : '看院评价已提交'}}</text>
-        <text class="evaluation-note">{{contextMode === 'test_only' ? '这是隔离测试结果，未保存真实评价。' : '本次评价已提交，不能再次编辑。'}}</text>
+        <text class="evaluation-result__title">{{contextMode === 'test_only' ? '演示评价已保存' : '看院评价已提交'}}</text>
+        <text class="evaluation-note">本次评价已保存，可查看，不能再次编辑。</text>
       </view>
 
       <block wx:if="{{pageState !== 'submitted'}}">
-      <view class="evaluation-outline" aria-label="本页包含总体体验、现场观察、最后确认三个部分">
-        <view class="evaluation-outline__item"><text class="evaluation-outline__number">01</text><text>总体体验</text></view>
-        <view class="evaluation-outline__item"><text class="evaluation-outline__number">02</text><text>现场观察</text></view>
-        <view class="evaluation-outline__item"><text class="evaluation-outline__number">03</text><text>最后确认</text></view>
-      </view>
-
+      <text class="evaluation-step-title">{{step}}/3 {{step === 1 ? '总体体验' : step === 2 ? '现场观察' : '最后确认'}}</text>
+      <block wx:if="{{step === 1}}">
       <view class="evaluation-part">
         <text class="evaluation-part__number">01</text><text class="evaluation-part__title">总体体验</text>
       </view>
@@ -124,6 +119,8 @@
         <text wx:if="{{considerationValidationMessage}}" class="evaluation-validation">{{considerationValidationMessage}}</text>
       </view>
 
+      </block>
+      <block wx:if="{{step === 2}}">
       <view class="evaluation-part" id="evaluation-observation">
         <text class="evaluation-part__number">02</text><text class="evaluation-part__title">现场观察</text>
       </view>
@@ -193,7 +190,8 @@
           ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
         </view>
 
-        <text class="evaluation-question evaluation-question--spaced">了解到交接包含（可多选）</text>
+        <text class="evaluation-question evaluation-question--spaced">了解到的具体交接内容</text>
+        <text class="evaluation-note">可多选；“未确认”与具体项目互斥。</text>
         <view class="tag-list tag-list--handover">
           <view
             wx:for="{{handoverTopics}}"
@@ -251,6 +249,8 @@
         <text class="evaluation-note">只记录您是否得到费用说明，不代表已核验价格或最终报价。</text>
       </view>
 
+      </block>
+      <block wx:if="{{step === 3}}">
       <view class="evaluation-part" id="evaluation-final">
         <text class="evaluation-part__number">03</text><text class="evaluation-part__title">最后确认</text>
       </view>
@@ -287,7 +287,7 @@
           value="{{draft.comment}}"
           maxlength="200"
           auto-height="true"
-          cursor-spacing="120"
+          cursor-spacing="{{keyboardOpen ? 24 : (footerReserve || 120)}}"
           adjust-position="{{true}}"
           placeholder="记录其他看院感受（选填）"
           bindinput="onCommentInput"
@@ -297,40 +297,30 @@
       </view>
       </block>
 
-      <view class="evaluation-section evaluation-confirmation" id="evaluation-confirmation">
+      </block>
+      <view wx:if="{{step === 3 || pageState === 'submitted'}}" class="evaluation-section evaluation-confirmation" id="evaluation-confirmation">
         <text class="evaluation-section__title">{{pageState === 'submitted' ? '本次评价记录' : '确认提交'}}</text>
-        <text class="evaluation-note">{{pageState === 'submitted' ? '以下内容来自本次填写的个人记录。' : '请确认本次评价的主要内容。需要修改时，可向上滚动编辑。'}}</text>
-        <view class="evaluation-summary-row">
-          <text class="evaluation-summary-row__label">整体印象</text>
-          <text class="evaluation-summary-row__value">{{draft.overallRating === null ? '未填写' : draft.overallRating + ' / 5'}}</text>
-        </view>
-        <view class="evaluation-summary-row">
-          <text class="evaluation-summary-row__label">后续考虑</text>
-          <view class="evaluation-summary-row__value"><text wx:if="{{!draft.consideration}}">未填写</text><block wx:for="{{considerationOptions}}" wx:key="key"><text wx:if="{{item.selected}}">{{item.label}}</text></block></view>
-        </view>
-        <view class="evaluation-summary-row">
-          <text class="evaluation-summary-row__label">现场观察</text><text class="evaluation-summary-row__value">已填写项目按原样记录；未选择项保持空白</text>
-        </view>
-        <view wx:for="{{tagGroups}}" wx:for-item="group" wx:key="key" class="evaluation-summary-row">
-          <text class="evaluation-summary-row__label">{{group.title}}</text>
-          <view class="evaluation-summary-row__value"><text wx:if="{{!(group.key === 'likedTags' ? draft.likedTags.length : draft.concernTags.length)}}">未选择</text><block wx:for="{{group.items}}" wx:for-item="tag" wx:key="key"><text wx:if="{{tag.selected}}" class="evaluation-summary-tag">{{tag.label}}</text></block></view>
-        </view>
-        <view class="evaluation-summary-row">
-          <text class="evaluation-summary-row__label">补充说明</text><text class="evaluation-summary-row__value">{{draft.comment || '未填写'}}</text>
+        <text class="evaluation-note">{{pageState === 'submitted' ? '以下内容来自本次填写的个人记录。' : '请确认本次评价的主要内容。需要修改时，点击对应分组的修改入口。'}}</text>
+        <view wx:for="{{summaryGroups}}" wx:for-item="group" wx:key="title" class="evaluation-section">
+          <text class="evaluation-section__title">{{group.title}}</text>
+          <view wx:for="{{group.rows}}" wx:for-item="row" wx:key="label" class="evaluation-summary-row"><text class="evaluation-summary-row__label">{{row.label}}</text><text class="evaluation-summary-row__value">{{row.value}}</text></view>
+          <button wx:if="{{pageState === 'editing' || pageState === 'submit_failed'}}" class="evaluation-edit" data-step="{{group.step}}" bindtap="onEditGroup">修改{{group.title}}</button>
         </view>
         <text class="evaluation-note">评价属于您的个人感受与现场观察，不会直接改变机构核验资料或推荐排序。</text>
 
       <view wx:if="{{feedbackMessage}}" class="evaluation-feedback evaluation-feedback--{{pageState}}" aria-live="polite">{{feedbackMessage}}</view>
       <view wx:if="{{validationMessage}}" class="evaluation-validation" aria-live="assertive">{{validationMessage}}</view>
-      <view wx:if="{{pageState === 'submitted' && contextMode === 'production'}}" class="evaluation-receipt">
-        <text class="evaluation-receipt__label">评价编号</text>
-        <text class="evaluation-receipt__value">{{serverEvaluationId}}</text>
-        <text class="evaluation-receipt__label">服务端提交时间</text>
-        <text class="evaluation-receipt__value">{{serverSubmittedAt}}</text>
+      <view wx:if="{{pageState === 'submitted' && serverSubmittedAt}}" class="evaluation-receipt">
+        <text wx:if="{{serverSubmittedAt}}" class="evaluation-receipt__label">提交时间</text>
+        <text wx:if="{{serverSubmittedAt}}" class="evaluation-receipt__value">{{submittedAtLabel}}</text>
       </view>
       </view>
-      <view class="evaluation-footer">
-      <view wx:if="{{contextMode === 'test_only'}}" class="evaluation-submit">
+      <view wx:if="{{!keyboardOpen && pageState !== 'submitted'}}" class="evaluation-footer">
+      <view wx:if="{{pageState === 'editing' || pageState === 'submit_failed'}}" class="evaluation-step-actions">
+        <button wx:if="{{step > 1}}" bindtap="onPreviousStep">上一步</button>
+        <button wx:if="{{step < 3}}" bindtap="onNextStep">下一步</button>
+      </view>
+      <view wx:if="{{step === 3 && contextMode === 'test_only'}}" class="evaluation-submit">
         <primary-button
           warmSwiss="{{true}}"
           text="{{submitButtonText}}"
@@ -339,9 +329,9 @@
           loading="{{pageState === 'submitting'}}"
           bind:action="onSubmit"
         ></primary-button>
-        <text class="evaluation-submit__hint">提交只用于 TEST_ONLY 交互验证，不会保存真实评价。</text>
+        <text class="evaluation-submit__hint">演示记录仅保留在本次会话，重置或重启后清除。</text>
       </view>
-      <view wx:elif="{{contextMode === 'production'}}" class="evaluation-submit">
+      <view wx:elif="{{step === 3 && contextMode === 'production'}}" class="evaluation-submit">
         <primary-button
           warmSwiss="{{true}}"
           text="{{submitButtonText}}"

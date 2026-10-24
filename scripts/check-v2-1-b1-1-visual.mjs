@@ -76,7 +76,7 @@ const luminance = color => {
 for (const [foreground, background] of [
   [rule('.home-news__row').color, rule('.home-news__row').background],
   [rule('.institution-fact-tag').color, rule('.institution-fact-tag').background],
-  [rule('.institution-fact-tag--teal').color, rule('.institution-fact-tag--teal').background],
+  [rule('.institution-name').color, rule('.institution-card').background],
   [rule('.home-service__title').color, rule('.home-service').background],
   [rule('.home-service--assessment .home-service__summary').color, rule('.home-service--assessment').background],
   [rule('.institution-risk').color, rule('.institution-risk').background],

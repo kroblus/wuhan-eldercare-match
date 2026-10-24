@@ -1,0 +1,36 @@
+{
+  "source": "demo-430-full.png",
+  "sourcePixels": [
+    473,
+    1023
+  ],
+  "runtimeViewportWidth": 430,
+  "systemFontSetting": 16,
+  "cropPixels": [
+    48,
+    48
+  ],
+  "cropBox": [
+    42,
+    276,
+    90,
+    324
+  ],
+  "resampled": false,
+  "scale": 1,
+  "meaning": "Original screenshot pixels, cropped without resizing",
+  "handsetBoundsInSource": [
+    [
+      56,
+      291,
+      76,
+      310
+    ],
+    [
+      56,
+      459,
+      76,
+      478
+    ]
+  ]
+}

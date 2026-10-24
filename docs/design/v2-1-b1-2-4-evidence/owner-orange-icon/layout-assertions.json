@@ -1,0 +1,50 @@
+[
+  {
+    "detailContained": true,
+    "width": 320,
+    "phoneTargets": "44x44",
+    "heights": [
+      233.7291717529297,
+      336.91668701171875
+    ],
+    "case": "production-320",
+    "result": "PASS",
+    "fontScale": 1.0
+  },
+  {
+    "detailContained": true,
+    "width": 320,
+    "phoneTargets": "44x44",
+    "heights": [
+      356.3125,
+      538.6875
+    ],
+    "case": "production-320-font150-projection",
+    "result": "PASS",
+    "fontScale": 1.5
+  },
+  {
+    "detailContained": true,
+    "width": 430,
+    "phoneTargets": "44x44",
+    "heights": [
+      141.7291717529297,
+      141.7291717529297
+    ],
+    "case": "demo-430",
+    "result": "PASS",
+    "fontScale": 1.0
+  },
+  {
+    "detailContained": true,
+    "width": 430,
+    "phoneTargets": "44x44",
+    "heights": [
+      315.10418701171875,
+      223.9166717529297
+    ],
+    "case": "demo-430-font150-projection",
+    "result": "PASS",
+    "fontScale": 1.5
+  }
+]

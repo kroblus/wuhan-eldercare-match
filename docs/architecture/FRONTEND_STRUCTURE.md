@@ -38,13 +38,17 @@ miniprogram/
 └─ utils/       无业务状态的通用工具
 ```
 
-`modes/demo/` 只包含合成数据、独立内存 Session、启动隔离及模拟服务组件；正式与演示均由
+`modes/demo/` 包含合成数据、独立内存 Session、启动隔离、模拟服务组件及只在演示构建选择的记录页适配器；正式与演示均由
 `scripts/build-run-mode.mjs` 组合 `miniprogram/` 的同一页面、组件与领域规则，生成忽略目录
 `dist/production`、`dist/demo`。构建时选择数据提供者及草稿存储适配器，不使用页面参数或 Storage
 开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
 正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
 
+Demo 连续场景由 `modes/demo/scenario.ts` 声明显式 TEST_ONLY ID，`session.ts` 保存老人、已完成合成 Assessment / Profile / Recommendation 快照、预约与 completed Visit、私有评价；重复载入不重置、不复制，显式重置或进程重启清除。老人/历史/预约页从同一会话读取；历史结果只展示保存快照，重新保存已完成草稿追加新记录。记录页共用 `modes/demo/pages/records.wxml` / `records.less`，由 `record-presentation.ts` 和 `utils/display-date.ts` 生成分组摘要及中国日期展示；实体 ID 仅用于路由与关联，另存评估操作只在 TEST ONLY 工具区提供。`runtime/evaluation-session.ts` 是评价会话端口：正式实现不提供演示数据，Demo 构建接入隔离上下文、展示姓名、编辑草稿和一次提交后的只读评价。三步评价复用正式表单和既有校验；21 项数字评分与费用清楚/不清楚保持冻结编码。评价页按实际 footer 高度预留末尾空间，键盘高度事件只调整展示，已提交查看隐藏提交按钮。构建器精确复用基础 WXSS 前缀，不改变样式顺序或包预算，不新增分包。
+
 ### 2.1 页面与组件
+
+B1.2.6 的业务演示只通过 `scripts/support/demo-story-composition.mjs` 组合进 Demo 构建。Demo App 首次启动幂等初始化案例；首页轻量引导进入画像与推荐，“我的”以三类记录为主，管理操作位于 Demo 专属的 `pages/showcase/index` 演示设置。`demo/story.ts` 校验现有详情路由、当前 revision、来源上下文和会话 epoch；`story-name.ts` 只为既有主讲实体提供展示别名，不改机构事实或历史快照。详情中的 `demo-story-preview` 保留机构上下文进入既有原生地图 / WebGL 全景引擎；城市视野不标院址，合成全景不成为核验 VR。`demo/consultant.ts` 与 Demo 预约页提供固定演示回复及内存记录；Tab 不虚构选中机构，completed 判定和三步评价仍使用原端口。顾问操作在渲染后按实际导航栏高度定位既有问答 / 回复，并拒绝离页后的滚动；不新增通信或更改视觉。生产构建不包含这些 Provider、组件、管理入口或合成媒体，正式顾问及地图 / VR Gate 保持原实现。
 
 V1.7 首页与独立机构目录通过 `services/institution-directory-search.ts` 复用原名称/性质/区域谓词，
 通过 `templates/institution-directory.wxml` 和对应共享 Less 复用搜索控件及卡片。筛选保留目录顺序，

@@ -1,0 +1,22 @@
+{
+  "demo": {
+    "bytes": 2031447,
+    "budget": 2031616,
+    "modules": 207,
+    "remaining": 169,
+    "routes": 30,
+    "builtAt": "2026-10-24T02:18:53.615Z",
+    "deltaFromOwnerBaseline": 421,
+    "localBuild": "PASS_LOCAL_BUILD"
+  },
+  "production": {
+    "bytes": 1361149,
+    "budget": 2031616,
+    "modules": 212,
+    "remaining": 670467,
+    "routes": 30,
+    "builtAt": "2026-10-24T02:18:53.617Z",
+    "deltaFromOwnerBaseline": 421,
+    "localBuild": "PASS_LOCAL_BUILD"
+  }
+}

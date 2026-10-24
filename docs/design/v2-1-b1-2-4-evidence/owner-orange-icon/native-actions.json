@@ -1,0 +1,47 @@
+[
+  {
+    "case": "phone rapid tap; API held pending",
+    "calls": 1,
+    "route": "pages/home/index",
+    "stack": 1,
+    "result": "PASS"
+  },
+  {
+    "case": "cancel and retry without navigation",
+    "calls": 2,
+    "message": "拨号未完成或已取消，请重试。",
+    "result": "PASS"
+  },
+  {
+    "case": "unavailable phone tap",
+    "calls": 2,
+    "route": "pages/home/index",
+    "keyword": "将军",
+    "result": "PASS"
+  },
+  {
+    "case": "detail only",
+    "route": "pages/institution/detail",
+    "options": {
+      "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "stack": 2,
+    "calls": 2,
+    "result": "PASS"
+  },
+  {
+    "case": "return restores conditions",
+    "keyword": "将军",
+    "count": 1,
+    "result": "PASS"
+  },
+  {
+    "case": "Demo simulated icon",
+    "calls": 0,
+    "message": "TEST ONLY：模拟拨号，不会拨打真实电话。",
+    "route": "pages/home/index",
+    "result": "PASS"
+  }
+]

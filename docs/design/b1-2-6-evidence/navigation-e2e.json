@@ -1,0 +1,472 @@
+{
+  "capturedAt": "2026-10-24",
+  "environment": "WeChat DevTools native WXML/WXSS; Android real device NOT_RUN",
+  "completePerLegTrace": [
+    {
+      "step": "Home automatic case initialization",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/home/index",
+            "mode": "DEMO",
+            "ready": true,
+            "count": 12,
+            "width": 320,
+            "model": "TEST_ONLY_320x568"
+          }
+        }
+      }
+    },
+    {
+      "step": "Profile to recommendation and selected story candidate",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/recommendation/result",
+            "state": "ready_soft_near",
+            "order": [
+              "demo-inst-chunhe-center",
+              "demo-inst-chunhe-home",
+              "demo-inst-kangyi-center"
+            ],
+            "selected": "demo-inst-chunhe-home"
+          }
+        }
+      }
+    },
+    {
+      "step": "Recommendation -> institution exact source/revision",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/institution/detail",
+            "state": "ready",
+            "title": "虚构示例·春和颐养中心",
+            "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "step": "Contextual native map and coordinate drag",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/showcase/map-real",
+            "name": "虚构示例·春和颐养中心",
+            "institutionId": "demo-inst-chunhe-home",
+            "updated": true,
+            "center": "30.61361, 114.25886 · GCJ-02",
+            "error": ""
+          }
+        }
+      }
+    },
+    {
+      "step": "Contextual sphere WebGL viewer with native coordinate touch",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/showcase/vr-real",
+            "rendered": true,
+            "yaw": 340,
+            "pitch": 8,
+            "error": "",
+            "context": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "step": "Detail -> contextual fictional consultant, fixed reply without communication",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/consultation",
+            "name": "演示顾问·小安",
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            },
+            "needsPresent": true,
+            "reply": "演示回复：不能。本演示不提供实时床位或具体报价，需要进一步人工确认房型、照护等级、费用包含项和押金。"
+          }
+        }
+      }
+    },
+    {
+      "step": "Consultant -> same institution Demo booking with explicit completed fixture",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/appointment/create",
+            "story": {
+              "institutionId": "demo-inst-chunhe-home",
+              "recordRevision": 1,
+              "name": "虚构示例·春和颐养中心",
+              "epoch": 0,
+              "detailUrl": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mapUrl": "/pages/showcase/map-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "vrUrl": "/pages/showcase/vr-real?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "consultantUrl": "/pages/consultant/consultation?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "appointmentUrl": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+              "mediaAvailable": true
+            },
+            "state": "completed",
+            "visitId": "demo-visit-demo-inst-chunhe-home",
+            "error": ""
+          }
+        }
+      }
+    },
+    {
+      "step": "Completed -> three-step evaluation -> concurrent submit -> My appointments -> same readonly evaluation",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/visit/evaluation",
+            "state": "submitted",
+            "ratings": 21,
+            "commentLength": 34,
+            "context": "虚构示例·春和颐养中心 · 林女士"
+          }
+        }
+      }
+    },
+    {
+      "step": "Direct consultant Tab has full service without fabricated institution selection",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/consultant/index",
+            "name": "演示顾问·小安",
+            "story": null,
+            "needs": true,
+            "error": ""
+          }
+        }
+      }
+    },
+    {
+      "step": "My elders and saved historical result remain readable",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/assessment/history",
+            "title": "历史评估结果",
+            "snapshotTime": "2026年10月20日 11:00",
+            "profileRows": 6,
+            "recommendationGroups": [
+              3,
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "step": "Native navigation-bar coordinate Back from map returns original detail",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/institution/detail",
+            "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link"
+          }
+        }
+      }
+    },
+    {
+      "step": "Native navigation-bar coordinate Back from WebGL returns original detail",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/institution/detail",
+            "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link"
+          }
+        }
+      }
+    },
+    {
+      "step": "Secondary Demo settings, repeated load without reset",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/showcase/index",
+            "ready": true,
+            "links": [
+              "institutions",
+              "profile",
+              "recommendation",
+              "vr",
+              "map"
+            ],
+            "epoch": 0
+          }
+        }
+      }
+    },
+    {
+      "step": "Repeated load leaves 2 elders / 2 snapshots / 3 appointments; font mock restored",
+      "result": {
+        "success": true,
+        "result": {
+          "result": {
+            "route": "pages/mine/index",
+            "elders": 2,
+            "assessments": 2,
+            "appointments": 3,
+            "font": 16
+          }
+        }
+      }
+    }
+  ],
+  "finalSequentialRouteTrace": [
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/home/index",
+          "ready": true,
+          "stack": [
+            "pages/home/index"
+          ],
+          "width": 430
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/assessment/profile",
+          "state": "ready",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/recommendation/result",
+          "state": "ready_soft_near",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/institution/detail",
+          "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-3",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/showcase/map-real",
+          "identity": "demo-inst-chunhe-home",
+          "allowed": true,
+          "mapVisible": true,
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail",
+            "pages/showcase/map-real"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/institution/detail",
+          "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-3",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/showcase/vr-real",
+          "identity": "demo-inst-chunhe-home",
+          "rendered": true,
+          "fovBefore": 75,
+          "fovAfter": 65,
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail",
+            "pages/showcase/vr-real"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/institution/detail",
+          "context": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-3",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/consultant/consultation",
+          "identity": "demo-inst-chunhe-home",
+          "context": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-3",
+          "needs": true,
+          "reply": "演示回复：不能。本演示不提供实时床位或具体报价，需要进一步人工确认房型、照护等级、费用包含项和押金。",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail",
+            "pages/consultant/consultation"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/appointment/create",
+          "identity": "demo-inst-chunhe-home",
+          "state": "completed",
+          "evaluated": true,
+          "visitId": "demo-visit-demo-inst-chunhe-home",
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail",
+            "pages/consultant/consultation",
+            "pages/appointment/create"
+          ]
+        }
+      }
+    },
+    {
+      "success": true,
+      "result": {
+        "result": {
+          "route": "pages/visit/evaluation",
+          "state": "submitted",
+          "ratings": 21,
+          "stack": [
+            "pages/home/index",
+            "pages/assessment/profile",
+            "pages/recommendation/result",
+            "pages/institution/detail",
+            "pages/consultant/consultation",
+            "pages/appointment/create",
+            "pages/visit/evaluation"
+          ]
+        }
+      }
+    }
+  ],
+  "finalReadonly": {
+    "success": true,
+    "result": {
+      "result": {
+        "route": "pages/visit/evaluation",
+        "state": "submitted",
+        "ratings": 21,
+        "fee": "clear",
+        "commentLength": 33,
+        "readonly": true,
+        "stack": [
+          "pages/mine/index",
+          "pages/appointment/index",
+          "pages/visit/evaluation"
+        ]
+      }
+    }
+  },
+  "automationLimitations": [
+    "An initial long multi-page automation macro exceeded the tool response timeout. Later page methods were attempted before routes had changed. These failed attempts are excluded from PASS evidence. The final sequential route trace verifies actual pages and stacks.",
+    "One automation_evaluate transport returned APPID_ERROR/aborted at booking; read-only reconnection confirmed unchanged correct AppID and completed record, followed by successful evaluated=true booking-to-readonly-evaluation navigation. No upload was involved."
+  ]
+}

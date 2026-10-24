@@ -1,0 +1,15 @@
+{
+  "mode": "DEMO",
+  "imagePixels": [
+    473,
+    1023
+  ],
+  "screenshotSHA256": "D7947BE40F3CB18AA260AD8F478A41F061100D30693942A8BE714F668586DE87",
+  "systemFontSetting": 16,
+  "screenshot": "demo-430-full.png",
+  "route": "pages/home/index",
+  "evidenceType": "NATIVE_DEVTOOLS_SCREENSHOT",
+  "resampled": false,
+  "runtimeViewportWidth": 430,
+  "geometryQuery": "NOT_COMPLETED_DEVTOOLS_SERIALIZATION_ERROR"
+}

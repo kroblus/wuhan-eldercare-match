@@ -950,6 +950,16 @@
       "owner": "project_owner",
       "superseded_by": null,
       "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_ORDINARY_DIRECTORY_CALL_AMENDMENT_V1.md",
+      "doc_id": "institution.ordinary_directory.call.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "project_owner",
+      "superseded_by": null,
+      "archive_target": null
     }
   ]
 }

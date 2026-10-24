@@ -28,7 +28,7 @@ check(/<view wx:if="\{\{item.card.address \|\| item.card.addressStatus\}\}"><tex
 check(/<text wx:for="\{\{item.card.notes\}\}"[^>]+class="institution-risk">\{\{note\}\}<\/text>/.test(template), 'all institution-specific risks remain independent complete text')
 check(/class="institution-detail-link">查看详情 ›/.test(template), 'short explicit detail affordance retained')
 check((template.match(/bindtap="onCardTap"/g) || []).length === 1 && !/<(?:view|text)[^>]+class="institution-detail-link"[^>]+bindtap/.test(template), 'one card action chain including visual detail affordance')
-check(!/makePhoneCall|openLocation|item.card.feature|item.card.tags/.test(template), 'list never adds detail-only contact actions or unsupported characteristics')
+check(!/makePhoneCall|openLocation|item.card.feature|item.card.tags/.test(template), 'template never reads raw contact APIs or unsupported characteristics; ordinary approved call stays in guarded handler')
 for (const mode of ['production', 'demo']) {
   const root = 'dist/' + mode + '/miniprogram/'
   const css = read(root + 'pages/home/index.wxss')

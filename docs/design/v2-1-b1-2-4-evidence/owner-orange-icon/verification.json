@@ -1,0 +1,27 @@
+{
+  "osLargeFont": "NOT_RUN",
+  "layoutCases": 4,
+  "qa": "PASS_WITH_RISKS",
+  "demoHeadroom": 169,
+  "status": "READY_FOR_OWNER_VISUAL_REVIEW",
+  "homeAssertions": 130,
+  "relatedVisualAssertions": [
+    86,
+    52,
+    138
+  ],
+  "nativeActions": 6,
+  "computerUseResumed": false,
+  "nativeAcceptance": "PARTIAL_CLI_ONLY",
+  "androidRealDevice": "NOT_RUN",
+  "globalColorFrozen": false,
+  "stageStatus": "PARTIAL",
+  "builds": "BOTH_PASS",
+  "date": "2026-10-24",
+  "formal430HeightRemeasure": "NOT_RUN",
+  "finalCommitCreated": false,
+  "remoteActions": false,
+  "phoneFooterAfterFeedback": "PASS",
+  "homeStructureAssertions": 43,
+  "specialistAssertions": 110
+}

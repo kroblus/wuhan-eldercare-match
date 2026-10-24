@@ -1,5 +1,5 @@
 import directory from '../../demo/directory.json'
-import { loadDemo, readDemo, resetDemo, simulateAppointment, simulateVisit, simulateEvaluation } from '../../demo/session'
+import { loadDemo, readDemo, resetDemo, simulateAppointment, simulateVisit, saveDemoReassessment } from '../../demo/session'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
 
 Component({
@@ -11,16 +11,29 @@ Component({
       if (index >= 0) { this.setData({ selectedIndex: index }); this.refresh() }
     } },
   },
-  data: { confirming: false, ready: false, loading: false, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '', ratingIndex: 3, ratings: ['1 分','2 分','3 分','4 分','5 分'] },
-  lifetimes: { attached() { this.refresh() } },
+  data: { confirming: false, ready: false, loading: false, saving: false, elderNames: [] as string[], elderIndex: 0, epoch: 0, status: '', error: '', selectedIndex: 0, selectedName: '', names: directory.map(r => r.displayName), serviceState: '' },
+  lifetimes: { attached() { this.refresh(); if (this.data.compactHome) this.load() } },
   pageLifetimes: { show() { resetNavigationGuard(this); this.refresh() } },
   methods: {
     refresh() {
       const state = readDemo(), selected = directory[this.data.selectedIndex]
       const flow = state.flows.find(f => f.institutionId === selected.institutionId)
-      this.setData({ ready: state.ready, epoch: state.epoch, selectedName: selected.displayName,
+      this.setData({ ready: state.ready, epoch: state.epoch, selectedName: selected.displayName, elderNames: state.elders.map(e => e.name),
         status: state.ready ? '已加载 12 家虚构机构和评估样例；可修改评估后重新匹配。' : '尚未加载演示资料。',
         serviceState: flow ? flow.state : '' })
+    },
+    selectElder(event: WechatMiniprogram.PickerChange) {
+      const index = Number(event.detail.value)
+      if (readDemo().elders[index]) this.setData({ elderIndex: index })
+    },
+    async saveAssessment() {
+      if (this.data.saving || this.data.loading || this.data.confirming) return
+      const elder = readDemo().elders[this.data.elderIndex]
+      if (!elder) return
+      this.setData({ saving: true, error: '' })
+      try { await saveDemoReassessment(elder.elderId); this.setData({ status: '已另存一份演示评估，可前往“我的评估”查看。' }) }
+      catch (_) { this.setData({ error: '当前草稿尚未完成，无法另存演示评估。' }) }
+      finally { this.setData({ saving: false }) }
     },
     async load() {
       if (this.data.loading || this.data.confirming) return
@@ -55,7 +68,6 @@ Component({
       if (!Number.isInteger(index) || !directory[index]) return
       this.setData({ selectedIndex: index, error: '' }); this.refresh()
     },
-    selectRating(event: WechatMiniprogram.PickerChange) { this.setData({ ratingIndex: Number(event.detail.value) }) },
     simulate(event: WechatMiniprogram.BaseEvent) {
       if (!this.data.ready || this.data.loading) return
       const id = directory[this.data.selectedIndex].institutionId
@@ -63,7 +75,10 @@ Component({
         const action = event.currentTarget.dataset.action
         if (action === 'appointment') simulateAppointment(id, this.data.epoch)
         else if (action === 'visit') simulateVisit(id, this.data.epoch)
-        else if (action === 'evaluation') simulateEvaluation(id, this.data.epoch, this.data.ratingIndex + 1)
+        else if (action === 'evaluation') {
+          const flow = readDemo().flows.find(f => f.institutionId === id)
+          if (flow && flow.appointmentStatus === 'completed') navigateToWithGuard(this, 'demo.evaluation', '/pages/visit/evaluation?visitId=' + encodeURIComponent(flow.visitId), undefined, () => this.setData({ error: '打开评价失败，请重试。' }))
+        }
         this.setData({ error: '' }); this.refresh()
       } catch (_) { this.setData({ error: '当前演示状态已变化，请重新加载资料后重试。' }) }
     },

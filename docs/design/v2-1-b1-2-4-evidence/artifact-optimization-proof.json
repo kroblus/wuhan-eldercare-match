@@ -1,0 +1,18 @@
+{
+  "production": {
+    "onlyRemoved": [
+      "styles/browse-buttons.wxss"
+    ],
+    "removedBytes": 892,
+    "changedRemainingFiles": [],
+    "allRemainingHashesIdentical": true
+  },
+  "demo": {
+    "onlyRemoved": [
+      "styles/browse-buttons.wxss"
+    ],
+    "removedBytes": 892,
+    "changedRemainingFiles": [],
+    "allRemainingHashesIdentical": true
+  }
+}

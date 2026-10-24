@@ -31,7 +31,7 @@ for (const mode of ['production', 'demo']) {
   check(/\.home-brand\s*\{[^}]*display:\s*flex/.test(css), mode + ' horizontal brand')
   check(/\.home-news\s*\{[^}]*flex-wrap:\s*wrap/.test(css) && /flex:\s*1 1 calc\(var\(--browse-body-size, 16px\) \* 6.5\)/.test(css), mode + ' font-aware three-column-capable reading grid wraps naturally')
   check(/\.home-services\s*\{[^}]*flex-wrap:\s*wrap/.test(css) && /max-width:\s*340px/.test(css), mode + ' service cards can stack at narrow width')
-  check(/\.home-hero__accent\s*\{[^}]*color:\s*#a84f25/i.test(css) && /\.home-service--assessment[\s\S]*background:\s*#/.test(css), mode + ' visible warm orange hero and assessment surface')
+  check(/\.home-hero__accent\s*\{[^}]*color:\s*#b54808/i.test(css) && /\.home-service--assessment[\s\S]*background:\s*#fff1e6/i.test(css), mode + ' B1.2.4 high-contrast warm orange hero text and bright orange assessment surface')
   check(!/line-clamp|text-overflow:\s*ellipsis|background-image:\s*url/.test(css), mode + ' no clipping or full-image facsimile')
   const app = JSON.parse(fs.readFileSync(root + 'app.json', 'utf8'))
   check(JSON.stringify(app.tabBar.list.map(tab => tab.pagePath)) === JSON.stringify(['pages/home/index', 'pages/consultant/index', 'pages/mine/index']), mode + ' N1 tabbar preserved')

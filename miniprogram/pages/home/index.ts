@@ -11,6 +11,7 @@ import { serializeInstitutionDetailRoute } from '../../services/institution-deta
 import { filterInstitutionDirectory } from '../../services/institution-directory-search'
 import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 import { decorateDirectoryCards } from '../institution/directory-presentation'
+import { callDirectoryPhone, invalidateDirectoryCall } from '../institution/directory-call'
 import { reviewedOn } from '../../content/family-reading'
 
 interface HomePageData {
@@ -110,10 +111,12 @@ Component({
 
   lifetimes: {
     attached() {
+      invalidateDirectoryCall(this, true)
       this.syncBrowseFont()
       this.loadInstitutions()
     },
     detached() {
+      invalidateDirectoryCall(this, false)
       nextGeneration(this)
       homeLifetimes.set(this, currentLifetime(this) + 1)
       homeLoadsInFlight.delete(this)
@@ -125,10 +128,12 @@ Component({
 
   pageLifetimes: {
     show() {
+      invalidateDirectoryCall(this, true)
       this.syncBrowseFont()
       resetNavigationGuard(this)
       this.loadInstitutions()
     },
+    hide() { invalidateDirectoryCall(this, false) },
   },
 
   methods: {
@@ -137,6 +142,7 @@ Component({
       if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
     },
     filterDirectory() {
+      invalidateDirectoryCall(this)
       const matches = filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex)
       const activeQuery = this.data.keyword.trim().length > 0 || this.data.natureIndex !== 0 || this.data.districtIndex !== 0
       this.setData({ institutions: activeQuery || this.data.expanded ? matches : matches.slice(0, 2), activeQuery, resultCount: matches.length, institutionActionError: '', actionErrorKey: '' })
@@ -202,6 +208,11 @@ Component({
     },
     clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
     onCardTap(event: WechatMiniprogram.BaseEvent) { this.openInstitution(event) },
+    onDirectoryPhoneTap(event: WechatMiniprogram.BaseEvent) {
+      const key = event.currentTarget.dataset.itemKey as string
+      void callDirectoryPhone(this, key, () => this.data.isLoading || this.data.loadError ? [] : this.data.institutions,
+        message => this.setData({ actionErrorKey: message ? key : '', institutionActionError: message }))
+    },
     openReading(event: WechatMiniprogram.BaseEvent) {
       const topic = event.currentTarget.dataset.topic
       if (typeof topic !== 'string' || ['policy', 'education', 'admission'].indexOf(topic) < 0) return
@@ -211,6 +222,7 @@ Component({
       })
     },
     loadInstitutions() {
+      invalidateDirectoryCall(this)
       if (homeLoadsInFlight.has(this)) { homeReloadRequested.add(this); return }
       homeLoadsInFlight.add(this)
       const generation = nextGeneration(this)

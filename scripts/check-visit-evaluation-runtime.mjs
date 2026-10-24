@@ -930,8 +930,38 @@ const run = async () => {
     await page.onLoad({ visitId: 'visit-test-completed' })
     assert.equal(page.data.pageState, 'editing')
     assert.equal(page.data.visitId, 'visit-test-completed')
-    assert.match(page.data.contextMessage, /institution-test-001/)
-    assert.match(page.data.statusMessage, /不会写入真实评价/)
+    assert.equal(page._visitEvaluationContext.institutionId, 'institution-test-001')
+    assert.doesNotMatch(page.data.contextMessage, /institution-test-001/)
+    assert.equal(page.data.contextMode, 'test_only')
+    assert.match(page.data.statusMessage, /个人感受/)
+  })
+
+  await runCase('KEYBOARD_PRESENTATION_PRESERVES_DRAFT_AND_RELEASES_LISTENERS', async () => {
+    const api = runtime.context.wx
+    const callbacks = [], removed = []
+    api.onKeyboardHeightChange = callback => callbacks.push(callback)
+    api.offKeyboardHeightChange = callback => removed.push(callback)
+    try {
+      const providers = createVisitEvaluationTestOnlyProviders()
+      const page = makePage(pageConfig, makeApplication(runtime, { testOnlyContextProvider: providers.contextProvider }))
+      await page.onLoad({ visitId: 'visit-keyboard-test' })
+      const before = JSON.stringify(page.data.draft)
+      page.onShow()
+      callbacks[0]({ height: 260 })
+      assert.equal(page.data.keyboardOpen, true)
+      callbacks[0]({ height: 0 })
+      assert.equal(page.data.keyboardOpen, false)
+      assert.equal(JSON.stringify(page.data.draft), before)
+      page.onHide()
+      assert.equal(removed[0], callbacks[0])
+      page.onShow()
+      assert.equal(callbacks.length, 2)
+      page.onUnload()
+      assert.equal(removed[1], callbacks[1])
+    } finally {
+      delete api.onKeyboardHeightChange
+      delete api.offKeyboardHeightChange
+    }
   })
 
   await runCase('RATING_RANGE_AND_ALL_RATING_GROUPS', async () => {
@@ -1029,7 +1059,8 @@ const run = async () => {
     await Promise.all([first, second])
     assert.equal(page.data.pageState, 'submitted')
     assert.equal(JSON.stringify(page.data.draft), JSON.stringify(beforeSubmit))
-    assert.match(page.data.feedbackMessage, /未写入真实评价/)
+    assert.equal(page.data.contextMode, 'test_only')
+    assert.match(page.data.feedbackMessage, /演示评价已保存/)
   })
 
   await runCase('FAILURE_RETAINS_DRAFT_AND_RETRY_SUBMITS_ONCE', async () => {
@@ -1085,7 +1116,7 @@ const run = async () => {
     assert.match(wxml, /bind:action="onSubmit"/)
     assert.equal((wxml.match(/bind:action="onSubmit"/g) || []).length, 2)
     assert.match(wxml, /wx:if="\{\{contextMode === 'test_only'\}\}"[\s\S]*?bind:action="onSubmit"/)
-    assert.match(wxml, /wx:elif="\{\{contextMode === 'production'\}\}"[\s\S]*?bind:action="onSubmit"/)
+    assert.match(wxml, /wx:elif="\{\{step === 3 && contextMode === 'production'\}\}"[\s\S]*?bind:action="onSubmit"/)
     assert.match(wxml, /最多选择 3 项/)
     assert.match(wxml, /tagFeedbackGroup === group.key/)
     assert.match(wxml, /最多 200 字/)
@@ -1101,7 +1132,8 @@ const run = async () => {
     assert.match(wxml, /bind:action="onRetryContext"/)
     assert.match(wxml, /contextMode === 'test_only'/)
     assert.match(wxml, /contextMode === 'production'/)
-    assert.match(wxml, /serverEvaluationId/)
+    assert.doesNotMatch(wxml, /\{\{serverEvaluationId\}\}|\{\{visitId\}\}/)
+    assert.match(wxml, /submittedAtLabel/)
     assert.match(wxml, /pageState === 'already_submitted'/)
     assert.match(wxml, /pageState === 'submission_conflict'/)
   })

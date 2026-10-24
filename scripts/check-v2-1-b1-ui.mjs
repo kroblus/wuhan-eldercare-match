@@ -71,7 +71,7 @@ for (const mode of ['production', 'demo']) {
   if(mode === 'production') {
     home.clearSearch();home.toggleDirectory()
     check(home.data.institutions.some(item => item.card.notes.length), 'specific institution risks retained')
-    check(home.data.institutions.every(item => !item.card.phone), 'ordinary directory omits generic contact rows; Detail owns phone operation')
+    check(home.data.institutions.every(item => !item.card.phone), 'ordinary directory omits generic contact rows; B1.2.4 action stores no full phone number')
     check(home.data.institutions.every(item => !item.card.addressStatus && (!item.card.address || !/详情可查|地址资料/.test(item.card.address))), 'ordinary directory uses only eligible direct address, no status substitute')
   }
   home.clearSearch();check(home.data.institutions.length === 2 && !home.data.expanded, 'clear restores preview')

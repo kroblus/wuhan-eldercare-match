@@ -17,6 +17,7 @@ import { serializeInstitutionDetailRoute } from '../../services/institution-deta
 import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 import type { InstitutionListItemViewModel } from './list-view-model'
 import { decorateDirectoryCards } from './directory-presentation'
+import { callDirectoryPhone, invalidateDirectoryCall } from './directory-call'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
@@ -117,12 +118,16 @@ Page({
   },
 
   onShow() {
+    invalidateDirectoryCall(this, true)
     const browseFontStyle = readBrowseFontStyle()
     if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
     resetNavigationGuard(this)
   },
+  onHide() { invalidateDirectoryCall(this, false) },
+  onUnload() { invalidateDirectoryCall(this, false) },
 
   loadList(sourceContextRef: string | null) {
+    invalidateDirectoryCall(this)
     if (listLoadsInFlight.has(this)) return
     listLoadsInFlight.add(this)
     const generation = nextGeneration(this)
@@ -176,6 +181,7 @@ Page({
   },
 
   filterDirectory() {
+    invalidateDirectoryCall(this)
     this.setData({ hasMetadataFilters: true,
       visibleItems: filterInstitutionDirectory(this.data.viewModel ? this.data.viewModel.items : [], this.data.keyword, this.data.natureIndex, this.data.districtIndex) })
   },
@@ -246,6 +252,12 @@ Page({
     } catch (_error) {
       fail()
     }
+  },
+
+  onDirectoryPhoneTap(event: WechatMiniprogram.BaseEvent) {
+    const key = event.currentTarget.dataset.itemKey as string
+    void callDirectoryPhone(this, key, () => this.data.pageState === 'ready' && !this.data.sourceContextRef ? this.data.visibleItems : [],
+      message => this.setData({ actionErrorKey: message ? key : '', actionErrorMessage: message }))
   },
 
   onBackToHome() {

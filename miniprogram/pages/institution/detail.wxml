@@ -3,7 +3,7 @@
   <view wx:for="{{rows}}" wx:key="key" class="fact-row"><text class="fact-row__label">{{item.label}}</text><view class="fact-row__body"><text class="fact-row__value">{{item.value}}</text><text class="fact-row__status fact-row__status--{{item.statusTone}}">{{item.statusSummary}}</text></view></view>
 </template>
 <page-container extraClass="institution-detail-page">
-  <view class="page-shell institution-detail-shell">
+  <view class="page-shell institution-detail-shell" style="{{fontStyle}}">
     <view wx:if="{{pageState === 'loading'}}"><state-panel state="loading" title="正在读取机构资料"></state-panel></view>
     <block wx:elif="{{pageState === 'ready' && viewModel && reading}}">
       <view class="institution-detail-head">
@@ -21,7 +21,14 @@
         <text class="detail-subheading">机构位置</text><text class="detail-summary">{{viewModel.location.address}}</text>
         <text wx:if="{{viewModel.location.addressState !== 'ready' && viewModel.location.addressStatus !== viewModel.location.address}}" class="detail-source-note">{{viewModel.location.addressStatus}}</text>
         <button wx:if="{{viewModel.location.mapAction.available}}" class="browse-button detail-map-button" data-action-key="map" bindtap="onMapTap">查看地图</button>
+        <text class="detail-source-note">{{viewModel.location.mapStatus}}</text>
+        <text wx:if="{{viewModel.hasDisclosure}}" class="detail-demo-note">TEST ONLY · 当前演示机构未提供实际院址或可导航坐标。</text>
         <view wx:if="{{actionErrorKey === 'map'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <text class="detail-subheading detail-contact-title">VR 看院</text>
+        <text class="detail-source-note">{{viewModel.media.vrLabel}}</text>
+        <text wx:if="{{viewModel.hasDisclosure}}" class="detail-demo-note">当前机构未关联合法全景场景，独立演示素材不代表该机构真实场景。</text>
+        <button class="browse-button" data-action-key="vr" bindtap="onVrTap">{{viewModel.media.canOpenVr ? '打开机构全景' : '查看全景资料状态'}}</button>
+        <view wx:if="{{actionErrorKey === 'vr'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
         <text class="detail-subheading detail-contact-title">机构官方电话</text>
         <view wx:if="{{viewModel.officialContact.hasPhones}}">
           <view wx:for="{{viewModel.officialContact.phones}}" wx:key="key" class="official-phone-row"><text class="detail-summary">{{item.purposeLabel}} · {{item.displayValue || item.statusLabel}}</text><text wx:if="{{item.displayValue && item.state !== 'verified'}}" class="detail-source-note">{{item.statusLabel}}</text><button wx:if="{{item.callAction.available}}" class="browse-button" data-phone-key="{{item.key}}" bindtap="onOfficialPhoneTap">拨打机构电话</button><text wx:else class="detail-source-note">{{item.callAction.label}}</text></view>
@@ -77,7 +84,6 @@
             <view wx:if="{{viewModel.canViewCurrentRevision}}"><text class="detail-summary">本页保留原资料版本。</text><button class="browse-button" loading="{{isSwitchingRevision}}" disabled="{{isSwitchingRevision}}" bindtap="onViewCurrentRevision">{{viewModel.currentRevisionLabel}}</button></view>
           </block>
         </view>
-        <view wx:if="{{section.key === 'care' && viewModel.media.canOpenVr}}" class="detail-media"><button class="browse-button" data-action-key="vr" bindtap="onVrTap">VR 看院</button><view wx:if="{{actionErrorKey === 'vr'}}" class="action-error" role="alert">{{actionErrorMessage}}</view></view>
       </view>
       <view wx:if="{{viewModel.media.gallery.length}}" class="gallery-list"><view wx:for="{{viewModel.media.gallery}}" wx:key="key" class="gallery-item"><image wx:if="{{item.url}}" class="gallery-item__image" src="{{item.url}}" mode="aspectFill" aria-label="机构图片"></image><text class="detail-source-note">{{item.caption}} {{item.status}}</text></view></view>
       <view class="detail-appointment-note"><text wx:if="{{canRequestService}}" class="detail-source-note">{{viewModel.hasDisclosure ? '仅体验模拟预约，不会联系机构。' : '提交申请后，请等待机构确认看院安排。'}}</text><text wx:else class="detail-source-note">仅供公开资料查询，不代表平台合作，暂未开放平台预约。</text></view>

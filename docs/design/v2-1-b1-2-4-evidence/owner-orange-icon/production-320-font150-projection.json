@@ -1,0 +1,124 @@
+{
+  "route": "pages/home/index",
+  "width": 320,
+  "font": 24,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-baiquan-eldercare",
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 17,
+      "right": 303,
+      "top": 110.01042175292969,
+      "bottom": 466.3229217529297,
+      "width": 286,
+      "height": 356.3125
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 17,
+      "right": 303,
+      "top": 478.32293701171875,
+      "bottom": 1017.0104370117188,
+      "width": 286,
+      "height": 538.6875
+    }
+  ],
+  "phones": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 33.66666793823242,
+      "right": 77.66666793823242,
+      "top": 403.4583435058594,
+      "bottom": 447.4583435058594,
+      "width": 44,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 33.66666793823242,
+      "right": 77.66666793823242,
+      "top": 954.1458740234375,
+      "bottom": 998.1458740234375,
+      "width": 44,
+      "height": 44
+    }
+  ],
+  "details": [
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1"
+      },
+      "left": 146.33334350585938,
+      "right": 286.3333435058594,
+      "top": 399.26043701171875,
+      "bottom": 451.6562728881836,
+      "width": 140,
+      "height": 52.395835876464844
+    },
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1"
+      },
+      "left": 146.33334350585938,
+      "right": 286.3333435058594,
+      "top": 949.9479370117188,
+      "bottom": 1002.3437728881836,
+      "width": 140,
+      "height": 52.395835876464844
+    }
+  ],
+  "search": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": -342.94793701171875,
+      "bottom": -281.6146011352539,
+      "width": 286,
+      "height": 61.333335876464844
+    }
+  ],
+  "filters": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": -271.6145935058594,
+      "bottom": -211.88542556762695,
+      "width": 286,
+      "height": 59.72916793823242
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": -201.8854217529297,
+      "bottom": -142.15625381469727,
+      "width": 286,
+      "height": 59.72916793823242
+    }
+  ],
+  "evidenceType": "NATIVE_WXML_CONTROLLED_FONT_PROJECTION",
+  "physicalSystemFontSetting": 16,
+  "fontScale": 1.5,
+  "osFontChangeTested": false
+}

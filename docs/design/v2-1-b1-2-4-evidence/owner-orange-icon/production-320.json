@@ -1,0 +1,124 @@
+{
+  "route": "pages/home/index",
+  "width": 320,
+  "font": 16,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-baiquan-eldercare",
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 17,
+      "right": 303,
+      "top": 110.22917175292969,
+      "bottom": 343.9583435058594,
+      "width": 286,
+      "height": 233.7291717529297
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 17,
+      "right": 303,
+      "top": 355.9583435058594,
+      "bottom": 692.8750305175781,
+      "width": 286,
+      "height": 336.91668701171875
+    }
+  ],
+  "phones": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 33.66666793823242,
+      "right": 77.66666793823242,
+      "top": 285.29168701171875,
+      "bottom": 329.29168701171875,
+      "width": 44,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 33.66666793823242,
+      "right": 77.66666793823242,
+      "top": 634.2083740234375,
+      "bottom": 678.2083740234375,
+      "width": 44,
+      "height": 44
+    }
+  ],
+  "details": [
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1"
+      },
+      "left": 183.6666717529297,
+      "right": 286.3333435058594,
+      "top": 285.29168701171875,
+      "bottom": 329.29168701171875,
+      "width": 102.66667175292969,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1"
+      },
+      "left": 183.6666717529297,
+      "right": 286.3333435058594,
+      "top": 634.2083740234375,
+      "bottom": 678.2083740234375,
+      "width": 102.66667175292969,
+      "height": 44
+    }
+  ],
+  "search": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 303,
+      "top": -179.6979217529297,
+      "bottom": -125.36458587646484,
+      "width": 286,
+      "height": 54.333335876464844
+    }
+  ],
+  "filters": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 17,
+      "right": 155,
+      "top": -115.36458587646484,
+      "bottom": -65.36458587646484,
+      "width": 138,
+      "height": 50
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 165,
+      "right": 303,
+      "top": -115.36458587646484,
+      "bottom": -65.36458587646484,
+      "width": 138,
+      "height": 50
+    }
+  ],
+  "evidenceType": "NATIVE_DEVTOOLS_RENDER",
+  "physicalSystemFontSetting": 16,
+  "fontScale": 1.0,
+  "osFontChangeTested": false
+}

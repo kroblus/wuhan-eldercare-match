@@ -10,6 +10,7 @@ import type { InstitutionDetailRoute } from '../../services/institution-detail-r
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
 import { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../../runtime/institution-source-notes'
 import { createDetailReading } from './detail-reading'
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import {
   createInstitutionDetailErrorViewModel,
   createInstitutionDetailPageViewModel,
@@ -32,6 +33,7 @@ import {
 type DetailPageState = 'loading' | InstitutionDetailErrorViewModelV12['pageState'] | 'ready'
 
 interface InstitutionDetailPageData {
+  fontStyle: string
   pageState: DetailPageState
   viewModel: InstitutionDetailPageViewModelV12 | null
   errorViewModel: InstitutionDetailErrorViewModelV12 | null
@@ -200,6 +202,7 @@ const runPhoneAction = (
 
 Page({
   data: {
+    fontStyle: '',
     pageState: 'loading',
     viewModel: null,
     errorViewModel: null,
@@ -229,6 +232,7 @@ Page({
   },
 
   onShow() {
+    this.setData({ fontStyle: readBrowseFontStyle() })
     // Detail has a single build entry in onLoad.  Showing the page again only
     // resets navigation protection; it does not rebuild the same snapshot.
     resetNavigationGuard(this)
@@ -389,7 +393,6 @@ Page({
 
   onVrTap() {
     if (this.data.pageState !== 'ready' || this.data.viewModel === null) return
-    if (!this.data.viewModel.media.canOpenVr) return
     const route = routeByPage.get(this)
     if (!route) return
     const detailUrl = serializeInstitutionDetailRoute(route.identity, route.source === 'recommendation' ? 'recommendation' : 'direct_link', route.sourceContextRef)

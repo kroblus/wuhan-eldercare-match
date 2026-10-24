@@ -1,0 +1,29 @@
+{
+  "noPush": true,
+  "noGlobalTokenChange": true,
+  "noFinalCommit": true,
+  "builds": {
+    "demo": {
+      "remaining": 70,
+      "builtAt": "2026-10-24T02:37:26.389Z",
+      "status": "PASS_LOCAL_BUILD",
+      "bytes": 2031546
+    },
+    "production": {
+      "remaining": 670368,
+      "builtAt": "2026-10-24T02:37:26.389Z",
+      "status": "PASS_LOCAL_BUILD",
+      "bytes": 1361248
+    }
+  },
+  "androidRealDevice": "NOT_RUN",
+  "budget": 2031616,
+  "status": "READY_FOR_OWNER_VISUAL_REVIEW",
+  "testResults": {
+    "homeStructure": 43,
+    "listDetail": 17,
+    "modeIsolation": "PASS",
+    "b124": 112,
+    "home": 130
+  }
+}

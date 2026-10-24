@@ -1,0 +1,73 @@
+{
+  "route": "pages/home/index",
+  "width": 430,
+  "font": 16,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-baiquan-eldercare",
+        "itemKey": "wh-dongxihu-baiquan-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 900.7916870117188,
+      "bottom": 1107.3229370117188,
+      "width": 386,
+      "height": 206.53125
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "wh-dongxihu-jiangjunlu-eldercare",
+        "itemKey": "wh-dongxihu-jiangjunlu-eldercare#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 1119.322998046875,
+      "bottom": 1402.6459350585938,
+      "width": 386,
+      "height": 283.32293701171875
+    }
+  ],
+  "actions": [],
+  "search": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": 610.8646240234375,
+      "bottom": 665.1979598999023,
+      "width": 386,
+      "height": 54.333335876464844
+    }
+  ],
+  "filters": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 210,
+      "top": 675.1979370117188,
+      "bottom": 725.1979370117188,
+      "width": 188,
+      "height": 50
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 220,
+      "right": 408,
+      "top": 675.1979370117188,
+      "bottom": 725.1979370117188,
+      "width": 188,
+      "height": 50
+    }
+  ]
+}

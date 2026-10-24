@@ -1,0 +1,124 @@
+{
+  "route": "pages/home/index",
+  "width": 430,
+  "font": 24,
+  "count": 2,
+  "cards": [
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "demo-inst-anning-garden",
+        "itemKey": "demo-inst-anning-garden#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 109.90625,
+      "bottom": 425.01043701171875,
+      "width": 386,
+      "height": 315.10418701171875
+    },
+    {
+      "id": "",
+      "dataset": {
+        "institutionId": "demo-inst-anning-home",
+        "itemKey": "demo-inst-anning-home#1",
+        "recordRevision": 1,
+        "routeSource": "direct_list"
+      },
+      "left": 22,
+      "right": 408,
+      "top": 437.01043701171875,
+      "bottom": 660.9271087646484,
+      "width": 386,
+      "height": 223.9166717529297
+    }
+  ],
+  "phones": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 38.66666793823242,
+      "right": 82.66666793823242,
+      "top": 362.1458435058594,
+      "bottom": 406.1458435058594,
+      "width": 44,
+      "height": 44
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 38.66666793823242,
+      "right": 82.66666793823242,
+      "top": 598.0625,
+      "bottom": 642.0625,
+      "width": 44,
+      "height": 44
+    }
+  ],
+  "details": [
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "demo-inst-anning-garden#1"
+      },
+      "left": 251.33334350585938,
+      "right": 391.3333435058594,
+      "top": 357.94793701171875,
+      "bottom": 410.3437728881836,
+      "width": 140,
+      "height": 52.395835876464844
+    },
+    {
+      "id": "",
+      "dataset": {
+        "itemKey": "demo-inst-anning-home#1"
+      },
+      "left": 251.33334350585938,
+      "right": 391.3333435058594,
+      "top": 593.8646240234375,
+      "bottom": 646.2604598999023,
+      "width": 140,
+      "height": 52.395835876464844
+    }
+  ],
+  "search": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": -426.63543701171875,
+      "bottom": -365.3021011352539,
+      "width": 386,
+      "height": 61.333335876464844
+    }
+  ],
+  "filters": [
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": -355.3020935058594,
+      "bottom": -295.57292556762695,
+      "width": 386,
+      "height": 59.72916793823242
+    },
+    {
+      "id": "",
+      "dataset": {},
+      "left": 22,
+      "right": 408,
+      "top": -285.57293701171875,
+      "bottom": -225.84376907348633,
+      "width": 386,
+      "height": 59.72916793823242
+    }
+  ],
+  "evidenceType": "NATIVE_WXML_CONTROLLED_FONT_PROJECTION",
+  "physicalSystemFontSetting": 16,
+  "fontScale": 1.5,
+  "osFontChangeTested": false
+}

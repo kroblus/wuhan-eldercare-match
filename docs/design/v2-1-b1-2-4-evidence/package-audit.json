@@ -1,0 +1,55 @@
+{
+  "measurement": "Local runtime bytes; final WeChat package NOT_AVAILABLE",
+  "budget": 2031616,
+  "modes": {
+    "production": {
+      "baseBytes": 1355460,
+      "bytes": 1360728,
+      "delta": 5268,
+      "remaining": 670888,
+      "files": 353,
+      "afterOptimizationFollowupOnly": [
+        "pages/home/index.js",
+        "pages/institution/directory-call.js",
+        "pages/institution/index.js"
+      ],
+      "allRemainingCssHashesIdentical": true
+    },
+    "demo": {
+      "baseBytes": 2025758,
+      "bytes": 2031026,
+      "delta": 5268,
+      "remaining": 590,
+      "files": 352,
+      "afterOptimizationFollowupOnly": [
+        "pages/home/index.js",
+        "pages/institution/directory-call.js",
+        "pages/institution/index.js"
+      ],
+      "allRemainingCssHashesIdentical": true
+    }
+  },
+  "auditStage": "INITIAL_B124_BEFORE_OWNER_ORANGE_ICON_REVISION",
+  "currentOwnerRevision": {
+    "demo": {
+      "bytes": 2031447,
+      "budget": 2031616,
+      "modules": 207,
+      "remaining": 169,
+      "routes": 30,
+      "builtAt": "2026-10-24T02:18:53.615Z",
+      "deltaFromOwnerBaseline": 421,
+      "localBuild": "PASS_LOCAL_BUILD"
+    },
+    "production": {
+      "bytes": 1361149,
+      "budget": 2031616,
+      "modules": 212,
+      "remaining": 670467,
+      "routes": 30,
+      "builtAt": "2026-10-24T02:18:53.617Z",
+      "deltaFromOwnerBaseline": 421,
+      "localBuild": "PASS_LOCAL_BUILD"
+    }
+  }
+}
