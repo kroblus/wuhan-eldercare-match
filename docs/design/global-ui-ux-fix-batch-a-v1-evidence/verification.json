@@ -1,0 +1,47 @@
+{
+  "time": "2026-10-25T13:28:10.476461",
+  "baseline": "7ae07b9b78e4502940fd9812c6a838e4ddf2cc06",
+  "changedExistingSourceFiles": [
+    "miniprogram/pages/appointment/create.ts",
+    "miniprogram/pages/appointment/create.wxml",
+    "miniprogram/pages/institution/index.wxml",
+    "modes/demo/record-pages.ts",
+    "modes/demo/pages/appointment/create.ts",
+    "modes/demo/pages/appointment/create.wxml",
+    "scripts/check-appointment-create-runtime.mjs",
+    "scripts/check-b1-2-5-continuity.mjs",
+    "scripts/support/demo-story-composition.mjs"
+  ],
+  "newSourceFiles": [
+    "modes/demo/appointment-time.ts",
+    "scripts/check-global-ui-ux-batch-a.mjs"
+  ],
+  "protectedPriorReportsUnchanged": true,
+  "tokensBytesUnchanged": true,
+  "gitStatus": " M miniprogram/pages/appointment/create.ts\n M miniprogram/pages/appointment/create.wxml\n M miniprogram/pages/institution/index.wxml\n M miniprogram/styles/tokens.less\n M modes/demo/pages/appointment/create.ts\n M modes/demo/pages/appointment/create.wxml\n M modes/demo/record-pages.ts\n M scripts/check-appointment-create-runtime.mjs\n M scripts/check-b1-2-5-continuity.mjs\n M scripts/support/demo-story-composition.mjs\n?? docs/design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md\n?? docs/design/GLOBAL_UI_UX_AUDIT_V1.md\n?? docs/design/GLOBAL_UI_UX_FIX_BATCH_A_V1.md\n?? docs/design/global-ui-ux-audit-v1-evidence/\n?? docs/design/global-ui-ux-fix-batch-a-v1-evidence/\n?? modes/demo/appointment-time.ts\n?? scripts/check-global-ui-ux-batch-a.mjs\n",
+  "builds": {
+    "demo": {
+      "kind": "generated_shared_run_mode",
+      "mode": "demo",
+      "source": "../..",
+      "builtAt": "2026-10-25T05:05:57.787Z",
+      "status": "PASS_LOCAL_BUILD",
+      "routes": 30,
+      "modules": 201,
+      "packageBytes": 1943395,
+      "provider": "ISOLATED_SYNTHETIC_MEMORY"
+    },
+    "production": {
+      "kind": "generated_shared_run_mode",
+      "mode": "production",
+      "source": "../..",
+      "builtAt": "2026-10-25T05:05:57.790Z",
+      "status": "PASS_LOCAL_BUILD",
+      "routes": 30,
+      "modules": 214,
+      "packageBytes": 1341165,
+      "provider": "REVIEWED_PUBLIC_DIRECTORY_READ_ONLY"
+    }
+  },
+  "regressions": 9
+}

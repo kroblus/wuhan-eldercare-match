@@ -1,0 +1,57 @@
+{
+  "profile": "ca190799437194a048f6fca382b0badba977c254e2639a3ef9661f84c937752e",
+  "recommendation": "4c53a99fdab6f6638983e619cfba11916e665e00a3237a80123dcd0fa2d3249f",
+  "savedAssessments": "1fdc8225a20a9af095c949b95d8f919fe17033413b5f9bba0ce2e988e18e1533",
+  "profileTags": [
+    {
+      "text": "半失能",
+      "tone": "brand"
+    },
+    {
+      "text": "需要拐杖或助行器",
+      "tone": "neutral"
+    },
+    {
+      "text": "有康复需求",
+      "tone": "brand"
+    },
+    {
+      "text": "康复训练",
+      "tone": "brand"
+    }
+  ],
+  "focusTags": [
+    {
+      "text": "需要半失能照护",
+      "tone": "brand"
+    },
+    {
+      "text": "行动需要辅助",
+      "tone": "brand"
+    },
+    {
+      "text": "您关注：照护能力",
+      "tone": "neutral"
+    }
+  ],
+  "candidates": [
+    {
+      "institutionId": "demo-inst-chunhe-center",
+      "recordRevision": 1,
+      "name": "春和颐养中心",
+      "matchLabel": "相近候选 · 部分偏好待确认"
+    },
+    {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": 1,
+      "name": "虚构示例·春和颐养中心",
+      "matchLabel": "相近候选 · 部分偏好待确认"
+    },
+    {
+      "institutionId": "demo-inst-kangyi-center",
+      "recordRevision": 1,
+      "name": "晨曦养老中心",
+      "matchLabel": "相近候选 · 部分偏好待确认"
+    }
+  ]
+}

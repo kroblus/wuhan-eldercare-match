@@ -1,0 +1,24 @@
+[
+  {
+    "name": "production-430-directory",
+    "route": "/pages/institution/index",
+    "measure": [
+      ".page-shell"
+    ]
+  },
+  {
+    "name": "production-430-directory-end",
+    "scroll": 16000
+  },
+  {
+    "name": "production-430-closed",
+    "route": "/pages/appointment/create?institutionId=wh-jiangan-social-welfare&recordRevision=1&source=direct_link",
+    "measure": [
+      ".page-shell"
+    ]
+  },
+  {
+    "name": "production-430-closed-end",
+    "scroll": 16000
+  }
+]

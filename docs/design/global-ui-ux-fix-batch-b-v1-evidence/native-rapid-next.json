@@ -1,0 +1,82 @@
+{
+  "method": "Two official DevTools coordinate tap requests sent concurrently; no page handler called directly",
+  "sent": [
+    {
+      "tap": 1,
+      "sentAt": 1792929174072
+    },
+    {
+      "tap": 2,
+      "sentAt": 1792929174072
+    }
+  ],
+  "before": {
+    "success": true,
+    "pageStack": [
+      {
+        "pageId": 160,
+        "path": "pages/home/index",
+        "query": {},
+        "route": "/pages/home/index",
+        "title": ""
+      },
+      {
+        "pageId": 166,
+        "path": "pages/assessment/basic",
+        "query": {},
+        "route": "/pages/assessment/basic",
+        "title": ""
+      }
+    ]
+  },
+  "touches": [
+    {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    },
+    {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  ],
+  "after": {
+    "success": true,
+    "pageStack": [
+      {
+        "pageId": 160,
+        "path": "pages/home/index",
+        "query": {},
+        "route": "/pages/home/index",
+        "title": ""
+      },
+      {
+        "pageId": 166,
+        "path": "pages/assessment/basic",
+        "query": {},
+        "route": "/pages/assessment/basic",
+        "title": ""
+      },
+      {
+        "pageId": 167,
+        "path": "pages/assessment/health",
+        "query": {},
+        "route": "/pages/assessment/health",
+        "title": ""
+      }
+    ]
+  },
+  "current": {
+    "success": true,
+    "currentPage": {
+      "pageId": 167,
+      "path": "pages/assessment/health",
+      "query": {},
+      "route": "/pages/assessment/health",
+      "title": ""
+    }
+  }
+}

@@ -1,0 +1,352 @@
+[
+  {
+    "ROUTE": "/pages/home/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "已加载案例/首页",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "真实点击已加载案例→画像；双击推荐单导航",
+    "EVIDENCE": [
+      "demo-320-font150-home-index.png",
+      "production-320-home-index.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/assessment/intro",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "说明/已有草稿",
+    "VIEWPORT_CHECKED": "D 375px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-font150-intro-end.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/basic",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "输入49/实际Next/内联错误不跳转；恢复78",
+    "EVIDENCE": [
+      "demo-320-assessment-basic.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/assessment/health",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-health.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/adl",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-adl.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/cognitive",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-cognitive.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/preference",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-preference.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/budget",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "六步表单现有合法演示答案/阅读页正常态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-budget.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/profile",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo当前画像；Production评估未完成",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "真实点击推荐；双击仅一条页栈记录",
+    "EVIDENCE": [
+      "demo-320-assessment-profile.png",
+      "production-320-assessment-profile.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/recommendation/result",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo相近候选；Production评估信息未就绪",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "候选滚入视口→实际tap→合法sourceContextRef详情",
+    "EVIDENCE": [
+      "demo-320-font150-recommendation-result.png",
+      "production-320-recommendation-result.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/institution/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "目录/搜索空结果/清除恢复",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "输入不存在名称→空结果→实际清除按钮恢复12条",
+    "EVIDENCE": [
+      "demo-320-font150-institution-index.png",
+      "production-320-institution-index.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/institution/detail",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "有效指定版本/推荐来源；缺少版本的受控错误态",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "实际点击地图/VR/顾问；媒体返回保留原推荐上下文",
+    "EVIDENCE": [
+      "demo-320-font150-detail-end.png",
+      "production-320-institution-detail.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/institution/vr",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "无已核验机构全景；无上下文错误",
+    "VIEWPORT_CHECKED": "D 375px；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-institution-vr.png",
+      "production-320-institution-vr.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/consultant/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo无机构的完整介绍；Production待配置",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "实际联系/FAQ；320/150%医疗回复在视口内",
+    "EVIDENCE": [
+      "demo-320-consultant-index.png",
+      "production-320-consultant-index.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/consultant/consultation",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo关联机构；Production待配置",
+    "VIEWPORT_CHECKED": "D 375px；P 320px",
+    "INTERACTION_CHECKED": "联系/三问/关联预约；机构上下文回执",
+    "EVIDENCE": [
+      "demo-375-consultant-consultation.png",
+      "production-320-consultant-consultation.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/service/ai-chat/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "FAQ输入/本地回复；未读取老人画像",
+    "VIEWPORT_CHECKED": "D 375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "点选问题/实际发送/可见本地FAQ回复；软键盘NOT_RUN",
+    "EVIDENCE": [
+      "demo-320-font150-ai.png",
+      "production-320-service-ai-chat-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/appointment/create",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo合法completed案例；Production预约服务未开放；缺少上下文",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "Demo实际进入合法评价；Production未提交",
+    "EVIDENCE": [
+      "demo-320-appointment-create.png",
+      "production-320-appointment-create.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/appointment/success",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "无一次性回执的受控不可用态；成功态NOT_REACHED",
+    "VIEWPORT_CHECKED": "D 375px；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-appointment-success.png",
+      "production-320-appointment-success.png"
+    ],
+    "RESULT": "REVIEWED_CONTROLLED_STATE；成功回执NOT_REACHED"
+  },
+  {
+    "ROUTE": "/pages/mine/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo三类记录；Production匿名浏览",
+    "VIEWPORT_CHECKED": "D 375px；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-mine-end.png",
+      "production-320-mine-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/elder/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo两位老人；Production读取能力不可用",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-elder-index.png",
+      "production-320-elder-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/elder/detail",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo指定老人分组；Production详情不可用",
+    "VIEWPORT_CHECKED": "D 320,375px；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-elder-detail-end.png",
+      "production-320-elder-detail.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/assessment/history",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo列表及保存的当次快照；Production历史读取不可用",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-assessment-history.png",
+      "production-320-assessment-history.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/appointment/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo三记录/已完成筛选；Production服务不可用",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "实际completed筛选；记录入口",
+    "EVIDENCE": [
+      "demo-320-appointment-index.png",
+      "production-320-appointment-index.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/visit/evaluation",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo合法completed三步/21评分/200字/已提交只读；Production无有效上下文",
+    "VIEWPORT_CHECKED": "D 320,375,430px；24字号@320；P 320px",
+    "INTERACTION_CHECKED": "实际三步；21/21逐项滚动点击；200字；只读；本轮未新提交",
+    "EVIDENCE": [
+      "demo-320-evaluation-readonly-end.png",
+      "production-320-visit-evaluation.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/showcase/index",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo次级管理；Production受限提示",
+    "VIEWPORT_CHECKED": "D 375px；P 320px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-showcase-index.png",
+      "production-320-showcase-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/showcase/vr-real",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo机构上下文自动载入/独立工具手动空态/合成全景；Production不载入",
+    "VIEWPORT_CHECKED": "D 320,375,430px；P 320px",
+    "INTERACTION_CHECKED": "实际载入/拖动/拉近/返回",
+    "EVIDENCE": [
+      "demo-320-vr-before-load.png",
+      "production-320-showcase-vr-real.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/showcase/map-real",
+    "MODE": "DEMO_UI / PRODUCTION_UI",
+    "STATE_CHECKED": "Demo城市路网/重试/拖动；Production不载入",
+    "VIEWPORT_CHECKED": "D 320,375,430px；P 320px",
+    "INTERACTION_CHECKED": "实际原生拖动/重试/返回",
+    "EVIDENCE": [
+      "demo-320-map-context.png",
+      "production-320-showcase-map-real.png"
+    ],
+    "RESULT": "REVIEWED：发现问题见清单"
+  },
+  {
+    "ROUTE": "/pages/service/policy/index",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "政策阅读页正常态",
+    "VIEWPORT_CHECKED": "D 375px；24字号@320",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-320-font150-policy.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/service/education/index",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "养老科普阅读页正常态",
+    "VIEWPORT_CHECKED": "D 375px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-service-education-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  },
+  {
+    "ROUTE": "/pages/service/admission/index",
+    "MODE": "DEMO_UI；共享结构只读核对",
+    "STATE_CHECKED": "入住指南阅读页正常态",
+    "VIEWPORT_CHECKED": "D 375px",
+    "INTERACTION_CHECKED": "原生进入及可视内容检查；长页适用时滚动；未穷举所有按钮",
+    "EVIDENCE": [
+      "demo-375-service-admission-index.png"
+    ],
+    "RESULT": "REVIEWED：仅所列状态"
+  }
+]

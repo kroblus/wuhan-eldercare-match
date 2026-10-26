@@ -1,0 +1,13 @@
+{
+  "selector": ".story-primary",
+  "offset": {
+    "left": 20,
+    "top": 499.9375
+  },
+  "size": {
+    "success": true,
+    "width": 390,
+    "height": 48
+  },
+  "viewport": 850
+}

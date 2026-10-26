@@ -1,0 +1,28 @@
+// Page-local opt-in: aliases the existing browse font projection, never global tokens.
+.page-shell.assessment-readable {
+  --assessment-body-size: var(--browse-body-size, 16px);
+  --assessment-meta-size: var(--browse-meta-size, 14px);
+  --assessment-option-min: calc(var(--browse-body-size, 16px) * 5 + 44px);
+  --assessment-text-min: 0px;
+  --assessment-heading-wrap: wrap;
+  --assessment-marker-shrink: 0;
+  --assessment-progress-gap: 8px;
+  --assessment-text-wrap: balance;
+  --assessment-overflow-wrap: break-word;
+  --brand-cta-size: var(--browse-control-size, 16px);
+  --readable-button-wrap: balance;
+  padding-bottom: calc(var(--browse-body-size, 16px) * 2);
+}
+.assessment-readable .ws-section-heading { flex-wrap: wrap; font-size: var(--browse-title-size, 20px); }
+.assessment-readable .ws-section-heading > text:last-child { max-width: 100%; text-wrap: balance; }
+.assessment-readable .ws-section-number { font-size: var(--browse-body-size, 16px); }
+.assessment-readable .basic-intro, .assessment-readable .assessment-intro,
+.assessment-readable .form-error, .assessment-readable .save-status,
+.assessment-readable .inline-hint, .assessment-readable .privacy-note,
+.assessment-readable .age-field { font-size: var(--browse-meta-size, 14px); line-height: 1.65; text-wrap: balance; }
+.assessment-readable .text-input {
+  font-size: var(--browse-body-size, 16px); line-height: 1.5;
+  height: calc(var(--browse-body-size, 16px) * 1.5 + 24px);
+  min-height: 48px;
+}
+.assessment-readable .age-input { max-width: calc(100% - 36px); }

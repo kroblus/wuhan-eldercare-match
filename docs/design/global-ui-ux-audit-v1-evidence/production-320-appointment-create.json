@@ -1,0 +1,79 @@
+{
+  "page": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 18,
+        "path": "pages/appointment/create",
+        "query": {
+          "institutionId": "wh-jiangan-social-welfare",
+          "recordRevision": "1",
+          "source": "direct_link"
+        }
+      }
+    }
+  },
+  "system": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "batteryLevel": 97,
+          "benchmarkLevel": -1,
+          "brand": "devtools",
+          "memorySize": 2048,
+          "model": "TEST_ONLY_320x568",
+          "system": "Android 5.0",
+          "platform": "devtools",
+          "pixelRatio": 2,
+          "safeArea": {
+            "top": 20,
+            "left": 0,
+            "right": 320,
+            "bottom": 568,
+            "width": 320,
+            "height": 548
+          },
+          "screenWidth": 320,
+          "screenHeight": 568,
+          "screenTop": 54,
+          "windowWidth": 320,
+          "windowHeight": 514,
+          "statusBarHeight": 20,
+          "version": "8.0.5",
+          "language": "zh_CN",
+          "SDKVersion": "2.32.3",
+          "enableDebug": false,
+          "fontSizeScaleFactor": 1.16,
+          "fontSizeSetting": 16,
+          "mode": "default",
+          "host": {
+            "env": "WeChat"
+          },
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "locationReducedAccuracy": true,
+          "albumAuthorized": true,
+          "bluetoothAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "deviceOrientation": "portrait",
+          "devicePixelRatio": 2
+        }
+      }
+    }
+  }
+}

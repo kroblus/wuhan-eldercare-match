@@ -1,0 +1,825 @@
+[
+  {
+    "name": "demo-320-booking",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-booking-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-booking",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-end",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-1",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-2",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-3",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-4",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-5",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-recommendation",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-records-end",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-font150-records",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-recommendation-end",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-recommendation",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-records-end",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-320-records",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-booking-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-booking-refreshed",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-booking",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-completed-filter-end",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-completed-filter",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-recommendation-end",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-recommendation",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-records-end",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-375-records",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-booking-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-booking",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-end",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-mid-1",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-mid-2",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-mid-3",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-mid-4",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation-mid-5",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-recommendation",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-records-end",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-430-records",
+    "route": "pages/appointment/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "demo-final-home",
+    "route": "pages/home/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-booking-return",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-clear",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-directory-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-anning-garden",
+      "recordRevision": "1",
+      "source": "direct_list"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-evaluate",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-reco-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-reco-return",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "interaction-demo-search",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "3.17.3",
+    "mode": "Demo"
+  },
+  {
+    "name": "production-320-closed",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-font150-closed-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-font150-closed",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-font150-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-font150-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-320-font150-return-click",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-375-closed-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-375-closed",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-375-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-375-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-430-closed-end",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-430-closed",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-430-directory-end",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  },
+  {
+    "name": "production-430-directory",
+    "route": "pages/institution/index",
+    "query": {},
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "platform": "devtools",
+    "sdk": "2.32.3",
+    "mode": "Production"
+  }
+]

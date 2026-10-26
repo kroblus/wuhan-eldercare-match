@@ -1,0 +1,237 @@
+[
+  {
+    "label": "system",
+    "isError": false,
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "brand": "devtools",
+          "model": "iPhone 14/15 Pro Max",
+          "system": "iOS 10.0.1",
+          "platform": "devtools",
+          "benchmarkLevel": -1,
+          "pixelRatio": 3,
+          "screenWidth": 430,
+          "screenHeight": 932,
+          "windowWidth": 430,
+          "windowHeight": 850,
+          "statusBarHeight": 54,
+          "safeArea": {
+            "top": 54,
+            "left": 0,
+            "right": 430,
+            "bottom": 898,
+            "width": 430,
+            "height": 844
+          },
+          "language": "zh_CN",
+          "version": "8.0.5",
+          "fontSizeSetting": 16,
+          "SDKVersion": "3.17.3",
+          "host": {
+            "env": "WeChat"
+          },
+          "enableDebug": false,
+          "mode": "default",
+          "deviceOrientation": "portrait",
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "albumAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "bluetoothAuthorized": true,
+          "locationReducedAccuracy": true,
+          "devicePixelRatio": 3
+        }
+      }
+    }
+  },
+  {
+    "label": "result-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "result-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 386,
+      "height": 3196.21875
+    }
+  },
+  {
+    "label": "result-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 22,
+      "top": 98
+    }
+  },
+  {
+    "label": "result-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-result-top.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "result-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-result-middle.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "result-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-result-end.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "result-back",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "ai-chat-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 386,
+      "height": 1002.125
+    }
+  },
+  {
+    "label": "ai-chat-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 22,
+      "top": 98
+    }
+  },
+  {
+    "label": "ai-chat-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-ai-chat-top.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "ai-chat-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-ai-chat-middle.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "ai-chat-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-430-normal-ai-chat-end.png",
+      "imageWidth": 551,
+      "imageHeight": 1190
+    }
+  },
+  {
+    "label": "ai-chat-inputFont",
+    "isError": false,
+    "result": "16px"
+  },
+  {
+    "label": "ai-chat-inputSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 248.5,
+      "height": 46.395835876464844
+    }
+  },
+  {
+    "label": "ai-chat-back",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  }
+]

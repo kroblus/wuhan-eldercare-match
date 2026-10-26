@@ -1,0 +1,33 @@
+[
+  {
+    "label": "open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "end",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "finalScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-375-normal-profile-end.png",
+      "imageWidth": 480,
+      "imageHeight": 1037
+    }
+  },
+  {
+    "label": "return",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  }
+]

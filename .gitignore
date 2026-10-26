@@ -50,3 +50,7 @@ Desktop.ini
 .codex/
 *.bundle
 *.zip
+
+# Generated Python audit caches
+__pycache__/
+*.py[cod]

@@ -1,0 +1,137 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/check-assessment-v2-runtime.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nPASS V2-CONTRACT-001\nPASS V2-FIXTURE-MANIFEST\nPASS MIGRATION-FIXTURE-MANIFEST\nPASS V2-001\nPASS V2-002\nPASS V2-003\nPASS V2-004\nPASS V2-005\nPASS V2-006\nPASS V2-007\nPASS V2-008\nPASS V2-009\nPASS V2-010\nPASS V2-011\nPASS V2-012\nPASS V2-VALIDATION-001\nPASS V2-VALIDATION-002\nPASS V2-VALIDATION-003-CONDITIONAL-ERROR-LOCATION\nPASS V2-VALIDATION-004-RETIRED-PRIORITY-REJECTED\nPASS V2-MIGRATION-NOTICE-INVARIANT\nPASS V2-RESUME-001\nPASS MIGRATION-RESUME-FIRST-INCOMPLETE\nPASS MIGRATION-001\nPASS MIGRATION-002\nPASS MIGRATION-003\nPASS MIGRATION-004\nPASS MIGRATION-005\nPASS MIGRATION-006\nPASS MIGRATION-007\nPASS MIGRATION-008\nPASS MIGRATION-009\nPASS MIGRATION-010\nPASS MIGRATION-010-NON-DRAFT\nPASS MIGRATION-PURITY-BOUNDARY\nPASS MIGRATION-011\nPASS MIGRATION-012\nPASS PERSIST-MIGRATION-001-V2-WRITE-FAIL\nPASS PERSIST-MIGRATION-002-READBACK-FAIL\nPASS PERSIST-MIGRATION-003-SUCCESS\nPASS PERSIST-MIGRATION-004-RELAUNCH\nPASS PERSIST-MIGRATION-005-ACTIVE-POINTER-FAIL\nPASS PERSIST-MIGRATION-006-INVALID-SOURCE-BLOCKED\nPASS PERSIST-V2-NORMAL-MUTATION\nPASS PERSIST-CLEAR-NEW-V2-DRAFT\nASSESSMENT V2 RUNTIME PASS: 44 source runtime cases\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:29.012059"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-assessment-interactions.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nCASE RESTART-001_CONTINUE_EXISTING_DRAFT\nPRECONDITION: An incomplete Draft exists with a parent page and Intro continues through navigateTo\nRESULT: PASS\nCASE INTRO_ROOT_CONTINUE_REDIRECT_RETRY\nPRECONDITION: An incomplete Draft exists on root Intro; failed redirectTo releases the guard, retry succeeds, and Draft remains intact\nRESULT: PASS\nCASE INTRO_NESTED_CONTINUE_NAVIGATION_FAILURE_VISIBLE_RETRY\nPRECONDITION: An incomplete Draft exists on nested Intro; failed navigateTo shows feedback, releases the guard, and retry uses the ordinary stack path\nRESULT: PASS\nCASE RESTART-002_CONFIRM_CLEAR_AND_START\nPRECONDITION: An incomplete Draft exists; Restart opens one valid confirmation, then confirmation clears the old Draft and navigates once\nRESULT: PASS\nCASE RESUME_FIRST_INCOMPLETE_V2_QUESTION\nPRECONDITION: A root Intro V2 Draft resumes at the first missing V2 question with redirectTo, independent of currentStep\nRESULT: PASS\nCASE ASSESSMENT_CAPACITY_RESET_ONE_TIME_INTENT\nPRECONDITION: A full actual stack asks before reset, cancellation preserves Draft, confirmation opens only root Intro, and one explicit action consumes a local one-time intent\nRESULT: PASS\nCASE INTRO_ROOT_RESTART_REDIRECT\nPRECONDITION: Confirming Restart from root Intro clears the incomplete local Draft and replaces Intro with Basic\nRESULT: PASS\nCASE RESTART-003_RAPID_RESTART_GUARD\nPRECONDITION: Two rapid Restart taps share one pending confirmation and can clear/navigate at most once\nRESULT: PASS\nCASE RESTART_CANCEL_PRESERVES_DRAFT\nPRECONDITION: Cancelling the existing Restart confirmation preserves the Draft and releases the pending action state\nRESULT: PASS\nCASE FOOTER_SINGLE_ACTION_CHANNEL\nPRECONDITION: Footer WXML delegates to PrimaryButton action; no native tap handler is present\nRESULT: PASS\nCASE NAVIGATION_BAR_BACK_RUNTIME\nPRECONDITION: A real NavigationBar instance uses navigateBack for normal stacks, configured root fallback APIs, and emits one non-bubbling back event\nRESULT: PASS\nCASE NAVIGATION_BAR_ASSESSMENT_FALLBACKS\nPRECONDITION: Intro and all six Assessment step WXML mounts pass explicit previous business route and Intro marks Home as a tab fallback\nRESULT: PASS\nCASE BASIC_UNANSWERED\nPRECONDITION: basic Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE BASIC_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: basic Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE BASIC_VALID\nPRECONDITION: basic Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE BASIC_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE BASIC_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE HEALTH_UNANSWERED\nPRECONDITION: health Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE HEALTH_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: health Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE HEALTH_VALID\nPRECONDITION: health Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE HEALTH_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE HEALTH_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE ADL_UNANSWERED\nPRECONDITION: adl Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE ADL_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: adl Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE ADL_VALID\nPRECONDITION: adl Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE ADL_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE ADL_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE COGNITIVE_UNANSWERED\nPRECONDITION: cognitive Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE COGNITIVE_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: cognitive Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE COGNITIVE_VALID\nPRECONDITION: cognitive Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE COGNITIVE_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE COGNITIVE_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE PREFERENCE_UNANSWERED\nPRECONDITION: preference Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE PREFERENCE_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: preference Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE PREFERENCE_VALID\nPRECONDITION: preference Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE PREFERENCE_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE PREFERENCE_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE BUDGET_UNANSWERED\nPRECONDITION: budget Page is mounted, onShow restores an empty Draft, then the real onNext handler is invoked\nRESULT: PASS\nCASE BUDGET_PARTIAL_AND_FIRST_ERROR\nPRECONDITION: budget Page receives only the first answer through its real input handler, then onNext is invoked\nRESULT: PASS\nCASE BUDGET_VALID\nPRECONDITION: budget Page receives every valid answer through real input handlers, then onNext navigates once\nRESULT: PASS\nCASE BUDGET_INVALID_FIX_AND_DRAFT_RETURN\nPRECONDITION: The real page first reports an invalid/incomplete state, then accepts fixed inputs and preserves the resulting Draft on Back\nRESULT: PASS\nCASE BUDGET_RAPID_NEXT_GUARD\nPRECONDITION: Two rapid calls to the real page onNext handler share one page instance while the first forward transition remains guarded\nRESULT: PASS\nCASE ROOT_STACK_BACK_FALLBACK\nPRECONDITION: Each real Assessment Page onBack handler is invoked as the only stack entry and redirects to its explicit previous route\nRESULT: PASS\nCASE ASSESSMENT_BACK_LABEL_FOLLOWS_ACTUAL_PARENT\nPRECONDITION: Each Assessment footer label reflects its actual stack parent, including Resume from Intro, while root fallback names the configured route\nRESULT: PASS\nCASE ASSESSMENT_BACK_FAILURE_VISIBLE_AND_RETRY\nPRECONDITION: Footer and navigation-bar Back failures are visible, do not validate Next, preserve Draft, and allow retry\nRESULT: PASS\nCASE BUDGET_NAVIGATION_FAILURE_VISIBLE_AND_RETRY\nPRECONDITION: Budget valid Next receives reLaunch failure, shows an actionable footer error, releases the guard, then retries successfully\nRESULT: PASS\nCASE BUDGET_GLOBAL_COMPLETION_GATE\nPRECONDITION: Budget Page has all local answers but no prerequisite step answers; real onNext must show an actionable error and not navigate\nRESULT: PASS\nCASE BUDGET_INVALID_DRAFT_ENVELOPE_GATE\nPRECONDITION: Budget Page must not navigate when completion validation rejects a damaged Draft without a locatable question ID\nRESULT: PASS\nCASE BUDGET_BOTTOM_GATE_FEEDBACK_STRUCTURE\nPRECONDITION: The runtime Budget global-gate error has a WXML outlet after save status and immediately before the footer action area\nRESULT: PASS\nINTERACTIONS PASS: 47 runtime behavior cases + 2 structural contract checks\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:29.697703"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-profile-result-v2-interactions.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PASS INTERACTION-V2-001 shared button exposes one non-bubbling action channel\nPASS INTERACTION-V2-002 Profile and Result page actions use explicit bindings\nPASS INTERACTION-V2-003 Back remains available while page data is loading\nPASS INTERACTION-V2-004 refresh clears stale ViewModel before V2 derivation\nPASS INTERACTION-V2-005 navigation uses one guarded action and visible failure feedback\nPASS INTERACTION-V2-006 V2 application boundaries remain local and anonymous\nPASS INTERACTION-V2-007 Result keeps downstream identity gates and no fake score\nPASS INTERACTION-V2-008 Result readiness blocked remains an honest no-safe state\nPASS INTERACTION-V2-009 Profile and Result avoid generated identity and network side effects\nPASS INTERACTION-V2-010 new V2 TypeScript follows real-device class-field rule\nPROFILE_RESULT_V2_INTERACTION_CASES: 10/10 PASS\nPROFILE_RESULT_V2_INTERACTION_RUNTIME = PASS\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:29.768848"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-ai-b5-runtime.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "AI_B5_FIXTURE_POLICY: TEST_ONLY_SYNTHETIC_NOT_PRODUCTION_AI_DATA\nAI_B5_FIXTURE_COUNT: 24\nAI_B5_ASSERTION_COUNT: 96\nAI_B5_NEGATIVE_FAIL_CLOSED_COVERAGE: PASS\nAI_B5_PRODUCTION_FIXTURE_IMPORT_COUNT: 0\nAI_B5_RECOMMENDATION_WRITE_CALLS: 0\nAI_B5_INSTITUTION_PROFILE_WRITE_CALLS: 0\nAI_B5_VISIT_APPOINTMENT_WRITE_CALLS: 0\nAI_B5_TARGETED_RUNTIME = PASS\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:30.477266"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-b1-2-5-continuity.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "Batch A PASS: stable IDs, validated snapshots, multiple elders, saved historical results, filters, show refresh, reassessment append, repeat load, no external effects\nBatch B PASS: exact institution/revision, no synthetic navigation, no unrelated VR fallback\nBatch C PASS: empty initial rating, three steps, 21 scores + fee clarity, optional observations, tag bounds, comment bounds, summary, back/re-entry, failure/retry, duplicate guard, immutable saved evaluation, reset epoch, no Institution/Recommendation writes\nPRODUCTION isolation PASS: no Demo providers, records, user context or persisted evaluation reader\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:32.311254"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-run-mode-convergence.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:34.800202"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-profile-recommendation-hierarchy.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PASS complete profile/recommendation VM hashes, ordered tags, candidates, saved snapshots and zero external effects\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:35.636882"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-global-ui-ux-batch-a.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PASS GUI-008: closed gate/no reads/no submit/single return; route/read-error branches preserved in isolated VM\nPASS GUI-002: both directory titles; recommendation-context title unchanged\nPASS GUI-005: five statuses x date/no-date; Demo list/create agree; completed evaluation and immutable records\nPASS GUI-007: full baseline projection equality except suffix; provenance, order, reasons and context preserved\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:36.592009"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-wechat-js-compat.mjs",
+      "--demo",
+      "--artifact-dir",
+      "dist/demo/miniprogram"
+    ],
+    "exitCode": 0,
+    "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\demo\\miniprogram\nGENERATED_JS_MODULES: 201\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, demo/consultant.js, pages/appointment/success.js, demo/story.js, demo/story-name.js, components/demo-story-preview/demo-story-preview.js, pages/appointment/create.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/elder/index.js, pages/elder/detail.js, pages/appointment/index.js, demo/record-pages.js, demo/session.js, demo/scenario.js, runtime/evaluation-session.js, pages/visit/evaluation.js\nPASS (all scope): 201 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:37.563459"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-wechat-js-compat.mjs",
+      "--artifact-dir",
+      "dist/production/miniprogram"
+    ],
+    "exitCode": 0,
+    "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\production\\miniprogram\nGENERATED_JS_MODULES: 214\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, pages/consultant/consultant-page.js, pages/appointment/success.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/assessment/history-view-model.js, pages/assessment/history-user-loop.js\nPASS (all scope): 214 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:38.456269"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-run-mode-package-size.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PRODUCTION: runtime files 1327 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\nDEMO: runtime files 1915 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\n",
+    "stderr": "",
+    "time": "2026-10-25T15:35:38.567239"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-global-ui-ux-batch-b.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PASS six steps 16/24px state equality, AI state, complete draft/snapshots, protected business source and zero external effects\n",
+    "stderr": "",
+    "time": "2026-10-25T15:50:54.341368"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-wechat-ts-targeted-compat.mjs"
+    ],
+    "exitCode": 0,
+    "stdout": "PARSER_SOURCE: WeChat DevTools mptslib\nPARSER: TypeScript 4.1.2 (C:\\Users\\16562\\AppData\\Local\\微信开发者工具\\User Data\\95d65fb53196802246f4c89d0697af05\\WeappForeignPkgs\\mptslib\\ts_4.1.2_5.2.3\\lib\\typescript.js)\nCOMPILER_TARGET: ES2020\nTARGET_ROOTS: 176\nRECOMMENDATION_TARGETS: 15\nINSTITUTION_V1_1_TARGETS: 5\nINSTITUTION_V1_2_TARGETS: 9\nINSTITUTION_V1_2_1_TARGETS: 12\nCONSULTANT_TARGETS: 8\nCONSULTANT_B3_TARGETS: 5\nAPPOINTMENT_CREATE_TARGETS: 3\nAI_B6_TARGETS: 4\nAI_B7_TARGETS: 3\nELDER_PROFILE_V2_TARGETS: 6\nAPPLICATION_SERVICE_PROVIDER_MOCK_STORE_TARGETS: 93\nINSTITUTION_LIST_DETAIL_A0_2_TARGETS: 8\nINSTITUTION_LIST_DETAIL_A0_3_PAGE_TARGETS: 7\nINSTITUTION_V1_2_1_CATALOG_INTEGRATION_TARGETS: 7\nAPPLICATION_DEPENDENCIES: full diagnostics with official wx typings; no suppression\nPROFILE_SYNTAX_TARGETS: 5\nEMITTED_JS_MODULES_IN_MEMORY: 199\nTYPESCRIPT_DIAGNOSTIC_ERRORS: 0\nPROFILE_SYNTAX_DIAGNOSTIC_ERRORS: 0\nSOURCE_CLASS_INITIALIZERS: 0\nEMITTED_CLASS_FIELDS: 0\nEXTERNAL_RUNTIME_IMPORTS: 0\nADDITIONAL_RUNTIME_POLYFILL_ASSUMPTIONS: 0\nWECHAT_TYPESCRIPT_TARGETED_COMPATIBILITY = PASS\n",
+    "stderr": "",
+    "time": "2026-10-25T15:50:57.305114"
+  }
+]

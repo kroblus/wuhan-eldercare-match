@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import { validateAdlAnswersV2 } from '../../types/assessment-v2'
 import type {
   AdlAssistanceV2,
@@ -25,6 +26,7 @@ type AdlQuestionId =
   | 'adl.stairs'
 
 interface AssessmentAdlData {
+  fontStyle: string
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
@@ -146,6 +148,7 @@ const readStringAnswer = <K extends AdlQuestionId>(
 
 Page({
   data: {
+    fontStyle: '',
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
@@ -191,6 +194,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.setData({ backText: getAssessmentBackText('adl') })
     this.syncFromDraft()

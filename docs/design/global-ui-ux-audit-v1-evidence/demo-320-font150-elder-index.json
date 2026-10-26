@@ -1,0 +1,73 @@
+{
+  "page": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 106,
+        "path": "pages/elder/index",
+        "query": {},
+        "route": "/pages/elder/index",
+        "title": ""
+      }
+    }
+  },
+  "system": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "brand": "devtools",
+          "model": "TEST_ONLY_320x568",
+          "system": "Android 5.0",
+          "platform": "devtools",
+          "benchmarkLevel": -1,
+          "pixelRatio": 2,
+          "screenWidth": 320,
+          "screenHeight": 568,
+          "windowWidth": 320,
+          "windowHeight": 514,
+          "statusBarHeight": 20,
+          "safeArea": {
+            "top": 20,
+            "left": 0,
+            "right": 320,
+            "bottom": 568,
+            "width": 320,
+            "height": 548
+          },
+          "language": "zh_CN",
+          "version": "8.0.5",
+          "fontSizeSetting": 24,
+          "SDKVersion": "3.17.3",
+          "host": {
+            "env": "WeChat"
+          },
+          "enableDebug": false,
+          "mode": "default",
+          "deviceOrientation": "portrait",
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "albumAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "bluetoothAuthorized": true,
+          "locationReducedAccuracy": true,
+          "devicePixelRatio": 2
+        }
+      }
+    }
+  }
+}

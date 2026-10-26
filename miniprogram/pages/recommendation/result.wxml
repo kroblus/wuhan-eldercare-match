@@ -6,7 +6,7 @@
   </view>
 </template>
 <page-container extraClass="recommendation-page">
-  <view class="recommendation-shell">
+  <view class="recommendation-shell" style="{{hierarchyFontStyle}}">
     <view class="recommendation-head"><text class="result-intro">先看照护需求与判断结果，再决定下一步。以下内容供选择机构前参考，不是医疗诊断。</text><view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view></view>
     <view wx:if="{{isDemoBuild || (viewModel && viewModel.hasMockDisclosure)}}" class="mock-disclosure">
       <text class="mock-disclosure__title">开发演示数据 · 虚构机构，非真实养老机构信息</text>
@@ -20,7 +20,10 @@
         <text class="summary-title">{{viewModel.headline}}</text>
         <text class="summary-message">{{viewModel.summary}}</text>
         <text wx:if="{{viewModel.cards.length}}" class="candidate-count">本次提供 <text class="candidate-count__number">{{viewModel.cards.length}}</text> 家候选供进一步了解</text>
-        <view wx:if="{{viewModel.focusTags.length}}" class="focus-list"><text wx:for="{{viewModel.focusTags}}" wx:key="text" class="focus-item">{{item.text}}</text></view>
+        <view wx:if="{{viewModel.focusTags.length}}" class="match-basis">
+          <text class="match-basis__title">本次匹配依据</text>
+          <view class="focus-list"><text wx:for="{{viewModel.focusTags}}" wx:key="text" class="focus-item focus-item--{{item.tone}}">{{item.text}}</text></view>
+        </view>
         <text wx:for="{{viewModel.resultAdvisories}}" wx:key="*this" class="result-advisory-line">{{item}}</text>
       </view>
 
@@ -35,7 +38,7 @@
           <text wx:if="{{item.vrLabel}}" class="institution-meta__item">{{item.vrLabel}}</text>
           <view wx:if="{{item.primaryReasons.length || item.reasons.length}}" class="detail-list">
             <text class="detail-list__title">已知依据</text>
-            <view wx:for="{{item.primaryReasons || item.reasons}}" wx:key="key" class="detail-line"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view>
+            <view wx:for="{{item.primaryReasons || item.reasons}}" wx:key="key" class="detail-line detail-line--{{item.tone}}"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view>
           </view>
           <view wx:if="{{item.differences.length}}" class="difference-list">
             <text class="detail-list__title">主要差异与待确认事项</text>
@@ -65,7 +68,7 @@
           <text wx:if="{{item.vrLabel}}" class="institution-meta__item">{{item.vrLabel}}</text>
           <view wx:if="{{item.primaryReasons.length || item.reasons.length}}" class="detail-list">
             <text class="detail-list__title">已知依据</text>
-            <view wx:for="{{item.primaryReasons || item.reasons}}" wx:key="key" class="detail-line"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view>
+            <view wx:for="{{item.primaryReasons || item.reasons}}" wx:key="key" class="detail-line detail-line--{{item.tone}}"><text class="detail-line__mark">·</text><text class="detail-line__text">{{item.text}}</text></view>
           </view>
           <view wx:if="{{item.differences.length}}" class="difference-list">
             <text class="detail-list__title">需机构进一步确认的条件</text>

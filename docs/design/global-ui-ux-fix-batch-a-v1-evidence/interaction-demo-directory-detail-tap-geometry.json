@@ -1,0 +1,13 @@
+{
+  "selector": ".institution-detail-link",
+  "offset": {
+    "left": 288.66668701171875,
+    "top": 160.15625
+  },
+  "size": {
+    "success": true,
+    "width": 102.66667175292969,
+    "height": 44
+  },
+  "viewport": 850
+}

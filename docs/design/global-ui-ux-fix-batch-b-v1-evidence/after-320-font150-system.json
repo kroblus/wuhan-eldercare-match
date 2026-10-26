@@ -1,0 +1,79 @@
+[
+  {
+    "label": "system",
+    "isError": false,
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "brand": "devtools",
+          "model": "Batch B 320",
+          "system": "Android 5.0",
+          "platform": "devtools",
+          "benchmarkLevel": -1,
+          "pixelRatio": 2,
+          "screenWidth": 320,
+          "screenHeight": 600,
+          "windowWidth": 320,
+          "windowHeight": 546,
+          "statusBarHeight": 20,
+          "safeArea": {
+            "top": 20,
+            "left": 0,
+            "right": 320,
+            "bottom": 600,
+            "width": 320,
+            "height": 580
+          },
+          "language": "zh_CN",
+          "version": "8.0.5",
+          "fontSizeSetting": 24,
+          "SDKVersion": "3.17.3",
+          "host": {
+            "env": "WeChat"
+          },
+          "enableDebug": false,
+          "mode": "default",
+          "deviceOrientation": "portrait",
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "albumAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "bluetoothAuthorized": true,
+          "locationReducedAccuracy": true,
+          "devicePixelRatio": 2
+        }
+      }
+    }
+  },
+  {
+    "label": "reloadPage",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "screenshot",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-basic-top.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "inputFont",
+    "isError": false,
+    "result": "24px"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "checked": 580,
+  "changed": [
+    "miniprogram/pages/assessment/profile.less",
+    "miniprogram/pages/assessment/profile.ts",
+    "miniprogram/pages/assessment/profile.wxml",
+    "miniprogram/pages/recommendation/result.less",
+    "miniprogram/pages/recommendation/result.ts",
+    "miniprogram/pages/recommendation/result.wxml"
+  ],
+  "globalTokensUnchanged": true
+}

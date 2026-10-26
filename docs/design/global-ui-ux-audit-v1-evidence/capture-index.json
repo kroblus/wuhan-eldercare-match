@@ -1,0 +1,2109 @@
+[
+  {
+    "name": "demo-320-appointment-create",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-appointment-index",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-adl",
+    "route": "pages/assessment/adl",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-basic",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-budget",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-cognitive",
+    "route": "pages/assessment/cognitive",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-health",
+    "route": "pages/assessment/health",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-history",
+    "route": "pages/assessment/history",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-preference",
+    "route": "pages/assessment/preference",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-assessment-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-basic-end",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-budget-end",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-consultant-index",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-elder-detail-end",
+    "route": "pages/elder/detail",
+    "query": {
+      "elderId": "demo-elder-lin"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-elder-detail",
+    "route": "pages/elder/detail",
+    "query": {
+      "elderId": "demo-elder-lin"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-elder-index",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-evaluation-readonly-end",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-garden"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-evaluation-readonly",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-garden"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-ai",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-appointment-create",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-appointment-index",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-adl",
+    "route": "pages/assessment/adl",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-basic",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-budget",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-cognitive",
+    "route": "pages/assessment/cognitive",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-health",
+    "route": "pages/assessment/health",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-history",
+    "route": "pages/assessment/history",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-preference",
+    "route": "pages/assessment/preference",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-assessment-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-consultant-index",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-consultant-long",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-contact",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-detail-end",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-detail-long",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-detail-vr",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-elder-index",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-elder-long",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-eval-long-end",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-garden"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-eval-long",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-garden"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-home-index",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-institution-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-institution-index",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-intro-end",
+    "route": "pages/assessment/intro",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-intro",
+    "route": "pages/assessment/intro",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-policy",
+    "route": "pages/service/policy/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-recommendation-result",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-reply",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-font150-visit-evaluation",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 24,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-history-end",
+    "route": "pages/assessment/history",
+    "query": {
+      "assessmentId": "demo-assessment-lin-v1"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-home-index",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-institution-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-institution-index",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-map-context",
+    "route": "pages/showcase/map-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-recommendation-result",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-visit-evaluation",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-vr-before-load",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-vr-end",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-320-vr-loaded",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-adl-end",
+    "route": "pages/assessment/adl",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-appointment-create",
+    "route": "pages/appointment/create",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-appointment-success",
+    "route": "pages/appointment/success",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-appointments-completed",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-appointments",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-adl",
+    "route": "pages/assessment/adl",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-basic",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-budget",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-cognitive",
+    "route": "pages/assessment/cognitive",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-health",
+    "route": "pages/assessment/health",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-intro",
+    "route": "pages/assessment/intro",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-preference",
+    "route": "pages/assessment/preference",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-assessment-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-basic-end",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-booking-from-consultant",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-budget-end",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-cognitive-end",
+    "route": "pages/assessment/cognitive",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-consultant-consultation",
+    "route": "pages/consultant/consultation",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-consultant-contact",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-consultant-end",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-consultant-linked",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-consultant-top",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-detail-end",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-detail-valid",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-elder-detail",
+    "route": "pages/elder/detail",
+    "query": {
+      "elderId": "demo-elder-lin"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-elders",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-200-char",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-edit",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-matrix-scrolled",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-note",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-step2",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-step3",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-evaluation-summary-end",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-faq-care",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-faq-fees",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-faq-medical",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-final-home",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-final-restored-home",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-health-end",
+    "route": "pages/assessment/health",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-history-snapshot-end",
+    "route": "pages/assessment/history",
+    "query": {
+      "assessmentId": "demo-assessment-lin-v1"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-history-snapshot",
+    "route": "pages/assessment/history",
+    "query": {
+      "assessmentId": "demo-assessment-lin-v1"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-history",
+    "route": "pages/assessment/history",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-institution-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-institution-index",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-institution-vr",
+    "route": "pages/institution/vr",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-intro-end",
+    "route": "pages/assessment/intro",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-linked-contact",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-linked-institution",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-map-context",
+    "route": "pages/showcase/map-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-matrix-group-13",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-matrix-group-17",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-matrix-group-21",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-matrix-group-5",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-matrix-group-9",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-mine-end",
+    "route": "pages/mine/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-mine",
+    "route": "pages/mine/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-preference-end",
+    "route": "pages/assessment/preference",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-profile-end",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-recommendation-result",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-service-admission-index",
+    "route": "pages/service/admission/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-service-ai-chat-index",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-service-education-index",
+    "route": "pages/service/education/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-service-policy-index",
+    "route": "pages/service/policy/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-showcase-index",
+    "route": "pages/showcase/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-showcase-map-real",
+    "route": "pages/showcase/map-real",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-showcase-vr-real",
+    "route": "pages/showcase/vr-real",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-visit-evaluation",
+    "route": "pages/visit/evaluation",
+    "query": {},
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-vr-context-auto",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-375-vr-context-end",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 375,
+    "height": 730,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-ai-before-send",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-ai-quick",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-ai-reply",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-appointment-create",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-appointment-index",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-adl",
+    "route": "pages/assessment/adl",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-basic",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-budget",
+    "route": "pages/assessment/budget",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-cognitive",
+    "route": "pages/assessment/cognitive",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-health",
+    "route": "pages/assessment/health",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-history",
+    "route": "pages/assessment/history",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-preference",
+    "route": "pages/assessment/preference",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-assessment-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-basic-age-input",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-basic-age49",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-basic-validation",
+    "route": "pages/assessment/basic",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-consultant-index",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-detail-actions-visible",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-elder-index",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-candidate-visible",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-detail-recommendation",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-home",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-map",
+    "route": "pages/showcase/map-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-flow-recommendation",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-home-index",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-institution-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-institution-index",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-map-drag",
+    "route": "pages/showcase/map-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-map-retry",
+    "route": "pages/showcase/map-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-map-return",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-recommendation-result",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-search-clear-button",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-search-clear",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-search-empty",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-visit-evaluation",
+    "route": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-vr-drag",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-vr-enter",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-vr-loaded",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-vr-return",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "demo-430-vr-zoom",
+    "route": "pages/showcase/vr-real",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "mode": "Demo",
+    "width": 430,
+    "height": 850,
+    "font": 16,
+    "sdk": "3.17.3"
+  },
+  {
+    "name": "production-320-appointment-create",
+    "route": "pages/appointment/create",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-appointment-index",
+    "route": "pages/appointment/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-appointment-success",
+    "route": "pages/appointment/success",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-assessment-history",
+    "route": "pages/assessment/history",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-assessment-profile",
+    "route": "pages/assessment/profile",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-consultant-consultation",
+    "route": "pages/consultant/consultation",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-consultant-index",
+    "route": "pages/consultant/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-elder-detail",
+    "route": "pages/elder/detail",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-elder-index",
+    "route": "pages/elder/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-home-index",
+    "route": "pages/home/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-institution-detail",
+    "route": "pages/institution/detail",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-institution-index",
+    "route": "pages/institution/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-institution-vr",
+    "route": "pages/institution/vr",
+    "query": {
+      "institutionId": "wh-jiangan-social-welfare",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-mine-index",
+    "route": "pages/mine/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-recommendation-result",
+    "route": "pages/recommendation/result",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-service-ai-chat-index",
+    "route": "pages/service/ai-chat/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-showcase-index",
+    "route": "pages/showcase/index",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-showcase-map-real",
+    "route": "pages/showcase/map-real",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-showcase-vr-real",
+    "route": "pages/showcase/vr-real",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  },
+  {
+    "name": "production-320-visit-evaluation",
+    "route": "pages/visit/evaluation",
+    "query": {},
+    "mode": "Production",
+    "width": 320,
+    "height": 514,
+    "font": 16,
+    "sdk": "2.32.3"
+  }
+]

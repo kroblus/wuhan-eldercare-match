@@ -1,0 +1,370 @@
+{
+  "system": {
+    "brand": "devtools",
+    "model": "iPhone 14/15 Pro Max",
+    "system": "iOS 10.0.1",
+    "platform": "devtools",
+    "benchmarkLevel": -1,
+    "pixelRatio": 3,
+    "screenWidth": 430,
+    "screenHeight": 932,
+    "windowWidth": 430,
+    "windowHeight": 850,
+    "statusBarHeight": 54,
+    "safeArea": {
+      "top": 54,
+      "left": 0,
+      "right": 430,
+      "bottom": 898,
+      "width": 430,
+      "height": 844
+    },
+    "language": "zh_CN",
+    "version": "8.0.5",
+    "fontSizeSetting": 16,
+    "SDKVersion": "3.17.3",
+    "host": {
+      "env": "WeChat"
+    },
+    "enableDebug": false,
+    "mode": "default",
+    "deviceOrientation": "portrait",
+    "bluetoothEnabled": true,
+    "locationEnabled": true,
+    "wifiEnabled": true,
+    "albumAuthorized": true,
+    "cameraAuthorized": true,
+    "locationAuthorized": true,
+    "microphoneAuthorized": true,
+    "notificationAuthorized": true,
+    "notificationAlertAuthorized": true,
+    "notificationBadgeAuthorized": true,
+    "notificationSoundAuthorized": true,
+    "phoneCalendarAuthorized": true,
+    "bluetoothAuthorized": true,
+    "locationReducedAccuracy": true,
+    "devicePixelRatio": 3
+  },
+  "before430": {
+    "title": {
+      "selector": ".question-section__title",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      }
+    },
+    "hint": {
+      "selector": ".question-section__hint",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      }
+    },
+    "option": {
+      "selector": ".single-choice__label",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":false,\"error\":\"no such element\"}"
+          }
+        ],
+        "structuredContent": {
+          "success": false,
+          "error": "no such element"
+        }
+      }
+    },
+    "input": {
+      "selector": ".text-input",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "17px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":386,\"height\":50}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 386,
+          "height": 50
+        }
+      }
+    },
+    "save": {
+      "selector": ".save-status",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "13px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":386,\"height\":21.447917938232422}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 386,
+          "height": 21.447917938232422
+        }
+      }
+    }
+  },
+  "before320": [
+    {
+      "label": "basic",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-basic.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "basic",
+      "selector": ".text-input",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "12px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":286,\"height\":37}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 286,
+          "height": 37
+        }
+      }
+    },
+    {
+      "label": "basic",
+      "selector": ".save-status",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "10px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":286,\"height\":16.5}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 286,
+          "height": 16.5
+        }
+      }
+    },
+    {
+      "label": "basic",
+      "selector": ".basic-intro",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "10px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":286,\"height\":33}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 286,
+          "height": 33
+        }
+      }
+    },
+    {
+      "label": "health",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-health.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "adl",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-adl.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "cognitive",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-cognitive.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "preference",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-preference.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "budget",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-budget.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "ai-chat",
+      "screenshot": {
+        "success": true,
+        "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\before-320-ai-chat.png",
+        "imageWidth": 408,
+        "imageHeight": 726
+      }
+    },
+    {
+      "label": "ai-chat",
+      "selector": ".ai-chat-input",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "12px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":161,\"height\":37}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 161,
+          "height": 37
+        }
+      }
+    },
+    {
+      "label": "ai-chat",
+      "selector": ".ai-chat-provenance",
+      "font": {
+        "content": [
+          {
+            "type": "text",
+            "text": "10px"
+          }
+        ]
+      },
+      "size": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"success\":true,\"width\":286,\"height\":33}"
+          }
+        ],
+        "structuredContent": {
+          "success": true,
+          "width": 286,
+          "height": 33
+        }
+      }
+    }
+  ],
+  "componentProbe": "Custom component internal selectors are not exposed by this MCP bridge; failed lookups are not treated as native computed-style measurements."
+}

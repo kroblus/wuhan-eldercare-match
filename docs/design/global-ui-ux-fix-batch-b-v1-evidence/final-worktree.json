@@ -1,0 +1,73 @@
+{
+  "docs/design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md": {
+    "broken_links": []
+  },
+  "docs/design/global-ui-ux-fix-batch-b-v1-evidence/SCREENSHOT_INDEX.md": {
+    "broken_links": []
+  },
+  "json_files_valid": 39,
+  "preservation": {
+    "checked": 1769,
+    "changed": [
+      "miniprogram/styles/assessment-warm-swiss.less",
+      "miniprogram/components/multi-choice/multi-choice.less",
+      "miniprogram/components/primary-button/primary-button.less",
+      "miniprogram/components/progress-header/progress-header.less",
+      "miniprogram/components/question-section/question-section.less",
+      "miniprogram/components/single-choice/single-choice.less",
+      "miniprogram/pages/assessment/adl.ts",
+      "miniprogram/pages/assessment/adl.wxml",
+      "miniprogram/pages/assessment/basic.less",
+      "miniprogram/pages/assessment/basic.ts",
+      "miniprogram/pages/assessment/basic.wxml",
+      "miniprogram/pages/assessment/budget.ts",
+      "miniprogram/pages/assessment/budget.wxml",
+      "miniprogram/pages/assessment/cognitive.ts",
+      "miniprogram/pages/assessment/cognitive.wxml",
+      "miniprogram/pages/assessment/health.ts",
+      "miniprogram/pages/assessment/health.wxml",
+      "miniprogram/pages/assessment/preference.less",
+      "miniprogram/pages/assessment/preference.ts",
+      "miniprogram/pages/assessment/preference.wxml",
+      "miniprogram/pages/assessment/profile.less",
+      "miniprogram/pages/recommendation/result.less",
+      "miniprogram/pages/service/ai-chat/index.less",
+      "miniprogram/pages/service/ai-chat/index.ts",
+      "miniprogram/pages/service/ai-chat/index.wxml",
+      "modes/demo/pages/records.less",
+      "modes/demo/pages/records.wxml",
+      "docs/design/global-ui-ux-profile-recommendation-hierarchy-v1-evidence/data-comparison.json"
+    ],
+    "tokensUnchanged": true,
+    "previousReportsUnchanged": true,
+    "previousScreenshotsUnchanged": true,
+    "refreshedPriorGeneratedResult": [
+      "docs/design/global-ui-ux-profile-recommendation-hierarchy-v1-evidence/data-comparison.json"
+    ]
+  },
+  "branch": {
+    "exit": 0,
+    "stdout": "codex/v2-1-b1-2-4-card-actions-visual",
+    "stderr": ""
+  },
+  "head": {
+    "exit": 0,
+    "stdout": "7ae07b9b78e4502940fd9812c6a838e4ddf2cc06",
+    "stderr": ""
+  },
+  "status": {
+    "exit": 0,
+    "stdout": "M miniprogram/components/multi-choice/multi-choice.less\n M miniprogram/components/primary-button/primary-button.less\n M miniprogram/components/progress-header/progress-header.less\n M miniprogram/components/question-section/question-section.less\n M miniprogram/components/single-choice/single-choice.less\n M miniprogram/pages/appointment/create.ts\n M miniprogram/pages/appointment/create.wxml\n M miniprogram/pages/assessment/adl.ts\n M miniprogram/pages/assessment/adl.wxml\n M miniprogram/pages/assessment/basic.less\n M miniprogram/pages/assessment/basic.ts\n M miniprogram/pages/assessment/basic.wxml\n M miniprogram/pages/assessment/budget.ts\n M miniprogram/pages/assessment/budget.wxml\n M miniprogram/pages/assessment/cognitive.ts\n M miniprogram/pages/assessment/cognitive.wxml\n M miniprogram/pages/assessment/health.ts\n M miniprogram/pages/assessment/health.wxml\n M miniprogram/pages/assessment/preference.less\n M miniprogram/pages/assessment/preference.ts\n M miniprogram/pages/assessment/preference.wxml\n M miniprogram/pages/assessment/profile.less\n M miniprogram/pages/assessment/profile.ts\n M miniprogram/pages/assessment/profile.wxml\n M miniprogram/pages/institution/index.wxml\n M miniprogram/pages/recommendation/result.less\n M miniprogram/pages/recommendation/result.ts\n M miniprogram/pages/recommendation/result.wxml\n M miniprogram/pages/service/ai-chat/index.less\n M miniprogram/pages/service/ai-chat/index.ts\n M miniprogram/pages/service/ai-chat/index.wxml\n M miniprogram/styles/assessment-warm-swiss.less\n M miniprogram/styles/tokens.less\n M modes/demo/pages/appointment/create.ts\n M modes/demo/pages/appointment/create.wxml\n M modes/demo/pages/records.less\n M modes/demo/pages/records.wxml\n M modes/demo/record-pages.ts\n M scripts/check-appointment-create-runtime.mjs\n M scripts/check-b1-2-5-continuity.mjs\n M scripts/support/demo-story-composition.mjs\n?? docs/design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md\n?? docs/design/GLOBAL_UI_UX_AUDIT_V1.md\n?? docs/design/GLOBAL_UI_UX_FIX_BATCH_A_V1.md\n?? docs/design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md\n?? docs/design/GLOBAL_UI_UX_PROFILE_RECOMMENDATION_HIERARCHY_V1.md\n?? docs/design/global-ui-ux-audit-v1-evidence/\n?? docs/design/global-ui-ux-fix-batch-a-v1-evidence/\n?? docs/design/global-ui-ux-fix-batch-b-v1-evidence/\n?? docs/design/global-ui-ux-profile-recommendation-hierarchy-v1-evidence/\n?? miniprogram/styles/assessment-readability.less\n?? modes/demo/appointment-time.ts\n?? scripts/check-global-ui-ux-batch-a.mjs\n?? scripts/check-global-ui-ux-batch-b.mjs\n?? scripts/check-profile-recommendation-hierarchy.mjs",
+    "stderr": ""
+  },
+  "staged": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "warning: in the working copy of 'miniprogram/components/primary-button/primary-button.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'miniprogram/components/progress-header/progress-header.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'miniprogram/components/question-section/question-section.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'miniprogram/pages/assessment/profile.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'miniprogram/pages/recommendation/result.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'miniprogram/styles/tokens.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'modes/demo/pages/appointment/create.ts', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'modes/demo/pages/appointment/create.wxml', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'modes/demo/pages/records.less', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/check-b1-2-5-continuity.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'scripts/support/demo-story-composition.mjs', LF will be replaced by CRLF the next time Git touches it"
+  }
+}

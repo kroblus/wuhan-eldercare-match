@@ -1,0 +1,369 @@
+{
+  "method": "Official DevTools MCP element geometry and systemInfo; original native WXML/WXSS PNGs. No viewport or font API mocks.",
+  "viewports": [
+    {
+      "evidence": "after-320-normal-capture.json",
+      "windowWidth": 320,
+      "windowHeight": 546,
+      "screenHeight": 600,
+      "fontSizeSetting": 16,
+      "platform": "devtools",
+      "rootBounds": [
+        {
+          "page": "basic",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "health",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "adl",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "cognitive",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "preference",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "budget",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "profile",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "result",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "ai-chat",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "appointment",
+          "left": 13,
+          "width": 294,
+          "right": 307,
+          "insideViewport": true
+        }
+      ],
+      "basicInputFont": "16px",
+      "basicInputSize": {
+        "success": true,
+        "width": 286,
+        "height": 48
+      },
+      "aiInputFont": "16px",
+      "aiInputSize": {
+        "success": true,
+        "width": 286,
+        "height": 46.395835876464844
+      }
+    },
+    {
+      "evidence": "after-375-normal-capture.json",
+      "windowWidth": 375,
+      "windowHeight": 730,
+      "screenHeight": 812,
+      "fontSizeSetting": 16,
+      "platform": "devtools",
+      "rootBounds": [
+        {
+          "page": "basic",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "health",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "adl",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "cognitive",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "preference",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "budget",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "profile",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "result",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "ai-chat",
+          "left": 20,
+          "width": 335.3333435058594,
+          "right": 355.3333435058594,
+          "insideViewport": true
+        },
+        {
+          "page": "appointment",
+          "left": 16,
+          "width": 343.3333435058594,
+          "right": 359.3333435058594,
+          "insideViewport": true
+        }
+      ],
+      "basicInputFont": "16px",
+      "basicInputSize": {
+        "success": true,
+        "width": 335.3333435058594,
+        "height": 48
+      },
+      "aiInputFont": "16px",
+      "aiInputSize": {
+        "success": true,
+        "width": 203.6666717529297,
+        "height": 46.395835876464844
+      }
+    },
+    {
+      "evidence": "after-430-normal-capture.json",
+      "windowWidth": 430,
+      "windowHeight": 850,
+      "screenHeight": 932,
+      "fontSizeSetting": 16,
+      "platform": "devtools",
+      "rootBounds": [
+        {
+          "page": "basic",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "health",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "adl",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "cognitive",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "preference",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "budget",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "profile",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "result",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "ai-chat",
+          "left": 22,
+          "width": 386,
+          "right": 408,
+          "insideViewport": true
+        },
+        {
+          "page": "appointment",
+          "left": 18,
+          "width": 394,
+          "right": 412,
+          "insideViewport": true
+        }
+      ],
+      "basicInputFont": "16px",
+      "basicInputSize": {
+        "success": true,
+        "width": 386,
+        "height": 48
+      },
+      "aiInputFont": "16px",
+      "aiInputSize": {
+        "success": true,
+        "width": 228.5,
+        "height": 46.395835876464844
+      }
+    },
+    {
+      "evidence": "final-320-font150-targeted.json",
+      "windowWidth": 320,
+      "windowHeight": 546,
+      "screenHeight": 600,
+      "fontSizeSetting": 24,
+      "platform": "devtools",
+      "rootBounds": [
+        {
+          "page": "preference",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "profile",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "result",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        },
+        {
+          "page": "ai-chat",
+          "left": 17,
+          "width": 286,
+          "right": 303,
+          "insideViewport": true
+        }
+      ],
+      "basicInputFont": null,
+      "basicInputSize": null,
+      "aiInputFont": "24px",
+      "aiInputSize": {
+        "success": true,
+        "width": 286,
+        "height": 59.59375
+      }
+    }
+  ],
+  "nutritionTitle": {
+    "normal": "20px",
+    "large": "30px",
+    "normalEvidence": "native-final-environment.json"
+  },
+  "largeAi": {
+    "longInputFont": "24px",
+    "longInputSize": {
+      "success": true,
+      "width": 286,
+      "height": 178.39584350585938
+    },
+    "composerOffset": {
+      "left": 0,
+      "top": 350.54168701171875
+    },
+    "composerSize": {
+      "success": true,
+      "width": 320,
+      "height": 249.45834350585938
+    },
+    "lastActionOffset": {
+      "left": 17,
+      "top": 189.4166717529297
+    },
+    "lastActionSize": {
+      "success": true,
+      "width": 286,
+      "height": 45.72916793823242
+    }
+  },
+  "lastAiActionAboveComposer": true,
+  "reviewButtonPngRect": {
+    "image": "after-320-font150-appointment-end.png",
+    "x": 17,
+    "y": 467,
+    "width": 376,
+    "height": 74,
+    "units": "original PNG pixels, border estimate +/- 1 pixel",
+    "note": "The pseudo selectors did not isolate the action button. This is an image border measurement, not a selector-derived CSS rectangle."
+  },
+  "android": "NOT_RUN"
+}

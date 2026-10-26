@@ -210,7 +210,7 @@
       <section-card>
         <state-panel
           state="error"
-          title="{{pageState === 'route_error' ? '预约入口无效' : '机构资料暂不可用'}}"
+          title="{{pageState === 'service_unavailable' ? '预约服务尚未开放' : pageState === 'route_error' ? '预约入口无效' : '机构资料暂不可用'}}"
           message="{{pageDescription}}"
         ></state-panel>
         <primary-button warmSwiss="{{true}}" text="{{returnInstitutionButtonText}}" bind:action="onReturnToInstitution"></primary-button>

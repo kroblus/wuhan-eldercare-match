@@ -1,0 +1,62 @@
+[
+  {
+    "status": "requested",
+    "explicitRecordedTime": null,
+    "timeLabel": "预约时间",
+    "time": "具体时间待确认"
+  },
+  {
+    "status": "requested",
+    "explicitRecordedTime": "2026年10月20日 10:00",
+    "timeLabel": "预约时间",
+    "time": "2026年10月20日 10:00"
+  },
+  {
+    "status": "contacting",
+    "explicitRecordedTime": null,
+    "timeLabel": "预约时间",
+    "time": "具体时间待确认"
+  },
+  {
+    "status": "contacting",
+    "explicitRecordedTime": "2026年10月20日 10:00",
+    "timeLabel": "预约时间",
+    "time": "2026年10月20日 10:00"
+  },
+  {
+    "status": "scheduled",
+    "explicitRecordedTime": null,
+    "timeLabel": "预约时间",
+    "time": "具体时间待确认"
+  },
+  {
+    "status": "scheduled",
+    "explicitRecordedTime": "2026年10月20日 10:00",
+    "timeLabel": "预约时间",
+    "time": "2026年10月20日 10:00"
+  },
+  {
+    "status": "completed",
+    "explicitRecordedTime": null,
+    "timeLabel": "看院时间",
+    "time": "未记录"
+  },
+  {
+    "status": "completed",
+    "explicitRecordedTime": "2026年10月20日 10:00",
+    "timeLabel": "看院时间",
+    "time": "2026年10月20日 10:00"
+  },
+  {
+    "status": "cancelled",
+    "explicitRecordedTime": null,
+    "timeLabel": "预约时间",
+    "time": "未记录"
+  },
+  {
+    "status": "cancelled",
+    "explicitRecordedTime": "2026年10月20日 10:00",
+    "timeLabel": "预约时间",
+    "time": "2026年10月20日 10:00"
+  }
+]

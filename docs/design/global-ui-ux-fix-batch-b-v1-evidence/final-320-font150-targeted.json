@@ -1,0 +1,525 @@
+[
+  {
+    "label": "system",
+    "isError": false,
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "brand": "devtools",
+          "model": "Batch B 320",
+          "system": "Android 5.0",
+          "platform": "devtools",
+          "benchmarkLevel": -1,
+          "pixelRatio": 2,
+          "screenWidth": 320,
+          "screenHeight": 600,
+          "windowWidth": 320,
+          "windowHeight": 546,
+          "statusBarHeight": 20,
+          "safeArea": {
+            "top": 20,
+            "left": 0,
+            "right": 320,
+            "bottom": 600,
+            "width": 320,
+            "height": 580
+          },
+          "language": "zh_CN",
+          "version": "8.0.5",
+          "fontSizeSetting": 24,
+          "SDKVersion": "3.17.3",
+          "host": {
+            "env": "WeChat"
+          },
+          "enableDebug": false,
+          "mode": "default",
+          "deviceOrientation": "portrait",
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "albumAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "bluetoothAuthorized": true,
+          "locationReducedAccuracy": true,
+          "devicePixelRatio": 2
+        }
+      }
+    }
+  },
+  {
+    "label": "preference-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "preference-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "--browse-body-size:24px;--browse-meta-size:21px;--browse-control-size:24px;--browse-title-size:30px;--browse-hero-size:34.5px"
+    }
+  },
+  {
+    "label": "preference-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 3830.71875
+    }
+  },
+  {
+    "label": "preference-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 64
+    }
+  },
+  {
+    "label": "preference-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-preference-top.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "preference-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "preference-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-preference-middle.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "preference-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "preference-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-preference-end.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "preference-introFont",
+    "isError": false,
+    "result": "21px"
+  },
+  {
+    "label": "preference-saveOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 408.07293701171875
+    }
+  },
+  {
+    "label": "preference-saveSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 34.645835876464844
+    }
+  },
+  {
+    "label": "preference-back",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "profile-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "profile-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "--browse-body-size:24px;--browse-meta-size:21px;--browse-control-size:24px;--browse-title-size:30px;--browse-hero-size:34.5px"
+    }
+  },
+  {
+    "label": "profile-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 4672.40625
+    }
+  },
+  {
+    "label": "profile-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 64
+    }
+  },
+  {
+    "label": "profile-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-profile-top.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "nutritionFont",
+    "isError": false,
+    "result": "30px"
+  },
+  {
+    "label": "nutritionOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 2676.75
+    }
+  },
+  {
+    "label": "nutritionScroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "nutritionScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-nutrition.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "profile-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "profile-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-profile-middle.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "profile-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "profile-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-profile-end.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "profile-back",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "--browse-body-size:24px;--browse-meta-size:21px;--browse-control-size:24px;--browse-title-size:30px;--browse-hero-size:34.5px"
+    }
+  },
+  {
+    "label": "result-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 5497.73974609375
+    }
+  },
+  {
+    "label": "result-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 64
+    }
+  },
+  {
+    "label": "result-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-result-top.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "result-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-result-middle.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "result-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "result-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-result-end.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "result-back",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-font",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "--browse-body-size:24px;--browse-meta-size:21px;--browse-control-size:24px;--browse-title-size:30px;--browse-hero-size:34.5px"
+    }
+  },
+  {
+    "label": "ai-chat-rootSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 1559.1458740234375
+    }
+  },
+  {
+    "label": "ai-chat-rootOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 64
+    }
+  },
+  {
+    "label": "ai-chat-top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-ai-chat-top.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "ai-chat-middle-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-middle",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-ai-chat-middle.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "ai-chat-end-scroll",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ai-chat-end",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-ai-chat-end.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "ai-chat-inputFont",
+    "isError": false,
+    "result": "24px"
+  },
+  {
+    "label": "ai-chat-inputSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 59.59375
+    }
+  },
+  {
+    "label": "longInput",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "longInputEnd",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "longInputFont",
+    "isError": false,
+    "result": "24px"
+  },
+  {
+    "label": "longInputSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 178.39584350585938
+    }
+  },
+  {
+    "label": "composerOffset",
+    "isError": false,
+    "result": {
+      "left": 0,
+      "top": 350.54168701171875
+    }
+  },
+  {
+    "label": "composerSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 320,
+      "height": 249.45834350585938
+    }
+  },
+  {
+    "label": "lastActionOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 189.4166717529297
+    }
+  },
+  {
+    "label": "lastActionSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 45.72916793823242
+    }
+  },
+  {
+    "label": "longInputScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-ai-long-input.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "clearTestInput",
+    "isError": true,
+    "result": "MCP error -32602: Input validation error: Invalid arguments for tool automation_element_action: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"value\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]"
+  }
+]

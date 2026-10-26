@@ -1,0 +1,58 @@
+[
+  {
+    "name": "interaction-demo-search",
+    "route": "/pages/institution/index",
+    "actions": [
+      {
+        "tool": "automation_element_action",
+        "args": {
+          "action": "input",
+          "selector": ".directory-input-wrap input",
+          "value": "春和"
+        }
+      }
+    ]
+  },
+  {
+    "name": "interaction-demo-clear",
+    "tap": ".directory-clear"
+  },
+  {
+    "name": "interaction-demo-directory-detail",
+    "tap": ".institution-detail-link"
+  },
+  {
+    "name": "interaction-demo-reco-detail",
+    "route": "/pages/recommendation/result",
+    "tap": ".result-detail-button[data-institution-id=demo-inst-chunhe-home]"
+  },
+  {
+    "name": "interaction-demo-reco-return",
+    "actions": [
+      {
+        "tool": "automation_navigate",
+        "args": {
+          "action": "navigateBack",
+          "delta": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "interaction-demo-evaluate",
+    "route": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link",
+    "tap": ".story-primary"
+  },
+  {
+    "name": "interaction-demo-booking-return",
+    "actions": [
+      {
+        "tool": "automation_navigate",
+        "args": {
+          "action": "navigateBack",
+          "delta": 1
+        }
+      }
+    ]
+  }
+]

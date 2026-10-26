@@ -1,0 +1,24 @@
+{
+  "demo": {
+    "kind": "generated_shared_run_mode",
+    "mode": "demo",
+    "source": "../..",
+    "builtAt": "2026-10-25T11:38:22.169Z",
+    "status": "PASS_LOCAL_BUILD",
+    "routes": 30,
+    "modules": 201,
+    "packageBytes": 1962065,
+    "provider": "ISOLATED_SYNTHETIC_MEMORY"
+  },
+  "production": {
+    "kind": "generated_shared_run_mode",
+    "mode": "production",
+    "source": "../..",
+    "builtAt": "2026-10-25T11:38:30.988Z",
+    "status": "PASS_LOCAL_BUILD",
+    "routes": 30,
+    "modules": 214,
+    "packageBytes": 1359558,
+    "provider": "REVIEWED_PUBLIC_DIRECTORY_READ_ONLY"
+  }
+}

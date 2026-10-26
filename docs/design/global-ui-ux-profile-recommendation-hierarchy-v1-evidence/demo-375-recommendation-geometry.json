@@ -1,0 +1,82 @@
+{
+  "geometry": {
+    ".match-basis": {
+      "offset": {
+        "left": 20,
+        "top": 392.54168701171875
+      },
+      "size": {
+        "success": true,
+        "width": 335.3333435058594,
+        "height": 125.48958587646484
+      }
+    },
+    ".focus-item--neutral": {
+      "offset": {
+        "left": 20,
+        "top": 481.5
+      },
+      "size": {
+        "success": true,
+        "width": 149.33334350585938,
+        "height": 36.53125
+      }
+    }
+  },
+  "styles": {
+    "font-size": "16px",
+    "color": "rgb(181, 71, 8)",
+    "background-color": "rgb(255, 241, 230)"
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "iPhone 12/13 mini",
+        "system": "iOS 10.0.1",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 3,
+        "screenWidth": 375,
+        "screenHeight": 812,
+        "windowWidth": 375,
+        "windowHeight": 730,
+        "statusBarHeight": 47,
+        "safeArea": {
+          "top": 47,
+          "left": 0,
+          "right": 375,
+          "bottom": 778,
+          "width": 375,
+          "height": 731
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 16,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 3
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "page": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 150,
+        "path": "pages/assessment/basic",
+        "query": {},
+        "route": "/pages/assessment/basic",
+        "title": ""
+      }
+    }
+  },
+  "system": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "brand": "devtools",
+          "model": "iPhone 14/15 Pro Max",
+          "system": "iOS 10.0.1",
+          "platform": "devtools",
+          "benchmarkLevel": -1,
+          "pixelRatio": 3,
+          "screenWidth": 430,
+          "screenHeight": 932,
+          "windowWidth": 430,
+          "windowHeight": 850,
+          "statusBarHeight": 54,
+          "safeArea": {
+            "top": 54,
+            "left": 0,
+            "right": 430,
+            "bottom": 898,
+            "width": 430,
+            "height": 844
+          },
+          "language": "zh_CN",
+          "version": "8.0.5",
+          "fontSizeSetting": 16,
+          "SDKVersion": "3.17.3",
+          "host": {
+            "env": "WeChat"
+          },
+          "enableDebug": false,
+          "mode": "default",
+          "deviceOrientation": "portrait",
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "albumAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "bluetoothAuthorized": true,
+          "locationReducedAccuracy": true,
+          "devicePixelRatio": 3
+        }
+      }
+    }
+  }
+}

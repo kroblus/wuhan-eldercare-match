@@ -1,0 +1,1 @@
+[{"name": "demo-375-consultant-linked"}, {"name": "demo-375-linked-contact", "tap": ".story-primary"}, {"name": "demo-375-faq-care", "tap": "button[data-key=care]", "measure": ".story-reply"}, {"name": "demo-375-faq-fees", "tap": "button[data-key=fees]"}, {"name": "demo-375-faq-medical", "tap": "button[data-key=medical]"}, {"name": "demo-375-consultant-end", "scroll": 10000}]

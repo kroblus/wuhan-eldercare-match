@@ -1,0 +1,804 @@
+[
+  {
+    "state": "ready_soft_near",
+    "headline": "有相近候选，部分偏好仍需确认",
+    "summary": "以下机构已经满足当前关键护理需求，但部分偏好尚未完全符合或确认，请逐项查看差异。",
+    "focusTags": [
+      {
+        "text": "需要半失能照护",
+        "tone": "brand"
+      },
+      {
+        "text": "行动需要辅助",
+        "tone": "brand"
+      },
+      {
+        "text": "您关注：照护能力",
+        "tone": "neutral"
+      }
+    ],
+    "cards": [
+      {
+        "institutionId": "demo-inst-chunhe-center",
+        "recordRevision": 1,
+        "name": "春和颐养中心",
+        "region": "演示区域：江岸区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6500–¥7500 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      },
+      {
+        "institutionId": "demo-inst-chunhe-home",
+        "recordRevision": 1,
+        "name": "虚构示例·春和颐养中心",
+        "region": "演示区域：江岸区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6200–¥7800 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      },
+      {
+        "institutionId": "demo-inst-kangyi-center",
+        "recordRevision": 1,
+        "name": "晨曦养老中心",
+        "region": "演示区域：黄陂区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6200–¥7800 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      }
+    ],
+    "conditionalCards": [],
+    "resultAdvisories": [],
+    "visitAdvice": [
+      "是否接收符合老人当前照护情况的住户，所需护理能力如何确认。",
+      "当前收费、包含项目和另行收费项目分别是什么。",
+      "近期是否有可入住床位，是否需要等候。",
+      "入住条件、所需材料，以及是否支持参观、如何安排。"
+    ],
+    "mockDisclosure": "以下机构、价格与护理能力均为虚构演示资料，不代表真实养老机构信息。",
+    "hasMockDisclosure": true,
+    "datasetLabel": "虚构机构演示目录",
+    "emptyReason": null,
+    "noSafeMessage": "",
+    "actions": {
+      "canRetry": false,
+      "canAdjustNeeds": true,
+      "canContactConsultant": true,
+      "detailLabel": "查看机构详情",
+      "listLabel": "浏览已收录的养老机构"
+    }
+  },
+  {
+    "state": "ready_soft_near",
+    "headline": "有相近候选，部分偏好仍需确认",
+    "summary": "以下机构已经满足当前关键护理需求，但部分偏好尚未完全符合或确认，请逐项查看差异。",
+    "focusTags": [
+      {
+        "text": "需要半失能照护",
+        "tone": "brand"
+      },
+      {
+        "text": "行动需要辅助",
+        "tone": "brand"
+      },
+      {
+        "text": "您关注：照护能力",
+        "tone": "neutral"
+      }
+    ],
+    "cards": [
+      {
+        "institutionId": "demo-inst-chunhe-center",
+        "recordRevision": 1,
+        "name": "春和颐养中心",
+        "region": "演示区域：江岸区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6500–¥7500 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      },
+      {
+        "institutionId": "demo-inst-chunhe-home",
+        "recordRevision": 1,
+        "name": "虚构示例·春和颐养中心",
+        "region": "演示区域：江岸区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6200–¥7800 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      },
+      {
+        "institutionId": "demo-inst-kangyi-center",
+        "recordRevision": 1,
+        "name": "晨曦养老中心",
+        "region": "演示区域：黄陂区（Mock 演示目录）",
+        "type": "医养结合、失能照护",
+        "price": "¥6200–¥7800 / 月",
+        "coverUrl": "",
+        "hasCover": false,
+        "tags": [
+          {
+            "text": "医养结合",
+            "tone": "neutral"
+          },
+          {
+            "text": "失能照护",
+            "tone": "neutral"
+          }
+        ],
+        "reasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          },
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "primaryReasons": [
+          {
+            "text": "照护等级与当前需求相符",
+            "tone": "positive",
+            "key": "CARE_LEVEL_SUPPORTED-0"
+          },
+          {
+            "text": "特殊护理能力可匹配",
+            "tone": "positive",
+            "key": "SPECIAL_CARE_SUPPORTED-1"
+          },
+          {
+            "text": "参考费用在预算范围内",
+            "tone": "positive",
+            "key": "BUDGET_WITHIN_RANGE-2"
+          }
+        ],
+        "additionalReasons": [
+          {
+            "text": "机构类型偏好相符",
+            "tone": "positive",
+            "key": "TYPE_MATCH-3"
+          },
+          {
+            "text": "关注重点有结构化支持",
+            "tone": "positive",
+            "key": "PRIORITY_STRUCTURED_MATCH-5"
+          }
+        ],
+        "matchLabel": "相近候选 · 部分偏好待确认",
+        "differences": [
+          {
+            "text": "资料待核验：房型资料不足，需要进一步确认",
+            "tone": "muted",
+            "key": "ROOM_TYPE_UNKNOWN-1"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "MEAL_SCHEDULE_UNKNOWN-2"
+          },
+          {
+            "text": "资料待核验：当前核验资料不足，需进一步确认",
+            "tone": "muted",
+            "key": "EASY_CHEW_SUPPORT_UNKNOWN-3"
+          }
+        ],
+        "compactFacts": [
+          {
+            "key": "room",
+            "text": "当前核验资料不足，需要进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "meal",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "nutrition",
+            "text": "当前核验资料不足，需进一步确认",
+            "tone": "warning"
+          },
+          {
+            "key": "vr",
+            "text": "VR 信息暂未提供",
+            "tone": "muted"
+          }
+        ],
+        "advisories": [],
+        "vrLabel": "",
+        "detailLabel": "查看机构详情",
+        "isConditional": false
+      }
+    ],
+    "conditionalCards": [],
+    "resultAdvisories": [],
+    "visitAdvice": [
+      "是否接收符合老人当前照护情况的住户，所需护理能力如何确认。",
+      "当前收费、包含项目和另行收费项目分别是什么。",
+      "近期是否有可入住床位，是否需要等候。",
+      "入住条件、所需材料，以及是否支持参观、如何安排。"
+    ],
+    "mockDisclosure": "以下机构、价格与护理能力均为虚构演示资料，不代表真实养老机构信息。",
+    "hasMockDisclosure": true,
+    "datasetLabel": "虚构机构演示目录",
+    "emptyReason": null,
+    "noSafeMessage": "",
+    "actions": {
+      "canRetry": false,
+      "canAdjustNeeds": true,
+      "canContactConsultant": true,
+      "detailLabel": "查看机构详情",
+      "listLabel": "浏览已收录的养老机构"
+    }
+  }
+]

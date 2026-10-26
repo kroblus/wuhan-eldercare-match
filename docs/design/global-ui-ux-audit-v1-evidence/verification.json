@@ -1,0 +1,14 @@
+{
+  "time": "2026-10-25T09:38:45.142066",
+  "baselineCommit": "7ae07b9b78e4502940fd9812c6a838e4ddf2cc06",
+  "sourceFilesCompared": 578,
+  "changedSourceFiles": [],
+  "gitStatus": " M miniprogram/styles/tokens.less\n?? docs/design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md\n?? docs/design/GLOBAL_UI_UX_AUDIT_V1.md\n?? docs/design/global-ui-ux-audit-v1-evidence/\n",
+  "counts": {
+    "P1": 2,
+    "P2": 5,
+    "Observation": 4
+  },
+  "capturedRoutes": 30,
+  "productionRoutes": 20
+}

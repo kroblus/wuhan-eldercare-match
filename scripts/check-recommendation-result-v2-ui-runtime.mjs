@@ -420,7 +420,7 @@ const main = async () => {
   }, executedSnapshots, RESULT_V2_UI_FIXTURE_MANIFEST)
 
   await run('RESULT-SNAPSHOT-V2-016', 'readiness-blocked preview is a successful no-card semantic result', async (c) => {
-    const result = await build({ draft: makeResultV2UiDraft({ 'health.swallowingAbility': 'unknown' }) })
+    const result = await build({ draft: makeResultV2UiDraft({ 'health.chewingAbility': 'unknown' }) })
     c.equal(result.ok, true)
     c.equal(result.value.preview.semantics.elderReadiness, 'blocked_by_required_clarification')
     c.equal(result.value.preview.semantics.cards.length, 0)
@@ -474,7 +474,7 @@ const main = async () => {
         exact: {},
         softNear: { draft: makeResultV2UiDraft({ 'preference.roomType': 'single' }) },
         conditional: { draft: makeResultV2UiDraft({ 'adl.mobility': 'wheelchair' }), variant: 'conditional' },
-        readiness: { draft: makeResultV2UiDraft({ 'health.swallowingAbility': 'unknown' }) },
+        readiness: { draft: makeResultV2UiDraft({ 'health.chewingAbility': 'unknown' }) },
         otherNoSafe: { draft: makeResultV2UiDraft({ 'adl.mobility': 'wheelchair' }), variant: 'hard-conflict' },
         roomMatch: { draft: makeResultV2UiDraft({ 'preference.roomType': 'single' }), variant: 'room-match' },
         roomUnknown: { draft: makeResultV2UiDraft({ 'preference.roomType': 'single' }), variant: 'exact' },

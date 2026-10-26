@@ -1,0 +1,41 @@
+[
+  {
+    "label": "clearViaInputEvent",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "clearedValue",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "clearScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-ai-input-cleared.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "return",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "openBasic",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  }
+]

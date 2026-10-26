@@ -1,0 +1,57 @@
+[
+  {
+    "label": "afterPhysicalTap",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 42,
+        "path": "pages/visit/evaluation",
+        "query": {
+          "visitId": "demo-visit-demo-inst-chunhe-garden"
+        },
+        "route": "/pages/visit/evaluation?visitId=demo-visit-demo-inst-chunhe-garden",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "submittedState",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "submitted"
+    }
+  },
+  {
+    "label": "readonlyScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-review-physical-click.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "return",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "returned",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 40,
+        "path": "pages/appointment/index",
+        "query": {},
+        "route": "/pages/appointment/index",
+        "title": ""
+      }
+    }
+  }
+]

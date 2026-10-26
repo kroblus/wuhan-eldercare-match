@@ -7,6 +7,7 @@ import { basicRecordRows, savedProfileRows, assessmentSummary } from './record-p
 import { formatChinaDateTime } from '../utils/display-date'
 import { readBrowseFontStyle } from '../utils/browse-font'
 import { storyDisplayName } from './story-name'
+import { appointmentTimePresentation } from './appointment-time'
 
 const labels: Record<string, string> = { requested: '待确认', contacting: '待确认', scheduled: '已确认', completed: '已完成', cancelled: '已取消' }
 export function registerDemoRecords(kind: 'elders' | 'elder' | 'history' | 'appointments'): void {
@@ -51,7 +52,7 @@ export function registerDemoRecords(kind: 'elders' | 'elder' | 'history' | 'appo
         || (this.data.filter === 'awaiting' ? ['requested', 'contacting'].includes(f.appointmentStatus)
           : this.data.filter === 'confirmed' ? f.appointmentStatus === 'scheduled' : f.appointmentStatus === this.data.filter))
         .map(f => ({ id: f.appointmentId, title: storyDisplayName(f.institutionId, (directory.find(r => r.institutionId === f.institutionId) || { displayName: '机构资料不可用' }).displayName), subtitle: labels[f.appointmentStatus],
-          timeLabel: '预约时间', time: '具体时间待确认', summary: f.appointmentStatus === 'completed' ? '本次看院已完成，可记录或查看现场感受。' : f.appointmentStatus === 'cancelled' ? '预约已取消。' : '安排以确认结果为准。',
+          ...appointmentTimePresentation(f.appointmentStatus), summary: f.appointmentStatus === 'completed' ? '本次看院已完成，可记录或查看现场感受。' : f.appointmentStatus === 'cancelled' ? '预约已取消。' : '安排以确认结果为准。',
           status: f.appointmentStatus, action: f.appointmentStatus === 'completed' ? f.evaluation ? '查看看院评价' : '填写看院评价' : '',
           url: f.appointmentStatus === 'completed' ? '/pages/visit/evaluation?visitId=' + encodeURIComponent(f.visitId) : '',
           detailUrl: '/pages/institution/detail?institutionId=' + encodeURIComponent(f.institutionId) + '&recordRevision=' + f.recordRevision }))

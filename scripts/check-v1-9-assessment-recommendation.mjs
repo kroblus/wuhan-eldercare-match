@@ -46,7 +46,7 @@ for (const [name, draft, variant, expected] of [
   ['exact', makeResultV2UiDraft(), 'exact', 'ready_exact'],
   ['near', makeResultV2UiDraft({ 'preference.roomType': 'single' }), 'exact', 'ready_soft_near'],
   ['conditional', makeResultV2UiDraft({ 'adl.mobility': 'wheelchair' }), 'conditional', 'ready_conditional'],
-  ['readiness', makeResultV2UiDraft({ 'health.swallowingAbility': 'unknown' }), 'exact', 'no_safe_recommendation'],
+  ['readiness', makeResultV2UiDraft({ 'health.chewingAbility': 'unknown' }), 'exact', 'no_safe_recommendation'],
   ['hard-conflict', makeResultV2UiDraft({ 'adl.mobility': 'wheelchair' }), 'hard-conflict', 'no_safe_recommendation'],
 ]) {
   const result = await build(draft, variant)
@@ -211,11 +211,11 @@ if (!process.argv.includes('--source-only')) for (const mode of ['production', '
   ordinary.onLoad({ institutionId: identity.institutionId, recordRevision: String(identity.recordRevision), source: 'direct_link' }); await flush()
   assert.equal(ordinary.data.pageState, 'ready')
   assert.equal(ordinary.data.viewModel.recommendation, null, 'ordinary detail cannot inherit another elder explanation')
-  store.setAnswer('health.swallowingAbility', 'unknown')
+  store.setAnswer('health.chewingAbility', 'unknown')
   resultPage.onShow(); await flush()
   assert.equal(resultPage.data.viewModel.emptyReason, 'ELDER_READINESS_BLOCKED')
   assert.equal(resultPage.data.viewModel.cards.length + resultPage.data.viewModel.conditionalCards.length, 0)
-  store.setAnswer('health.swallowingAbility', 'normal')
+  store.setAnswer('health.chewingAbility', 'normal')
   resultPage.onShow(); await flush()
   assert.notEqual(resultPage.data.viewModel.emptyReason, 'ELDER_READINESS_BLOCKED')
   assert.equal(app.effects.length, 0)

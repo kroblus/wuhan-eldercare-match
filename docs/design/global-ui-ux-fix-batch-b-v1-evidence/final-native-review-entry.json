@@ -1,0 +1,60 @@
+[
+  {
+    "label": "reviewTouch",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 160,
+      "y": 393
+    }
+  },
+  {
+    "label": "reviewTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 169,
+        "path": "pages/visit/evaluation",
+        "query": {
+          "visitId": "demo-visit-demo-inst-chunhe-garden"
+        },
+        "route": "/pages/visit/evaluation?visitId=demo-visit-demo-inst-chunhe-garden",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "submitted",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "submitted"
+    }
+  },
+  {
+    "label": "reviewScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-review-final.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "return",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "restoreHome",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  }
+]

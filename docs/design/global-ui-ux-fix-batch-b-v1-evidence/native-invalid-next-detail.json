@@ -1,0 +1,42 @@
+[
+  {
+    "label": "formError",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "ageAnchorId",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "assessment-question-basic-age"
+    }
+  },
+  {
+    "label": "relationshipError",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "genderError",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "top",
+    "isError": false,
+    "result": {
+      "success": true,
+      "scrollTop": 3420
+    }
+  }
+]

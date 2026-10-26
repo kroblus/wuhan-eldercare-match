@@ -1,0 +1,80 @@
+{
+  "name": "demo-375-profile-1",
+  "page": {
+    "success": true,
+    "currentPage": {
+      "pageId": 286,
+      "path": "pages/assessment/profile",
+      "query": {},
+      "route": "/pages/assessment/profile",
+      "title": ""
+    }
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "iPhone 12/13 mini",
+        "system": "iOS 10.0.1",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 3,
+        "screenWidth": 375,
+        "screenHeight": 812,
+        "windowWidth": 375,
+        "windowHeight": 730,
+        "statusBarHeight": 47,
+        "safeArea": {
+          "top": 47,
+          "left": 0,
+          "right": 375,
+          "bottom": 778,
+          "width": 375,
+          "height": 731
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 16,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 3
+      }
+    }
+  },
+  "rootSize": {
+    "success": true,
+    "width": 335.3333435058594,
+    "height": 2683.947998046875
+  },
+  "requestedScroll": 565,
+  "actualScroll": {
+    "success": true,
+    "scrollTop": 565.3333129882812
+  },
+  "screenshot": {
+    "success": true,
+    "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-profile-recommendation-hierarchy-v1-evidence\\demo-375-profile-1.png",
+    "imageWidth": 479,
+    "imageHeight": 1038
+  }
+}

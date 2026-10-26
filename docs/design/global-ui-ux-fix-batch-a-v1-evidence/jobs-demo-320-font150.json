@@ -1,0 +1,66 @@
+[
+  {
+    "name": "demo-320-font150-directory",
+    "route": "/pages/institution/index",
+    "measure": [
+      ".page-shell"
+    ]
+  },
+  {
+    "name": "demo-320-font150-directory-end",
+    "scroll": 16000
+  },
+  {
+    "name": "demo-320-font150-recommendation",
+    "route": "/pages/recommendation/result",
+    "measure": [
+      ".recommendation-shell"
+    ]
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-1",
+    "scroll": 550
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-2",
+    "scroll": 1100
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-3",
+    "scroll": 1650
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-4",
+    "scroll": 2200
+  },
+  {
+    "name": "demo-320-font150-recommendation-mid-5",
+    "scroll": 2750
+  },
+  {
+    "name": "demo-320-font150-recommendation-end",
+    "scroll": 16000
+  },
+  {
+    "name": "demo-320-font150-booking",
+    "route": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link",
+    "measure": [
+      ".story-shell"
+    ]
+  },
+  {
+    "name": "demo-320-font150-booking-end",
+    "scroll": 16000
+  },
+  {
+    "name": "demo-320-font150-records",
+    "route": "/pages/appointment/index",
+    "measure": [
+      ".demo-records"
+    ]
+  },
+  {
+    "name": "demo-320-font150-records-end",
+    "scroll": 16000
+  }
+]

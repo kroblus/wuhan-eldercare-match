@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import { validateCognitiveAnswersV2 } from '../../types/assessment-v2'
 import type {
   AssessmentAnswerValueMapV2,
@@ -14,6 +15,7 @@ type ChoiceOption = { value: string; label: string }
 type CognitiveQuestionId = 'cognitive.symptoms' | 'cognitive.specialCareNeeds'
 
 interface AssessmentCognitiveData {
+  fontStyle: string
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
@@ -71,6 +73,7 @@ const readMultiAnswer = <K extends CognitiveQuestionId>(answers: DraftAnswers, q
 
 Page({
   data: {
+    fontStyle: '',
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
@@ -96,6 +99,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.setData({ backText: getAssessmentBackText('cognitive') })
     this.syncFromDraft()

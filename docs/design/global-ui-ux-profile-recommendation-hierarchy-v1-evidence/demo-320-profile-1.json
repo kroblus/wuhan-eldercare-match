@@ -1,0 +1,80 @@
+{
+  "name": "demo-320-profile-1",
+  "page": {
+    "success": true,
+    "currentPage": {
+      "pageId": 293,
+      "path": "pages/assessment/profile",
+      "query": {},
+      "route": "/pages/assessment/profile",
+      "title": ""
+    }
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "TEST_ONLY_320x568",
+        "system": "Android 5.0",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 2,
+        "screenWidth": 320,
+        "screenHeight": 568,
+        "windowWidth": 320,
+        "windowHeight": 514,
+        "statusBarHeight": 20,
+        "safeArea": {
+          "top": 20,
+          "left": 0,
+          "right": 320,
+          "bottom": 568,
+          "width": 320,
+          "height": 548
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 16,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 2
+      }
+    }
+  },
+  "rootSize": {
+    "success": true,
+    "width": 286,
+    "height": 3383.52099609375
+  },
+  "requestedScroll": 349,
+  "actualScroll": {
+    "success": true,
+    "scrollTop": 349.3333435058594
+  },
+  "screenshot": {
+    "success": true,
+    "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-profile-recommendation-hierarchy-v1-evidence\\demo-320-profile-1.png",
+    "imageWidth": 408,
+    "imageHeight": 726
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "selector": ".record-filter[data-filter=completed]",
+  "offset": {
+    "left": 16,
+    "top": 159.9375
+  },
+  "size": {
+    "success": true,
+    "width": 167.6666717529297,
+    "height": 44
+  },
+  "viewport": 730
+}

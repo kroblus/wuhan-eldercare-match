@@ -1,0 +1,57 @@
+[
+  {
+    "label": "basicOpen",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "originalAge",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "78"
+    }
+  },
+  {
+    "label": "originalName",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "合成老人甲（TEST ONLY）"
+    }
+  },
+  {
+    "label": "invalidAgeInput",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "draftAge",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "49"
+    }
+  },
+  {
+    "label": "bottom",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "beforeInvalidNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-before-next.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  }
+]

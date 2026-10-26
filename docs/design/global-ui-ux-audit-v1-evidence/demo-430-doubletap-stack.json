@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "tool": "automation_runtime_info",
+  "clientName": "Codex",
+  "result": {
+    "success": true,
+    "pageStack": [
+      {
+        "pageId": 142,
+        "path": "pages/home/index",
+        "query": {},
+        "route": "/pages/home/index",
+        "title": ""
+      },
+      {
+        "pageId": 143,
+        "path": "pages/assessment/profile",
+        "query": {},
+        "route": "/pages/assessment/profile",
+        "title": ""
+      },
+      {
+        "pageId": 144,
+        "path": "pages/recommendation/result",
+        "query": {},
+        "route": "/pages/recommendation/result",
+        "title": ""
+      }
+    ]
+  }
+}

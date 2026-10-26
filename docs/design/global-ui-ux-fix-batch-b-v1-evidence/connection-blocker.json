@@ -1,0 +1,12 @@
+{
+  "status": "RESOLVED_FOR_THIS_ACCEPTANCE",
+  "dateBeijing": "2026-10-25",
+  "transport": "Official wechatide MCP bridge using existing WECHATIDE_MCP_TOKEN environment variable",
+  "pathCaseIssue": "D:/DailyAPP profile .ide=27266; D:/dailyapp profile .ide=47342",
+  "resolution": "Child-process-only ELECTRON_BASE_APP_PATH selects the active existing profile. No installation or security settings changed.",
+  "loginExpired": false,
+  "versionRelation": "equal",
+  "credentialsRecorded": false,
+  "nativeAcceptance": "COMPLETED_DEVTOOLS",
+  "android": "NOT_RUN"
+}

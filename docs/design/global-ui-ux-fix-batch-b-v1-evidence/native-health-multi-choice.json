@@ -1,0 +1,70 @@
+[
+  {
+    "label": "tapOtherCondition",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 140,
+      "y": 150
+    }
+  },
+  {
+    "label": "afterSelect",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": [
+        "hypertension",
+        "other_chronic_disease"
+      ]
+    }
+  },
+  {
+    "label": "selectedScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-health-choice-selected.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "restoreOtherCondition",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 140,
+      "y": 150
+    }
+  },
+  {
+    "label": "afterRestore",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": [
+        "hypertension"
+      ]
+    }
+  },
+  {
+    "label": "end",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "longSingleChoice",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-health-single-before.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  }
+]

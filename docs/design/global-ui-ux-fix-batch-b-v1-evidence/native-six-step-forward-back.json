@@ -1,0 +1,442 @@
+[
+  {
+    "label": "swallowBefore",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "normal"
+    }
+  },
+  {
+    "label": "tapWrappedChoice",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 140,
+      "y": 205
+    }
+  },
+  {
+    "label": "swallowChanged",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "occasional_difficulty"
+    }
+  },
+  {
+    "label": "wrappedChoiceScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-long-choice-selected.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "restoreSwallow",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 140,
+      "y": 130
+    }
+  },
+  {
+    "label": "swallowRestored",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "normal"
+    }
+  },
+  {
+    "label": "health-back",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "health-backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 45,
+        "path": "pages/assessment/basic",
+        "query": {},
+        "route": "/pages/assessment/basic",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "health-returnNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "health-returnTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 47,
+        "path": "pages/assessment/health",
+        "query": {},
+        "route": "/pages/assessment/health",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "health-forward",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "health-forwardTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 48,
+        "path": "pages/assessment/adl",
+        "query": {},
+        "route": "/pages/assessment/adl",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "adl-back",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "adl-backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 47,
+        "path": "pages/assessment/health",
+        "query": {},
+        "route": "/pages/assessment/health",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "adl-returnNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "adl-returnTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 49,
+        "path": "pages/assessment/adl",
+        "query": {},
+        "route": "/pages/assessment/adl",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "adl-forward",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "adl-forwardTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 50,
+        "path": "pages/assessment/cognitive",
+        "query": {},
+        "route": "/pages/assessment/cognitive",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "cognitive-back",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "cognitive-backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 49,
+        "path": "pages/assessment/adl",
+        "query": {},
+        "route": "/pages/assessment/adl",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "cognitive-returnNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "cognitive-returnTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 51,
+        "path": "pages/assessment/cognitive",
+        "query": {},
+        "route": "/pages/assessment/cognitive",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "cognitive-forward",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "cognitive-forwardTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 52,
+        "path": "pages/assessment/preference",
+        "query": {},
+        "route": "/pages/assessment/preference",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "preference-back",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "preference-backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 51,
+        "path": "pages/assessment/cognitive",
+        "query": {},
+        "route": "/pages/assessment/cognitive",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "preference-returnNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "preference-returnTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 53,
+        "path": "pages/assessment/preference",
+        "query": {},
+        "route": "/pages/assessment/preference",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "preference-forward",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "preference-forwardTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 54,
+        "path": "pages/assessment/budget",
+        "query": {},
+        "route": "/pages/assessment/budget",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "budget-back",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "budget-backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 53,
+        "path": "pages/assessment/preference",
+        "query": {},
+        "route": "/pages/assessment/preference",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "budget-returnNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "budget-returnTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 55,
+        "path": "pages/assessment/budget",
+        "query": {},
+        "route": "/pages/assessment/budget",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "budget-forward",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "budget-forwardTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 56,
+        "path": "pages/assessment/profile",
+        "query": {},
+        "route": "/pages/assessment/profile",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "profileScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-six-step-profile.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "profileStack",
+    "isError": false,
+    "result": {
+      "success": true,
+      "pageStack": [
+        {
+          "pageId": 56,
+          "path": "pages/assessment/profile",
+          "query": {},
+          "route": "/pages/assessment/profile",
+          "title": ""
+        }
+      ]
+    }
+  }
+]

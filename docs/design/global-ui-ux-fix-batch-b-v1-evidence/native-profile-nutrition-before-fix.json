@@ -1,0 +1,27 @@
+[
+  {
+    "label": "openProfile",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "nutritionFont",
+    "isError": false,
+    "result": "12px"
+  },
+  {
+    "label": "nutritionOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": 1815.447998046875
+    }
+  },
+  {
+    "label": "introFont",
+    "isError": false,
+    "result": "14px"
+  }
+]

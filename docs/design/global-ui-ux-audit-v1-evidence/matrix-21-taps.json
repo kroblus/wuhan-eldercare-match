@@ -1,0 +1,296 @@
+[
+  {
+    "question": "hygiene",
+    "scrollRequested": 429.0833435058594,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.75
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "room_comfort",
+    "scrollRequested": 522.2500305175781,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.5
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "age_friendly_facilities",
+    "scrollRequested": 616.1667175292969,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.9166717529297
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "common_space",
+    "scrollRequested": 709.5000610351562,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "living_atmosphere",
+    "scrollRequested": 802.916748046875,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.08334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "service_attitude",
+    "scrollRequested": 956.666748046875,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.75
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "professional_impression",
+    "scrollRequested": 1049.8334350585938,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.83334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "communication_with_elder",
+    "scrollRequested": 1143.0834350585938,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.9166717529297
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "on_site_care_order",
+    "scrollRequested": 1236.4167785644531,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "medical_support",
+    "scrollRequested": 1390.0834655761719,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.33334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "emergency_explanation",
+    "scrollRequested": 1483.8334655761719,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.75
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "rehabilitation_facilities",
+    "scrollRequested": 1577.0001525878906,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.83334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "safety_management",
+    "scrollRequested": 1670.2501525878906,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.58334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "dining_room_environment",
+    "scrollRequested": 1824.5001525878906,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.58334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "meal_impression",
+    "scrollRequested": 1917.5001525878906,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.33334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "dietary_arrangement_explanation",
+    "scrollRequested": 2011.2501525878906,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.75
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "dietary_needs_fit",
+    "scrollRequested": 2104.4168395996094,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.83334350585938
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "activity_space",
+    "scrollRequested": 2257.9168395996094,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.1666717529297
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "activity_variety",
+    "scrollRequested": 2351.5001831054688,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.25
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "daily_life_atmosphere",
+    "scrollRequested": 2445.1668701171875,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 169.6666717529297
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  },
+  {
+    "question": "common_area_use",
+    "scrollRequested": 2538.250213623047,
+    "positionBeforeTap": {
+      "left": 226,
+      "top": 170.4166717529297
+    },
+    "checked": {
+      "ok": true,
+      "tool": "automation_element_action",
+      "clientName": "Codex",
+      "result": true
+    }
+  }
+]

@@ -78,7 +78,29 @@ page { .ws-page-surface(); }
 .result-detail-button, .directory-browse-button { display: flex; align-items: center; justify-content: center; margin-top: @space-3; width: 100%; min-height: @touch-target-min; text-align: center; white-space: normal; }
 .directory-fallback { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
 .recommendation-shell text { overflow-wrap: anywhere; }
+// Reuse focusTags verbatim: these are display snapshots, not new ranking inputs.
+.match-basis { margin-top: @space-3; padding-top: @space-3; border-top: @ws-rule-width solid @ws-border; }
+.match-basis__title { display: block; color: @ws-ink; font-size: var(--browse-meta-size, 14px); font-weight: 600; line-height: @line-height-body; }
+.match-basis .focus-list { gap: 8px; margin-top: 10px; padding-top: 0; border-top: 0; align-items: flex-start; }
+.match-basis .focus-item {
+  display: inline-flex; box-sizing: border-box; max-width: 100%; min-width: 0;
+  padding: 6px 10px; border-radius: @ws-radius;
+  background: #FFF1E6; color: #B54708;
+  font-size: var(--browse-body-size, 16px); font-weight: 700; line-height: 1.45;
+  white-space: normal; word-break: keep-all; overflow-wrap: break-word;
+}
+.match-basis .focus-item--neutral { background: @ws-surface; border: @ws-rule-width solid @ws-border; font-weight: 600; }
+.institution-status__item { font-weight: 600; }
+.institution-name { font-size: var(--browse-title-size, 20px); }
+.detail-line__text, .compact-fact__text, .visit-advice-line__text { text-wrap: balance; }
+.detail-list .detail-line--positive .detail-line__text { font-weight: 600; }
 @media (max-width: 360px) {
   .institution-decision-body { display: block; }
   .institution-explanation { margin-top: @space-3; }
 }
+
+.section-kicker { font-size: var(--browse-title-size, 20px); }
+.result-intro, .mock-disclosure, .candidate-count, .institution-region, .institution-meta__item, .result-save__label, .result-save__message, .action-error, .visit-advice-line__mark, .result-advisory-line, .advisory-line { font-size: var(--browse-meta-size, 14px); }
+.institution-price, .detail-list__title { font-size: var(--browse-body-size, 16px); }
+.difference-list .detail-list__title, .compact-fact-list .detail-list__title { font-size: var(--browse-meta-size, 14px); }
+.result-intro, .summary-message, .section-subtitle, .no-safe-note, .result-advisory-line, .advisory-line { text-wrap: balance; }

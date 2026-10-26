@@ -50,9 +50,39 @@ page { .ws-page-surface(); }
 .profile-state { padding: @space-5 0; }
 .profile-state .state-panel { padding: @space-4 0; border: 0; background: transparent; box-shadow: none; }
 .recovery-action { margin-top: @space-3; }
+// Page-local hierarchy; existing projection order and CTA styles stay intact.
+.summary-facts { gap: 8px; margin-top: 16px; align-items: flex-start; }
+.summary-fact {
+  display: inline-flex; box-sizing: border-box; max-width: 100%; min-width: 0;
+  padding: 6px 10px; border-radius: @ws-radius;
+  background: #FFF1E6; color: #B54708;
+  font-size: var(--browse-body-size, 16px); font-weight: 600; line-height: 1.45;
+  white-space: normal; word-break: keep-all; overflow-wrap: break-word;
+}
+.profile-headline { font-size: var(--browse-title-size, 20px); }
+.profile-shell .edit-action:not([size='mini']) {
+  width: auto; max-width: 100%; white-space: normal;
+  font-size: var(--browse-meta-size, 14px);
+}
+.profile-row__value, .explanation-item, .clarification__text { font-size: var(--browse-body-size, 16px); }
+.profile-intro, .section-subtitle, .profile-row__label, .detail-group__label,
+.boundary-note, .profile-advisory, .recommendation-boundary__note, .clarification__priority {
+  font-size: var(--browse-meta-size, 14px);
+}
+.profile-section .ws-section-heading, .nutrition-title { font-size: var(--browse-title-size, 20px); }
+.profile-rows--care .profile-row:first-child .profile-row__value,
+.profile-rows--care .profile-row:nth-child(2) .profile-row__value,
+.profile-rows--health .profile-row:first-child .profile-row__value,
+.profile-rows--health .profile-row:nth-child(2) .profile-row__value { font-weight: 700; }
 @media (max-width: 360px) {
   .profile-row { display: block; }
   .profile-row__label, .profile-row__value { display: block; }
   .profile-row__value { margin-top: @space-1; }
   .profile-section--nutrition { padding-left: 0; }
 }
+
+.profile-shell { --brand-cta-size: var(--browse-control-size, 16px); --readable-button-wrap: balance; }
+.pending-count, .action-error { font-size: var(--browse-meta-size, 14px); }
+.profile-section--nutrition .nutrition-title { font-size: var(--browse-title-size, 20px); }
+.profile-shell .clarification__edit { font-size: var(--browse-meta-size, 14px); }
+.profile-row__label, .recommendation-boundary__note { text-wrap: balance; }

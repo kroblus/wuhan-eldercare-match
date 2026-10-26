@@ -2,14 +2,15 @@ import { readDemo, simulateAppointment } from '../../demo/session'
 import { resolveStory, StoryContext } from '../../demo/story'
 import { readBrowseFontStyle } from '../../utils/browse-font'
 import { navigateToWithGuard, resetNavigationGuard } from '../../utils/navigation-guard'
+import { appointmentTimePresentation } from '../../demo/appointment-time'
 Page({
-  data: { fontStyle: '', story: null as StoryContext | null, state: '', visitId: '', epoch: -1, saved: false, evaluated: false, error: '' },
+  data: { fontStyle: '', story: null as StoryContext | null, state: '', visitId: '', epoch: -1, saved: false, evaluated: false, error: '', ...appointmentTimePresentation('') },
   async onLoad(query: Record<string,string>) {
     const story = await resolveStory(query).catch(() => null)
     this.setData({ story, epoch: readDemo().epoch, error: story ? '' : '无法确认该机构，请返回详情重新进入。' }); this.refresh()
   },
   onShow() { resetNavigationGuard(this); this.setData({ fontStyle: readBrowseFontStyle() }); this.refresh() },
-  refresh() { const s = readDemo(), flow = s.ready && this.data.story && this.data.story.epoch === s.epoch && s.flows.find(f => f.institutionId === this.data.story!.institutionId && f.recordRevision === this.data.story!.recordRevision); this.setData({ state: flow ? flow.appointmentStatus : '', visitId: flow ? flow.visitId : '', evaluated: !!flow && !!flow.evaluation }) },
+  refresh() { const s = readDemo(), flow = s.ready && this.data.story && this.data.story.epoch === s.epoch && s.flows.find(f => f.institutionId === this.data.story!.institutionId && f.recordRevision === this.data.story!.recordRevision); this.setData({ state: flow ? flow.appointmentStatus : '', visitId: flow ? flow.visitId : '', evaluated: !!flow && !!flow.evaluation, ...appointmentTimePresentation(flow ? flow.appointmentStatus : '') }) },
   confirm() {
     const story = this.data.story, s = readDemo()
     if (!story || !s.ready || story.epoch !== s.epoch) { this.setData({ error: '演示会话已变化，请返回机构详情。' }); return }

@@ -1,0 +1,29 @@
+[
+  {
+    "name": "demo-375-booking-refreshed",
+    "route": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link",
+    "measure": [
+      ".story-shell"
+    ]
+  },
+  {
+    "name": "demo-375-booking-end",
+    "scroll": 16000
+  },
+  {
+    "name": "demo-375-completed-filter",
+    "route": "/pages/appointment/index",
+    "tap": ".record-filter[data-filter=completed]",
+    "measure": [
+      ".demo-records"
+    ]
+  },
+  {
+    "name": "demo-375-completed-filter-end",
+    "scroll": 16000
+  },
+  {
+    "name": "demo-final-home",
+    "route": "/pages/home/index"
+  }
+]

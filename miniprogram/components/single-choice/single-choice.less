@@ -87,6 +87,9 @@
 .is-warm-swiss .single-choice__mark { order: -1; flex-shrink: 0; width: 28rpx; height: 28rpx; margin: 0 @space-2 0 0; border-color: @ws-border; }
 .is-warm-swiss .is-selected .single-choice__mark { border-color: @ws-accent; }
 .is-warm-swiss .single-choice__dot { width: 14rpx; height: 14rpx; background: @ws-accent; }
-.is-warm-swiss .single-choice__label { font-size: @ws-body; line-height: @line-height-tight; }
-.is-warm-swiss .single-choice__description { color: @ws-muted; font-size: @ws-helper; }
+.is-warm-swiss .single-choice__label { min-width: var(--assessment-text-min, auto); font-size: var(--assessment-body-size, @ws-body); line-height: @line-height-tight; }
+.is-warm-swiss .single-choice__description { color: @ws-muted; font-size: var(--assessment-meta-size, @ws-helper); }
 .is-warm-swiss .single-choice__item.is-full-width { flex-basis: 100%; min-width: 100%; }
+
+.is-warm-swiss .single-choice__item { min-width: var(--assessment-option-min, calc(50% - @space-2)); }
+.is-warm-swiss .single-choice__label, .is-warm-swiss .single-choice__description { text-wrap: var(--assessment-text-wrap, wrap); overflow-wrap: var(--assessment-overflow-wrap, normal); }

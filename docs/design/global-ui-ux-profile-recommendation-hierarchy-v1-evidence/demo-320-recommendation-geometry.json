@@ -1,0 +1,82 @@
+{
+  "geometry": {
+    ".match-basis": {
+      "offset": {
+        "left": 17,
+        "top": 347.65625
+      },
+      "size": {
+        "success": true,
+        "width": 286,
+        "height": 123.48958587646484
+      }
+    },
+    ".focus-item--neutral": {
+      "offset": {
+        "left": 17,
+        "top": 434.6145935058594
+      },
+      "size": {
+        "success": true,
+        "width": 149.33334350585938,
+        "height": 36.53125
+      }
+    }
+  },
+  "styles": {
+    "font-size": "16px",
+    "color": "rgb(181, 71, 8)",
+    "background-color": "rgb(255, 241, 230)"
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "TEST_ONLY_320x568",
+        "system": "Android 5.0",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 2,
+        "screenWidth": 320,
+        "screenHeight": 568,
+        "windowWidth": 320,
+        "windowHeight": 514,
+        "statusBarHeight": 20,
+        "safeArea": {
+          "top": 20,
+          "left": 0,
+          "right": 320,
+          "bottom": 568,
+          "width": 320,
+          "height": 548
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 16,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 2
+      }
+    }
+  }
+}

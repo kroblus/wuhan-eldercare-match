@@ -1,0 +1,39 @@
+{
+  "result": "PASS",
+  "steps": [
+    {
+      "step": "basic",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    },
+    {
+      "step": "health",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    },
+    {
+      "step": "adl",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    },
+    {
+      "step": "cognitive",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    },
+    {
+      "step": "preference",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    },
+    {
+      "step": "budget",
+      "result": "PASS",
+      "displayAndDraftStateEqualExceptFont": true
+    }
+  ],
+  "aiStateUnchanged": true,
+  "savedStateUnchanged": true,
+  "externalEffects": 0,
+  "protectedBusinessFiles": 149
+}

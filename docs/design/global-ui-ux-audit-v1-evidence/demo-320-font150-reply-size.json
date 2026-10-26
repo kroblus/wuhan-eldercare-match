@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "tool": "automation_element_action",
+  "clientName": "Codex",
+  "result": {
+    "success": true,
+    "width": 280,
+    "height": 269.5625
+  }
+}

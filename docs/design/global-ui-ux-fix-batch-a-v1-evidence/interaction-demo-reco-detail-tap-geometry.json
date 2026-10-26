@@ -1,0 +1,13 @@
+{
+  "selector": ".result-detail-button[data-institution-id=demo-inst-chunhe-home]",
+  "offset": {
+    "left": 40.66666793823242,
+    "top": 159.73959350585938
+  },
+  "size": {
+    "success": true,
+    "width": 348.66668701171875,
+    "height": 48
+  },
+  "viewport": 850
+}

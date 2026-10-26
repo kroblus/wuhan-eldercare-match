@@ -1,0 +1,75 @@
+{
+  "page": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 59,
+        "path": "pages/institution/index",
+        "query": {}
+      }
+    }
+  },
+  "system": {
+    "ok": true,
+    "tool": "automation_runtime_info",
+    "clientName": "Codex",
+    "result": {
+      "success": true,
+      "systemInfo": {
+        "result": {
+          "batteryLevel": 97,
+          "benchmarkLevel": -1,
+          "brand": "devtools",
+          "memorySize": 2048,
+          "model": "iPhone 12/13 mini",
+          "system": "iOS 10.0.1",
+          "platform": "devtools",
+          "pixelRatio": 3,
+          "safeArea": {
+            "top": 47,
+            "left": 0,
+            "right": 375,
+            "bottom": 778,
+            "width": 375,
+            "height": 731
+          },
+          "screenWidth": 375,
+          "screenHeight": 812,
+          "screenTop": 82,
+          "windowWidth": 375,
+          "windowHeight": 730,
+          "statusBarHeight": 47,
+          "version": "8.0.5",
+          "language": "zh_CN",
+          "SDKVersion": "2.32.3",
+          "enableDebug": false,
+          "fontSizeScaleFactor": 0.92,
+          "fontSizeSetting": 16,
+          "mode": "default",
+          "host": {
+            "env": "WeChat"
+          },
+          "bluetoothEnabled": true,
+          "locationEnabled": true,
+          "wifiEnabled": true,
+          "locationReducedAccuracy": true,
+          "albumAuthorized": true,
+          "bluetoothAuthorized": true,
+          "cameraAuthorized": true,
+          "locationAuthorized": true,
+          "microphoneAuthorized": true,
+          "notificationAuthorized": true,
+          "notificationAlertAuthorized": true,
+          "notificationBadgeAuthorized": true,
+          "notificationSoundAuthorized": true,
+          "phoneCalendarAuthorized": true,
+          "deviceOrientation": "portrait",
+          "devicePixelRatio": 3
+        }
+      }
+    }
+  }
+}

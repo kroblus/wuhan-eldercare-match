@@ -1,6 +1,6 @@
 <navigation-bar title="老人需求画像" warmSwiss="{{true}}" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#111827" background="#FBFAF7" bind:navigationfail="onBackNavigationFailure"></navigation-bar>
 <page-container extraClass="profile-page">
-  <view class="profile-shell">
+  <view class="profile-shell" style="{{hierarchyFontStyle}}">
     <view class="profile-head">
       <text class="profile-intro">以下是本次评估整理的养老需求，不是医疗诊断。请先核对；如需调整，可点击各区“修改”，确认后再查看机构推荐。</text>
       <button class="edit-action" catchtap="onHome" aria-label="返回首页">返回首页</button>
@@ -19,7 +19,7 @@
           <button class="edit-action" data-section="basic" catchtap="onEdit" aria-label="修改基本情况">修改 →</button>
         </view>
         <view wx:if="{{viewModel.overviewTags.length}}" class="summary-facts">
-          <text wx:for="{{viewModel.overviewTags}}" wx:key="text" class="summary-fact">{{item.text}}</text>
+          <text wx:for="{{viewModel.overviewTags}}" wx:key="text" class="summary-fact summary-fact--{{item.tone}}">{{item.text}}</text>
         </view>
         <view class="profile-rows profile-rows--overview">
           <view wx:for="{{viewModel.basicRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>

@@ -1,0 +1,43 @@
+[
+  {
+    "label": "profileCTA",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 160,
+      "y": 565
+    }
+  },
+  {
+    "label": "resultTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 57,
+        "path": "pages/recommendation/result",
+        "query": {},
+        "route": "/pages/recommendation/result",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "screen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-profile-to-result.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "backHomeStack",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  }
+]

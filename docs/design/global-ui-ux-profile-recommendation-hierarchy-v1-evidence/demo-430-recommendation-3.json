@@ -1,0 +1,80 @@
+{
+  "name": "demo-430-recommendation-3",
+  "page": {
+    "success": true,
+    "currentPage": {
+      "pageId": 280,
+      "path": "pages/recommendation/result",
+      "query": {},
+      "route": "/pages/recommendation/result",
+      "title": ""
+    }
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "iPhone 14/15 Pro Max",
+        "system": "iOS 10.0.1",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 3,
+        "screenWidth": 430,
+        "screenHeight": 932,
+        "windowWidth": 430,
+        "windowHeight": 850,
+        "statusBarHeight": 54,
+        "safeArea": {
+          "top": 54,
+          "left": 0,
+          "right": 430,
+          "bottom": 898,
+          "width": 430,
+          "height": 844
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 16,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 3
+      }
+    }
+  },
+  "rootSize": {
+    "success": true,
+    "width": 386,
+    "height": 3186.75
+  },
+  "requestedScroll": 2055,
+  "actualScroll": {
+    "success": true,
+    "scrollTop": 2055.333251953125
+  },
+  "screenshot": {
+    "success": true,
+    "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-profile-recommendation-hierarchy-v1-evidence\\demo-430-recommendation-3.png",
+    "imageWidth": 549,
+    "imageHeight": 1191
+  }
+}

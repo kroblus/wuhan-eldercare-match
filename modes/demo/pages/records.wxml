@@ -1,6 +1,6 @@
 <template name="demoRecords">
 <navigation-bar title="{{title}}" warmSwiss="{{true}}" back="{{true}}" guardBack="{{true}}" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}"></navigation-bar>
-<page-container><view class="demo-records" style="{{fontStyle}}">
+<page-container><view class="demo-records {{viewKind === 'appointments' ? 'demo-records--appointments' : ''}}" style="{{fontStyle}}">
   <view class="record-head"><text class="record-kicker">{{viewKind === 'appointments' ? '我的看院安排' : viewKind === 'history' ? '了解每一次评估' : '家人的照护记录'}}</text><text class="record-title">{{title}}</text><text class="record-test-label">TEST ONLY · 演示资料</text></view>
   <view wx:if="{{!ready}}" class="record-empty"><text class="record-heading">暂未载入演示资料</text><text class="record-note">请先在首页载入案例，再查看家人的档案和记录。</text></view>
   <text wx:if="{{error}}" class="record-error" role="alert">{{error}}</text>

@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import {
   ASSESSMENT_QUESTION_DEFINITIONS_V2,
   validateBudgetAnswersV2,
@@ -27,6 +28,7 @@ type BudgetQuestionId =
 type BudgetQuestionValueMap = Pick<AssessmentAnswerValueMapV2, BudgetQuestionId>
 
 interface AssessmentBudgetData {
+  fontStyle: string
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
@@ -112,6 +114,7 @@ const hasBudgetAnswers = (answers: DraftAnswers): boolean =>
 
 Page({
   data: {
+    fontStyle: '',
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
@@ -145,6 +148,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.setData({ backText: getAssessmentBackText('budget') })
     this.syncFromDraft()

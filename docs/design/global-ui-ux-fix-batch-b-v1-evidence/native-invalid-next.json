@@ -1,0 +1,50 @@
+[
+  {
+    "label": "staysBasic",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 43,
+        "path": "pages/assessment/basic",
+        "query": {},
+        "route": "/pages/assessment/basic",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "ageError",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "请输入 50–110 岁的整数"
+    }
+  },
+  {
+    "label": "scrollTop",
+    "isError": false,
+    "result": {
+      "success": true,
+      "scrollTop": 3420
+    }
+  },
+  {
+    "label": "ageOffset",
+    "isError": false,
+    "result": {
+      "left": 17,
+      "top": -1913.9583740234375
+    }
+  },
+  {
+    "label": "errorScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\interaction-320-font150-first-error.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  }
+]

@@ -11,6 +11,7 @@ export function composeDemoStory(source) {
   const resultView = 'pages/recommendation/result-v2-view-model.ts'
   prepend(resultView, "import { storyDisplayName } from '../../demo/story-name'\n")
   edit(resultView, "name: name === null ? demoName === null ? '机构名称待核验' : `演示名称：${demoName}` : name,", "name: storyDisplayName(candidate.institutionId, name === null ? demoName === null ? '机构名称待核验' : demoName : name),")
+  edit(resultView, '`演示区域：${demoRegion}`', "`演示区域：${demoRegion.replace(/（Mock 演示目录）$/, '')}`")
   const resultMarkup = source.get('pages/recommendation/result.wxml').toString().replaceAll('<text class="institution-name">{{item.name}}</text>', '<text wx:if="{{item.institutionId === \'demo-inst-chunhe-home\'}}" class="fact-label">本次讲解机构</text><text class="institution-name">{{item.name}}</text>')
   source.set('pages/recommendation/result.wxml', Buffer.from(resultMarkup))
   const compactDisclosure = source.get('pages/recommendation/result.wxml').toString().replace(/<view wx:if="\{\{isDemoBuild \|\| \(viewModel && viewModel.hasMockDisclosure\)\}\}" class="mock-disclosure">[\s\S]*?<\/view>/, '<view class="mock-disclosure"><text class="mock-disclosure__title">演示数据 · 虚构机构</text></view>')

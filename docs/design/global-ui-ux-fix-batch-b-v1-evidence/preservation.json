@@ -1,0 +1,39 @@
+{
+  "checked": 1769,
+  "changed": [
+    "miniprogram/styles/assessment-warm-swiss.less",
+    "miniprogram/components/multi-choice/multi-choice.less",
+    "miniprogram/components/primary-button/primary-button.less",
+    "miniprogram/components/progress-header/progress-header.less",
+    "miniprogram/components/question-section/question-section.less",
+    "miniprogram/components/single-choice/single-choice.less",
+    "miniprogram/pages/assessment/adl.ts",
+    "miniprogram/pages/assessment/adl.wxml",
+    "miniprogram/pages/assessment/basic.less",
+    "miniprogram/pages/assessment/basic.ts",
+    "miniprogram/pages/assessment/basic.wxml",
+    "miniprogram/pages/assessment/budget.ts",
+    "miniprogram/pages/assessment/budget.wxml",
+    "miniprogram/pages/assessment/cognitive.ts",
+    "miniprogram/pages/assessment/cognitive.wxml",
+    "miniprogram/pages/assessment/health.ts",
+    "miniprogram/pages/assessment/health.wxml",
+    "miniprogram/pages/assessment/preference.less",
+    "miniprogram/pages/assessment/preference.ts",
+    "miniprogram/pages/assessment/preference.wxml",
+    "miniprogram/pages/assessment/profile.less",
+    "miniprogram/pages/recommendation/result.less",
+    "miniprogram/pages/service/ai-chat/index.less",
+    "miniprogram/pages/service/ai-chat/index.ts",
+    "miniprogram/pages/service/ai-chat/index.wxml",
+    "modes/demo/pages/records.less",
+    "modes/demo/pages/records.wxml",
+    "docs/design/global-ui-ux-profile-recommendation-hierarchy-v1-evidence/data-comparison.json"
+  ],
+  "tokensUnchanged": true,
+  "previousReportsUnchanged": true,
+  "previousScreenshotsUnchanged": true,
+  "refreshedPriorGeneratedResult": [
+    "docs/design/global-ui-ux-profile-recommendation-hierarchy-v1-evidence/data-comparison.json"
+  ]
+}

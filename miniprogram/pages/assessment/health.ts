@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   HealthCondition,
   HealthRecentEvent,
@@ -19,6 +20,7 @@ import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, 
 type ChoiceOption = { value: string; label: string }
 
 interface AssessmentHealthData {
+  fontStyle: string
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
@@ -123,6 +125,7 @@ const sameStringArray = (left: string[], right: string[]): boolean =>
 
 Page({
   data: {
+    fontStyle: '',
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
@@ -161,6 +164,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.syncFromDraft()
   },

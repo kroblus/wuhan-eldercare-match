@@ -1,0 +1,97 @@
+[
+  {
+    "command": [
+      "node",
+      "scripts/check-global-ui-ux-batch-a.mjs"
+    ],
+    "exitCode": 0,
+    "output": "PASS GUI-008: closed gate/no reads/no submit/single return; route/read-error branches preserved in isolated VM\nPASS GUI-002: both directory titles; recommendation-context title unchanged\nPASS GUI-005: five statuses x date/no-date; Demo list/create agree; completed evaluation and immutable records\nPASS GUI-007: full baseline projection equality except suffix; provenance, order, reasons and context preserved\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:40.913272"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-b1-2-5-continuity.mjs"
+    ],
+    "exitCode": 0,
+    "output": "Batch A PASS: stable IDs, validated snapshots, multiple elders, saved historical results, filters, show refresh, reassessment append, repeat load, no external effects\nBatch B PASS: exact institution/revision, no synthetic navigation, no unrelated VR fallback\nBatch C PASS: empty initial rating, three steps, 21 scores + fee clarity, optional observations, tag bounds, comment bounds, summary, back/re-entry, failure/retry, duplicate guard, immutable saved evaluation, reset epoch, no Institution/Recommendation writes\nPRODUCTION isolation PASS: no Demo providers, records, user context or persisted evaluation reader\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:42.936513"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-b1-2-6-story.mjs"
+    ],
+    "exitCode": 0,
+    "output": "PASS story identity/revision/source validation and main-only resource binding\nPASS local consultation reveals existing FAQ/reply below measured header; hidden page cannot scroll another page\nPASS clean personal centre, consultant tab without false context, contextual consultation, no external communication\nPASS idempotent booking, explicit completed Visit gate, immutable snapshots/facts, stale epoch rejection and cold/reset lifecycle\nPASS production excludes Demo consultant, management, story provider and synthetic media; all existing API guards retained\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:44.940534"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-run-mode-convergence.mjs"
+    ],
+    "exitCode": 0,
+    "output": "PASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:47.536774"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-wechat-js-compat.mjs",
+      "--demo",
+      "--artifact-dir",
+      "dist/demo/miniprogram"
+    ],
+    "exitCode": 0,
+    "output": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\demo\\miniprogram\nGENERATED_JS_MODULES: 201\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, demo/consultant.js, pages/appointment/success.js, demo/story.js, demo/story-name.js, components/demo-story-preview/demo-story-preview.js, pages/appointment/create.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/elder/index.js, pages/elder/detail.js, pages/appointment/index.js, demo/record-pages.js, demo/session.js, demo/scenario.js, runtime/evaluation-session.js, pages/visit/evaluation.js\nPASS (all scope): 201 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:48.563384"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-wechat-js-compat.mjs",
+      "--artifact-dir",
+      "dist/production/miniprogram"
+    ],
+    "exitCode": 0,
+    "output": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\production\\miniprogram\nGENERATED_JS_MODULES: 214\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, pages/consultant/consultant-page.js, pages/appointment/success.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/assessment/history-view-model.js, pages/assessment/history-user-loop.js\nPASS (all scope): 214 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:49.483370"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-run-mode-package-size.mjs"
+    ],
+    "exitCode": 0,
+    "output": "PRODUCTION: runtime files 1310 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\nDEMO: runtime files 1898 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:49.592984"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-recommendation-result-v2-ui-runtime.mjs"
+    ],
+    "exitCode": 0,
+    "output": "PASS RESULT-SNAPSHOT-V2-001 exact semantics and same-source displays remain aligned (6 assertions)\nPASS RESULT-SNAPSHOT-V2-002 room uncertainty produces real SoftNear semantics (5 assertions)\nPASS RESULT-SNAPSHOT-V2-003 conditional candidates remain separate from cards (5 assertions)\nPASS RESULT-SNAPSHOT-V2-004 incomplete V2 Draft short-circuits the catalog (4 assertions)\nPASS RESULT-SNAPSHOT-V2-005 invalid catalog is a stable catalog error (6 assertions)\nPASS RESULT-SNAPSHOT-V2-006 empty catalog fails closed for Result Snapshot (6 assertions)\nPASS RESULT-SNAPSHOT-V2-007 the complete pool reaches exactly one evaluator call with one time (7 assertions)\nPASS RESULT-SNAPSHOT-V2-008 missing same-source candidate fails atomically (6 assertions)\nPASS RESULT-SNAPSHOT-V2-009 revision mismatch cannot fall back to another record (6 assertions)\nPASS RESULT-SNAPSHOT-V2-010 duplicate display source fails at the join boundary (6 assertions)\nPASS RESULT-SNAPSHOT-V2-011 candidate and display provenance must be identical (6 assertions)\nPASS RESULT-SNAPSHOT-V2-012 candidate/display context mismatch is not silently corrected (6 assertions)\nPASS RESULT-SNAPSHOT-V2-013 one catalog load and no second lookup build the same snapshot (6 assertions)\nPASS RESULT-SNAPSHOT-V2-014 application snapshot carries projections, never raw InstitutionRecord (4 assertions)\nPASS RESULT-SNAPSHOT-V2-015 Mock provenance is retained in the source context and displays (4 assertions)\nPASS RESULT-SNAPSHOT-V2-016 readiness-blocked preview is a successful no-card semantic result (5 assertions)\nPASS RESULT-SNAPSHOT-V2-017 fixed evaluation time keeps two snapshots deep-equal (3 assertions)\nPASS RESULT-SNAPSHOT-V2-018 live application dispatches schema-2 Draft to Result V2 (10 assertions)\nPASS RESULT-UI-V2-001 Exact has a ready_exact state and cards (4 assertions)\nPASS RESULT-UI-V2-002 SoftNear retains cards and explains preference uncertainty (4 assertions)\nPASS RESULT-UI-V2-003 Conditional is a separate ready_conditional section (4 assertions)\nPASS RESULT-UI-V2-004 readiness no-safe state never exposes recommendation cards (5 assertions)\nPASS RESULT-UI-V2-005 other no-safe state explains hard conflict without pretending empty data (5 assertions)\nPASS RESULT-UI-V2-006 room match is rendered as a positive compact fact (4 assertions)\nPASS RESULT-UI-V2-007 room unknown remains unknown and downgrades Exact (4 assertions)\nPASS RESULT-UI-V2-008 current ruleset guards room mismatch as non-producible (3 assertions)\nPASS RESULT-UI-V2-009 meal match is a positive compact fact (3 assertions)\nPASS RESULT-UI-V2-010 known meal mismatch is a soft difference (3 assertions)\nPASS RESULT-UI-V2-011 meal unavailable keeps data_unavailable wording (3 assertions)\nPASS RESULT-UI-V2-012 meal unknown keeps unknown wording distinct from unavailable (3 assertions)\nPASS RESULT-UI-V2-013 nutrition supported is displayed as rank-neutral support (4 assertions)\nPASS RESULT-UI-V2-014 nutrition unavailable is a display difference (3 assertions)\nPASS RESULT-UI-V2-015 nutrition inquiry remains an explicit inquiry (3 assertions)\nPASS RESULT-UI-V2-016 nutrition unknown remains unverified (3 assertions)\nPASS RESULT-UI-V2-017 budget advisory is shown once at result level (4 assertions)\nPASS RESULT-UI-V2-018 activity is displayed but never becomes a reason (4 assertions)\nPASS RESULT-UI-V2-019 not-scorable priority remains a user focus fact (4 assertions)\nPASS RESULT-UI-V2-020 empty VR has no badge or fake navigation (3 assertions)\nPASS RESULT-UI-V2-021 detail action exposes the canonical navigation label (3 assertions)\nPASS RESULT-UI-V2-022 list action exposes ordinary directory browsing (3 assertions)\nPASS RESULT-UI-V2-023 Mock dataset disclosure is visible and truthful (5 assertions)\nPASS RESULT-UI-V2-024 bounded monthly price preserves both verified bounds (3 assertions)\nPASS RESULT-UI-V2-025 starting-at monthly price does not invent an upper bound (3 assertions)\nPASS RESULT-UI-V2-026 unknown price remains unknown rather than zero (3 assertions)\nPASS RESULT-UI-V2-027 card order is exactly Domain order (2 assertions)\nPASS RESULT-UI-V2-028 the Result UI keeps the Domain maximum of three cards (3 assertions)\nPASS RESULT-UI-V2-029 unverified candidates never become default cards (3 assertions)\nPASS RESULT-UI-V2-030 ineligible candidates never become default cards (3 assertions)\nPARSER: WeChat TypeScript 4.1.2 (C:\\Users\\16562\\AppData\\Local\\微信开发者工具\\User Data\\b16711abcdea0f43eb8b0ce9c389cc39\\WeappForeignPkgs\\mptslib\\ts_4.1.2_5.2.3\\lib\\typescript.js)\nRESULT_SNAPSHOT_CASES: 18/18 PASS\nRESULT_UI_CASES: 30/30 PASS\nRESULT_SOURCE_SAME_SOURCE_ATOMIC_VALIDATION: PASS\nRECOMMENDATION_RESULT_V2_UI_RUNTIME = PASS\n",
+    "stderr": "",
+    "time": "2026-10-25T13:09:52.168249"
+  },
+  {
+    "command": [
+      "node",
+      "scripts/check-appointment-create-runtime.mjs"
+    ],
+    "exitCode": 1,
+    "output": "",
+    "stderr": "APPOINTMENT_CREATE_TARGETED_RUNTIME = FAIL\nAssertionError [ERR_ASSERTION]: The input did not match the regular expression /暂时无法返回合作机构列表/. Input:\n\n'暂时无法返回养老机构，请使用页面左上角返回。'\n\n    at runInstitutionReturnRouteCases (file:///C:/Users/16562/WeChatProjects/wuhan-eldercare-v2-1-b1-2-4/scripts/check-appointment-create-runtime.mjs:472:10)\n    at run (file:///C:/Users/16562/WeChatProjects/wuhan-eldercare-v2-1-b1-2-4/scripts/check-appointment-create-runtime.mjs:988:3)\n",
+    "time": "2026-10-25T13:09:54.098228"
+  }
+]

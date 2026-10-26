@@ -1,0 +1,93 @@
+{
+  "geometry": {
+    ".summary-facts": {
+      "offset": {
+        "left": 17,
+        "top": 546.8125
+      },
+      "size": {
+        "success": true,
+        "width": 286,
+        "height": 156.375
+      }
+    },
+    ".summary-fact--neutral": {
+      "offset": {
+        "left": 17,
+        "top": 601.6041870117188
+      },
+      "size": {
+        "success": true,
+        "width": 212,
+        "height": 46.79166793823242
+      }
+    },
+    ".profile-footer": {
+      "offset": {
+        "left": 0,
+        "top": 507.3333435058594
+      },
+      "size": {
+        "success": true,
+        "width": 320,
+        "height": 60.66666793823242
+      }
+    }
+  },
+  "styles": {
+    "font-size": "24px",
+    "color": "rgb(181, 71, 8)",
+    "background-color": "rgb(255, 241, 230)"
+  },
+  "system": {
+    "success": true,
+    "systemInfo": {
+      "result": {
+        "brand": "devtools",
+        "model": "TEST_ONLY_320x568",
+        "system": "Android 5.0",
+        "platform": "devtools",
+        "benchmarkLevel": -1,
+        "pixelRatio": 2,
+        "screenWidth": 320,
+        "screenHeight": 568,
+        "windowWidth": 320,
+        "windowHeight": 514,
+        "statusBarHeight": 20,
+        "safeArea": {
+          "top": 20,
+          "left": 0,
+          "right": 320,
+          "bottom": 568,
+          "width": 320,
+          "height": 548
+        },
+        "language": "zh_CN",
+        "version": "8.0.5",
+        "fontSizeSetting": 24,
+        "SDKVersion": "3.17.3",
+        "host": {
+          "env": "WeChat"
+        },
+        "enableDebug": false,
+        "mode": "default",
+        "deviceOrientation": "portrait",
+        "bluetoothEnabled": true,
+        "locationEnabled": true,
+        "wifiEnabled": true,
+        "albumAuthorized": true,
+        "cameraAuthorized": true,
+        "locationAuthorized": true,
+        "microphoneAuthorized": true,
+        "notificationAuthorized": true,
+        "notificationAlertAuthorized": true,
+        "notificationBadgeAuthorized": true,
+        "notificationSoundAuthorized": true,
+        "phoneCalendarAuthorized": true,
+        "bluetoothAuthorized": true,
+        "locationReducedAccuracy": true,
+        "devicePixelRatio": 2
+      }
+    }
+  }
+}

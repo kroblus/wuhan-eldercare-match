@@ -1,0 +1,76 @@
+# Batch A 原生证据索引
+
+PNG是原生渲染；同名JSON记录独立route/query/system。offset/size是元素独立实测，拼图仅供阅览；calls.jsonl含失败，jobs不是通过回执。
+
+| 模式 | 路由 | 逻辑宽/字号 | PNG | 元数据 |
+| --- | --- | --- | --- | --- |
+| Demo | /pages/appointment/create | 320/16 | [demo-320-booking.png](demo-320-booking.png) | [demo-320-booking.json](demo-320-booking.json) |
+| Demo | /pages/institution/index | 320/16 | [demo-320-directory-end.png](demo-320-directory-end.png) | [demo-320-directory-end.json](demo-320-directory-end.json) |
+| Demo | /pages/institution/index | 320/16 | [demo-320-directory.png](demo-320-directory.png) | [demo-320-directory.json](demo-320-directory.json) |
+| Demo | /pages/appointment/create | 320/24 | [demo-320-font150-booking-end.png](demo-320-font150-booking-end.png) | [demo-320-font150-booking-end.json](demo-320-font150-booking-end.json) |
+| Demo | /pages/appointment/create | 320/24 | [demo-320-font150-booking.png](demo-320-font150-booking.png) | [demo-320-font150-booking.json](demo-320-font150-booking.json) |
+| Demo | /pages/institution/index | 320/24 | [demo-320-font150-directory-end.png](demo-320-font150-directory-end.png) | [demo-320-font150-directory-end.json](demo-320-font150-directory-end.json) |
+| Demo | /pages/institution/index | 320/24 | [demo-320-font150-directory.png](demo-320-font150-directory.png) | [demo-320-font150-directory.json](demo-320-font150-directory.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-end.png](demo-320-font150-recommendation-end.png) | [demo-320-font150-recommendation-end.json](demo-320-font150-recommendation-end.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-mid-1.png](demo-320-font150-recommendation-mid-1.png) | [demo-320-font150-recommendation-mid-1.json](demo-320-font150-recommendation-mid-1.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-mid-2.png](demo-320-font150-recommendation-mid-2.png) | [demo-320-font150-recommendation-mid-2.json](demo-320-font150-recommendation-mid-2.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-mid-3.png](demo-320-font150-recommendation-mid-3.png) | [demo-320-font150-recommendation-mid-3.json](demo-320-font150-recommendation-mid-3.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-mid-4.png](demo-320-font150-recommendation-mid-4.png) | [demo-320-font150-recommendation-mid-4.json](demo-320-font150-recommendation-mid-4.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation-mid-5.png](demo-320-font150-recommendation-mid-5.png) | [demo-320-font150-recommendation-mid-5.json](demo-320-font150-recommendation-mid-5.json) |
+| Demo | /pages/recommendation/result | 320/24 | [demo-320-font150-recommendation.png](demo-320-font150-recommendation.png) | [demo-320-font150-recommendation.json](demo-320-font150-recommendation.json) |
+| Demo | /pages/appointment/index | 320/24 | [demo-320-font150-records-end.png](demo-320-font150-records-end.png) | [demo-320-font150-records-end.json](demo-320-font150-records-end.json) |
+| Demo | /pages/appointment/index | 320/24 | [demo-320-font150-records.png](demo-320-font150-records.png) | [demo-320-font150-records.json](demo-320-font150-records.json) |
+| Demo | /pages/recommendation/result | 320/16 | [demo-320-recommendation-end.png](demo-320-recommendation-end.png) | [demo-320-recommendation-end.json](demo-320-recommendation-end.json) |
+| Demo | /pages/recommendation/result | 320/16 | [demo-320-recommendation.png](demo-320-recommendation.png) | [demo-320-recommendation.json](demo-320-recommendation.json) |
+| Demo | /pages/appointment/index | 320/16 | [demo-320-records-end.png](demo-320-records-end.png) | [demo-320-records-end.json](demo-320-records-end.json) |
+| Demo | /pages/appointment/index | 320/16 | [demo-320-records.png](demo-320-records.png) | [demo-320-records.json](demo-320-records.json) |
+| Demo | /pages/appointment/create | 375/16 | [demo-375-booking-end.png](demo-375-booking-end.png) | [demo-375-booking-end.json](demo-375-booking-end.json) |
+| Demo | /pages/appointment/create | 375/16 | [demo-375-booking-refreshed.png](demo-375-booking-refreshed.png) | [demo-375-booking-refreshed.json](demo-375-booking-refreshed.json) |
+| Demo | /pages/appointment/create | 375/16 | [demo-375-booking.png](demo-375-booking.png) | [demo-375-booking.json](demo-375-booking.json) |
+| Demo | /pages/appointment/index | 375/16 | [demo-375-completed-filter-end.png](demo-375-completed-filter-end.png) | [demo-375-completed-filter-end.json](demo-375-completed-filter-end.json) |
+| Demo | /pages/appointment/index | 375/16 | [demo-375-completed-filter.png](demo-375-completed-filter.png) | [demo-375-completed-filter.json](demo-375-completed-filter.json) |
+| Demo | /pages/institution/index | 375/16 | [demo-375-directory-end.png](demo-375-directory-end.png) | [demo-375-directory-end.json](demo-375-directory-end.json) |
+| Demo | /pages/institution/index | 375/16 | [demo-375-directory.png](demo-375-directory.png) | [demo-375-directory.json](demo-375-directory.json) |
+| Demo | /pages/recommendation/result | 375/16 | [demo-375-recommendation-end.png](demo-375-recommendation-end.png) | [demo-375-recommendation-end.json](demo-375-recommendation-end.json) |
+| Demo | /pages/recommendation/result | 375/16 | [demo-375-recommendation.png](demo-375-recommendation.png) | [demo-375-recommendation.json](demo-375-recommendation.json) |
+| Demo | /pages/appointment/index | 375/16 | [demo-375-records-end.png](demo-375-records-end.png) | [demo-375-records-end.json](demo-375-records-end.json) |
+| Demo | /pages/appointment/index | 375/16 | [demo-375-records.png](demo-375-records.png) | [demo-375-records.json](demo-375-records.json) |
+| Demo | /pages/appointment/create | 430/16 | [demo-430-booking-end.png](demo-430-booking-end.png) | [demo-430-booking-end.json](demo-430-booking-end.json) |
+| Demo | /pages/appointment/create | 430/16 | [demo-430-booking.png](demo-430-booking.png) | [demo-430-booking.json](demo-430-booking.json) |
+| Demo | /pages/institution/index | 430/16 | [demo-430-directory-end.png](demo-430-directory-end.png) | [demo-430-directory-end.json](demo-430-directory-end.json) |
+| Demo | /pages/institution/index | 430/16 | [demo-430-directory.png](demo-430-directory.png) | [demo-430-directory.json](demo-430-directory.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-end.png](demo-430-recommendation-end.png) | [demo-430-recommendation-end.json](demo-430-recommendation-end.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-mid-1.png](demo-430-recommendation-mid-1.png) | [demo-430-recommendation-mid-1.json](demo-430-recommendation-mid-1.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-mid-2.png](demo-430-recommendation-mid-2.png) | [demo-430-recommendation-mid-2.json](demo-430-recommendation-mid-2.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-mid-3.png](demo-430-recommendation-mid-3.png) | [demo-430-recommendation-mid-3.json](demo-430-recommendation-mid-3.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-mid-4.png](demo-430-recommendation-mid-4.png) | [demo-430-recommendation-mid-4.json](demo-430-recommendation-mid-4.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation-mid-5.png](demo-430-recommendation-mid-5.png) | [demo-430-recommendation-mid-5.json](demo-430-recommendation-mid-5.json) |
+| Demo | /pages/recommendation/result | 430/16 | [demo-430-recommendation.png](demo-430-recommendation.png) | [demo-430-recommendation.json](demo-430-recommendation.json) |
+| Demo | /pages/appointment/index | 430/16 | [demo-430-records-end.png](demo-430-records-end.png) | [demo-430-records-end.json](demo-430-records-end.json) |
+| Demo | /pages/appointment/index | 430/16 | [demo-430-records.png](demo-430-records.png) | [demo-430-records.json](demo-430-records.json) |
+| Demo | /pages/home/index | 375/16 | [demo-final-home.png](demo-final-home.png) | [demo-final-home.json](demo-final-home.json) |
+| Demo | /pages/appointment/create | 430/16 | [interaction-demo-booking-return.png](interaction-demo-booking-return.png) | [interaction-demo-booking-return.json](interaction-demo-booking-return.json) |
+| Demo | /pages/institution/index | 430/16 | [interaction-demo-clear.png](interaction-demo-clear.png) | [interaction-demo-clear.json](interaction-demo-clear.json) |
+| Demo | /pages/institution/detail | 430/16 | [interaction-demo-directory-detail.png](interaction-demo-directory-detail.png) | [interaction-demo-directory-detail.json](interaction-demo-directory-detail.json) |
+| Demo | /pages/visit/evaluation | 430/16 | [interaction-demo-evaluate.png](interaction-demo-evaluate.png) | [interaction-demo-evaluate.json](interaction-demo-evaluate.json) |
+| Demo | /pages/institution/detail | 430/16 | [interaction-demo-reco-detail.png](interaction-demo-reco-detail.png) | [interaction-demo-reco-detail.json](interaction-demo-reco-detail.json) |
+| Demo | /pages/recommendation/result | 430/16 | [interaction-demo-reco-return.png](interaction-demo-reco-return.png) | [interaction-demo-reco-return.json](interaction-demo-reco-return.json) |
+| Demo | /pages/institution/index | 430/16 | [interaction-demo-search.png](interaction-demo-search.png) | [interaction-demo-search.json](interaction-demo-search.json) |
+| Production | /pages/appointment/create | 320/16 | [production-320-closed.png](production-320-closed.png) | [production-320-closed.json](production-320-closed.json) |
+| Production | /pages/institution/index | 320/16 | [production-320-directory-end.png](production-320-directory-end.png) | [production-320-directory-end.json](production-320-directory-end.json) |
+| Production | /pages/institution/index | 320/16 | [production-320-directory.png](production-320-directory.png) | [production-320-directory.json](production-320-directory.json) |
+| Production | /pages/appointment/create | 320/24 | [production-320-font150-closed-end.png](production-320-font150-closed-end.png) | [production-320-font150-closed-end.json](production-320-font150-closed-end.json) |
+| Production | /pages/appointment/create | 320/24 | [production-320-font150-closed.png](production-320-font150-closed.png) | [production-320-font150-closed.json](production-320-font150-closed.json) |
+| Production | /pages/institution/index | 320/24 | [production-320-font150-directory-end.png](production-320-font150-directory-end.png) | [production-320-font150-directory-end.json](production-320-font150-directory-end.json) |
+| Production | /pages/institution/index | 320/24 | [production-320-font150-directory.png](production-320-font150-directory.png) | [production-320-font150-directory.json](production-320-font150-directory.json) |
+| Production | /pages/institution/index | 320/24 | [production-320-font150-return-click.png](production-320-font150-return-click.png) | [production-320-font150-return-click.json](production-320-font150-return-click.json) |
+| Production | /pages/appointment/create | 375/16 | [production-375-closed-end.png](production-375-closed-end.png) | [production-375-closed-end.json](production-375-closed-end.json) |
+| Production | /pages/appointment/create | 375/16 | [production-375-closed.png](production-375-closed.png) | [production-375-closed.json](production-375-closed.json) |
+| Production | /pages/institution/index | 375/16 | [production-375-directory-end.png](production-375-directory-end.png) | [production-375-directory-end.json](production-375-directory-end.json) |
+| Production | /pages/institution/index | 375/16 | [production-375-directory.png](production-375-directory.png) | [production-375-directory.json](production-375-directory.json) |
+| Production | /pages/appointment/create | 430/16 | [production-430-closed-end.png](production-430-closed-end.png) | [production-430-closed-end.json](production-430-closed-end.json) |
+| Production | /pages/appointment/create | 430/16 | [production-430-closed.png](production-430-closed.png) | [production-430-closed.json](production-430-closed.json) |
+| Production | /pages/institution/index | 430/16 | [production-430-directory-end.png](production-430-directory-end.png) | [production-430-directory-end.json](production-430-directory-end.json) |
+| Production | /pages/institution/index | 430/16 | [production-430-directory.png](production-430-directory.png) | [production-430-directory.json](production-430-directory.json) |
+
+时间矩阵为纯展示helper，不是业务状态投影或持久化日期；新旧推荐卡片逐字段比较见recommendation-before.json和专项脚本。

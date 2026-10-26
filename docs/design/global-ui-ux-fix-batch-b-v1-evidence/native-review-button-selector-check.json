@@ -1,0 +1,21 @@
+[
+  {
+    "label": "appointment",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "end",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "actualButtonText",
+    "isError": false,
+    "result": "查看机构"
+  }
+]

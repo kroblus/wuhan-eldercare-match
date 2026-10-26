@@ -1,0 +1,106 @@
+[
+  {
+    "label": "open",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "end",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "buttonText",
+    "isError": false,
+    "result": "查看机构"
+  },
+  {
+    "label": "buttonSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 294,
+      "height": 57.333335876464844
+    }
+  },
+  {
+    "label": "buttonOffset",
+    "isError": false,
+    "result": {
+      "left": 13,
+      "top": 298.0520935058594
+    }
+  },
+  {
+    "label": "buttonFont",
+    "isError": false,
+    "result": "24px"
+  },
+  {
+    "label": "buttonTap",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "submittedScreen",
+    "isError": false,
+    "result": {
+      "success": true,
+      "path": "C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\docs\\design\\global-ui-ux-fix-batch-b-v1-evidence\\after-320-font150-review-click.png",
+      "imageWidth": 410,
+      "imageHeight": 767
+    }
+  },
+  {
+    "label": "target",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 41,
+        "path": "pages/institution/detail",
+        "query": {
+          "institutionId": "demo-inst-chunhe-garden",
+          "recordRevision": "1"
+        },
+        "route": "/pages/institution/detail?institutionId=demo-inst-chunhe-garden&recordRevision=1",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "submittedState",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "ready"
+    }
+  },
+  {
+    "label": "return",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "returned",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 40,
+        "path": "pages/appointment/index",
+        "query": {},
+        "route": "/pages/appointment/index",
+        "title": ""
+      }
+    }
+  }
+]

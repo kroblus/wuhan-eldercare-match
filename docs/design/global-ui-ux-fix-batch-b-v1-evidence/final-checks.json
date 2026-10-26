@@ -1,0 +1,60 @@
+{
+  "checkedAt": "2026-10-25T11:40:25.191Z",
+  "results": [
+    {
+      "name": "batch-b-font-state",
+      "args": [
+        "scripts/check-global-ui-ux-batch-b.mjs"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "stdout": "PASS six steps 16/24px state equality, AI state, complete draft/snapshots, protected business source and zero external effects\n",
+      "stderr": ""
+    },
+    {
+      "name": "mode-isolation",
+      "args": [
+        "scripts/check-run-mode-convergence.mjs"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "stdout": "PASS: load/reset/reload, 12 shared details, compound search, V2 assessment/profile/recommendation context, simulated visit/evaluation validation, stale-context rejection, no real Storage/network/API forwarding, production excludes demo\n",
+      "stderr": ""
+    },
+    {
+      "name": "demo-js-compat",
+      "args": [
+        "scripts/check-wechat-js-compat.mjs",
+        "--demo",
+        "--artifact-dir",
+        "dist/demo/miniprogram"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\demo\\miniprogram\nGENERATED_JS_MODULES: 201\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, demo/consultant.js, pages/appointment/success.js, demo/story.js, demo/story-name.js, components/demo-story-preview/demo-story-preview.js, pages/appointment/create.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/elder/index.js, pages/elder/detail.js, pages/appointment/index.js, demo/record-pages.js, demo/session.js, demo/scenario.js, runtime/evaluation-session.js, pages/visit/evaluation.js\nPASS (all scope): 201 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+      "stderr": ""
+    },
+    {
+      "name": "production-js-compat",
+      "args": [
+        "scripts/check-wechat-js-compat.mjs",
+        "--artifact-dir",
+        "dist/production/miniprogram"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "stdout": "PARSER: TypeScript 4.1.2 (C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\node_modules\\typescript\\lib\\typescript.js)\nARTIFACT_SOURCE: explicit artifact path\nARTIFACT_ROOT: C:\\Users\\16562\\WeChatProjects\\wuhan-eldercare-v2-1-b1-2-4\\dist\\production\\miniprogram\nGENERATED_JS_MODULES: 214\nCHECK_SCOPE: all\nCLASS_SOURCE_MODULES: services/mock/institution.service.mock.js, store/assessment-draft.js, utils/navigation-guard.js\nA1_3_REQUIRED_GENERATED_MODULES: mock/institution-catalog.mock.js, mock/institution-public-content.mock.js, pages/recommendation/result.js, services/institution-catalog-v1-1.js, services/institution-catalog-v1-2-1.js, services/institution-public-content-v1.js, services/institution-v1-2-1-presentation.js, services/institution-list-detail-application.js, services/institution-list-detail-page.js, services/institution-presentation.js, services/institution-recommendation-source.js, services/institution-record-resolver.js, services/institution-source-context.js\nA1_4_REQUIRED_GENERATED_MODULES: pages/institution/detail.js, pages/institution/detail-view-model.js, pages/consultant/index.js, pages/consultant/consultation.js, pages/consultant/consultant-page.js, pages/appointment/success.js\nB6_REQUIRED_GENERATED_MODULES: pages/home/index.js, pages/service/ai-chat/index.js, pages/service/ai-chat/index-view-model.js, services/ai-consultation-page.js\nB7_REQUIRED_GENERATED_MODULES: services/ai-consultation-approved-faq.js, services/ai-consultation-page.js, domain/ai-consultation/lookup-approved-faq.js, domain/ai-consultation/validate-approved-faq.js, domain/ai-consultation/evaluate-approved-faq-safety.js\nHISTORY_REQUIRED_GENERATED_MODULES: pages/assessment/history.js, pages/assessment/history-view-model.js, pages/assessment/history-user-loop.js\nPASS (all scope): 214 generated JavaScript modules contain no unsupported class fields, optional chains or nullish operators\n",
+      "stderr": ""
+    },
+    {
+      "name": "package-budget",
+      "args": [
+        "scripts/check-run-mode-package-size.mjs"
+      ],
+      "status": "PASS",
+      "exitCode": 0,
+      "stdout": "PRODUCTION: runtime files 1328 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\nDEMO: runtime files 1917 KiB; budget 1984 KiB PASS (final WeChat package still requires DevTools verification)\n",
+      "stderr": ""
+    }
+  ]
+}

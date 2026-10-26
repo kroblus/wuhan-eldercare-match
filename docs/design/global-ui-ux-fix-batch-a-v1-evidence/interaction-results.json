@@ -1,0 +1,57 @@
+{
+  "interaction-demo-directory-detail": {
+    "pageId": 219,
+    "path": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-anning-garden",
+      "recordRevision": "1",
+      "source": "direct_list"
+    },
+    "route": "/pages/institution/detail?institutionId=demo-inst-anning-garden&recordRevision=1&source=direct_list",
+    "title": ""
+  },
+  "interaction-demo-reco-detail": {
+    "pageId": 221,
+    "path": "pages/institution/detail",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "recommendation",
+      "sourceContextRef": "institution-context-2"
+    },
+    "route": "/pages/institution/detail?institutionId=demo-inst-chunhe-home&recordRevision=1&source=recommendation&sourceContextRef=institution-context-2",
+    "title": ""
+  },
+  "interaction-demo-reco-return": {
+    "pageId": 220,
+    "path": "pages/recommendation/result",
+    "query": {},
+    "route": "/pages/recommendation/result",
+    "title": ""
+  },
+  "interaction-demo-evaluate": {
+    "pageId": 223,
+    "path": "pages/visit/evaluation",
+    "query": {
+      "visitId": "demo-visit-demo-inst-chunhe-home"
+    },
+    "route": "/pages/visit/evaluation?visitId=demo-visit-demo-inst-chunhe-home",
+    "title": ""
+  },
+  "interaction-demo-booking-return": {
+    "pageId": 222,
+    "path": "pages/appointment/create",
+    "query": {
+      "institutionId": "demo-inst-chunhe-home",
+      "recordRevision": "1",
+      "source": "direct_link"
+    },
+    "route": "/pages/appointment/create?institutionId=demo-inst-chunhe-home&recordRevision=1&source=direct_link",
+    "title": ""
+  },
+  "production-320-font150-return-click": {
+    "pageId": 44,
+    "path": "pages/institution/index",
+    "query": {}
+  }
+}

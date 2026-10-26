@@ -1,6 +1,7 @@
 import {
   buildRecommendationResultApplicationSnapshot,
 } from '../../services/recommendation-result-application'
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   RecommendationPreviewApplicationError,
 } from '../../types/recommendation-preview'
@@ -42,6 +43,7 @@ type RecommendationResultPageLifecycleState =
   | 'recommendation_error'
 
 interface RecommendationResultPageData {
+  hierarchyFontStyle: string
   pageTitle: string
   eyebrow: string
   description: string
@@ -212,6 +214,7 @@ const forgetResultSourceContext = (instance: object, ref: string): void => {
 
 Page({
   data: {
+    hierarchyFontStyle: '',
     pageTitle: '评估结果与机构推荐',
     eyebrow: '评估 · 推荐预览',
     description: '先看清老人需要什么，再了解哪些候选机构值得进一步确认。',
@@ -228,6 +231,7 @@ Page({
   } as RecommendationResultPageData,
 
   onShow() {
+    this.setData({ hierarchyFontStyle: readBrowseFontStyle() })
     resetNavigationGuard(this)
     this.refreshRecommendation()
   },

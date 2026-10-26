@@ -1,0 +1,188 @@
+[
+  {
+    "label": "backInvalid",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "backTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 40,
+        "path": "pages/appointment/index",
+        "query": {},
+        "route": "/pages/appointment/index",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "reenter",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "invalidNotRestored",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": ""
+    }
+  },
+  {
+    "label": "restoreAge",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "typeLongName",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "nameAfterInput",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "字号验收·张王李赵陈刘杨黄周吴老人"
+    }
+  },
+  {
+    "label": "backForDraft",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 70,
+      "y": 565
+    }
+  },
+  {
+    "label": "reenterSaved",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "ageRestored",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "78"
+    }
+  },
+  {
+    "label": "nameRestored",
+    "isError": false,
+    "result": {
+      "success": true,
+      "data": "字号验收·张王李赵陈刘杨黄周吴老人"
+    }
+  },
+  {
+    "label": "restoreName",
+    "isError": false,
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "label": "inputFont",
+    "isError": false,
+    "result": "24px"
+  },
+  {
+    "label": "inputSize",
+    "isError": false,
+    "result": {
+      "success": true,
+      "width": 286,
+      "height": 60
+    }
+  },
+  {
+    "label": "introFont",
+    "isError": false,
+    "result": "21px"
+  },
+  {
+    "label": "savedFont",
+    "isError": false,
+    "result": "21px"
+  },
+  {
+    "label": "validNext",
+    "isError": false,
+    "result": {
+      "success": true,
+      "mode": "coordinate",
+      "x": 230,
+      "y": 565
+    }
+  },
+  {
+    "label": "validNextTarget",
+    "isError": false,
+    "result": {
+      "success": true,
+      "currentPage": {
+        "pageId": 46,
+        "path": "pages/assessment/health",
+        "query": {},
+        "route": "/pages/assessment/health",
+        "title": ""
+      }
+    }
+  },
+  {
+    "label": "stack",
+    "isError": false,
+    "result": {
+      "success": true,
+      "pageStack": [
+        {
+          "pageId": 28,
+          "path": "pages/home/index",
+          "query": {},
+          "route": "/pages/home/index",
+          "title": ""
+        },
+        {
+          "pageId": 40,
+          "path": "pages/appointment/index",
+          "query": {},
+          "route": "/pages/appointment/index",
+          "title": ""
+        },
+        {
+          "pageId": 45,
+          "path": "pages/assessment/basic",
+          "query": {},
+          "route": "/pages/assessment/basic",
+          "title": ""
+        },
+        {
+          "pageId": 46,
+          "path": "pages/assessment/health",
+          "query": {},
+          "route": "/pages/assessment/health",
+          "title": ""
+        }
+      ]
+    }
+  }
+]
