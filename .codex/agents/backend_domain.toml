@@ -1,6 +1,6 @@
 name = "backend_domain"
 description = "后端与持久化：API、数据库、认证、版本化数据与服务端业务状态。"
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 

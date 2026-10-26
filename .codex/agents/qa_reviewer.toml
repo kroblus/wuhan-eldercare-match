@@ -1,6 +1,6 @@
 name = "qa_reviewer"
 description = "独立只读 QA：按 diff、受影响 Contract 与真实回归面验证。"
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "read-only"
 

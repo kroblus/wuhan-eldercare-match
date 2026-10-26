@@ -1,22 +1,3 @@
-# Model Strategy — Runtime Selected
+# 模型选择规则导航
 
-## Runtime source
-
-Main-session model and reasoning are selected by the current session/runtime. Subagent defaults come from the current
-`.codex/config.toml`. Agent Engineering documents do not duplicate or freeze those runtime values.
-
-## Selection principles
-
-1. Match model/reasoning selection to task complexity, risk, latency and available quota.
-2. Use specialist ownership to reduce duplicated context; a model name does not replace domain routing.
-3. Do not silently change repository runtime defaults as part of an unrelated feature or documentation task.
-4. When comparing model configurations, keep the code baseline and task scope stable and record the runtime selection with the result.
-5. Task-scoped / phase-scoped ownership overrides declared in root `AGENTS.md` take precedence over ordinary specialist delegation. When Warm Swiss UI Refactor is Main-only (`MAIN_SESSION_ONLY`), do not automatically delegate to `wechat_frontend` merely because the task involves WXML, Less, pages, components or frontend work. Model selection does not replace domain routing.
-
-## Quota rules
-
-1. **Delegate before deep-read**: if a bounded subagent owns the task, the main thread routes first and lets that agent read the large Contract. Main deep-reads only for cross-domain design/conflict/integration.
-2. Do not call QA for every tiny reversible edit. Use independent QA for frozen-domain behavior, cross-boundary work, shared interaction/runtime infrastructure, or explicit acceptance requests.
-3. Do not default-load `CONTRACT_INDEX.md`; it is a fallback router.
-4. Do not load multiple Skills unless their trigger surfaces actually overlap.
-5. Stop expanding tests after the relevant Gate passes unless shared code, a failure, or the Contract justifies more.
+原重复说明已合并至 [轻量协作说明](README_AGENT_ENGINEERING_V2_1.md)。保留本路径兼容既有引用，不再独立维护模型路由规则；日常开发以 [AGENTS.md](../../AGENTS.md) 为准。

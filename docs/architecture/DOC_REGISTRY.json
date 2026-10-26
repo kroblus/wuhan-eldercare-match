@@ -2,6 +2,146 @@
   "schema_version": 1,
   "entries": [
     {
+      "path": "docs/archive/agent/AGENT_FRONTEND_ROUTING_FIX_HANDOFF.md",
+      "doc_id": "audit.agent.frontend_cross_project_routing_fix.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/development/WARM_SWISS_PERSONAL_RECORDS_PROGRESS_V1.md",
+      "doc_id": "reference.warm_swiss.personal_records_progress.v1",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-personal-records-android-owner-final-closeout-v1-20261017/REPORT.md",
+      "doc_id": "audit.warm_swiss.personal_records_android_owner_final_closeout.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-personal-records-android-owner-handoff-v1-20261017/REPORT.md",
+      "doc_id": "audit.warm_swiss.personal_records_android_owner_handoff.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-personal-records-final-visual-touch-gates-v1-20261017/REPORT.md",
+      "doc_id": "audit.warm_swiss.personal_records_final_visual_touch_gates.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-personal-records-isolated-wechat-acceptance-v1-20261017/REPORT.md",
+      "doc_id": "audit.warm_swiss.personal_records_isolated_wechat_acceptance.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-warm-swiss-personal-records-convergence-v1-20261017/REPORT.md",
+      "doc_id": "audit.warm_swiss.personal_records_convergence.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-assessment-history-trusted-identity-https-v1-20261017/REPORT.md",
+      "doc_id": "audit.completed_assessment_history.trusted_identity_https.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-assessment-history-isolated-readiness-v1-20261017/REPORT.md",
+      "doc_id": "audit.completed_assessment_history.isolated_readiness.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "output/v1-2-native-vr-map-v2-android16-owner-closeout-v1-20261017/REPORT.md",
+      "doc_id": "audit.native_vr_map.synthetic_v2.android16_owner_closeout.v1",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/development/NATIVE_VR_MAP_TECHNICAL_DEMO_PROGRESS_V1.md",
+      "doc_id": "reference.native_vr_map.technical_demo_progress.v1",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/development/ASSESSMENT_HISTORY_TEST_ENVIRONMENT_RUNBOOK_V1.md",
+      "doc_id": "reference.completed_assessment_history.test_environment.v1",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/development/ASSESSMENT_HISTORY_ANDROID_17_TEST_ONLY_ACCEPTANCE_V1.md",
+      "doc_id": "audit.completed_assessment_history.android17_readiness.v1",
+      "status": "UNCERTAIN",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md",
+      "doc_id": "proposal.completed_assessment_history.v1",
+      "status": "UNCERTAIN",
+      "kind": "PROPOSAL",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
       "path": "README.md",
       "doc_id": "project.readme",
       "status": "CURRENT",
@@ -45,8 +185,8 @@
       "path": "docs/agent/MODEL_STRATEGIES.md",
       "doc_id": "agent.model_strategies",
       "status": "CURRENT",
-      "kind": "POLICY",
-      "normative": true,
+      "kind": "REFERENCE",
+      "normative": false,
       "owner": "main_session",
       "superseded_by": null,
       "archive_target": null
@@ -934,6 +1074,57 @@
     {
       "path": "docs/archive/releases/v1.1/V1_1_FINAL_FREEZE_RECORD.md",
       "doc_id": "archive.release_v1_1_freeze_record",
+      "status": "HISTORICAL",
+      "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/WECHAT_INTERACTION_B01_PHASE_BOUNDARY_D_SUCCESSOR_V1.md",
+      "doc_id": "contract.wechat_interaction.b01_phase_boundary_d.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null,
+      "version": "wechat-interaction-b01-phase-boundary-d-v1",
+      "approval_state": "APPROVED_PENDING_IMPLEMENTATION",
+      "signed_scope": "A",
+      "excluded_scope": "B",
+      "implementation_state": "NOT_STARTED",
+      "runtime_activation": false,
+      "scoped_predecessors": [
+        "docs/architecture/WECHAT_INTERACTION_CONTRACT_V2.md"
+      ],
+      "signing_record": "output/b01-phase-boundary-d-owner-signoff-v1/OWNER_SIGNOFF.md"
+    },
+    {
+      "path": "docs/architecture/PROFILE_UI_V2_B01_PHASE_BOUNDARY_D_INTEGRATION_CONTRACT_V1.md",
+      "doc_id": "contract.profile_ui.v2_integration.b01_phase_boundary_d.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "wechat_frontend",
+      "superseded_by": null,
+      "archive_target": null,
+      "version": "profile-ui-v2-application-integration-b01-phase-boundary-d-v1",
+      "approval_state": "APPROVED_PENDING_IMPLEMENTATION",
+      "signed_scope": "A",
+      "excluded_scope": "B",
+      "implementation_state": "NOT_STARTED",
+      "runtime_activation": false,
+      "scoped_predecessors": [
+        "docs/architecture/PROFILE_UI_V2_INTEGRATION_CONTRACT.md",
+        "docs/architecture/PROFILE_UI_CONTRACT.md"
+      ],
+      "signing_record": "output/b01-phase-boundary-d-owner-signoff-v1/OWNER_SIGNOFF.md"
+    },
+    {
+      "path": "output/b01-phase-boundary-d-owner-signoff-v1/OWNER_SIGNOFF.md",
+      "doc_id": "audit.b01_phase_boundary_d.owner_signoff.v1",
       "status": "HISTORICAL",
       "kind": "AUDIT",
       "normative": false,

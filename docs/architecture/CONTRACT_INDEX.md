@@ -9,6 +9,8 @@ This file routes; it does not define business semantics.
 | Current product scope | `docs/product/README.md` + current V1.2 product PDF | relevant architecture Contract |
 | Assessment V2 schema/validation | `ASSESSMENT_CONTRACT_V2.md` | migration Contract; interaction Contract |
 | Assessment actions/navigation | `WECHAT_INTERACTION_CONTRACT_V2.md` | Assessment V2; WeChat Skills |
+| B01-D Scope A navigation / current acceptance and closeout | `WECHAT_INTERACTION_CONTRACT_V2.md` + `WECHAT_INTERACTION_B01_PHASE_BOUNDARY_D_SUCCESSOR_V1.md` | [dated Scope A routing below](#b01-scope-a-current-routing-2026-10-13); affected source and relevant evidence only |
+| Profile UI V2 application / edit and recovery navigation | `PROFILE_UI_V2_INTEGRATION_CONTRACT.md` | for B01-D Scope A navigation: `PROFILE_UI_V2_B01_PHASE_BOUNDARY_D_INTEGRATION_CONTRACT_V1.md` + relevant B01 routing below |
 | ElderProfile V2 | `ELDER_PROFILE_CONTRACT_V2.md` | Assessment V2; Preview V2 |
 | Recommendation V2 | `RECOMMENDATION_CONTRACT_V2.md` + `RECOMMENDATION_RULE_CONTRACT_V2.md` | ElderProfile/Institution only when dependency changes |
 | Institution current schema/contact/address/Geo/public content | `INSTITUTION_CONTRACT_V1_2_1.md` | V1.2/V1.1 only for explicit compatibility/projection paths |
@@ -38,6 +40,28 @@ This file routes; it does not define business semantics.
 | Frontend structure/ownership | `FRONTEND_STRUCTURE.md` | affected business Contract |
 | Documentation lifecycle/governance | `README.md` + `DOC_REGISTRY.json` | archived evidence only when explicitly needed |
 | Test command | `package.json` + affected Contract gate | relevant Skill |
+
+## Interaction version routing
+
+`WECHAT_INTERACTION_CONTRACT.md` is SUPERSEDED historical V1; its original text remains immutable under Interaction V2 §12.5. For current general interaction tasks, follow [Interaction V2](WECHAT_INTERACTION_CONTRACT_V2.md). Old architecture documents' V1 citations do not restore V1 as current authority. Explicit historical V1 review may still read [the original V1](WECHAT_INTERACTION_CONTRACT.md).
+
+B01-D Scope A is a signed local phase under the current V2 framework; consult its explicit scoped coverage when relevant, retaining unchanged V2 rules. Profile UI V2 local constraints also require the applicable Profile integration Contract. These are version/scope branches, not parallel general interaction specifications.
+
+## B01 Scope A current routing (2026-10-13)
+
+Use this branch only for six physical Assessment steps and actual-parent Back, Budget completion to a Profile root, Profile UI V2 six edits/recovery, or Scope A acceptance/closeout. This dated index points to sources; it defines no new state specification or business semantics.
+
+- General Frozen constraints: [Interaction V2](WECHAT_INTERACTION_CONTRACT_V2.md).
+- Signed B01 local boundary and signing-time governance: [B01 Interaction Phase Boundary D](WECHAT_INTERACTION_B01_PHASE_BOUNDARY_D_SUCCESSOR_V1.md).
+- Profile application constraints and signed local coverage: [Profile UI V2 integration](PROFILE_UI_V2_INTEGRATION_CONTRACT.md); [Profile B01 integration](PROFILE_UI_V2_B01_PHASE_BOUNDARY_D_INTEGRATION_CONTRACT_V1.md).
+- Current implementation structure, checked against affected source: [CURRENT ROUTES](ROUTES.md); [CURRENT FRONTEND_STRUCTURE](FRONTEND_STRUCTURE.md).
+- Dated Scope A completion/acceptance/closeout evidence (AUDIT, not Frozen): [FINAL_CLOSEOUT, 2026-10-13](../../output/b01-phase-boundary-d-scope-a-implementation-v1/FINAL_CLOSEOUT.md).
+
+As recorded by that closeout: `B01_SCOPE_A_IMPLEMENTATION=COMPLETE`, `B01_ANDROID_OWNER_ACCEPTANCE=OWNER_REPORTED_PASS`, `B01_FINAL_GOVERNANCE_REVIEW=PASS_WITH_RISKS`, `B01_SCOPE_A_FINAL_CLOSEOUT=CLOSED_WITH_RISKS`. `FAST_NATIVE_TRANSITION_JANK=OPEN` and `ANDROID_FRAME_EVIDENCE=PENDING` remain risks.
+
+Separate scope/governance/release facts remain: `B01_SCOPE_B=DEFERRED_NOT_VERIFIED`, `GLOBAL_NAVIGATION_PASS=FALSE`, `SUCCESSOR_ACTIVATED=FALSE`, `PRODUCTION_RELEASE_READY=FALSE`. Scope A closure does not prove Scope B, activate a successor or approve production release.
+
+Signed documents and Registry retain their original `NOT_STARTED`, `APPROVED_PENDING_IMPLEMENTATION` and `runtime_activation=false` signing-time/governance fields. Current source implementation, later closeout and successor activation are distinct; do not overwrite or infer one from another. FINAL_CLOSEOUT remains dated audit evidence, not CURRENT architecture truth or a Frozen Contract. Ordinary non-B01 tasks do not load this branch or all B01 historical reports; expand only the needed evidence.
 
 Defaults:
 - Proposal / Audit / Migration / archived impact analysis / old Bootstrap docs are historical, not active truth.

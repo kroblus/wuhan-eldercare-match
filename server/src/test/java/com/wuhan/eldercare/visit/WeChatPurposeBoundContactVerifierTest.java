@@ -24,6 +24,27 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class WeChatPurposeBoundContactVerifierTest {
     @Test
+    void manualCanonicalCandidateStillMatchesTrustedWechatFullAndPurePhoneFields() {
+        String p = "13" + "0".repeat(9);
+        AtomicInteger calls = new AtomicInteger();
+        var verifier = new WeChatPurposeBoundContactVerifier(code -> {
+            calls.incrementAndGet();
+            return PhoneAuthorizationProvider.ExchangeResult.authorized("+86" + p, p);
+        });
+        var request = new SubmissionCommandV1(SubmissionValidation.CONTRACT_VERSION, SubmissionValidation.KIND,
+                "test-only-phone-key", "institution-test", "1", "elder-test", "2026-10-01", "morning", 1,
+                null, "TEST_ONLY", "   " + p + "  ", SubmissionValidation.PHONE_PURPOSE, "explicit", null);
+        assertEquals(false, SubmissionValidation.issues(request).contains("phone"));
+        var verified = verifier.verify("TEST_ONLY_FRESH_CODE", PhoneAuthorizationContractV1.PURPOSE, request.contactName(), request.phone());
+        assertEquals(PurposeBoundContactVerifier.Verification.Status.AUTHORIZED, verified.status());
+        assertEquals(true, verified.contact().phone().equals(p));
+        assertEquals(1, calls.get());
+        assertEquals(PurposeBoundContactVerifier.Verification.Status.MISSING,
+                verifier.verify(null, PhoneAuthorizationContractV1.PURPOSE, request.contactName(), request.phone()).status());
+        assertEquals(1, calls.get());
+    }
+
+    @Test
     void freshProviderPhoneMatchesOnlyWithinFrozenPurpose() {
         String syntheticPhone = "0".repeat(11);
         AtomicInteger exchangeCalls = new AtomicInteger();
@@ -69,7 +90,7 @@ class WeChatPurposeBoundContactVerifierTest {
 
     @Test
     void c4ConsumesFreshPhoneProofBeforeUnavailableReferenceAndNeverCreatesVisit() {
-        String syntheticPhone = "0".repeat(11);
+        String syntheticPhone = "13" + "0".repeat(9);
         String freshCode = "test-one-time-code-" + UUID.randomUUID();
         Set<String> consumedCodes = ConcurrentHashMap.newKeySet();
         AtomicInteger referenceCalls = new AtomicInteger();

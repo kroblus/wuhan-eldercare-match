@@ -31,7 +31,7 @@ public record SubmissionCommandV1(
         visitDate = trim(visitDate);
         visitTimePreference = trim(visitTimePreference);
         contactName = trim(contactName);
-        phone = trim(phone);
+        phone = SubmissionValidation.normalizeManualPhone(phone);
         phonePurpose = trim(phonePurpose);
         phoneAuthorization = trim(phoneAuthorization);
         notes = notes == null ? null : trim(notes);

@@ -1,0 +1,21 @@
+'use strict'
+var math=require('../../lib/interaction'),resources=require('../../lib/resources'),renderer=require('../../lib/map-renderer'),touches=require('../../lib/touches'),navigation=require('../../lib/navigation')
+Page({
+  data:{renderState:'loading',state:'schematic',stateTitle:resources.states.schematic.title,stateMessage:resources.states.schematic.message,selected:'',selectionTitle:'点选 A 或 B',selectionMessage:'两个地点均为合成示意，没有真实地址。',scale:100,navigationError:''},
+  onLoad:function(){this._alive=true;this._view=math.mapView();this._context=null;this._gesture=null},
+  onReady:function(){var self=this;wx.createSelectorQuery().in(this).select('#schematic').fields({node:true,size:true,rect:true}).exec(function(result){if(!self._alive)return;try{var field=result&&result[0];if(!field||!field.node||!field.width||!field.height)throw Error('UNSUPPORTED');self._rect=field;var ratio=Math.min(wx.getSystemInfoSync().pixelRatio||1,2),canvas=field.node;canvas.width=Math.round(field.width*ratio);canvas.height=Math.round(field.height*ratio);var ctx=canvas.getContext('2d');if(!ctx)throw Error('UNSUPPORTED');ctx.scale(ratio,ratio);self._context=ctx;self.setData({renderState:'ready'});self._draw()}catch(error){self.setData({renderState:'unsupported'})}})},
+  onShow:function(){this._navigating=false},onUnload:function(){this._alive=false;this._context=null;this._gesture=null},
+  _points:function(){return resources.states[this.data.state].draw?resources.points:[]},
+  _draw:function(){try{if(this._context)renderer.draw(this._context,this._rect,this._view,this._points(),this.data.selected)}catch(error){this.onCanvasError()}},
+  _publish:function(){this.setData({scale:Math.round(this._view.scale*100)})},
+  onTouchStart:function(event){if(this.data.renderState!=='ready')return;var list=touches.read(event,this._rect);if(!list.length)return;this._gesture={count:list.length,center:math.centroid(list),distance:math.distance(list),travel:0,pinch:list.length>1}},
+  onTouchMove:function(event){if(this.data.renderState!=='ready')return;var list=touches.read(event,this._rect),g=this._gesture;if(!list.length)return;if(!g||g.count!==list.length){this.onTouchStart(event);if(this._gesture)this._gesture.pinch=true;return}var c=math.centroid(list),d=math.distance(list),dx=c.x-g.center.x,dy=c.y-g.center.y;if(list.length===1)this._view=math.pan(this._view,dx,dy,this._rect);else this._view=math.zoom(this._view,this._view.scale*d/g.distance,c,this._rect);this._gesture={count:list.length,center:c,distance:d,travel:g.travel+Math.hypot(dx,dy),pinch:g.pinch||list.length>1};this._draw()},
+  onTouchEnd:function(){var g=this._gesture;this._gesture=null;if(this.data.renderState!=='ready')return;if(g&&!g.pinch&&g.travel<8){var selected=math.hit(this._points(),this._view,this._rect,g.center);if(selected)this._select(selected)}this._publish()},
+  onTouchCancel:function(){this._gesture=null},
+  _select:function(point){this.setData({selected:point.id,selectionTitle:point.title,selectionMessage:'合成示意标记，仅展示点选反馈；无经纬度、真实地址或导航。'});this._draw()},
+  onSelect:function(event){if(this.data.renderState!=='ready')return;var id=event.currentTarget.dataset.id,point=this._points().filter(function(p){return p.id===id})[0];if(point)this._select(point)},
+  onState:function(event){var key=event.currentTarget.dataset.state,state=resources.states[key];if(!state)return;this.setData({state:key,stateTitle:state.title,stateMessage:state.message,selected:'',selectionTitle:state.draw?'点选 A 或 B':state.title,selectionMessage:state.draw?'两个地点均为合成示意，没有真实地址。':state.message});this._gesture=null;this._draw()},
+  onZoom:function(event){if(this.data.renderState!=='ready')return;var direction=event.currentTarget.dataset.direction;if(direction!=='in'&&direction!=='out')return;this._view=math.zoom(this._view,this._view.scale*(direction==='in'?1.25:.8),{x:this._rect.width/2,y:this._rect.height/2},this._rect);this._draw();this._publish()},
+  onCanvasError:function(){this._context=null;this._gesture=null;if(this._alive)this.setData({renderState:'unsupported'})},
+  onReset:function(){if(this.data.renderState!=='ready')return;this._view=math.mapView();this._gesture=null;this._draw();this._publish()},onBack:function(){navigation.back(this)}
+})

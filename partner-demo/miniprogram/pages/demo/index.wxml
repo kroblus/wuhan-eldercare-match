@@ -1,0 +1,7 @@
+<view class="shell">
+  <view class="notice">开发演示｜全部为合成数据｜非真实机构或预约</view>
+  <view class="title">安全演示外壳</view>
+  <view class="message">{{message}}</view>
+  <view class="hint">当前没有机构数据，也没有预约、评价或咨询功能。</view>
+  <button wx:if="{{sessionActive}}" bindtap="onExit">退出演示会话</button>
+</view>

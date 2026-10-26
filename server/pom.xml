@@ -57,6 +57,36 @@
     <build>
         <resources>
             <resource>
+                <directory>../miniprogram/types</directory>
+                <targetPath>assessment-validator/types</targetPath>
+                <includes><include>assessment.ts</include><include>assessment-v2.ts</include></includes>
+            </resource>
+            <resource>
+                <directory>tools</directory>
+                <targetPath>assessment-validator/tools</targetPath>
+                <includes><include>validate-completed-assessment.mjs</include></includes>
+            </resource>
+            <resource>
+                <directory>../miniprogram</directory>
+                <targetPath>assessment-validator/miniprogram</targetPath>
+                <includes>
+                    <include>domain/elder-profile/**/*.ts</include>
+                    <include>domain/assessment-history/*.ts</include>
+                    <include>domain/recommendation/**/*.ts</include>
+                    <include>domain/institution/**/*.ts</include>
+                    <include>services/institution-display-projection-v11.ts</include>
+                    <include>types/assessment*.ts</include>
+                    <include>types/elder-profile*.ts</include>
+                    <include>types/institution*.ts</include>
+                    <include>types/recommendation*.ts</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>tools</directory>
+                <targetPath>assessment-validator/tools</targetPath>
+                <includes><include>derive-historical-profile.mjs</include><include>derive-historical-recommendation.mjs</include></includes>
+            </resource>
+            <resource>
                 <directory>src/main/resources</directory>
             </resource>
             <!-- The internal publisher executes these exact pure domain validators.
@@ -78,6 +108,7 @@
             </resource>
         </resources>
         <testResources>
+            <testResource><directory>src/test/resources</directory></testResource>
             <testResource>
                 <directory>../miniprogram/domain/appointment-institution-visit</directory>
                 <includes>

@@ -14,6 +14,7 @@
     "check:history-cold-start-e2e": "node scripts/check-history-cold-start-e2e.mjs",
     "check:completed-assessment-recommendation-runtime": "node scripts/check-completed-assessment-recommendation-runtime.mjs",
     "check:completed-assessment-recommendation-e2e": "node scripts/check-completed-assessment-user-loop-e2e.mjs --recommendation",
+    "check": "node scripts/check-current-agent-routing.mjs",
     "check:assessment-intro-nav-p0": "node scripts/check-assessment-intro-nav-p0.mjs",
     "check:navigation-home-dedup-p0": "node scripts/check-navigation-home-dedup-p0.mjs",
     "check:dqa-001-root-back-runtime": "node scripts/check-dqa-001-root-back-runtime.mjs",

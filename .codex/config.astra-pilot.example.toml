@@ -1,4 +1,5 @@
-# Optional pilot only; do not replace the Sol baseline until A/B results justify it.
+# Optional GPT-6 Astra pilot for explicit A/B evaluation or hardest end-to-end tasks.
+# Main-session model selection remains a per-session Codex UI choice.
 model = "gpt-6-astra"
 model_reasoning_effort = "high"
 approval_policy = "on-request"
@@ -7,7 +8,7 @@ sandbox_mode = "workspace-write"
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
+default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "max"
 
 [sandbox_workspace_write]

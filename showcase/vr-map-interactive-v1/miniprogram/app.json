@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/index/index", "pages/panorama/index", "pages/map/index"],
+  "window": {
+    "navigationBarTitleText": "空间交互演示",
+    "navigationBarBackgroundColor": "#FBFAF7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FBFAF7"
+  },
+  "sitemapLocation": "sitemap.json"
+}

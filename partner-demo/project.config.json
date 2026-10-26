@@ -1,0 +1,19 @@
+{
+  "description": "Partner demo S1 isolation shell only; synthetic; not release ready",
+  "appid": "wx69f6bd834cebca33",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "srcMiniprogramRoot": "miniprogram/",
+  "libVersion": "2.32.3",
+  "setting": {
+    "es6": false,
+    "enhance": false,
+    "useCompilerPlugins": false,
+    "urlCheck": true,
+    "minified": false,
+    "ignoreUploadUnusedFiles": true,
+    "compileHotReLoad": false
+  },
+  "packOptions": { "ignore": [], "include": [] },
+  "condition": {}
+}

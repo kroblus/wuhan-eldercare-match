@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/demo/index"],
+  "window": {
+    "navigationBarTitleText": "开发演示",
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#f7f5ef"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

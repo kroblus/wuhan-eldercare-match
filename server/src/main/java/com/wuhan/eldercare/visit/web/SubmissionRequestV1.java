@@ -1,6 +1,7 @@
 package com.wuhan.eldercare.visit.web;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.wuhan.eldercare.visit.domain.SubmissionCommandV1;
 
 @JsonIgnoreProperties(ignoreUnknown = false)
@@ -16,7 +17,7 @@ public record SubmissionRequestV1(
         int participantCount,
         Boolean pickupRequested,
         String contactName,
-        String phone,
+        @JsonDeserialize(using = AppointmentPhoneCandidateDeserializer.class) String phone,
         String phonePurpose,
         String phoneAuthorization,
         String notes

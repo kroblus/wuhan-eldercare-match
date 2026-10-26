@@ -1,6 +1,6 @@
 name = "matching_engine"
 description = "纯领域规则：Assessment 派生、ElderProfile、Recommendation 的版本化确定性实现。"
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 sandbox_mode = "workspace-write"
 

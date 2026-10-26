@@ -1,0 +1,6 @@
+{
+  "buildId": "partner-demo-s1-isolation-shell-v0-1",
+  "kind": "isolated-partner-demo",
+  "scope": "DEMO_SHELL_ONLY",
+  "provenance": "development-synthetic"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "original-teaching-room-360",
+  "file": "teaching-room-360.png",
+  "width": 2048,
+  "height": 1024,
+  "projection": "equirectangular",
+  "horizontalDegrees": 360,
+  "verticalDegrees": 180,
+  "generator": "tools/generate_panorama.py",
+  "source": "Original ray/box intersection and geometric plane motifs; no imported photograph or third-party panorama",
+  "provenance": "ORIGINAL_PROCEDURAL_SYNTHETIC",
+  "institutionId": null,
+  "sha256": "2701a9c06da5dac81bb2d3202a331baeab2595464f01b3ce1d22d7d65739e9e1",
+  "bytes": 35417,
+  "disclosure": "合成教学空间，非机构实景，不证明设施或空间条件已核验"
+}

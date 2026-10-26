@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -29,6 +30,20 @@ class VisitSubmissionControllerTest {
 
     @MockBean
     private VisitSubmissionService service;
+
+    @Test
+    void nonStringManualPhoneIsRejectedWithoutEnteringService() throws Exception {
+        String p = "13" + "0".repeat(9);
+        for (String token : java.util.List.of(p, "true", "{}", "[]")) {
+            mockMvc.perform(post("/api/v1/appointment-submissions")
+                            .contentType("application/json")
+                            .content("{\"phone\":" + token + "}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.outcome", equalTo("rejected")))
+                    .andExpect(jsonPath("$.code", equalTo("VALIDATION_FAILED")));
+        }
+        verifyNoInteractions(service);
+    }
 
     @Test
     void malformedJsonUsesStableValidationResultWithoutFrameworkDetails() throws Exception {

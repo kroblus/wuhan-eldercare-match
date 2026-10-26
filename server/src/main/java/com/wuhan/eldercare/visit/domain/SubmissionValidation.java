@@ -19,10 +19,6 @@ public final class SubmissionValidation {
     private static final int DATE_MAX_LENGTH = 32;
     private static final int TIME_PREFERENCE_MAX_LENGTH = 80;
     private static final int CONTACT_NAME_MAX_LENGTH = 200;
-    private static final int PHONE_MIN_LENGTH = 6;
-    private static final int PHONE_MAX_LENGTH = 32;
-    private static final int PHONE_DIGITS_MIN = 6;
-    private static final int PHONE_DIGITS_MAX = 20;
     private static final int NOTES_MAX_LENGTH = 2000;
     private static final DateTimeFormatter STRICT_DATE =
             DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
@@ -99,16 +95,17 @@ public final class SubmissionValidation {
     }
 
     private static void validatePhone(List<String> issues, String value) {
-        if (value == null || value.length() < PHONE_MIN_LENGTH || value.length() > PHONE_MAX_LENGTH) {
-            issues.add("phone");
-            return;
-        }
-        if (!value.matches("[0-9+()\\-\\s]+")) {
-            issues.add("phone");
-            return;
-        }
-        long digits = value.chars().filter(character -> character >= '0' && character <= '9').count();
-        if (digits < PHONE_DIGITS_MIN || digits > PHONE_DIGITS_MAX) issues.add("phone");
+        if (value == null || value.length() != 11 || !value.matches("1[3-9][0-9]{9}")) issues.add("phone");
+    }
+
+    /** APPOINTMENT_PHONE_FORMAT_V1: only edge U+0020 is removed, before independent validation. */
+    public static String normalizeManualPhone(String value) {
+        if (value == null) return null;
+        int start = 0;
+        int end = value.length();
+        while (start < end && value.charAt(start) == ' ') start++;
+        while (end > start && value.charAt(end - 1) == ' ') end--;
+        return value.substring(start, end);
     }
 
     private static boolean hasControlCharacter(String value) {
