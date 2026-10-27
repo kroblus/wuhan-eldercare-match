@@ -38,9 +38,15 @@
     </block>
     <text wx:if="{{error}}" class="p1-error" role="alert">{{error}}</text><text wx:if="{{feedback}}" class="p1-notice" role="status">{{feedback}}</text>
   </view>
-  <view class="p1-card"><text class="p1-heading">本人申请进度</text><text class="p1-note">主动查询时才验证微信身份；仅显示本人最近 100 条申请。带看意向尚无确认时段。</text>
+  <view class="p1-card"><text class="p1-heading">本人申请进度</text><text class="p1-note">主动查询时才验证微信身份；显示本人最近 100 条申请。意向和待双方确认均未预约成功；刷新可查看最新安排，当前不发送消息通知。</text>
     <button bindtap="loadMine" disabled="{{busy || loading || !config}}">查询 / 刷新本人进度</button>
     <text wx:if="{{listError}}" class="p1-error" role="alert">{{listError}}</text><text wx:if="{{listLoaded && !items.length}}">当前没有本人申请。</text>
-    <view wx:for="{{items}}" wx:key="id" class="p1-request"><text class="p1-heading">{{item.kindLabel}} · {{item.statusLabel}}</text><text>{{item.institutionName || '请顾问协助推荐'}}</text><text class="p1-note">意向：{{item.preferredWindow || '待协商'}} · 实际安排尚未确认</text><text class="p1-source">提交时间：{{item.createdLabel}}</text><text wx:if="{{item.datasetMode === 'SYNTHETIC_TEST_ONLY'}}" class="p1-source">合成测试申请</text><button wx:if="{{item.status !== 'CANCELLED'}}" data-id="{{item.id}}" bindtap="cancelRequest" disabled="{{busy}}">取消这次申请</button></view>
+    <view wx:for="{{items}}" wx:key="id" class="p1-request"><text class="p1-heading">{{item.kindLabel}} · {{item.statusLabel}}</text><text>{{item.institutionName || '请顾问协助推荐'}}</text><text class="p1-note">意向：{{item.preferredWindow || '待协商'}}</text>
+      <text wx:if="{{!item.visits.length}}" class="p1-note">尚无确认带看安排</text>
+      <view wx:for="{{item.visits}}" wx:for-item="visit" wx:key="id" class="p1-visit"><text class="p1-heading">{{visit.institutionName}} · {{visit.statusLabel}}</text>
+        <text wx:if="{{visit.status === 'DRAFT'}}" class="p1-note">待家属与机构确认，当前未占用时段。</text>
+        <block wx:else><text class="p1-note">开始：{{visit.startLabel}}</text><text class="p1-note">结束：{{visit.endLabel}}</text><text class="p1-note">集合说明：{{visit.meetingNote}}</text><text wx:if="{{visit.actualAt}}" class="p1-note">实际记录时间：{{visit.actualLabel}}</text></block>
+      </view>
+      <text class="p1-source">提交：{{item.createdLabel}}</text><text class="p1-source">更新：{{item.updatedLabel}}</text><text wx:if="{{item.datasetMode === 'SYNTHETIC_TEST_ONLY'}}" class="p1-source">合成测试申请</text><text wx:if="{{!item.canCancel && item.status !== 'CANCELLED'}}" class="p1-note">已到访记录保留；如需取消其他行程，请联系顾问逐场处理。</text><button wx:if="{{item.canCancel}}" data-id="{{item.id}}" bindtap="cancelRequest" disabled="{{busy}}">取消申请及尚未发生的行程</button></view>
   </view>
 </page-container>

@@ -13,9 +13,15 @@ export interface P1Input {
 }
 export interface P1Item extends Omit<P1Input, 'requestId' | 'inputVersion' | 'consentAccepted'> {
   id: string; institutionName: string | null
-  status: 'PENDING_CONTACT' | 'PENDING_ARRANGEMENT' | 'CANCELLED'
+  status: 'PENDING_CONTACT' | 'FOLLOWING_UP' | 'PENDING_ARRANGEMENT' | 'CONFIRMED' | 'VISITED' | 'NO_SHOW' | 'CLOSED' | 'CANCELLED'
   createdAt: string; updatedAt: string; datasetMode: 'PRODUCTION' | 'SYNTHETIC_TEST_ONLY'
   source: string; assignedTo: string | null; scheduledStart: string | null; scheduledEnd: string | null
+  canCancel: boolean; visits: P1Visit[]
+}
+export interface P1Visit {
+  id: string; status: 'DRAFT' | 'CONFIRMED' | 'CANCELLED' | 'ARRIVED' | 'NO_SHOW'
+  institutionId: string; institutionName: string; start: string | null; end: string | null
+  meetingNote: string | null; actualAt: string | null
 }
 export interface P1Config {
   enabled: boolean; datasetMode: 'PRODUCTION' | 'SYNTHETIC_TEST_ONLY'
@@ -30,7 +36,7 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{1
 export function readP1Item(v: unknown, mode: string): P1Item {
   if (!record(v) || typeof v.id !== 'string' || !uuid.test(v.id) || v.datasetMode !== mode
     || !['CONSULTATION', 'VISIT_INTENT'].includes(String(v.kind))
-    || !['PENDING_CONTACT', 'PENDING_ARRANGEMENT', 'CANCELLED'].includes(String(v.status))
+    || !['PENDING_CONTACT', 'FOLLOWING_UP', 'PENDING_ARRANGEMENT', 'CONFIRMED', 'VISITED', 'NO_SHOW', 'CLOSED', 'CANCELLED'].includes(String(v.status))
     || (v.institutionId !== null && v.institutionId !== 'ningyue-yiyang-center')
     || !nullableText(v.institutionName) || !nullableText(v.preferredWindow) || !nullableText(v.assistanceNote)
     || !nullableText(v.assignedTo) || !nullableText(v.scheduledStart) || !nullableText(v.scheduledEnd)
@@ -41,7 +47,31 @@ export function readP1Item(v: unknown, mode: string): P1Item {
     || !['LONG_TERM', 'SHORT_STAY', 'POST_OPERATION', 'UNDECIDED'].includes(String(v.serviceScenario))
     || !Number.isInteger(v.partySize) || Number(v.partySize) < 1 || Number(v.partySize) > 10
     || typeof v.consentVersion !== 'string' || v.source !== (mode === 'SYNTHETIC_TEST_ONLY' ? 'SYNTHETIC_TEST_ONLY' : 'MINIPROGRAM')) throw new Error('INVALID_RESPONSE')
-  return v as unknown as P1Item
+  // V1 pending responses remain compatible; newer progress fields are validated as one boundary.
+  if (v.visits !== undefined && (!Array.isArray(v.visits) || !v.visits.every(entry => {
+    if (!record(entry) || typeof entry.id !== 'string' || !uuid.test(entry.id)
+      || !['DRAFT', 'CONFIRMED', 'CANCELLED', 'ARRIVED', 'NO_SHOW'].includes(String(entry.status))
+      || typeof entry.institutionName !== 'string'
+      || !(entry.institutionId === 'ningyue-yiyang-center' || mode === 'SYNTHETIC_TEST_ONLY' && entry.institutionId === 'synthetic-reception-b')
+      || !nullableText(entry.meetingNote) || !nullableText(entry.actualAt)) return false
+    const validDate = (value: unknown) => typeof value === 'string' && Number.isFinite(Date.parse(value))
+    return (entry.status === 'DRAFT' ? entry.start === null && entry.end === null && entry.meetingNote === null
+      : validDate(entry.start) && validDate(entry.end) && Date.parse(String(entry.start)) < Date.parse(String(entry.end)))
+      && (entry.actualAt === null || validDate(entry.actualAt))
+  }))) throw new Error('INVALID_RESPONSE')
+  if (v.canCancel !== undefined && typeof v.canCancel !== 'boolean') throw new Error('INVALID_RESPONSE')
+  const visits = (v.visits || []) as P1Visit[]
+  if (['CONFIRMED', 'VISITED', 'NO_SHOW'].includes(String(v.status)) && !visits.length) throw new Error('INVALID_RESPONSE')
+  return { ...v, visits, canCancel: v.canCancel === undefined ? v.status !== 'CANCELLED' && !visits.some(visit => visit.status === 'ARRIVED') : v.canCancel } as unknown as P1Item
+}
+
+// Fixed UTC+08 display only. UTC storage values are never rewritten by the view.
+export function p1BeijingTime(value: string | null): string {
+  if (!value) return '待确认'
+  const time = new Date(Date.parse(value) + 8 * 3600000)
+  if (!Number.isFinite(time.getTime())) return '时间暂不可用'
+  const pad = (n: number) => n < 10 ? `0${n}` : String(n)
+  return `${time.getUTCFullYear()}-${pad(time.getUTCMonth() + 1)}-${pad(time.getUTCDate())} ${pad(time.getUTCHours())}:${pad(time.getUTCMinutes())}（北京时间）`
 }
 
 export const validateP1Input = (v: P1Input): string => {

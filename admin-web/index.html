@@ -1,18 +1,22 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>快康养 · 需求工作台</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>快康养 · 需求工作台</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script><script src="operations.js" defer></script></head>
 <body>
 <header><div><span class="eyebrow">快康养 / 平台工作台</span><h1>接住每一份需求</h1><p>免费信息对接 · 咨询与带看意向</p></div><button id="logout" hidden>退出登录</button></header>
 <main>
 <p id="message" role="status" aria-live="polite"></p>
 <section id="loginPanel" class="card"><h2>管理员登录</h2><p>使用平台管理员账号。普通微信用户凭证不能访问后台。</p><form id="loginForm"><label>管理员账号<input name="username" autocomplete="username" maxlength="80" required></label><label>密码<input name="password" type="password" autocomplete="current-password" maxlength="200" required></label><button type="submit" class="primary">登录工作台</button></form><p class="muted">未配置管理员或服务环境时无法登录；不在此页面填写数据库凭据。</p></section>
 <section id="workspace" hidden>
-<div class="banner">当前仅接收需求。带看为「待安排」，没有已确认时段；联系、排期、到访和报表将在后续实现。</div>
+<div class="banner">免费信息对接 · 以实际联系和双方确认为准。合成环境只使用测试资料，不拨号、不通知机构。</div>
+<nav class="workspace-nav" aria-label="工作区域"><a href="#requests">联系与需求</a><a href="#calendar">带看日程</a><a href="#reports">机构报告</a><label class="font-setting">阅读字号<select id="fontSize"><option value="16">标准 100%</option><option value="24">大字号 150%</option></select></label></nav>
 <div class="layout">
-<section class="card"><div class="heading"><h2>需求列表</h2><span id="count" class="muted"></span></div>
-<form id="filters" class="filters"><label>状态<select name="status"><option value="">全部</option><option value="PENDING_CONTACT">待联系</option><option value="PENDING_ARRANGEMENT">待安排</option><option value="CANCELLED">已取消</option></select></label><label>类型<select name="kind"><option value="">全部</option><option value="CONSULTATION">普通咨询</option><option value="VISIT_INTENT">带看意向</option></select></label><label>机构<select name="institutionId"><option value="">全部</option><option value="ningyue-yiyang-center">柠月颐养中心</option></select></label><label>开始日期（北京时间）<input type="date" name="from"></label><label>结束日期（含当天）<input type="date" name="to"></label><button type="submit">查询 / 刷新</button></form>
-<p class="muted">按创建时间倒序，最多显示最近 100 条；可缩小日期范围。不自动刷新，不代表全库统计。</p><div id="list" aria-live="polite"></div></section>
+<section class="card" id="requests"><div class="heading"><h2>需求列表</h2><span id="count" class="muted"></span></div>
+<form id="filters" class="filters"><label>状态<select name="status"><option value="">全部</option><option value="PENDING_CONTACT">待联系</option><option value="FOLLOWING_UP">跟进中</option><option value="PENDING_ARRANGEMENT">待安排</option><option value="CONFIRMED">有确认带看</option><option value="VISITED">已到访</option><option value="NO_SHOW">未到访</option><option value="CLOSED">已结束联系</option><option value="CANCELLED">已取消</option></select></label><label>类型<select name="kind"><option value="">全部</option><option value="CONSULTATION">普通咨询</option><option value="VISIT_INTENT">带看意向</option></select></label><label>机构<select name="institutionId" class="institution-options"><option value="">全部</option><option value="ningyue-yiyang-center">柠月颐养中心</option></select></label><label>开始日期（北京时间）<input type="date" name="from"></label><label>结束日期（含当天）<input type="date" name="to"></label><button type="submit">查询 / 刷新</button></form>
+<p class="muted">每页 50 条，按创建时间倒序。报表独立查询完整筛选范围。</p><div id="list" aria-live="polite"></div><div class="actions"><button id="previousPage">上一页</button><button id="nextPage">下一页</button></div></section>
 <section class="card" id="detail" tabindex="-1"><h2>需求详情</h2><p>选择左侧一条需求，查看必要的联系资料和实际事件。</p></section>
-</div></section>
+</div>
+<section id="calendar" class="card section-block"><div class="heading"><h2>带看日程</h2><span>北京时间</span></div><form id="calendarFilter" class="filters"><label>起始日<input name="from" type="date" required></label><label>结束日<input name="to" type="date" required></label><button>查看日程</button></form><p class="muted">确认行程才占用资源；交通与准备缓冲由顾问填写，未使用路线测算。同一认证账号的全部需求共享冲突保护，不从手机号推定家庭或老人。</p><div id="calendarEntries" aria-live="polite">选择日期后查询。</div><details><summary>负责人不可用与机构接待容量</summary><div id="resources"></div></details></section>
+<section id="reports" class="card section-block"><div class="heading"><h2>机构服务报告</h2><span>对外聚合 · 无个人明细</span></div><form id="reportFilter" class="filters"><label>开始日期<input name="from" type="date" required></label><label>结束日期（含当天）<input name="to" type="date" required></label><label>机构<select name="institutionId" class="institution-options"><option value="">平台去重总览</option><option value="ningyue-yiyang-center">柠月颐养中心</option></select></label><button class="primary">生成报告预览</button></form><div id="reportPreview" aria-live="polite">预览与下载使用同一生成批次，不从需求列表求和。</div><button id="downloadReport" disabled>下载本批次 Excel</button></section>
+</section>
 </main><footer>内部服务资料仅供本次对接，不复制到开发日志或外发回执。</footer>
 </body></html>

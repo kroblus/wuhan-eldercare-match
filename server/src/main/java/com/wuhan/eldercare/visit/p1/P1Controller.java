@@ -63,11 +63,34 @@ public final class P1Controller {
     }
     @GetMapping("/admin/requests")public ResponseEntity<?> adminList(@CookieValue(name=COOKIE,required=false)String cookie,
             @RequestParam(required=false)String status,@RequestParam(required=false)String kind,@RequestParam(required=false)String institutionId,
-            @RequestParam(required=false)String from,@RequestParam(required=false)String to,@RequestParam(defaultValue="50")int limit){
-        return ok(envelope("items",service.adminList(cookie,status,kind,institutionId,from,to,limit)));
+            @RequestParam(required=false)String from,@RequestParam(required=false)String to,@RequestParam(defaultValue="50")int limit,@RequestParam(defaultValue="0")int offset){
+        var result=service.operations().page(cookie,status,kind,institutionId,from,to,limit,offset);result.put("contractVersion",P1Service.CONTRACT);return ok(result);
     }
     @GetMapping("/admin/requests/{id}")public ResponseEntity<?> adminDetail(@CookieValue(name=COOKIE,required=false)String cookie,@PathVariable String id){
         var result=service.adminDetail(cookie,id);result.put("contractVersion",P1Service.CONTRACT);return ok(result);
+    }
+    @PostMapping(value="/admin/requests/{id}/followups",consumes="application/json")public ResponseEntity<?> followup(
+            @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,@PathVariable String id,HttpServletRequest request){
+        var result=service.operations().followup(cookie,csrf,id,operationBody(request));result.put("contractVersion",P1Service.CONTRACT);return ok(result);
+    }
+    @PostMapping(value="/admin/requests/{id}/visits",consumes="application/json")public ResponseEntity<?> visit(
+            @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,@PathVariable String id,HttpServletRequest request){
+        var result=service.operations().visit(cookie,csrf,id,operationBody(request));result.put("contractVersion",P1Service.CONTRACT);return ok(result);
+    }
+    @GetMapping("/admin/calendar")public ResponseEntity<?> calendar(@CookieValue(name=COOKIE,required=false)String cookie,@RequestParam String from,@RequestParam String to){
+        var result=service.operations().calendar(cookie,from,to);result.put("contractVersion",P1Service.CONTRACT);return ok(result);
+    }
+    @PostMapping(value="/admin/resources",consumes="application/json")public ResponseEntity<?> resources(
+            @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,HttpServletRequest request){
+        var result=service.operations().resources(cookie,csrf,operationBody(request));result.put("contractVersion",P1Service.CONTRACT);return ok(result);
+    }
+    JsonNode operationBody(HttpServletRequest request){
+        try{
+            var bytes=request.getInputStream().readNBytes(8193);if(bytes.length>8192)throw new P1Failure(413,"REQUEST_TOO_LARGE");
+            try(var parser=mapper.createParser(bytes)){
+                JsonNode result=mapper.readTree(parser);if(result==null||!result.isObject()||parser.nextToken()!=null)throw new P1Failure(400,"INVALID_INPUT");return result;
+            }
+        }catch(IOException failure){throw new P1Failure(400,"INVALID_INPUT");}
     }
     private JsonNode body(HttpServletRequest request,int limit,Set<String> fields){
         try{

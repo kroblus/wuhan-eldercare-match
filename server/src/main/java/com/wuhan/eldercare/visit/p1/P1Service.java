@@ -26,11 +26,12 @@ public final class P1Service {
             String preferredWindow, int partySize, String assistanceNote, String consentVersion, boolean consentAccepted) {}
     public record Login(String username, String token, String csrfToken) {}
     public record Admin(String username, String csrfToken) {}
-    @FunctionalInterface private interface Transaction<T> { T run(Connection connection) throws Exception; }
+    @FunctionalInterface interface Transaction<T> { T run(Connection connection) throws Exception; }
     private final DataSource database;
     private final AuthEvidenceResolver auth;
-    private final ObjectMapper mapper;
-    private final Clock clock;
+    final ObjectMapper mapper;
+    final Clock clock;
+    private final P1Operations operations;
     private final Settings settings;
     private final SecureRandom random = new SecureRandom();
     private int failedLogins;
@@ -38,7 +39,9 @@ public final class P1Service {
 
     public P1Service(DataSource database, AuthEvidenceResolver auth, ObjectMapper mapper, Clock clock, Settings settings) {
         this.database = database; this.auth = auth; this.mapper = mapper; this.clock = clock; this.settings = settings;
+        this.operations = new P1Operations(this);
     }
+    public P1Operations operations() { return operations; }
     public boolean synthetic() { return settings.synthetic(); }
     public String datasetMode() { return synthetic() ? "SYNTHETIC_TEST_ONLY" : "PRODUCTION"; }
     private boolean noticeConfigured() {
@@ -80,13 +83,13 @@ public final class P1Service {
             String status = input.kind().equals("VISIT_INTENT") ? "PENDING_ARRANGEMENT" : "PENDING_CONTACT";
             Instant now = clock.instant();
             try (var statement = connection.prepareStatement("INSERT INTO p1_service_request_v1 "
-                    + "(request_id,owner_user_id,input_digest,input_json,request_kind,institution_id,request_status,dataset_mode,request_source,created_at,updated_at) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE request_id=request_id")) {
+                    + "(request_id,owner_user_id,input_digest,input_json,request_kind,institution_id,request_status,dataset_mode,request_source,created_at,updated_at,workflow_status) "
+                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE request_id=request_id")) {
                 statement.setString(1, input.requestId()); statement.setString(2, owner); statement.setString(3, digest);
                 statement.setString(4, json); statement.setString(5, input.kind()); statement.setString(6, input.institutionId());
                 statement.setString(7, status); statement.setString(8, datasetMode());
                 statement.setString(9, synthetic() ? "SYNTHETIC_TEST_ONLY" : "MINIPROGRAM");
-                statement.setTimestamp(10, Timestamp.from(now)); statement.setTimestamp(11, Timestamp.from(now)); statement.executeUpdate();
+                statement.setTimestamp(10, Timestamp.from(now)); statement.setTimestamp(11, Timestamp.from(now)); statement.setString(12,status); statement.executeUpdate();
             }
             try (var statement = connection.prepareStatement("SELECT owner_user_id,input_digest,dataset_mode FROM p1_service_request_v1 WHERE request_id=? FOR UPDATE")) {
                 statement.setString(1, input.requestId());
@@ -110,12 +113,17 @@ public final class P1Service {
     public ObjectNode cancel(String evidence, String id) {
         requireAvailable(); if (!uuid(id)) throw new P1Failure(400, "INVALID_INPUT");
         return transaction(connection -> {
+            operations.lock(connection);
             String owner = owner(connection, evidence);
             var current = item(connection, id, owner);
             if (!current.path("status").asText().equals("CANCELLED")) {
+                if (current.path("visits").findValuesAsText("status").contains("ARRIVED")) throw new P1Failure(409,"VISIT_HISTORY_EXISTS");
                 var now = clock.instant();
-                try (var statement = connection.prepareStatement("UPDATE p1_service_request_v1 SET request_status='CANCELLED',updated_at=? WHERE request_id=? AND owner_user_id=?")) {
+                try (var statement = connection.prepareStatement("UPDATE p1_service_request_v1 SET request_status='CANCELLED',workflow_status='CANCELLED',updated_at=? WHERE request_id=? AND owner_user_id=?")) {
                     statement.setTimestamp(1, Timestamp.from(now)); statement.setString(2, id); statement.setString(3, owner); statement.executeUpdate();
+                }
+                try(var statement=connection.prepareStatement("UPDATE p1_visit_v1 SET visit_status='CANCELLED',revision=revision+1,updated_at=? WHERE request_id=? AND visit_status IN ('DRAFT','CONFIRMED')")) {
+                    statement.setTimestamp(1,Timestamp.from(now));statement.setString(2,id);statement.executeUpdate();
                 }
                 event(connection, id, "REQUEST_CANCELLED", owner, now);
             }
@@ -134,17 +142,17 @@ public final class P1Service {
             statement.setString(1,id); statement.setString(2,type); statement.setTimestamp(3,Timestamp.from(now)); statement.setString(4,owner); statement.executeUpdate();
         }
     }
-    private ObjectNode item(Connection connection, String id, String owner) throws Exception {
+    ObjectNode item(Connection connection, String id, String owner) throws Exception {
         try (var statement = connection.prepareStatement("SELECT * FROM p1_service_request_v1 WHERE request_id=? AND dataset_mode=? "
                 + (owner == null ? "" : "AND owner_user_id=? ") + "FOR UPDATE")) {
             statement.setString(1,id); statement.setString(2,datasetMode()); if (owner != null) statement.setString(3,owner);
             try (var rows = statement.executeQuery()) {
                 if (!rows.next()) throw new P1Failure(404,"NOT_FOUND");
-                return row(rows);
+                return row(connection,rows);
             }
         }
     }
-    private ObjectNode row(ResultSet rows) throws Exception {
+    private ObjectNode row(Connection connection,ResultSet rows) throws Exception {
         Input input = mapper.readValue(rows.getString("input_json"), Input.class);
         var item = (ObjectNode) mapper.valueToTree(input);
         item.remove(List.of("requestId", "inputVersion", "consentAccepted"));
@@ -154,11 +162,14 @@ public final class P1Service {
                 .put("datasetMode",rows.getString("dataset_mode")).put("source",rows.getString("request_source"));
         if (input.institutionId() == null) item.putNull("institutionName"); else item.put("institutionName","柠月颐养中心");
         item.putNull("assignedTo"); item.putNull("scheduledStart"); item.putNull("scheduledEnd");
+        item.set("visits",operations.visits(connection,rows.getString("request_id"),false));
+        item.put("canCancel",!rows.getString("request_status").equals("CANCELLED")
+                && !item.path("visits").findValuesAsText("status").contains("ARRIVED"));
         return item;
     }
     private List<ObjectNode> list(Connection connection, String owner, String status, String kind, String institution,
             String from, String to, int limit) throws Exception {
-        if (limit < 1 || limit > 100 || (status != null && !Set.of("PENDING_CONTACT","PENDING_ARRANGEMENT","CANCELLED").contains(status))
+        if (limit < 1 || limit > 100 || (status != null && !P1Operations.REQUEST_STATUSES.contains(status))
                 || (kind != null && !Set.of("CONSULTATION","VISIT_INTENT").contains(kind))
                 || (institution != null && !INSTITUTION.equals(institution))) throw new P1Failure(400,"INVALID_FILTER");
         Instant lower = day(from, false), upper = day(to, true);
@@ -175,18 +186,18 @@ public final class P1Service {
         var result = new ArrayList<ObjectNode>();
         try (var statement = connection.prepareStatement(sql.toString())) {
             for(int i=0;i<values.size();i++) statement.setObject(i+1,values.get(i));
-            try(var rows=statement.executeQuery()){while(rows.next())result.add(row(rows));}
+            try(var rows=statement.executeQuery()){while(rows.next())result.add(row(connection,rows));}
         }
         return result;
     }
-    private Instant day(String value, boolean upper) {
+    Instant day(String value, boolean upper) {
         if(value==null)return null;
         try {
             if(!value.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"))throw new DateTimeParseException("invalid",value,0);
             var date=LocalDate.parse(value);return (upper?date.plusDays(1):date).atStartOfDay(ZoneId.of("Asia/Shanghai")).toInstant();
         } catch(DateTimeParseException failure){throw new P1Failure(400,"INVALID_FILTER");}
     }
-    private void requireAdminConfigured() {
+    void requireAdminConfigured() {
         requireAvailable();
         if(!text(settings.adminUsername(),80,false)||!validPasswordHash(settings.adminPasswordHash()))throw new P1Failure(503,"ADMIN_UNAVAILABLE");
     }
@@ -212,7 +223,7 @@ public final class P1Service {
         requireAdminConfigured();
         return transaction(connection->admin(connection,cookie,csrf,mutation));
     }
-    private Admin admin(Connection connection,String cookie,String csrf,boolean mutation)throws SQLException {
+    Admin admin(Connection connection,String cookie,String csrf,boolean mutation)throws SQLException {
         if(cookie==null||!cookie.matches("[A-Za-z0-9_-]{43}"))throw new P1Failure(401,"ADMIN_AUTH_REQUIRED");
         try(var statement=connection.prepareStatement("SELECT admin_username,csrf_digest,expires_at,revoked_at FROM p1_admin_session_v1 WHERE session_digest=? FOR UPDATE")){
             statement.setString(1,adminSessionDigest(cookie));
@@ -239,7 +250,9 @@ public final class P1Service {
                 statement.setString(1,id);try(var rows=statement.executeQuery()){
                     while(rows.next())events.addObject().put("type",rows.getString(1)).put("occurredAt",rows.getTimestamp(2).toInstant().toString());
                 }
-            }return result;
+            }
+            operations.enrichDetail(connection,id,result);
+            return result;
         });
     }
     public void logout(String cookie,String csrf){
@@ -249,7 +262,7 @@ public final class P1Service {
             }return null;
         });
     }
-    private <T>T transaction(Transaction<T> work){
+    <T>T transaction(Transaction<T> work){
         if(database==null)throw new P1Failure(503,"SERVICE_UNAVAILABLE");
         try(var connection=database.getConnection()){
             connection.setAutoCommit(false);

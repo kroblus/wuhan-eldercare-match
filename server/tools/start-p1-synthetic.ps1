@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$DatabaseSettings,
-    [string]$JavaExecutable = 'java'
+    [string]$JavaExecutable = 'java',
+    [string]$OutputDirectory = 'output/p1-1'
 )
 $ErrorActionPreference = 'Stop'
 $p1Root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -19,7 +20,8 @@ try {
     $p1Connecting = $p1PortCheck.BeginConnect('127.0.0.1', 18341, $null, $null)
     if ($p1Connecting.AsyncWaitHandle.WaitOne(250) -and $p1PortCheck.Connected) { throw 'Port 18341 is already occupied; do not start another server' }
 } finally { $p1PortCheck.Dispose() }
-$p1Output = Join-Path $p1Root 'output/p1-1'
+$p1Output = [IO.Path]::GetFullPath((Join-Path $p1Root $OutputDirectory))
+if (-not $p1Output.StartsWith((Join-Path $p1Root 'output') + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Runtime output must stay under project output' }
 [void](New-Item -ItemType Directory -Force -Path $p1Output)
 $p1Runtime = Join-Path $p1Output 'runtime.private.json'
 $p1Previous = @{}
@@ -52,4 +54,4 @@ if (-not $p1Ready) { throw 'Synthetic server did not become ready; inspect local
 @{baseUrl='http://127.0.0.1:18341';adminUrl='http://127.0.0.1:18341/p1-admin/';datasetMode='SYNTHETIC_TEST_ONLY';processId=$p1Process.Id;privateRuntimeFile=$p1Runtime} |
     ConvertTo-Json | Set-Content -LiteralPath (Join-Path $p1Output 'runtime.json') -Encoding UTF8
 Write-Output 'Synthetic P1 server ready: http://127.0.0.1:18341/p1-admin/ (loopback only)'
-Write-Output 'Synthetic credentials remain only in output/p1-1/runtime.private.json; do not paste them into logs or chat.'
+Write-Output 'Synthetic credentials remain only in the selected output directory runtime.private.json; do not paste them into logs or chat.'

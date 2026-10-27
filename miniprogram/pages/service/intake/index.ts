@@ -1,16 +1,18 @@
 import { p1Institution } from '../../../content/p1-public-institution'
-import { p1Client, p1Pending, newP1RequestId, P1_VERSION, validateP1Input } from '../../../services/p1-service-client'
+import { p1Client, p1Pending, newP1RequestId, P1_VERSION, validateP1Input, p1BeijingTime } from '../../../services/p1-service-client'
 import type { P1Input, P1Item, P1Config } from '../../../services/p1-service-client'
 import { readBrowseFontStyle } from '../../../utils/browse-font'
 
 const relationshipValues: P1Input['relationship'][] = ['SELF', 'FAMILY', 'OTHER']
 const scenarioValues: P1Input['serviceScenario'][] = ['UNDECIDED', 'LONG_TERM', 'SHORT_STAY', 'POST_OPERATION']
-const statusLabels = { PENDING_CONTACT: '待联系', PENDING_ARRANGEMENT: '待安排', CANCELLED: '已取消' }
+const statusLabels = { PENDING_CONTACT: '待联系', FOLLOWING_UP: '联系跟进中', PENDING_ARRANGEMENT: '待安排', CONFIRMED: '已有确认带看', VISITED: '已记录到访', NO_SHOW: '已记录未到访', CLOSED: '已结束联系', CANCELLED: '已取消' }
+const visitLabels = { DRAFT: '待双方确认', CONFIRMED: '已确认', CANCELLED: '这场已取消', ARRIVED: '已到访', NO_SHOW: '未到访' }
 const lifetimes = new WeakMap<object, number>()
 const active = (page: object, generation: number) => lifetimes.get(page) === generation
 const displayItems = (items: P1Item[]) => items.map(item => ({ ...item,
   statusLabel: statusLabels[item.status], kindLabel: item.kind === 'VISIT_INTENT' ? '带看意向' : '普通咨询',
-  createdLabel: item.createdAt.replace('T', ' ').replace(/Z$/, ' UTC'),
+  createdLabel: p1BeijingTime(item.createdAt), updatedLabel: p1BeijingTime(item.updatedAt),
+  visits: (item.visits || []).map(visit => ({ ...visit, statusLabel: visitLabels[visit.status], startLabel: p1BeijingTime(visit.start), endLabel: p1BeijingTime(visit.end), actualLabel: p1BeijingTime(visit.actualAt) })),
 }))
 
 Page({
@@ -114,7 +116,7 @@ Page({
   },
   async cancelRequest(event: WechatMiniprogram.TouchEvent) {
     const id = event.currentTarget.dataset.id
-    if (this.data.busy || !this.data.items.some(item => item.id === id && item.status !== 'CANCELLED')) return
+    if (this.data.busy || !this.data.items.some(item => item.id === id && item.canCancel)) return
     const generation = lifetimes.get(this) || 0
     this.setData({ busy: true, listError: '' })
     try {
