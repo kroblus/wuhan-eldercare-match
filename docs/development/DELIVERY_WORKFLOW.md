@@ -2,15 +2,15 @@
 
 Owner 已于 2026-10-27 授权日常开发完成后自动 commit/push 与短回执投递；不再要求逐次审批。此流程不负责部署、微信上传/提审/发布。
 
-## 一次性安装
+## 内置插件接入
 
 在唯一主根核实 origin 仓库为 kroblus/wuhan-eldercare-match，读取当前分支及 upstream，不根据文件夹名选 main。保留原有工作树与权限。初次查看 push 会触发的 workflow/部署配置，避免未授权生产发布；以后仅配置变化时重查，不每轮重复审计。
 
-确认现有可用 Drive 工具。必须让 Codex 仅能调用“新建本项目短回执”；服务端固定收件箱，不接受任意文件 ID、目录、读取或更新请求。优先复用已有受限工具；不默认增加 Agent、hooks、队列服务或 GitHub Actions。
+优先使用 Codex 桌面版内置 Google Drive 插件。项目 `.codex/config.toml` 启用插件及对应 connector，设置 `default_tools_enabled=false`，仅放行 `tools.upload_file.enabled=true`。新会话在需要时通过 Sources → Use plugins 选择 Google Drive，再核对实际工具只有上传；不为此断开 ChatGPT 的 Drive 连接。
 
-若现有 MCP 能筛选工具，按真实服务名/工具名使用 enabled_tools 白名单，但白名单本身不限制任意 folder_id，需受限封装或服务端限制。若只有完整 Google Drive 插件，写入 MD 禁读只是行为约束，不能标记硬权限已完成。不要把泛用 Google OAuth token 放在 Codex 可直接读取的环境后宣称只能写。
+仅新建短回执至已知 `10_CODEX_INBOX`（ID 见定位文件），禁止搜索、读取、列目录、更新、移动、删除或其他管理操作。工具白名单限制操作种类，目标文件夹仍由调用参数和行为约定限定，不是服务端固定目录权限，也不是系统级隔离。不要获取 Google OAuth token，不通过浏览器/脚本绕过禁读。
 
-缺少受限通道时，先启用 GitHub 自动交付和本地短回执；将 DRIVE_WRITE_ONLY 标记 PENDING_SETUP，明确所缺的授权/接入，不偷偷读取 Drive。ChatGPT 的连接不因这条规则失去管理能力。
+如果插件无法接收本地 Markdown 或无法指定目标文件夹，采用“Codex 推送 GitHub、ChatGPT 维护 Drive”：本地保留短回执，由 ChatGPT 对话完成 Drive 整理。不增加上传桥接或其他基础设施。自建 `delivery-receipt` MCP 已禁用，已提交源码仅作备选，不再要求部署 Apps Script。
 
 `.codex/delivery-targets.json` 是本项目的定位数据，不是 Codex 内置配置项，不会自行触发任何同步。该不含凭证的定位文件应进入版本管理；如被现有 .codex 忽略规则屏蔽，只补这个文件的放行。投递回执保留在被忽略的 output/，不为写回 SHA 反复 amend 或制造新提交。
 
@@ -20,7 +20,7 @@ Owner 已于 2026-10-27 授权日常开发完成后自动 commit/push 与短回�
 2. 核对起始修改与本次 diff，排除凭证、output、恢复 ZIP、数据库和无关工作；按目标文件暂存。已暂存的别人工作用于保留，不直接混入此次 commit。
 3. 创建一个能理解的提交，推送当前已核实 upstream（或首次确定的同名工作分支）。不自动切 main/新建平行 worktree，不强推。远程有分歧保留本地提交，报告原因，不自动重写历史。
 4. 核对远程分支 SHA；若并发出现更新，核对本次 SHA 是否已在其历史中。记录实际结果，不仅凭命令已发出认定成功。
-5. 本地生成稳定 receipt_id 的短回执，经只写工具提交至固定收件箱。写入返回 ID/URL 作为投递凭证，不读回内容。
+5. 本地生成稳定 receipt_id 的短回执；内置上传通道实际可用时，只上传该回执到指定收件箱。以创建响应的 ID/URL/parents 为证据，不读回内容；响应不含实际父目录时请 Owner 或 ChatGPT 对话核对，不声称落点已确认。通道不可用则留本地 outbox，交 ChatGPT 维护 Drive。
 
 正常完成不用等待手机验收才允许备份已实现代码；回执如实写“自动化通过，手机待验收”。测试失败的任务不伪报完成：可保存明确标注 WIP 的工作到非发布分支；不将坏状态悄悄推入发布分支。
 
@@ -47,15 +47,15 @@ push: VERIFIED / FAILED / NOT_NEEDED
 ## 失败只影响同步，不推倒已完成开发
 
 Git 失败：保留提交及本地回执，明确未推送；不伪造远程链接。Drive 失败：Git 成功保持有效，留本地 outbox 和已知投递状态。超时结果不明时用稳定 receipt_id，服务端支持幂等则重放；否则报告 UNKNOWN，不读取 Drive 去重，也不盲目重复投递。
-后续当前会话或下一次交付可补发本地待办，不承诺后台重试。ChatGPT 在对话中处理 Drive 的读取、去重、精简与归档。
+内置上传不假定具备 receipt_id 幂等性；UNKNOWN 不自动重传。后续补发前由 Owner/ChatGPT 对话处理重复判断，不承诺后台重试。ChatGPT 在对话中处理 Drive 的读取、去重、精简与归档。
 
-验收只需要一次：GitHub 实际可见提交、短回执实际写入指定收件箱、Codex 无 Drive 读取工具/替代读取路径的受限配置已核对。没有做到哪项就标明，不造 PASS。
+分别记录 GitHub 推送、实际上传、文件落点及新会话工具白名单验证结果。未取得的证据不造 PASS；选用 ChatGPT 维护 Drive 不再以部署接收器作为完成条件。
 
 ## 本机接入状态（2026-10-27）
 
 - Git：origin 已核实为本项目私有仓库；当前分支为 `codex/unified-source-baseline`，upstream 为同名 origin 分支。不切 main。现有 workflow 仅源码检查，push 触发限定 main；仓库无 Webhook、Pages 或既有 deployment，未发现本次分支推送的部署副作用。实际推送状态与完整 SHA 记录在本地回执。
 - 首次备份按 V4/C1、C2-A（Owner 本轮明确授权单独备份）、V5 三组提交。既有业务验证沿用对应记录，本轮仅核对配置与文档，不声称重跑业务验收。原始 GUI 截图/调用日志 `docs/design/*-evidence/`、output 和恢复包保留本地；历史报告中的本地证据链接不代表 GitHub 已包含这些附件。
-- `DRIVE_WRITE_ONLY=PENDING_SETUP`：V5 受限回执接收器和薄本地调用端已实现，见[一页安装步骤](../../tools/delivery-receipt/README.md)。云端固定目录、鉴权、300 字正文、严格字段、同 ID 摘要及创建前持久化记录；无 Drive 读取/管理入口。本地 Mock 与真实 stdio 测试通过，未授权部署或真实投递。
-- 项目 TOML 已新增仅暴露 `submit_delivery_receipt` 的 MCP，并禁用本项目通用 Drive connector/plugin；保留原模型、微信 MCP、Skills 和权限，不修改 ChatGPT 全局连接。strict startup 配置校验通过，但当前会话仍有 45 个通用 Drive 工具，新增工具尚未热加载。重载后须核对实际工具目录；未完成前不声称工具级禁读已生效。这也不是整台电脑的系统级安全隔离。
-- Owner 还需：Apps Script 首次授权与部署、在本地隐藏输入专用投递凭证、重载并确认工具边界，然后补发原 ID `ac516a92-e859-4729-b6b1-16a4a6b63e2e`。保留原时间/SHA/正文，不重写成新成果；只用创建响应确认，文件落点与内容由 Owner 或 ChatGPT 对话核对。
-- 回执保存在 `output/sync-outbox/`，调用状态在 `.delivery-state/`；UNKNOWN 不等于失败未创建，不自动换 ID 或盲目重建。云端幂等记录不自动清理。接通前不使用通用插件代投，不启动后台任务。该定位 JSON 和 AGENTS 约定不会自行执行推送。
+- 内置插件已验证：新会话实际只暴露 `upload_file`；一次上传接受本地 Markdown 绝对路径与指定父目录。创建响应确认父目录为 `1d-DE2eNyq78DnbZspC_UpvExUHke1aFR`（10_CODEX_INBOX），未读取 Drive 回验。测试文件 ID：`1K5NXkn7kmQxQQ2dtr0WZpxJoJyu78w6t`；[创建的测试回执](https://drive.google.com/file/d/1K5NXkn7kmQxQQ2dtr0WZpxJoJyu78w6t/view?usp=drivesdk)。本地证据：`output/drive-plugin-check/result.json`。
+- 本项目 Drive 插件已恢复，默认关闭所有工具，仅 `upload_file` 放行；模型、微信 MCP、Skills、原权限和 ChatGPT 全局连接保持。新会话已自动加载插件，无需再手动选择；其他会话若未出现，可在 Sources → Use plugins 选择 Google Drive，并重新核对实际白名单。
+- 自建 `delivery-receipt` MCP 已禁用，源码保留在 `tools/delivery-receipt/` 作为备选；不再部署 Apps Script，不要求提供投递密钥。新会话的白名单验证不代表本机或 Google 账户具有系统级只写权限；插件指定目录仍是调用约束。
+- 本次只做一次新测试回执上传，未补发或删除既有回执。旧回执继续保存在 `output/sync-outbox/`，保留原 ID/时间/commit；UNKNOWN 不自动重传，不创建额外基础设施。日后通道不可用时，直接退回 Codex 推送 GitHub、ChatGPT 维护 Drive。

@@ -5,17 +5,19 @@
   "remote": "origin",
   "branchPolicy": "verified_current_upstream_no_forced_switch",
   "driveInboxFolderId": "1d-DE2eNyq78DnbZspC_UpvExUHke1aFR",
-  "driveMode": "CREATE_RECEIPT_ONLY",
+  "driveMode": "BUILTIN_PLUGIN_UPLOAD_ONLY",
   "timezone": "Asia/Shanghai",
   "receiptBodyMaxCharacters": 300,
   "localOutbox": "output/sync-outbox",
-  "activationStatus": "PARTIALLY_ACTIVATED",
+  "activationStatus": "ACTIVE",
   "gitDeliveryStatus": "CONFIGURED",
-  "driveWriteOnlyStatus": "PENDING_SETUP",
-  "driveRestrictionLevel": "RESTRICTED_CHANNEL_IMPLEMENTED_RUNTIME_VERIFICATION_PENDING",
-  "driveSetupBlocker": "Owner cloud authorization/deployment and local receiver credential are missing. Project-only connector disable is configured, but the current session still exposes generic Drive tools; reload and verify the tool catalog before real delivery.",
-  "receiptTool": "submit_delivery_receipt",
-  "receiptImplementation": "tools/delivery-receipt",
-  "cloudDeliveryStatus": "NOT_DEPLOYED_NOT_SENT",
-  "genericDriveToolExposure": "CURRENT_SESSION_STILL_EXPOSED_RELOAD_REQUIRED"
+  "driveWriteOnlyStatus": "TOOL_ALLOWLIST_VERIFIED",
+  "driveRestrictionLevel": "UPLOAD_TOOL_ONLY_FOLDER_SELECTED_BY_CALL_ARGUMENT",
+  "driveSetupBlocker": null,
+  "driveAllowedTools": [
+    "upload_file"
+  ],
+  "selfHostedReceiptStatus": "DISABLED_BACKUP_NO_DEPLOYMENT",
+  "driveTestStatus": "LOCAL_MARKDOWN_AND_PARENT_VERIFIED_FROM_CREATE_RESPONSE",
+  "driveTestFileId": "1K5NXkn7kmQxQQ2dtr0WZpxJoJyu78w6t"
 }

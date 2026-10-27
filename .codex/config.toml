@@ -28,17 +28,22 @@ args = [
 ]
 env_vars = ["WECHATIDE_MCP_TOKEN"]
 
-# Project-only receipt channel. Credentials are configured locally, never in TOML.
+# Retained fallback implementation; no Apps Script deployment is planned.
 [mcp_servers.delivery-receipt]
+enabled = false
 command = "node"
 args = ["C:/Users/16562/WeChatProjects/wuhan-eldercare-match/tools/delivery-receipt/mcp.mjs"]
 enabled_tools = ["submit_delivery_receipt"]
 tool_timeout_sec = 45
 
-# Disable the generic connector for this trusted project, not the ChatGPT account.
+# Project-only upload allowlist; all other Drive operations stay disabled.
 # Connector identity comes from the locally installed Google Drive plugin .app.json.
 [apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa]
-enabled = false
+enabled = true
+default_tools_enabled = false
+
+[apps.connector_5f3c8c41a1e54ad7a76272c89e2554fa.tools.upload_file]
+enabled = true
 
 [plugins."google-drive@openai-curated-remote"]
-enabled = false
+enabled = true

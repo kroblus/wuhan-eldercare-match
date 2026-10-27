@@ -1,5 +1,7 @@
 # V5 回执通道：Owner 一页安装说明
 
+> 2026-10-27：本实现已退为备选，MCP 已禁用。当前优先使用内置 Google Drive 上传白名单；不可用则由 ChatGPT 维护 Drive。**无需执行下面的 Apps Script 部署步骤**，已提交源码与既有回执保留。当前方式见[交付流程](../../docs/development/DELIVERY_WORKFLOW.md)。
+
 **代码和本地 Mock 已验证；尚未授权、部署或真实投递。** 不升级工作流、不接入业务 server。接收器只有创建回执能力；这是工具通道边界，不是整台电脑的系统级隔离。
 
 1. **创建云端脚本。** 在 [Google Apps Script](https://script.google.com/home/start) 用拥有收件箱写权限的账号新建独立项目，名称可填“武汉养老 V5 回执”。在编辑器将 [Code.js](apps-script/Code.js) 内容粘入 `Code.gs`；点文件旁 `+ → 脚本` 新建 `Contract.gs`，粘入 [Contract.js](apps-script/Contract.js)。云端文件名后缀为 `.gs`，内容直接复制，不上传本地调用端。

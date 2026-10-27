@@ -16,7 +16,7 @@
 
 继续 V1.3 时，从 [C2-A 后端与页面接入说明](docs/phases/v1-3-c2-a/SUMMARY.md) 进入 C2-B；旧 TEST_ONLY History 保持隔离。旧 V2 吞咽条款与当前 readiness 实现的既有差异仍保留，见[复验说明](docs/design/V1_3_C1_A_IMPLEMENTATION_REPORT.md)；本次未改 Frozen 或领域规则。当前问卷 V2 为 **32 题、26 必填、6 选填**；部分旧报告的 27/21 不用于回改当前问卷。
 
-V5 交付同步已配置：任务完成相关验证后自动 commit/push 当前已核实工作分支。Drive 受限接收器与单工具调用端已实现并通过本地定向测试；尚缺 Owner 云端授权/部署、专用凭证配置及重载后的工具边界核对，状态仍为 `PENDING_SETUP`，回执暂存 `output/sync-outbox/`。按[一页安装步骤](tools/delivery-receipt/README.md)接通后，以原 ID 补发；不升级 V5，不影响 C1/C2。微信上传和生产部署仍需独立授权；详见[交付流程](docs/development/DELIVERY_WORKFLOW.md)。
+V5 交付已简化：完成相关验证后自动 commit/push；Drive 使用桌面版内置插件，仅放行上传工具。新会话已成功将非敏感 Markdown 上传至指定 10_CODEX_INBOX，创建响应确认落点。自建 MCP 已禁用、代码保留，不再部署 Apps Script；既有回执保留。插件不可用时退回“Codex 推送 GitHub、ChatGPT 维护 Drive”。不升级 V5、不影响 C1/C2，详见[交付流程](docs/development/DELIVERY_WORKFLOW.md)。
 
 ## 按任务找资料
 
