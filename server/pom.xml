@@ -75,6 +75,13 @@
                     <include>domain/recommendation/**/*.ts</include>
                     <include>domain/institution/**/*.ts</include>
                     <include>services/institution-display-projection-v11.ts</include>
+                    <include>services/institution-catalog-validation-v121.ts</include>
+                    <include>runtime/institution-validation.ts</include>
+                    <include>pages/recommendation/initial-reference-view-model.ts</include>
+                    <include>pages/recommendation/result-v2-view-model.ts</include>
+                    <include>pages/recommendation/recommendation-display-semantics.ts</include>
+                    <include>pages/assessment/profile-v2-view-model.ts</include>
+                    <include>types/initial-reference-v1.ts</include>
                     <include>types/assessment*.ts</include>
                     <include>types/elder-profile*.ts</include>
                     <include>types/institution*.ts</include>
@@ -85,6 +92,11 @@
                 <directory>tools</directory>
                 <targetPath>assessment-validator/tools</targetPath>
                 <includes><include>derive-historical-profile.mjs</include><include>derive-historical-recommendation.mjs</include></includes>
+            </resource>
+            <resource>
+                <directory>tools</directory>
+                <targetPath>assessment-validator/tools</targetPath>
+                <includes><include>derive-c2-snapshot.mjs</include></includes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>

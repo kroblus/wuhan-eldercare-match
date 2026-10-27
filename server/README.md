@@ -1,3 +1,5 @@
+> 2026-10-27：C2-A 独立正式单老人历史后端已实现，合成 MySQL 定向验证通过；真实数据写入默认关闭，前端尚未接入。原 CompletedAssessment History 仍为 TEST_ONLY，保护条件未解除。接口、开放条件与证据见 [C2-A 总结](../docs/phases/v1-3-c2-a/SUMMARY.md)。
+
 # C4 预约提交后端 Foundation
 
 独立测试环境准备流程见 [History 环境与设备门禁](../docs/development/ASSESSMENT_HISTORY_TEST_ENVIRONMENT_RUNBOOK_V1.md)。该流程使用当前工作区快照、固定运行包、新 disposable 实例和专库受限用户，随机合成 C5 密钥/本机 ticket 不进入前端。缺独立 AppID/可信服务器关系/HTTPS/设备时保持 WAITING_FOR_OWNER / NOT_VERIFIED / NOT_RUN；不改正式配置或升级已有协议。旧 root/loopback 测试示例不能代替这轮环境门禁。

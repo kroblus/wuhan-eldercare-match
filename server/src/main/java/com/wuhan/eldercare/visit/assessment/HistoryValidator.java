@@ -34,6 +34,13 @@ public final class HistoryValidator {
         if(!response.path("ok").asBoolean(false) || !response.path("display").isObject()) throw new HistoryFailure(503,"UNAVAILABLE");
         return response.get("display");
     }
+    /** Shared bounded process transport; the formal C2 bridge has its own projection and source boundary. */
+    public JsonNode c2Snapshot(JsonNode input) {
+        JsonNode response=invoke(input,"c2",1048576,524288);
+        if (!response.path("ok").asBoolean(false) || !response.path("snapshot").isObject())
+            throw new HistoryFailure(503,"UNAVAILABLE");
+        return response.get("snapshot");
+    }
     private JsonNode invoke(JsonNode input,String operation,int inputLimit,int outputLimit) {
         Process process=null;
         ExecutorService io=null;
@@ -83,6 +90,9 @@ public final class HistoryValidator {
         }
         try(var input=new ClassPathResource("assessment-validator/tools/derive-historical-recommendation.mjs").getInputStream()) {
             Files.copy(input,root.resolve("recommendation.mjs"));
+        }
+        try(var input=new ClassPathResource("assessment-validator/tools/derive-c2-snapshot.mjs").getInputStream()) {
+            Files.copy(input,root.resolve("c2.mjs"));
         }
         var resources=new PathMatchingResourcePatternResolver(getClass().getClassLoader())
                 .getResources("classpath*:assessment-validator/miniprogram/**/*.ts");

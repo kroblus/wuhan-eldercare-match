@@ -17,6 +17,13 @@ c5:
     identity-hash-secret: ${C5_AUTH_HASH_SECRET:}
     session-ttl-seconds: ${C5_SESSION_TTL_SECONDS:7200}
 
+c2:
+  history:
+    # Requires separate deployment-installed C2CatalogSource AND approved C2DataPolicy.
+    # This flag alone never authorizes real health-data collection.
+    writes-enabled: ${C2_HISTORY_WRITES_ENABLED:false}
+    node-executable: ${C2_HISTORY_NODE_EXECUTABLE:node}
+
 server:
   error:
     include-message: never

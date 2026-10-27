@@ -1,70 +1,44 @@
 # 武汉养老机构精准匹配小程序
 
-面向武汉本地老人及其家庭的养老需求评估与机构匹配微信小程序。
+这是项目的日常进度与资料入口。更新：2026-10-27（北京时间）；已完成本机源码收拢和 V4 工作流合入；历史验收与本轮验证分别记录。
 
-## 项目入口
+## 现在做到哪里
 
-- [当前产品资料](docs/product/README.md)
-- [当前架构与文档生命周期](docs/architecture/README.md)
-- [项目级 Agent 规则](AGENTS.md)
+**C1-B 初步参考页面已完成，Owner Android 6/6 PASS（用户提供基线）。C2-A 正式单老人历史后端已实现并完成合成 MySQL 定向验证；真实数据写入仍关闭，下一步接入 C2-B 页面。**
 
-## Source of Truth
+| 工作 | 当前结论 | 还差什么 |
+|---|---|---|
+| 页面与 Demo | 当前源码有 30 个路由；111 页图册展示 Demo 在开发者工具中的界面 | 图册不代表正式服务、手机验收或后续改动已上传 |
+| B1.2.6 演示体验版 | Drive 记录 `1.2.6-demo.1025.0039` 上传及用户手机验收 | 后续本地 UI 修复分别看对应记录 |
+| C1-A：初步参考计算 | R02/R10 测试输入与断言已修正；两项 C1 自动化检查完整通过 | 后继 C1-B 已完成；不重新规划本阶段 |
+| C1-B：推荐页面接入 | 已接入旧卡优先、1–3 张初步参考、全部风险与澄清；Owner Android 6/6 PASS（用户提供基线） | 后续改动按实际范围验证；不重启 C1 验收 |
+| C2-A：正式历史后端 | 独立 API/表、C5 单老人授权、告知/同意边界、固定快照确认、幂等与只读历史；合成 MySQL 验证通过 | C2-B 页面；真实 C5/机构来源/获批数据处理方案及部署验收，真实写入关闭 |
 
-当前产品版本由 `docs/product/README.md` 指定；对应版本的 Frozen Contract / Ruleset 冻结业务语义。
-`docs/architecture/CONTRACT_INDEX.md` 仅在任务跨领域、版本归属不明或无法确定直接 Contract 时作为 fallback router。
-Proposal、Audit、Migration、redirect stub 与 `docs/archive/**` 默认不是当前实现依据。
+继续 V1.3 时，从 [C2-A 后端与页面接入说明](docs/phases/v1-3-c2-a/SUMMARY.md) 进入 C2-B；旧 TEST_ONLY History 保持隔离。旧 V2 吞咽条款与当前 readiness 实现的既有差异仍保留，见[复验说明](docs/design/V1_3_C1_A_IMPLEMENTATION_REPORT.md)；本次未改 Frozen 或领域规则。当前问卷 V2 为 **32 题、26 必填、6 选填**；部分旧报告的 27/21 不用于回改当前问卷。
 
-## 开发与验证
+## 按任务找资料
 
-### 共用源码的正式／演示本地构建
+| 你要做什么 | 需要时打开 |
+|---|---|
+| 改功能、找代码与必要检查 | [任务地图](docs/current/TASK_MAP.md) |
+| 看当前产品能力和页面方案 | [当前 PRD](docs/product/CURRENT_PRD.md) · [当前 MVP](docs/product/CURRENT_MVP.md) |
+| 查某一阶段做了什么、测到哪里 | [阶段成果索引](docs/phases/README.md) |
+| 找旧设计、旧工作流程或原始依据 | [历史导航](docs/archive/README.md) |
+| 看模型、Terra 分工和配置生效 | [Codex 配置说明](.codex/README.md) |
+| 收拢旧目录与安排副产物 | [单一主目录说明](docs/current/WORKSPACE.md) |
 
-```text
-npm run build:production
-npm run build:demo
-npm run check:run-mode-convergence
-npm run check:institution-vr-runtime
-```
+无需依次打开这些链接。Codex 按根 [AGENTS.md](AGENTS.md) 协作，只读取本次任务需要的内容。
 
-打开生成的 `dist/production/project.config.json` 或 `dist/demo/project.config.json`。
-`dist/` 是可重建产物，不是第二套源码；修改页面、组件、Assessment/Profile/Recommendation 时仍只改
-`miniprogram/`。构建复用本机微信 TypeScript 4.1.2、Less 和 WXML 编译器；非默认安装位置可传
-`-- --install-root <开发者工具安装目录>`。检查双模式前先生成两个构建。
+## 在哪里开发
 
-- `miniprogram/` 直接打开仍是既有开发 Mock 调试入口，不能冒充正式构建。PRODUCTION 构建在数据提供者边界移除开发机构和公开内容 Mock，不包含演示数据、按钮或合成全景；当前只读提供者已接入武汉市社会福利院的公开名称、区域、地址与机构固定电话；价格、能力、床位、坐标和 VR 保持未知，未开放平台预约。字段来源和核验范围见 [正式目录说明](modes/production/README.md)。真实业务服务与校验保留，未接入真实数据库或变更 Frozen Contract。
-- DEMO 在构建时加入 `modes/demo/` 适配器：12 条独立虚构机构、评估样例、内存草稿和演示服务状态。首页“加载演示数据”后可进入同一列表、详情、评估、画像、推荐及 VR/地图页面。重置清理本次草稿、推荐上下文、模拟预约/带看/评价；不读写真实 Storage，不保存真实联系人。
-- 两个既有工程当前使用相同 AppID，本轮保留原配置。演示构建仅允许 `develop`，在 App 注册前阻断网络、身份、电话、位置跳转、真实存储及云 API；预约/评价表单在演示构建中使用同一演示服务组件，移除原生手机号授权入口。此为本地应用隔离，**不是平台 AppID 隔离或发布就绪证明**。不要上传或发布这些本地产物。
-- 正式详情仅在既有核验投影允许时显示地图/VR。地图继续使用 GCJ-02 和 `wx.openLocation`；VR 按冻结模型打开已核验 HTTPS 平台 URL，仍需真实素材、微信业务域名及真机验证。原生球形渲染器供技术页和演示包共用，合成图片明确标为非机构实景，不能关联到机构 VR 入口。
-- `daqian-showcase-official-preview-v1` 保留为 V1.6 对照与回退；日常新开发不再同步其页面、引擎或 Store。既有公开演示构建配置保存在 `modes/demo-project.config.json`，新构建不再依赖旧工程。旧演示的完整 DemoSession 历史、带看档案及顾问展示尚未全部等价迁移，不能声称全部双工程收敛完成。
+唯一日常主目录：`C:/Users/16562/WeChatProjects/wuhan-eldercare-match`。最新活动源码及 9 个未提交文件已迁入；原活动路径保留为恢复来源，Windows 拒绝移动，停止作为日常入口。旧三个演示目录已移到恢复区。
 
-320px、390px 与微信真机大字号、地图服务及真实全景域名仍需 Owner 验证；Simulator、离线编译、运行测试分别作为对应层级证据。
+源码：`miniprogram/`；模式适配：`modes/`；构建：`dist/`；截图、日志与生成测试项目：`output/<任务名>/`；值得长期保留的总结：`docs/phases/`。以后不新建平行的小程序阶段目录。
 
-`DEVELOPMENT_MODE = SOLO_FAST_ITERATION`，`PRIORITY = WORKING_BUSINESS_FEATURES`。
-默认由主 Codex 直接完成明确需求，专项 Agent、Skills、MCP 按需使用；完整约定见 [AGENTS.md](AGENTS.md)。
-允许合理重构旧页面与导航，历史阶段关闭不构成新的审批门禁。
+按任务选择 `npm run build:demo`、`npm run build:production` 或相关检查即可；构建后分别从 `dist/demo/` 与 `dist/production/` 打开工程。不要直接改 dist；编译环境与 C1 检查命令见任务地图。
 
-验证按影响选择，不默认全量回归、大型 Build/SHA 归档或多份报告；业务、隐私、身份和发布授权边界保留。
-可用脚本以 `package.json` 为准；仅改文档生命周期或引用时，可运行：
+本轮两项 C1-A、[C1 页面运行检查](scripts/check-c1-result-page-runtime.mjs)、旧 V1/V2 推荐页及交互检查、production/demo 原生构建、模式隔离与产物 JS 兼容检查通过。导航总检查仍保留既有 NAV-019／NAV-024 失败；结果页可执行导航用例通过。DevTools 长风险合成夹具证据留在 `output/c1-b/`，与手机验收分开；未提交、上传或发布。目录收拢的恢复材料见[此前工作流记录](docs/phases/2026-10-27-workflow/SUMMARY.md)。
 
-```text
-npm run check:doc-governance
-```
+DevTools 已验证隔离合成参考页：逻辑宽度 320／375／430px、字号 24（默认 16 的 150%）下，首屏、首卡长风险与公开详情按钮正常换行，按钮可滚动到且无遮挡；已实际跳转公开详情。截图在 `output/c1-b/`，仅覆盖合成夹具和首张长卡，不代替手机验收。自动化点击通道返回 `App.CDPEnable unimplemented`，本轮未取得真实 Demo 旧候选页的 GUI 截图；该分支与模式隔离已由运行脚本验证，手机上仍需检查。
 
-微信生成 JavaScript 的兼容边界见
-`docs/architecture/WECHAT_RUNTIME_COMPATIBILITY_POLICY.md`；具体业务实现与验证要求以受影响的 CURRENT/FROZEN 文档为准。
-
-## 按需资料
-
-- [正式工程持续状态（Google Drive）](https://drive.google.com/file/d/1ZIhRrG-MZr8YAVUM-PQ7mENvmPwDYbcW/view)：历史状态按文内日期解释，不用演示版结论覆盖。
-- [专项 Agent 与模型选择](docs/agent/README_AGENT_ENGINEERING_V2_1.md)：可选工具说明，日常开发规则以 AGENTS 为准。
-- [Personal Records 工作包收口](docs/development/WARM_SWISS_PERSONAL_RECORDS_PROGRESS_V1.md)：仅该工作包状态，不代表整个产品验收。
-- [已完成的前端跨工程路由修复](docs/archive/agent/AGENT_FRONTEND_ROUTING_FIX_HANDOFF.md)：历史实现原因与验证证据，旧阶段审批和下一步措辞不作为当前指令。
-
-`docs/archive/` 与 `output/` 中的旧设计、实施、QA 和 Build 资料按需追溯，保留原证据位置；其中同名“当前/最终/下一阶段”只属于记录时的任务。`tmp/` 可能含独有截图和未提交工具，不整体清空。业务 Contract 与当前运行配置不在清理范围内。
-
-## 旧演示与临时目录（按需追溯）
-
-- [partner-demo](partner-demo/README.md)：旧 S1 隔离空壳，退役归档候选，保留原测试依赖与证据。
-- [partner-demo-s2](partner-demo-s2/README.md)：S2 生成器模板，含独立状态模拟；先保留独有实现，再决定归档。
-- [showcase/vr-map-interactive-v1](showcase/vr-map-interactive-v1/README.md)：旧 VR/地图教学工具，含独有素材与生成器，不能当 TMP 删除。
-
-上述路径不参与当前产品包，但仍被旧工具或历史证据引用；本轮未整目录移动/删除。它们与当前 `miniprogram/pages/showcase/`、Classic B 工程及两工程各自 `tmp/` 分开处理。`tmp` 中的未提交截图、图册脚本和历史副本按用途保留，不整体清空。
+维护本页只更新当前结论和下一步，不追加整段历史。旧根说明已留在历史导航中；详细证据、上传记录和图册范围由阶段索引按需提供。

@@ -1,5 +1,5 @@
 import { isValidIsoTimestamp } from '../../institution/primitives'
-import { validateInstitutionCatalogPayloadV121 } from '../../../services/institution-catalog-v1-2-1'
+import { validateInstitutionCatalogPayloadV121 } from '../../../services/institution-catalog-validation-v121'
 import { compareAsciiV2, copyDomainDataV2 } from '../v2/rules-v2'
 import { projectReferenceInstitutionFactsV1 } from './institution-facts'
 import { evaluateInitialReferenceEligibilityV1 } from './eligibility'

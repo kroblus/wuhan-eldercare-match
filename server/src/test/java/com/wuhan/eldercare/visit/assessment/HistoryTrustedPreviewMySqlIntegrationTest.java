@@ -45,7 +45,9 @@ class HistoryTrustedPreviewMySqlIntegrationTest {
     @BeforeAll void database() throws Exception {
         assumeTrue("true".equals(System.getenv("HISTORY_DISPOSABLE_MYSQL")),"explicit disposable database marker required");
         String url=System.getenv("HISTORY_TEST_MYSQL_URL");assumeTrue(url!=null,"isolated database URL required");
-        ds=new HikariDataSource();ds.setJdbcUrl(url);ds.setUsername("root");ds.setPassword("");ds.setMaximumPoolSize(10);
+        ds=new HikariDataSource();ds.setJdbcUrl(url);
+        ds.setUsername(System.getenv().getOrDefault("HISTORY_TEST_MYSQL_USERNAME","root"));
+        ds.setPassword(System.getenv().getOrDefault("HISTORY_TEST_MYSQL_PASSWORD",""));ds.setMaximumPoolSize(10);
         HistoryRepository.requireDisposable(ds);
         try(var c=ds.getConnection();var p=c.createStatement();var rs=p.executeQuery("SELECT VERSION()")) {assertTrue(rs.next());assertTrue(rs.getString(1).startsWith("8."));}
         Flyway.configure().dataSource(ds).locations("classpath:db/migration").load().migrate();

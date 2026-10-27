@@ -1,0 +1,74 @@
+# 阶段成果索引
+
+日常开发从 [根 README](../../README.md) 开始。只有需要查某个阶段做了什么、为什么这样做、测到了哪里，才打开本页，再选择一份对应报告。**不需要顺序读完本页链接的文件。**
+
+本页的“契约”指项目已经明确适用范围的业务规则文件，“后继”指后来的报告或规则。C1-A 是初步参考推荐的计算模块，C1-B 是把它接入页面，C2 是正式保存与历史记录。
+
+这里保留已有的 23 份报告、页面图册与 AI 工作流两份中文摘要，并按需补充当前实现和检查入口。表中的“已替代”表示其进度结论已有后续，不表示文件应删除，也不表示其中所有业务规则失效。测试结果按各条证据日期区分；2026-10-27 的 C1 定向验证见下行，不代表全项目重测。
+
+## 本轮新增证据
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 摘要 | 后继或当前依据 |
+|---|---|---|---|---|
+| 2026-10-27：全页面中文注释图册 | 用户提供的图册共 111 页，覆盖 30 条路由；属于 Demo／DevTools 页面证据，不证明正式业务、Android 真机或完整交互全部通过。 | 了解现阶段页面、查哪个页面已有展示、结合产品计划确定下一步时。 | [图册的中文说明与范围](2026-10-27-page-atlas/SUMMARY.md) | 与根 README、产品当前范围和实际代码交叉核对；原 PDF 的准确文件名与保存说明见摘要。 |
+
+## 推荐逻辑、画像与正式历史
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 原报告 | 后继或当前依据 |
+|---|---|---|---|---|
+| C1-A：初步参考推荐的计算模块 | **2026-10-27 两组自动化完整复验通过**：修正 R02 饮食未知/吞咽澄清、R10 真正 blocked 输入及 R12 Demo 旧结果优先预期；12/12 组、30 分支与 24 排列通过。页面后继见 C1-B；旧 V2 条款与吞咽实现差异仍保留。 | 排查初步参考结果、核对已有实现和测试范围时。 | [C1-A 实施报告及复验说明](../design/V1_3_C1_A_IMPLEMENTATION_REPORT.md) | [C1 适用契约](../architecture/INITIAL_REFERENCE_RECOMMENDATION_CONTRACT_V1_3_C1.md)、[当前服务入口](../../miniprogram/services/initial-reference-preview-v1.ts)。 |
+| C1-B：初步参考推荐页面接入 | **已实现并通过定向自动化、双构建与模式隔离**：旧卡优先，1–3 张合法参考，全量风险/澄清、普通偏好缺口、公开详情和失败重试；DevTools 核对合成首卡 320/375/430px×150% 字号的风险与按钮，证据在 output/c1-b。Owner 手机验收尚未完成；未上传，C2 未接入。导航总检查保留既有 NAV-019/024，结果页导航分支通过。 | 修改参考卡、检查导航/错误/风险展示，或继续手机验收时。 | [页面实现](../../miniprogram/pages/recommendation/result.ts)、[独立 ViewModel](../../miniprogram/pages/recommendation/initial-reference-view-model.ts)、[页面运行检查](../../scripts/check-c1-result-page-runtime.mjs) | [根 README](../../README.md)、[当前 MVP](../product/CURRENT_MVP.md)；手机重点检查大字号、全部长卡滚动、双击和详情返回，真实 Demo 旧候选页仍待手机复核。 |
+| C1-A：实施前规划 | **进度结论已替代**。原文的“代码未授权／文件尚不存在”描述规划当时。 | 需要了解模块为什么这样拆分、实施方案与实际实现有哪些差异时。 | [C1-A 实施计划](../design/V1_3_C1_A_IMPLEMENTATION_PLAN.md) | [实施报告](../design/V1_3_C1_A_IMPLEMENTATION_REPORT.md)；不要再次创建已经存在的模块。 |
+| C1：技术规则评审 | **评审过程已完成，规则已有后继契约**。评审稿的“未冻结”不是今天的规则状态。 | 追溯初步参考推荐的资格、排序或错误分类设计原因时。 | [C1 技术评审](../design/V1_3_C1_REFERENCE_TECH_CONTRACT_REVIEW.md) | [C1 适用契约](../architecture/INITIAL_REFERENCE_RECOMMENDATION_CONTRACT_V1_3_C1.md)。 |
+| C1：产品与技术文档同步 | **实施前同步记录**；其中“尚未编码／新测试未运行”已有后续。 | 核对旧产品文案与独立 C1 规则为什么不同、定位文档漂移时。 | [C1 文档同步审计](../design/V1_3_C1_DOCUMENT_SYNC_AUDIT.md) | [实施报告](../design/V1_3_C1_A_IMPLEMENTATION_REPORT.md) 与当前适用契约。 |
+| V1.3：代码适配盘点 | **实施前分析**，含旧主工程与当前分支的差异；不能据此认定后端已接入当前分支。 | 为后续功能找旧模块、了解旧结果与新通道的兼容点时。 | [代码适配审计](../design/V1_3_CODEBASE_COMPATIBILITY_AUDIT.md) | C1 看 [实施报告](../design/V1_3_C1_A_IMPLEMENTATION_REPORT.md)；后端与正式历史以实际目标工程的代码为准。 |
+| C2-A：正式单老人历史后端 | **后端代码与合成 MySQL 验证完成，真实写入关闭**。 | 接入 C2-B 显式保存、重新展示确认、回执恢复和只读历史时。 | [C2-A 总结与 API](v1-3-c2-a/SUMMARY.md) | 真实 C5、核验来源、获批数据处理方案和生产验收仍缺。 |
+| V1.3／C2：产品决定与后继契约 | **混合状态**：C1 早期状态已更新，C2-A 已有独立实现，产品讨论保留追溯用途。 | 设计正式保存、历史记录或核对六项产品决定时；普通样式修改不需要读。 | [V1.3 后继契约审查](../design/PRODUCT_V1_3_SUCCESSOR_CONTRACT_REVIEW.md) | C1 以 [独立契约](../architecture/INITIAL_REFERENCE_RECOMMENDATION_CONTRACT_V1_3_C1.md) 为准；C2 见 [C2-A 实施与接入说明](v1-3-c2-a/SUMMARY.md)。 |
+| 画像：待确认事项补充流程 | **待选方案，未接入运行**。不是现行功能，也不能把它当作 C1 开发的额外审批关卡。 | 用户要求修改画像澄清或补充确认交互时。 | [画像澄清方案](../design/PROFILE_CLARIFICATION_RESOLUTION_PROPOSAL_V1.md) | 当前行为看 [画像页面](../../miniprogram/pages/assessment/profile.wxml)；采用新方案时再确认实际产品变化。 |
+
+## 页面体验与可读性
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 原报告 | 后继或当前依据 |
+|---|---|---|---|---|
+| 全局 UI／UX：第一次巡检 | **问题发现时的快照**；不能把全部旧问题重新列为待办。报告也记录了 开发者 对 B1.2.6 体验版的手机反馈。 | 按 GUI 编号追查问题来源，或核对当时检查过哪些页面、模式与尺寸时。 | [全局巡检报告](../design/GLOBAL_UI_UX_AUDIT_V1.md) | 修复分别看 [Batch A](../design/GLOBAL_UI_UX_FIX_BATCH_A_V1.md)、[Batch B](../design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md) 与下行层级优化。 |
+| UI／UX Batch A：标题、导航与记录文案 | **报告记载修复**：GUI-008／002／007 已修；GUI-005 当时仍有大字号按钮裁切缺口。 | 修改正式服务关闭提示、普通机构目录标题、Demo 后缀或看院日期显示时。 | [Batch A 修复报告](../design/GLOBAL_UI_UX_FIX_BATCH_A_V1.md) | 字号与按钮裁切后续见 [Batch B](../design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md)。 |
+| 画像／推荐：内容层级 | **已有本地展示优化**，报告当时仍待 开发者 视觉检查；不等于新增推荐逻辑。 | 修改橙色特征标签、“本次匹配依据”、大字号布局或两个页面的层级时。 | [画像与推荐层级报告](../design/GLOBAL_UI_UX_PROFILE_RECOMMENDATION_HIERARCHY_V1.md) | 后续字号细节见 [Batch B](../design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md)；当前行为看相应页面源码。 |
+| UI／UX Batch B：字号、换行与按钮裁切 | **已有本地修复与所列验证**；报告未声称 Android 真机／软键盘已验证。原文的 27 题／21 必填属于旧口径。 | 修改六步问卷、咨询输入框、画像／推荐字号或预约评价按钮时。 | [Batch B 修复报告](../design/GLOBAL_UI_UX_FIX_BATCH_B_V1.md) | 当前问卷按 [V2 类型](../../miniprogram/types/assessment-v2.ts)：32 题、26 必填、6 选填；需要原始视觉记录时再打开报告内的截图索引。 |
+
+## Demo 连续体验、素材和上传
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 原报告 | 后继或当前依据 |
+|---|---|---|---|---|
+| B1.2.6：完整演示故事 | **演示版已有本地冻结与当时验收记录**；不代表正式身份、保存接口或 C1 页面已经上线。 | 修改 Demo 中老人记录、预约、看院评价、顾问反馈的连续体验时。 | [B1.2.6 Story 报告](../design/B1_2_6_DEMO_STORY_REPORT.md) | 上传看 [B1.2.6 交付报告](../design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md)；当前演示实现看 `modes/demo/`。 |
+| B1.2.6：体验版上传 | **上传成功；报告中的手机待验收是当时快照**。后续巡检报告记录 开发者 已确认版本 `1.2.6-demo.1025.0039`。 | 判断哪个版本上传过、是否需要再次上传或查验上传回执时。 | [B1.2.6 上传与交付](../design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md) | 后续反馈见 [全局巡检的基线说明](../design/GLOBAL_UI_UX_AUDIT_V1.md)；其后的本地改动不自动算已上传或已验收。 |
+| B1.2.5：演示数据连续性修复 | **较早的修复记录，后续已进入 B1.2.6**。 | 回溯历史结果、预约、记录、评价之间的数据展示问题时。 | [B1.2.5 连续性报告](../design/B1_2_5_DEMO_CONTINUITY_REPORT.md) | [B1.2.6 Story](../design/B1_2_6_DEMO_STORY_REPORT.md)。 |
+| B1.2.5：早期 Demo 上传 | **旧体验版本的上传记录**，不作为当前最新上传状态。 | 查该版本的回执、版本差异或当时 Android 检查缺口时。 | [B1.2.5 上传与 Android 验收](../design/B1_2_5_DEMO_UPLOAD_AND_ANDROID_ACCEPTANCE.md) | [B1.2.6 上传与交付](../design/B1_2_6_DEMO_UPLOAD_AND_DELIVERY.md)。 |
+| B1.2.5：地图与 VR 素材缺口 | **当时资料盘点**，列出的 Demo 机构为合成案例；未收到新的素材核验就不能推定缺口已补齐。 | 准备接入真实地图、坐标、机构专属 VR 或核对素材来源时。 | [地图与 VR 缺失素材清单](../design/B1_2_5_MAP_VR_MISSING_ASSETS.md) | 以当前 `modes/demo/institutions.json` 及实际核验证据为准；通用演示素材不等于机构专属素材。 |
+
+## 较早视觉阶段：只为追溯而读
+
+下面七份报告保留各次设计决定和验证范围。今天的进度看根 README；原报告中的旧工作目录、分支、审批停点和“下一步”不指示 Codex 新建平行项目或重新跑完整阶段。
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 原报告 | 后继或当前依据 |
+|---|---|---|---|---|
+| V2.1-B1：原生商业化 UI | 较早实现交接，包含当时设计方向与实现来源。 | 追溯原生 UI 为什么采用现有结构时。 | [B1 商业化 UI](../design/V2_1_B1_COMMERCIAL_UI_HANDOFF.md) | [B1.1 层级优化](../design/V2_1_B1_1_VISUAL_HIERARCHY_HANDOFF.md)。 |
+| B1.1：视觉层级与可读性 | 较早本地完成记录；不继承当时待真机验收为今天的任务停点。 | 回溯文字层级、可读性和卡片层次时。 | [B1.1 交接](../design/V2_1_B1_1_VISUAL_HIERARCHY_HANDOFF.md) | [B1.2 首页视觉](../design/V2_1_B1_2_HOMEPAGE_VISUAL_HANDOFF.md)。 |
+| B1.2：首页视觉 | 较早首页布局记录。 | 回溯搜索、首页结构、演示插槽及其实现决定时。 | [B1.2 首页交接](../design/V2_1_B1_2_HOMEPAGE_VISUAL_HANDOFF.md) | [B1.2.1 视觉收尾](../design/V2_1_B1_2_1_VISUAL_FINALIZATION_HANDOFF.md)。 |
+| B1.2.1：首页与机构卡片收尾 | 较早视觉收尾记录，后续继续微调。 | 回溯首页／机构卡片的具体外观变化时。 | [B1.2.1 交接](../design/V2_1_B1_2_1_VISUAL_FINALIZATION_HANDOFF.md) | [B1.2.2 最终微调](../design/V2_1_B1_2_2_FINAL_POLISH_HANDOFF.md)。 |
+| B1.2.2：微调与包体积核查 | 当时两处外观修复和体积检查的快照。 | 定位那次样式取舍或核对旧包体积结果时。 | [B1.2.2 交接](../design/V2_1_B1_2_2_FINAL_POLISH_HANDOFF.md) | [B1.2.3 紧凑卡片](../design/V2_1_B1_2_3_COMPACT_CARD_HANDOFF.md)。 |
+| B1.2.3：紧凑机构卡片 | 较早机构卡片实现记录。 | 回溯机构卡片为什么采用当前密度和布局时。 | [B1.2.3 交接](../design/V2_1_B1_2_3_COMPACT_CARD_HANDOFF.md) | [B1.2.4 操作与颜色修订](../design/V2_1_B1_2_4_CARD_ACTIONS_VISUAL_HANDOFF.md)。 |
+| B1.2.4：卡片操作、亮橙与电话图标 | 文件夹名来自这一阶段；报告当时的 PARTIAL 不等于文件夹内所有后续工作都未完成。 | 回溯亮橙品牌色、电话图标和卡片操作的 开发者 决定时。 | [B1.2.4 交接](../design/V2_1_B1_2_4_CARD_ACTIONS_VISUAL_HANDOFF.md) | Demo 连续性看 [B1.2.5](../design/B1_2_5_DEMO_CONTINUITY_REPORT.md)；后续界面修复看本页 UI／UX 部分。 |
+
+
+## 本轮 AI 工作流整理
+
+| 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 总结 | 后继或当前依据 |
+|---|---|---|---|---|
+| V4：主目录、模型与文档入口 | 本机源码与工作流已合入；双构建/隔离/文档检查通过；C1 既有失败与旧路径移动限制已登记 | 合入本包、核对目录与配置、了解这次整理范围时 | [中文总结](2026-10-27-workflow/SUMMARY.md) | [根 README](../../README.md)、[工作区说明](../current/WORKSPACE.md)与[模型配置](../../.codex/README.md) |
+
+## 以后怎样留下阶段成果
+
+1. **有长期价值才留一份总结。** 普通修改在交付回复说清即可。完成可独立交接的功能、改变重要决定或留下需后续处理的问题时，在 `docs/phases/<阶段或功能>/SUMMARY.md` 写一份中文总结，说明“做成了什么、现在能做什么、还缺什么、怎样验证、下一步与相关文件”。测试命令只放实际执行且有用的几条，状态码后给中文解释；不默认再生成 PLAN／AUDIT／HANDOFF／CLOSEOUT 各一份。
+2. **写总结时顺手更新一行索引。** 同一次变更在本页增加或更新该阶段一行，写清模块、状态、何时读、总结链接与后继。只有项目整体进度或下一步改变时，才更新根 README 的短摘要；这不是新增审批或发布关卡。临时截图、日志、页面抓取放 `output/<任务名>/`，不作为日常必读，不自动删除；必要证据由总结链接到具体文件。
+
+旧版本规则、初始化提示及开发流程的追溯见 [历史资料导航](../archive/README.md)。不需要查历史时，无须打开它。

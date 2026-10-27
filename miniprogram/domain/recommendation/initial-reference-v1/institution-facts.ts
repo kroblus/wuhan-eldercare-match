@@ -1,6 +1,6 @@
 import {
   validateInstitutionCatalogPayloadV121,
-} from '../../../services/institution-catalog-v1-2-1'
+} from '../../../services/institution-catalog-validation-v121'
 import {
   compareIsoTimestamps,
   isValidIsoTimestamp,
