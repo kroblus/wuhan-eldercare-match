@@ -1,0 +1,29 @@
+@import './tokens.less';
+
+// Opt in on public browsing surfaces. Assessment footer/buttons keep their defaults.
+.browse-button-layout() {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid @ws-accent;
+  border-radius: @ws-radius;
+  font-size: var(--browse-control-size, 16px);
+  font-weight: 600;
+  line-height: 1.55;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+// Match the specificity of WeChat v2's button:not([size='mini']) defaults.
+.browse-button, .browse-button:not([size='mini']) { .browse-button-layout(); background: @ws-surface; color: @ws-accent; }
+.browse-button::after { border: 0; }
+.browse-button--primary, .browse-button--primary:not([size='mini']) { background: @ws-accent; color: #fff; }
+.browse-button--link, .browse-button--link:not([size='mini']) { width: auto; min-height: 44px; padding: 8px 12px; border-color: transparent; background: transparent; font-weight: 400; }
+.browse-button[disabled] { background: @color-disabled-surface; border-color: @ws-border; color: @color-disabled-text; }
+.browse-button__content { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; max-width: 100%; }

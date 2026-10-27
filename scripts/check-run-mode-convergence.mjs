@@ -3,12 +3,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { loadWechatTypeScript, createWechatTsRuntime } from './support/load-wechat-ts-runtime.mjs'
 const { ts } = loadWechatTypeScript()
-const load = base => {
+const load = (base, envVersion = 'develop') => {
   const effects = [], storage = new Map([['real-draft', 'preserve-me']])
   let component, page
   const appid = JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid
-  const api = { getAccountInfoSync: () => ({ miniProgram: { appId: appid, envVersion: 'develop' } }), cloud: {} }
-  for (const name of ['request','login','openLocation','makePhoneCall','getStorageSync','setStorageSync','removeStorageSync','clearStorageSync','uploadFile','downloadFile','connectSocket']) api[name] = () => { effects.push(name); return storage.get('real-draft') }
+  const api = { getAccountInfoSync: () => ({ miniProgram: { appId: appid, envVersion } }), cloud: {} }
+  for (const name of ['request','requestPayment','login','openLocation','makePhoneCall','getStorageSync','setStorageSync','removeStorageSync','clearStorageSync','uploadFile','downloadFile','connectSocket']) api[name] = () => { effects.push(name); return storage.get('real-draft') }
   for (const name of ['init','callFunction','database','callContainer']) api.cloud[name] = () => effects.push('cloud.' + name)
   const rt = createWechatTsRuntime(ts, { wx: api, App() {}, Component(v) { component = v }, Page(v) { page = v }, getCurrentPages: () => [], setTimeout, clearTimeout })
   return { ...rt, effects, storage, api, component: () => component, page: () => page, module: file => rt.load(path.join(base, file)) }
@@ -91,9 +91,9 @@ production.module('app.js')
 const prodCatalog = await production.module('services/institution-catalog-v1-2-1.js').institutionCatalogServiceV121.loadCatalog()
 assert.equal(prodCatalog.ok, true)
 assert.equal(prodCatalog.value.datasetMode, 'PRODUCTION')
-assert.equal(prodCatalog.value.records.length, 1)
-assert.equal(prodCatalog.value.records[0].recordProvenance, 'PRODUCTION_CANDIDATE')
-assert.equal(prodCatalog.value.records[0].identity.name.value, '武汉市社会福利院')
+assert.equal(prodCatalog.value.records.length, 11)
+assert.ok(prodCatalog.value.records.every(record => record.recordProvenance === 'PRODUCTION_CANDIDATE'))
+assert.equal(prodCatalog.value.records.find(record => record.institutionId === 'wh-social-welfare-institute').identity.name.value, '武汉市社会福利院')
 assert.equal(fs.existsSync('dist/demo/miniprogram/production'), false)
 assert.equal(fs.existsSync('dist/production/miniprogram/demo'), false)
 assert.equal(fs.existsSync('dist/production/miniprogram/components/demo-tools'), false)
@@ -105,6 +105,17 @@ for (const file of walk('dist/demo/miniprogram').filter(f => f.endsWith('.js')))
 // Wrong environment/identity and unreplaceable APIs fail closed before App.
 const guard = demo.module('demo/guard.js').installDemoGuards
 assert.throws(() => guard('wrong-appid'), /IDENTITY_GATE_CLOSED/)
+const trial = load('dist/demo/miniprogram', 'trial')
+trial.module('app.js')
+for (const name of ['request','requestPayment','makePhoneCall','login','getStorageSync','setStorageSync','uploadFile','downloadFile','connectSocket']) assert.throws(() => trial.api[name](), /DEMO_API_BLOCKED/)
+for (const name of ['init','callFunction','database','callContainer']) assert.throws(() => trial.api.cloud[name](), /DEMO_API_BLOCKED/)
+assert.throws(() => trial.module('demo/guard.js').installDemoGuards('wrong-appid'), /IDENTITY_GATE_CLOSED/)
+await trial.module('demo/session.js').loadDemo()
+assert.equal(trial.module('demo/session.js').readDemo().count, 12)
+assert.equal((await trial.module('services/recommendation-result-application.js').buildRecommendationResultApplicationSnapshot({ evaluationAsOf: new Date().toISOString() })).ok, true)
+assert.equal(trial.effects.length, 0)
+assert.equal(trial.storage.get('real-draft'), 'preserve-me')
+for (const environment of ['release', 'unknown', '', undefined]) assert.throws(() => load('dist/demo/miniprogram', environment === undefined ? null : environment).module('app.js'), /IDENTITY_GATE_CLOSED/)
 demo.api.getAccountInfoSync = () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'release' } })
 assert.throws(() => guard(JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid), /IDENTITY_GATE_CLOSED/)
 const locked = load('dist/demo/miniprogram')

@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../../utils/browse-font'
 import { createAIConsultationPageApplicationV1 } from '../../../services/ai-consultation-page'
 import { getNavigationGuard, resetNavigationGuard } from '../../../utils/navigation-guard'
 import type { AIConsultationPublicApplicationResultV1 } from '../../../types/ai-consultation-v1'
@@ -11,6 +12,7 @@ const application = createAIConsultationPageApplicationV1()
 const sendInFlight = new WeakSet<object>()
 
 interface AIChatPageData {
+  fontStyle: string
   result: AIConsultationPublicApplicationResultV1 | null
   viewModel: AIChatPageViewModelV1 | null
   inputValue: string
@@ -48,6 +50,7 @@ const applyResult = (
 
 Component({
   data: {
+    fontStyle: '',
     result: null,
     viewModel: null,
     inputValue: '',
@@ -60,12 +63,15 @@ Component({
 
   lifetimes: {
     attached() {
+      this.setData({ fontStyle: readBrowseFontStyle() })
       applyResult(this, application.createInitialResult())
     },
   },
 
   pageLifetimes: {
     show() {
+      const fontStyle = readBrowseFontStyle()
+      if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
       resetNavigationGuard(this)
     },
   },

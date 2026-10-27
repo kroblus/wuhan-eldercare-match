@@ -1,7 +1,0 @@
-page { background: #f7f5ef; color: #282d2a; }
-.shell { padding: 40rpx; }
-.notice { padding: 24rpx; border: 2rpx solid #805425; font-size: 28rpx; line-height: 1.6; }
-.title { margin-top: 48rpx; font-size: 40rpx; font-weight: 600; }
-.message { margin-top: 24rpx; font-size: 30rpx; line-height: 1.6; }
-.hint { margin: 24rpx 0 40rpx; font-size: 28rpx; line-height: 1.6; color: #575e58; }
-button { margin: 0; font-size: 30rpx; }

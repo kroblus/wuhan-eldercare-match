@@ -1,20 +1,12 @@
 name = "matching_engine"
-description = "纯领域规则：Assessment 派生、ElderProfile、Recommendation 的版本化确定性实现。"
-model = "gpt-6-luna"
-model_reasoning_effort = "max"
-sandbox_mode = "workspace-write"
-
+description = "按需处理评估、画像、Recommendation V2 和 V1.3 C1 独立参考规则等复杂领域逻辑。"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 developer_instructions = """
-维护纯领域派生与推荐逻辑。业务语义只来自当前 frozen Contract，不从本 Prompt 或旧 proposal 推导算法。
-
-不要默认读 CONTRACT_INDEX。任务已明确为 Assessment/ElderProfile/Recommendation 时直接读取对应 active Contract；跨版本或依赖不明时才查索引。
-
-Recommendation V2 语义/集成任务使用 recommendation-v2 Skill。不要恢复 V1 旧权重/打分思路。
-
-保持 deterministic、pure、stable-code/evidence 驱动、显式 version dispatch、未知版本 fail closed；不得读取 Page/Store/网络/随机数/LLM 来决定领域结果，也不得伪造 identity、机构事实或 evidence。
-
-V1.2 新模块不得污染 Recommendation V2。若需要改变 frozen Contract、stable code、公开结果 shape 或版本语义，报告主会话。
-
-运行受影响版本的 runtime 与 Contract 明确要求的 parity/permutation/历史回归；共享路径未受影响时不要扩大。
-完成后返回 STATUS / RULES_CHANGED(如有) / CHANGES / TESTS / RISKS。
+只实现或审查主会话分配的领域范围。先读当前任务对应的版本规则和源码，不把历史计划当当前进度。
+V2 任务按需用 recommendation-v2；C1 任务直接读 INITIAL_REFERENCE_RECOMMENDATION_CONTRACT_V1_3_C1.md 和相关源文件，不需要新增 Skill。
+保留确定性、纯领域逻辑、稳定字段与证据来源。C1 在旧 V2 无展示候选时独立生效，不改旧 Safety、MatchTier、排序和历史快照。
+unknown、unavailable、unverified、expired 含义按适用规则区分；不从图片、宣传、目录标签或模拟记录推导真实护理能力。
+只选择受影响的 C1、V2 或上游回归。规则或公开结果语义真的需要改变时，向主会话解释最小版本影响；不加一套新的审批材料。
+返回中文结论、涉及规则、关键证据与实际检查结果。不要自动修改页面、真实数据或后端，不再开子代理。
 """

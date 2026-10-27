@@ -452,7 +452,7 @@ const runInstitutionReturnRouteCases = (typescript) => {
   assert.equal(trace.redirect.length, 0)
   trace.back[0].fail({ errMsg: 'TEST_ONLY back failure' })
   trace.back[0].complete({ errMsg: 'TEST_ONLY back failure' })
-  assert.match(nestedPage.data.actionMessage, /暂时无法返回合作机构列表/)
+  assert.match(nestedPage.data.actionMessage, /暂时无法返回养老机构/)
   createPage.onReturnToInstitution.call(nestedPage)
   assert.equal(trace.back.length, 2, 'failed ancestor return releases the route guard')
   trace.back[1].success({})
@@ -469,7 +469,7 @@ const runInstitutionReturnRouteCases = (typescript) => {
   assert.equal(trace.push.length, 0, 'do not push another page over the dead-end route')
   trace.redirect[0].fail({ errMsg: 'TEST_ONLY redirect failure' })
   trace.redirect[0].complete({ errMsg: 'TEST_ONLY redirect failure' })
-  assert.match(rootPage.data.actionMessage, /暂时无法返回合作机构列表/)
+  assert.match(rootPage.data.actionMessage, /暂时无法返回养老机构/)
   createPage.onReturnToInstitution.call(rootPage)
   assert.equal(trace.redirect.length, 2, 'failed root replacement releases the route guard')
   assert.equal(readFileSync(path.join(appRoot, 'pages', 'appointment', 'create.wxml'), 'utf8').includes(

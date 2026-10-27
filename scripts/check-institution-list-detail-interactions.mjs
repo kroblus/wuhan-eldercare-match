@@ -18,14 +18,16 @@ const homeRoot = path.join(appRoot, 'pages', 'home')
 
 const read = (file) => readFileSync(file, 'utf8')
 const listTs = read(path.join(institutionRoot, 'index.ts'))
-const listWxml = read(path.join(institutionRoot, 'index.wxml'))
+const directoryTemplate = read(path.join(appRoot, 'templates/institution-directory.wxml'))
+const listWxml = read(path.join(institutionRoot, 'index.wxml')) + directoryTemplate
 const detailTs = read(path.join(institutionRoot, 'detail.ts'))
 const detailWxml = read(path.join(institutionRoot, 'detail.wxml'))
 const homeTs = read(path.join(homeRoot, 'index.ts'))
-const homeWxml = read(path.join(homeRoot, 'index.wxml'))
+const homeWxml = read(path.join(homeRoot, 'index.wxml')) + directoryTemplate
 
 const functionBody = (source, name) => {
-  const start = source.indexOf(`${name}(`)
+  const match = source.match(new RegExp('^\\s*' + name + '\\([^\\n]*\\)\\s*\\{', 'm'))
+  const start = match && match.index !== undefined ? match.index : -1
   if (start < 0) return ''
   const open = source.indexOf('{', start)
   if (open < 0) return ''

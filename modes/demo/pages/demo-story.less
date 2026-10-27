@@ -1,0 +1,25 @@
+@import '../styles/base.less';
+@import (reference) '../styles/institution-directory.less';
+.story-shell { padding:20px 20px calc(32px + env(safe-area-inset-bottom)); color:@ws-ink; font-size:var(--browse-body-size,16px); line-height:1.65; min-width:0; }
+.story-shell text { display:block; overflow-wrap:break-word; }
+.story-title { font-size:var(--browse-hero-size,28px); font-weight:600; line-height:1.4; margin:8px 0 16px; }
+.story-heading { font-size:var(--browse-title-size,20px); font-weight:600; line-height:1.5; margin-bottom:12px; }
+.story-section { padding:24px 0; border-bottom:1px solid @ws-border; }
+.story-muted,.story-badge { font-size:var(--browse-meta-size,14px); color:@ws-secondary; }
+.story-badge { display:inline-block!important; padding:3px 8px; border:1px solid @ws-border; border-radius:@ws-radius; margin-bottom:8px; }
+.story-card { padding:20px; border:1px solid @ws-border; border-radius:@ws-radius; background:@ws-surface; margin:16px 0; }
+.story-card--accent { border-top:3px solid @directory-orange; }
+.story-status { color:@directory-orange-text; margin-top:8px; }
+.story-actions { display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+.story-actions > button { flex:0 0 auto!important; min-width:0; }
+.story-shell button,.story-shell button:not([size='mini']) { display:flex; align-items:center; justify-content:center; flex:1 1 160px; min-width:0; width:100%; height:auto; min-height:48px; margin:0; padding:10px 16px; border:1px solid @ws-border; border-radius:@ws-radius; background:@ws-surface; color:@ws-ink; font-size:var(--browse-control-size,16px); line-height:1.55; white-space:normal; word-break:normal; overflow-wrap:anywhere; }
+.story-shell button::after {border:0;}
+.story-shell .story-primary,.story-shell .story-primary:not([size='mini']) {background:@directory-orange; border-color:@directory-orange;}
+.story-shell button[disabled] {background:@color-disabled-surface; color:@color-disabled-text;}
+.story-error {color:@color-error; margin:12px 0;}
+.story-faq {margin:16px 0;}
+.story-reply {padding:16px 0; color:@ws-secondary; white-space:pre-wrap;}
+.story-map {width:100%; height:300px; margin:20px 0; border-radius:@ws-radius;}
+.story-viewport {height:280px; margin:20px 0; overflow:hidden; border-radius:@ws-radius; background:@ws-accent-soft;}
+.story-panorama {width:100%;height:100%;}
+.story-link {margin-top:24px!important; color:@ws-secondary!important; border-color:transparent!important; background:transparent!important;}

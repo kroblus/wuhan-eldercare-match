@@ -1,10 +1,14 @@
 import {
   buildRecommendationResultApplicationSnapshot,
 } from '../../services/recommendation-result-application'
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   RecommendationPreviewApplicationError,
 } from '../../types/recommendation-preview'
 import type { RecommendationResultApplicationSnapshotV2 } from '../../types/recommendation-result-v2'
+import type { ReferenceCompositionV1 } from '../../types/initial-reference-v1'
+import { createInitialReferenceResultViewModel } from './initial-reference-view-model'
+import type { InitialReferenceResultViewModel } from './initial-reference-view-model'
 import {
   institutionSourceContextRegistry,
   registerInstitutionRecommendationSourceContextV2 as registerInstitutionRecommendationSourceContextV2FromPage,
@@ -31,26 +35,32 @@ import type {
 } from './result-view-model'
 import type { RecommendationResultPageViewModelV2 } from './result-v2-view-model'
 import { emptyRecommendationSaveView, recommendationResultSaveController } from '../../services/recommendation-result-save'
+import { isDevelopmentBuild } from '../showcase/development'
 
 type RecommendationResultPageLifecycleState =
   | 'loading'
   | RecommendationResultPageState
   | RecommendationResultPageViewModelV2['state']
+  | InitialReferenceResultViewModel['state']
   | 'assessment_error'
   | 'catalog_error'
   | 'recommendation_error'
 
 interface RecommendationResultPageData {
+  hierarchyFontStyle: string
   pageTitle: string
   eyebrow: string
   description: string
   backEnabled: boolean
   pageState: RecommendationResultPageLifecycleState
-  viewModel: RecommendationResultViewModel | RecommendationResultPageViewModelV2 | null
+  viewModel: RecommendationResultViewModel | RecommendationResultPageViewModelV2 | InitialReferenceResultViewModel | null
+  referenceGeneration: number
   stateTitle: string
   stateMessage: string
   actionErrorKey: string
   actionErrorMessage: string
+  expandedCards: Record<string, boolean>
+  isDemoBuild: boolean
   resultSaveVisible: boolean
   resultSavePending: boolean
   resultSaveDialog: boolean
@@ -71,6 +81,7 @@ type NavigationInvoker = (callbacks: NavigationCallbacks) => unknown
 
 const refreshGenerations = new WeakMap<object, number>()
 const resultSnapshots = new WeakMap<object, RecommendationResultApplicationSnapshotV2>()
+const referenceSnapshots = new WeakMap<object, ReferenceCompositionV1>()
 const resultSourceContextRefs = new WeakMap<object, Set<string>>()
 
 /**
@@ -106,9 +117,11 @@ const runGuardedNavigation = (
   if (!guard.acquire(action)) {
     return false
   }
+  const generation = refreshGenerations.get(instance)
   let succeeded = false
   let failureReported = false
   const reportFailure = () => {
+    if (refreshGenerations.get(instance) !== generation) return
     guard.release(action)
     if (!failureReported) {
       failureReported = true
@@ -135,8 +148,14 @@ const runGuardedNavigation = (
 }
 
 const errorPresentation = (
-  error: RecommendationPreviewApplicationError | { code: string, causeCode?: string },
+  error: RecommendationPreviewApplicationError | { code: string, causeCode?: string, state?: string },
 ): { pageState: 'assessment_error' | 'catalog_error' | 'recommendation_error', title: string, message: string } => {
+  if ('state' in error && error.state === 'DATA_ERROR') {
+    return { pageState: 'catalog_error', title: '机构资料暂时不可用', message: '机构资料存在错误或尚未通过检查，请重试；不能据此判断机构是否适合老人。' }
+  }
+  if ('state' in error && error.state === 'SERVICE_ERROR') {
+    return { pageState: 'recommendation_error', title: '暂时无法获取机构资料', message: '资料服务暂时未能响应，请重试，也可以稍后浏览公开机构目录；这不代表机构不适合。' }
+  }
   if (error.code === 'ASSESSMENT_PREVIEW_ERROR' || error.code === 'ASSESSMENT_PROFILE_V2_ERROR') {
     return {
       pageState: 'assessment_error',
@@ -144,11 +163,11 @@ const errorPresentation = (
       message: '请返回评估页面补充必填信息，完成后再生成推荐。',
     }
   }
-  if (error.code === 'NO_INSTITUTIONS_AVAILABLE') {
+  if (error.code === 'NO_INSTITUTIONS_AVAILABLE' || error.causeCode === 'NO_INSTITUTIONS_AVAILABLE') {
     return {
       pageState: 'catalog_error',
       title: '当前没有可用的机构资料',
-      message: '暂时没有足够资料形成安全推荐，请稍后重试或咨询顾问。',
+      message: '机构目录暂时为空，当前无法判断。你可以重试；这不代表所有机构都不适合。',
     }
   }
   if (error.code === 'INVALID_INSTITUTION_RECORD'
@@ -157,13 +176,13 @@ const errorPresentation = (
     return {
       pageState: 'catalog_error',
       title: '机构资料暂时不可用',
-      message: '当前开发目录正在核验，请稍后重试；页面不会展示未经核验的机构卡片。',
+      message: '机构资料暂时未能加载或通过检查，请重试；这不是对机构是否适合的判断。',
     }
   }
   return {
     pageState: 'recommendation_error',
     title: '推荐暂时无法生成',
-    message: '当前评估结果需要稍后重试。你可以调整需求，或先咨询养老顾问。',
+    message: '请重试，或返回画像确认需求。也可以先浏览公开机构资料。',
   }
 }
 
@@ -209,43 +228,55 @@ const forgetResultSourceContext = (instance: object, ref: string): void => {
 
 Page({
   data: {
+    hierarchyFontStyle: '',
     pageTitle: '评估结果与机构推荐',
     eyebrow: '评估 · 推荐预览',
     description: '先看清老人需要什么，再了解哪些候选机构值得进一步确认。',
     backEnabled: true,
     pageState: 'loading',
     viewModel: null,
+    referenceGeneration: 0,
     stateTitle: '正在整理推荐预览',
-    stateMessage: '正在根据本次评估和开发目录中的结构化资料生成结果。',
+    stateMessage: '正在根据本次需求画像和机构资料核对照护条件。',
     actionErrorKey: '',
     actionErrorMessage: '',
+    expandedCards: {},
+    isDemoBuild: isDevelopmentBuild(),
     ...emptyRecommendationSaveView(),
   } as RecommendationResultPageData,
 
   onShow() {
+    this.setData({ hierarchyFontStyle: readBrowseFontStyle() })
     resetNavigationGuard(this)
     this.refreshRecommendation()
   },
 
   onUnload() {
+    nextRefreshGeneration(this)
+    resultSnapshots.delete(this)
+    referenceSnapshots.delete(this)
     recommendationResultSaveController(this).close()
     clearResultSourceContexts(this)
   },
 
-  onHide() { recommendationResultSaveController(this).close() },
+  onHide() { nextRefreshGeneration(this); referenceSnapshots.delete(this); recommendationResultSaveController(this).close() },
 
   refreshRecommendation() {
     recommendationResultSaveController(this).close()
     clearResultSourceContexts(this)
     const generation = nextRefreshGeneration(this)
+    resetNavigationGuard(this)
     resultSnapshots.delete(this)
+    referenceSnapshots.delete(this)
     this.setData({
       pageState: 'loading',
       viewModel: null,
       stateTitle: '正在整理推荐预览',
-      stateMessage: '正在根据本次评估和开发目录中的结构化资料生成结果。',
+      stateMessage: '正在根据本次需求画像和机构资料核对照护条件。',
       actionErrorKey: '',
       actionErrorMessage: '',
+      expandedCards: {},
+      referenceGeneration: generation,
     })
 
     const evaluationAsOf = new Date().toISOString()
@@ -264,9 +295,12 @@ Page({
         return
       }
       const viewModel = result.version === 2
-        ? createRecommendationResultViewModelV2(result.value)
+        ? result.reference ? createInitialReferenceResultViewModel(result.reference) : createRecommendationResultViewModelV2(result.value)
         : createRecommendationResultViewModel(result.value)
-      if (result.version === 2) {
+      const referenceOnly = result.version === 2 && result.reference && result.reference.state !== 'LEGACY_V2_DISPLAY'
+      if (referenceOnly && result.version === 2 && result.reference) {
+        referenceSnapshots.set(this, result.reference)
+      } else if (result.version === 2) {
         resultSnapshots.set(this, result.value)
       }
       this.setData({
@@ -275,7 +309,7 @@ Page({
         stateTitle: '',
         stateMessage: '',
       })
-      void recommendationResultSaveController(this).activate(result.version === 2 ? result.value : undefined)
+      if (!referenceOnly) void recommendationResultSaveController(this).activate(result.version === 2 ? result.value : undefined)
     }).catch(() => {
       if (!isCurrentRefresh(this, generation)) {
         return
@@ -284,7 +318,7 @@ Page({
         pageState: 'recommendation_error',
         viewModel: null,
         stateTitle: '推荐暂时无法生成',
-        stateMessage: '当前评估结果需要稍后重试。你可以调整需求，或先咨询养老顾问。',
+        stateMessage: '请重试，或返回画像确认需求。也可以先浏览公开机构资料。',
       })
     })
   },
@@ -351,17 +385,46 @@ Page({
     })
   },
 
-  onSaveAssessment() { void recommendationResultSaveController(this).begin() },
-  onVerifyAssessmentSave() { void recommendationResultSaveController(this).verify() },
-  onObtainTrustedAssessmentPreview() { void recommendationResultSaveController(this).obtainPreview() },
+  onSaveAssessment() { if (!referenceSnapshots.has(this)) void recommendationResultSaveController(this).begin() },
+  onVerifyAssessmentSave() { if (!referenceSnapshots.has(this)) void recommendationResultSaveController(this).verify() },
+  onObtainTrustedAssessmentPreview() { if (!referenceSnapshots.has(this)) void recommendationResultSaveController(this).obtainPreview() },
   onCancelAssessmentSave() { recommendationResultSaveController(this).cancel() },
-  onConfirmAssessmentSave() { void recommendationResultSaveController(this).confirm() },
-  onReconcileAssessmentSave() { void recommendationResultSaveController(this).reconcile() },
+  onConfirmAssessmentSave() { if (!referenceSnapshots.has(this)) void recommendationResultSaveController(this).confirm() },
+  onReconcileAssessmentSave() { if (!referenceSnapshots.has(this)) void recommendationResultSaveController(this).reconcile() },
   async onAssessmentHistory() {
+    if (referenceSnapshots.has(this)) return
     if (!await recommendationResultSaveController(this).canOpenHistory()) return
     runGuardedNavigation(this, 'recommendation.assessmentHistory', callbacks => wx.navigateTo({
       url: '/pages/assessment/history', ...callbacks,
     }), () => this.setData({ actionErrorKey: 'history-save', actionErrorMessage: '暂时无法打开我的评估，请重试。' }))
+  },
+
+  onReferenceCardTap(event: WechatMiniprogram.BaseEvent) {
+    const snapshot = referenceSnapshots.get(this)
+    const generation = Number(event.currentTarget.dataset.referenceGeneration)
+    const institutionId = event.currentTarget.dataset.institutionId
+    const recordRevision = Number(event.currentTarget.dataset.recordRevision)
+    if (!isCurrentRefresh(this, generation)) return
+    if (!snapshot || this.data.pageState !== 'initial_reference_only'
+      || typeof institutionId !== 'string' || !Number.isSafeInteger(recordRevision)
+      || !snapshot.displayedReferenceCards.some(card => card.institutionId === institutionId
+        && card.recordRevision === recordRevision
+        && card.publicDetailTarget.institutionId === institutionId
+        && card.publicDetailTarget.recordRevision === recordRevision)) {
+      this.setData({ actionErrorKey: 'reference-detail', actionErrorMessage: '参考资料版本已失效，请重新生成后查看公开详情。' })
+      return
+    }
+    const url = serializeInstitutionDetailRoute({ institutionId, recordRevision }, 'direct_link', null)
+    if (url === null) {
+      this.setData({ actionErrorKey: 'reference-detail', actionErrorMessage: '公开详情链接暂时不可用，请重新生成后重试。' })
+      return
+    }
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    runGuardedNavigation(this, 'recommendation.result.openInstitution', callbacks => wx.navigateTo({ url, ...callbacks }), () => {
+      if (isCurrentRefresh(this, generation) && referenceSnapshots.get(this) === snapshot) {
+        this.setData({ actionErrorKey: 'reference-detail', actionErrorMessage: '暂时无法打开机构公开详情，请重试。' })
+      }
+    })
   },
 
   onRecommendationCardTap(event: WechatMiniprogram.BaseEvent) {
@@ -371,7 +434,7 @@ Page({
     if (snapshot === undefined) {
       this.setData({
         actionErrorKey: 'recommendation-detail',
-        actionErrorMessage: '当前推荐结果暂不支持机构详情入口，详情资料仍在开发验证中。',
+        actionErrorMessage: '当前推荐资料已失效，请重新生成后再查看详情。',
       })
       return
     }
@@ -446,18 +509,38 @@ Page({
     }
   },
 
+  onBrowseDirectory() {
+    // Ordinary browsing is independent of recommendation membership and carries
+    // neither assessment data nor a recommendation source-context reference.
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    runGuardedNavigation(this, 'recommendation.result.openInstitution', callbacks => wx.navigateTo({
+      url: '/pages/institution/index',
+      ...callbacks,
+    }), () => this.setData({ actionErrorKey: 'directory', actionErrorMessage: '暂时无法打开机构目录，请重试。' }))
+  },
+
+  onCandidateExplanationToggle(event: WechatMiniprogram.BaseEvent) {
+    const id = event.currentTarget.dataset.institutionId as string
+    const revision = Number(event.currentTarget.dataset.recordRevision)
+    const snapshot = resultSnapshots.get(this)
+    if (!snapshot || !hasRecommendationIdentity(snapshot, id, revision)) return
+    const key = `${id}#${revision}`
+    this.setData({ expandedCards: { ...this.data.expandedCards, [key]: !this.data.expandedCards[key] } })
+  },
+
   onRecommendationListTap() {
     const snapshot = resultSnapshots.get(this)
     if (snapshot === undefined) {
       this.setData({
         actionErrorKey: 'recommendation-list',
-        actionErrorMessage: '当前推荐结果暂不支持机构列表入口，列表资料仍在开发验证中。',
+        actionErrorMessage: '本次候选列表已失效，请重新生成推荐，或浏览普通机构目录。',
       })
       return
     }
     if (this.data.pageState === 'loading'
       || this.data.pageState === 'assessment_error'
       || this.data.pageState === 'catalog_error'
+      || this.data.pageState === 'no_safe_recommendation'
       || this.data.pageState === 'recommendation_error') {
       this.setData({
         actionErrorKey: 'recommendation-list',

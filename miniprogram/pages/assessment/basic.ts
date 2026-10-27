@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   BasicGender,
   BasicInstitutionExperience,
@@ -16,6 +17,7 @@ import { invalidateAssessmentPageAction, navigateAssessmentForwardWithCapacity, 
 type ChoiceOption = { value: string; label: string }
 
 interface AssessmentBasicData {
+  fontStyle: string
   warmSwissHeaderHeight: number
   backEnabled: boolean
   backText: string
@@ -110,6 +112,7 @@ const sameStringArray = (left: string[], right: string[]): boolean =>
 
 Page({
   data: {
+    fontStyle: '',
     warmSwissHeaderHeight: 0,
     backEnabled: true,
     backText: '返回上一页',
@@ -148,6 +151,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.syncFromDraft()
   },

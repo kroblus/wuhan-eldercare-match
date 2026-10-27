@@ -1,0 +1,1 @@
+<navigation-bar warmSwiss="{{true}}" title="演示设置" back="{{true}}" guardBack="{{true}}" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}"></navigation-bar><demo-tools id="demo-settings"></demo-tools>

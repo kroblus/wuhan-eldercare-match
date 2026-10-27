@@ -1,5 +1,6 @@
 @import '../../styles/base.less';
 @import '../../styles/mixins.less';
+@import '../../styles/browse-buttons.less';
 page { .ws-page-surface(); }
 .recommendation-shell { padding: @space-4 0 calc(@space-5 + env(safe-area-inset-bottom)); }
 .result-intro { display: block; color: @ws-secondary; font-size: @ws-helper; line-height: @line-height-body; }
@@ -65,7 +66,51 @@ page { .ws-page-surface(); }
 .no-safe-section .adjust-needs-action { margin-top: @space-3; }
 .adjust-needs-action primary-button { display: block; }
 .result-state .state-panel, .no-safe-section .state-panel { padding: @space-4 0; border: 0; background: transparent; box-shadow: none; }
+.summary-title { margin-top: @space-3; font-size: var(--browse-title-size, @ws-page-title); overflow-wrap: anywhere; }
+.candidate-count { margin-top: @space-3; font-size: @ws-body; line-height: @line-height-body; }
+.summary-message, .section-subtitle, .no-safe-note, .detail-line, .compact-fact, .institution-status__item, .visit-advice-line { font-size: var(--browse-body-size, 16px); }
+.institution-card { margin-top: @space-3; padding: @space-4; background: @ws-surface; border: @ws-rule-width solid @ws-border; border-radius: @ws-radius; }
+.institution-card--conditional { border-left: 6rpx solid @ws-accent; }
+.institution-card .institution-name { margin-top: @space-2; }
+.institution-card .detail-list { margin-top: @space-3; }
+.result-card-toggle, .result-card-toggle:not([size='mini']) { width: 100%; min-height: 48px; margin: @space-2 0 0; padding: @space-2 0; display: flex; align-items: center; justify-content: center; text-align: center; white-space: normal; background: transparent; color: @ws-secondary; font-size: var(--browse-control-size, 16px); line-height: @line-height-body; }
+.result-card-toggle::after { border: 0; }
+.result-detail-button, .directory-browse-button { display: flex; align-items: center; justify-content: center; margin-top: @space-3; width: 100%; min-height: @touch-target-min; text-align: center; white-space: normal; }
+.directory-fallback { padding: @space-4 0; border-top: @ws-rule-width solid @ws-border; border-bottom: @ws-rule-width solid @ws-border; }
+.recommendation-shell text { overflow-wrap: anywhere; }
+// Reuse focusTags verbatim: these are display snapshots, not new ranking inputs.
+.match-basis { margin-top: @space-3; padding-top: @space-3; border-top: @ws-rule-width solid @ws-border; }
+.match-basis__title { display: block; color: @ws-ink; font-size: var(--browse-meta-size, 14px); font-weight: 600; line-height: @line-height-body; }
+.match-basis .focus-list { gap: 8px; margin-top: 10px; padding-top: 0; border-top: 0; align-items: flex-start; }
+.match-basis .focus-item {
+  display: inline-flex; box-sizing: border-box; max-width: 100%; min-width: 0;
+  padding: 6px 10px; border-radius: @ws-radius;
+  background: #FFF1E6; color: #B54708;
+  font-size: var(--browse-body-size, 16px); font-weight: 700; line-height: 1.45;
+  white-space: normal; word-break: keep-all; overflow-wrap: break-word;
+}
+.match-basis .focus-item--neutral { background: @ws-surface; border: @ws-rule-width solid @ws-border; font-weight: 600; }
+.institution-status__item { font-weight: 600; }
+.institution-name { font-size: var(--browse-title-size, 20px); }
+.detail-line__text, .compact-fact__text, .visit-advice-line__text { text-wrap: balance; }
+.detail-list .detail-line--positive .detail-line__text { font-weight: 600; }
 @media (max-width: 360px) {
   .institution-decision-body { display: block; }
   .institution-explanation { margin-top: @space-3; }
 }
+
+.section-kicker { font-size: var(--browse-title-size, 20px); }
+.result-intro, .mock-disclosure, .candidate-count, .institution-region, .institution-meta__item, .result-save__label, .result-save__message, .action-error, .visit-advice-line__mark, .result-advisory-line, .advisory-line { font-size: var(--browse-meta-size, 14px); }
+.institution-price, .detail-list__title { font-size: var(--browse-body-size, 16px); }
+.difference-list .detail-list__title, .compact-fact-list .detail-list__title { font-size: var(--browse-meta-size, 14px); }
+.result-intro, .summary-message, .section-subtitle, .no-safe-note, .result-advisory-line, .advisory-line { text-wrap: balance; }
+
+.reference-notice { padding: @space-3; border-left: 3px solid @ws-accent; background: #FFF1E6; }
+.reference-badge { display: block; margin-bottom: @space-2; color: #9A3C0B; font-size: var(--browse-body-size, 16px); font-weight: 700; line-height: 1.5; }
+.reference-note, .reference-line, .reference-footnote { display: block; margin-top: @space-2; font-size: var(--browse-body-size, 16px); line-height: 1.65; color: @ws-secondary; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.reference-group { margin-top: @space-3; padding-top: @space-3; border-top: @ws-rule-width solid @ws-border; }
+.reference-reasons .reference-line { color: @ws-ink; }
+.reference-footnote { font-size: var(--browse-meta-size, 14px); color: @ws-muted; }
+.reference-subheading { display: block; margin-top: @space-3; font-size: var(--browse-body-size, 16px); color: @ws-ink; font-weight: 600; }
+.reference-card .result-detail-button { box-sizing: border-box; height: auto; padding: 12px 16px; min-height: 48px; overflow-wrap: anywhere; }
+.reference-section .adjust-needs-action { margin-top: @space-3; }

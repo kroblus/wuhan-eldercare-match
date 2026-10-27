@@ -33,7 +33,7 @@ import {
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
 
-type AppointmentCreatePageState = 'loading' | 'ready' | 'route_error' | 'institution_unavailable'
+type AppointmentCreatePageState = 'loading' | 'ready' | 'route_error' | 'institution_unavailable' | 'service_unavailable'
 type ElderDiagnosticPageState = 'idle' | 'loading' | ElderRecordReadOnlyDiagnosticResultV1['kind']
 
 interface AppointmentCreatePageData {
@@ -332,7 +332,12 @@ Page({
 
   onLoad(query: Record<string, string | undefined>) {
     if (!canRequestInstitutionService(query && query.institutionId || '')) {
-      this.setData({ pageState: 'institution_unavailable', institution: null, pageDescription: '本机构目前仅提供公开资料查询，平台尚未开放预约。' })
+      this.setData({
+        pageState: 'service_unavailable',
+        institution: null,
+        pageDescription: '目前暂不支持在线提交看院预约。您可以先浏览养老机构资料，了解服务内容。',
+        returnInstitutionButtonText: '返回养老机构',
+      })
       return
     }
     // Match the existing Warm Swiss header; only the visual anchor box changes.
@@ -636,7 +641,7 @@ Page({
       'redirectTo',
       () => {
         this.setData({
-          actionMessage: '暂时无法返回合作机构列表，请使用页面左上角返回。',
+          actionMessage: '暂时无法返回养老机构，请使用页面左上角返回。',
           actionMessageTone: 'error',
         })
       },

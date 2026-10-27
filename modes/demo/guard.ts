@@ -2,7 +2,7 @@
 // Build-time inclusion only; this module is absent from PRODUCTION output.
 export const installDemoGuards = (expectedAppId: string): void => {
   const account = wx.getAccountInfoSync().miniProgram
-  if (account.appId !== expectedAppId || account.envVersion !== 'develop') throw new Error('DEMO_IDENTITY_GATE_CLOSED')
+  if (account.appId !== expectedAppId || (account.envVersion !== 'develop' && account.envVersion !== 'trial')) throw new Error('DEMO_IDENTITY_GATE_CLOSED')
   const api = wx as unknown as { [key: string]: unknown }
   const deny = (target: { [key: string]: unknown }, name: string): void => {
     if (typeof target[name] !== 'function') return

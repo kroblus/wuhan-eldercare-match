@@ -1,0 +1,24 @@
+<template name="demoRecords">
+<navigation-bar title="{{title}}" warmSwiss="{{true}}" back="{{true}}" guardBack="{{true}}" fallbackUrl="/pages/mine/index" fallbackIsTab="{{true}}"></navigation-bar>
+<page-container><view class="demo-records {{viewKind === 'appointments' ? 'demo-records--appointments' : ''}}" style="{{fontStyle}}">
+  <view class="record-head"><text class="record-kicker">{{viewKind === 'appointments' ? '我的看院安排' : viewKind === 'history' ? '了解每一次评估' : '家人的照护记录'}}</text><text class="record-title">{{title}}</text><text class="record-test-label">演示资料 · 仅供体验</text></view>
+  <view wx:if="{{!ready}}" class="record-empty"><text class="record-heading">暂未载入演示资料</text><text class="record-note">请先在首页载入案例，再查看家人的档案和记录。</text></view>
+  <text wx:if="{{error}}" class="record-error" role="alert">{{error}}</text>
+  <view wx:if="{{filters.length}}" class="record-filters"><button wx:for="{{filters}}" wx:key="key" class="record-filter {{filter === item.key ? 'record-filter--selected' : ''}}" aria-pressed="{{filter === item.key}}" data-filter="{{item.key}}" bindtap="filterRecords">{{item.label}}</button></view>
+  <block wx:if="{{selected}}">
+    <view class="record-section"><text class="record-heading">01 / 老人情况</text><text class="record-name">{{selectedName}}</text><view wx:for="{{basicRows}}" wx:key="label" class="record-fact"><text class="record-label">{{item.label}}</text><text class="record-value">{{item.value}}</text></view><view class="record-fact"><text class="record-label">评估完成时间</text><text class="record-value">{{snapshotTime}}</text></view></view>
+    <view class="record-section"><text class="record-heading">02 / 照护需求</text><block wx:for="{{profileRows}}" wx:key="label"><view wx:if="{{index < 2}}" class="record-fact"><text class="record-label">{{item.label}}</text><text class="record-value">{{item.value}}</text></view></block></view>
+    <view class="record-section"><text class="record-heading">03 / 评估摘要</text><block wx:for="{{profileRows}}" wx:key="label"><view wx:if="{{index >= 2}}" class="record-fact"><text class="record-label">{{item.label}}</text><text class="record-value">{{item.value}}</text></view></block><text class="record-note">以上来自当次保存的评估，之后修改需求不会覆盖这份记录。</text></view>
+    <view wx:if="{{viewKind === 'history'}}" class="record-section"><text class="record-heading">04 / 当次推荐结果</text><text class="record-result-title">{{recommendation.headline}}</text><text class="record-copy">{{recommendation.summary}}</text><text class="record-note">按当次保存的推荐顺序展示，请在联系机构时确认最新资料。</text>
+      <block wx:for="{{recommendationGroups}}" wx:for-item="group" wx:key="title"><view wx:if="{{group.cards.length}}"><text class="record-subheading">{{group.title}}</text><view wx:for="{{group.cards}}" wx:for-item="card" wx:key="institutionId" class="record-candidate"><text class="record-name">{{card.name}}</text><text class="record-status">{{card.matchLabel}}</text><text wx:for="{{card.reasons}}" wx:for-item="reason" wx:key="key" class="record-copy">{{reason.text}}</text><text wx:for="{{card.differences}}" wx:for-item="difference" wx:key="key" class="record-note">需确认：{{difference.text}}</text></view></view></block>
+      <text wx:if="{{!recommendation.cards.length && !recommendation.conditionalCards.length}}" class="record-note">{{recommendation.noSafeMessage || '当次未形成可展示的候选结果。'}}</text>
+    </view>
+  </block>
+  <block wx:if="{{!(viewKind === 'history' && selected)}}">
+    <view wx:if="{{ready}}" class="record-list-heading"><text class="record-heading">{{viewKind === 'elder' ? '关联评估' : viewKind === 'elders' ? '老人记录' : viewKind === 'history' ? '评估记录' : '预约记录'}}</text><text class="record-note">共 {{rows.length}} 条</text></view>
+    <view wx:for="{{rows}}" wx:key="id" class="record-item"><text class="record-name">{{item.title}}</text><text class="{{viewKind === 'appointments' ? 'record-status' : 'record-note'}}">{{item.subtitle}}</text><view class="record-fact"><text class="record-label">{{item.timeLabel}}</text><text class="record-value">{{item.time}}</text></view><text class="record-copy">{{item.summary}}</text><view class="record-actions"><button wx:if="{{item.detailUrl}}" class="record-button record-button--quiet" data-id="{{item.id}}" data-detail="{{true}}" bindtap="openRecord">查看机构</button><button wx:if="{{item.action}}" class="record-button" data-id="{{item.id}}" bindtap="openRecord">{{item.action}}</button></view></view>
+    <text wx:if="{{ready && !rows.length}}" class="record-empty">当前筛选下暂无记录。</text>
+  </block>
+  <text class="record-footnote">新增演示记录仅在本次体验期间保留，重置演示或小程序重新启动后清除。</text>
+</view></page-container>
+</template>

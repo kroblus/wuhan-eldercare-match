@@ -45,5 +45,8 @@ instance.onShow(); reject = true; instance.onVrTap(); instance.onVrTap()
 assert.equal(nav.length, 3)
 assert.equal(instance.data.actionErrorKey, 'vr')
 instance.data.viewModel.media.canOpenVr = false
-instance.onVrTap(); assert.equal(nav.length, 3)
+// The context page is reachable even when Viewer is unavailable. The resolver
+// tests above still prevent an unavailable resource from opening a Viewer.
+instance.onVrTap(); assert.equal(nav.length, 4)
+assert.equal(nav[3], nav[0])
 console.log('PASS: VR exact revision, provenance, lifecycle availability, current verification, HTTPS, guarded canonical navigation, failure retry and unavailable action')

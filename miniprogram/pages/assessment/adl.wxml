@@ -1,6 +1,6 @@
 <navigation-bar warmSwiss="{{true}}" title="日常生活能力" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/health" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
-  <view class="page-shell">
+  <view class="page-shell assessment-readable" style="{{fontStyle}}">
     <progress-header warmSwiss="{{true}}" current="3" total="6" label="养老需求评估"></progress-header>
     <text class="assessment-intro">请选择最接近老人日常实际情况的描述，不确定时可以选择“暂不确定”。</text>
 

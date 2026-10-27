@@ -15,10 +15,12 @@ import { createProfilePageViewModel } from './profile-view-model'
 import { createProfilePageViewModelV2 } from './profile-v2-view-model'
 import type { ProfileEditSection, ProfilePageViewModel } from './profile-view-model'
 import type { ProfilePageViewModelV2 } from './profile-v2-view-model'
+import { readBrowseFontStyle } from '../../utils/browse-font'
 
 type ProfilePageState = 'loading' | 'ready' | 'incomplete' | 'error'
 
 interface ProfilePageData {
+  hierarchyFontStyle: string
   backEnabled: boolean
   isRootProfile: boolean
   pageState: ProfilePageState
@@ -111,6 +113,7 @@ const questionRoute = (questionId: string): { route: string, label: string } => 
 
 Page({
   data: {
+    hierarchyFontStyle: '',
     backEnabled: true,
     isRootProfile: false,
     pageState: 'loading',
@@ -124,6 +127,7 @@ Page({
   } as ProfilePageData,
 
   onShow() {
+    this.setData({ hierarchyFontStyle: readBrowseFontStyle() })
     resetAssessmentPageNavigation(this)
     let isRootProfile = false
     try {

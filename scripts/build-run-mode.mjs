@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
 import { loadInstalledLess } from './support/installed-less.mjs'
+import { minify } from 'terser'
+import { checkRunModePackageSize } from './check-run-mode-package-size.mjs'
+import { composeDemoStory } from './support/demo-story-composition.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const mode = process.argv[2]
@@ -32,10 +35,13 @@ const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
 const writtenRuntime = new Set()
 const put = (base, file, data) => { const f = path.join(base, file); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, data); if (base === runtime) writtenRuntime.add(path.resolve(f)) }
 const source = new Map(walk(path.join(root, 'miniprogram')).map(f => [path.relative(path.join(root, 'miniprogram'), f).replaceAll('\\', '/'), fs.readFileSync(f)]))
+source.set('runtime/recommendation-mode.ts', Buffer.from(`export const EXPECTED_RECOMMENDATION_DATASET_MODE: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY' = '${mode === 'production' ? 'PRODUCTION' : 'MOCK_DEVELOPMENT_ONLY'}'\n`))
 if (mode === 'production') {
   for (const file of walk(path.join(root, 'modes/production'))) source.set('production/' + path.relative(path.join(root, 'modes/production'), file).replaceAll('\\', '/'), fs.readFileSync(file))
   source.set('runtime/institution-validation.ts', Buffer.from("import { administrativeDivisionResolver } from '../production/administrative-divisions'\nexport const institutionValidationOptions = {administrativeDivisionResolver}\n"))
   source.set('runtime/institution-service-access.ts', Buffer.from("export { canRequestInstitutionService } from '../production/catalog'\n"))
+  source.set('runtime/directory-metadata.ts', Buffer.from("export { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../production/directory-metadata'\n"))
+  source.set('runtime/institution-source-notes.ts', Buffer.from("export { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../production/source-notes'\n"))
   for (const [file, bytes] of source) if (/^pages\/(home|institution)\/.*\.(ts|wxml)$/.test(file)) {
     source.set(file, Buffer.from(bytes.toString().replaceAll('合作机构', '养老机构').replaceAll('仅加载当前本地开发目录', '仅展示已核对的公开机构资料').replaceAll('当前本地开发目录未能读取', '机构公开资料暂时未能读取')))
   }
@@ -62,23 +68,22 @@ if (mode === 'demo') {
   // and use the pre-App network/storage guard; do not claim platform identity isolation.
   for (const file of walk(path.join(root, 'modes/demo'))) {
     const name = path.basename(file)
-    const relative = ['draft-storage.ts','directory-metadata.ts','panorama-sample.ts'].includes(name) ? 'runtime/' + name : name.endsWith('.jpg') ? 'assets/' + name : /^tools\./.test(name) ? 'components/demo-tools/demo-tools' + path.extname(name) : 'demo/' + name
+    if (file.includes(path.sep + 'pages' + path.sep)) {
+      source.set(path.relative(path.join(root, 'modes/demo'), file).replaceAll('\\', '/'), fs.readFileSync(file))
+      continue
+    }
+    const relative = ['draft-storage.ts','directory-metadata.ts','panorama-sample.ts','evaluation-session.ts'].includes(name) ? 'runtime/' + name : name.endsWith('.jpg') ? 'assets/' + name : /^tools\./.test(name) ? 'components/demo-tools/demo-tools' + path.extname(name) : /^story-preview\./.test(name) ? 'components/demo-story-preview/demo-story-preview' + path.extname(name) : 'demo/' + name
     source.set(relative, fs.readFileSync(file))
   }
   source.set('app.ts', Buffer.from(`import { installDemoGuards } from './demo/guard'\ninstallDemoGuards(${JSON.stringify(config.appid)})\nApp({globalData:{runMode:'DEMO'}})\n`))
   const homeConfig = JSON.parse(source.get('pages/home/index.json'))
   homeConfig.usingComponents['demo-tools'] = '/components/demo-tools/demo-tools'
   source.set('pages/home/index.json', Buffer.from(JSON.stringify(homeConfig)))
-  source.set('pages/home/index.wxml', Buffer.from(source.get('pages/home/index.wxml').toString().replace('<page-container', '<demo-tools id="demo-tools" bind:changed="retryLoad"></demo-tools>\n<page-container')))
-  // Native open-type phone authorization cannot be intercepted by patching wx.
-  // These demo surfaces use the same isolated service component instead of exposing
-  // the real contact/submission form. Routes and production source stay intact.
-  for (const route of ['pages/appointment/create', 'pages/appointment/index', 'pages/visit/evaluation']) {
-    const json = JSON.parse(source.get(route + '.json'))
-    json.usingComponents = { ...json.usingComponents, 'demo-tools': '/components/demo-tools/demo-tools', 'navigation-bar': '/components/navigation-bar/navigation-bar' }
-    source.set(route + '.json', Buffer.from(JSON.stringify(json)))
-    source.set(route + '.wxml', Buffer.from('<navigation-bar warmSwiss="{{true}}" title="演示服务" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>\n<demo-tools id="demo-tools" service-only="{{true}}"' + (route.endsWith('/create') ? ' institution-id="{{institution.identity.institutionId}}"' : '') + '></demo-tools>\n'))
-  }
+  const homeMarkup = source.get('pages/home/index.wxml').toString()
+  assert.ok(homeMarkup.includes('<!-- demo-home-entry -->'), 'Missing auxiliary demo entry slot')
+  source.set('pages/home/index.wxml', Buffer.from(homeMarkup.replace('<!-- demo-home-entry -->', '<demo-tools id="demo-tools" compact-home="{{true}}" bind:changed="retryLoad"></demo-tools>')))
+  composeDemoStory(source)
+  source.set('app.ts', Buffer.from(source.get('app.ts').toString().replace('__APPID__', JSON.stringify(config.appid))))
   for (const [file, data] of source) if (file.endsWith('.wxml')) {
     const text = data.toString().replace(/<button\b[^>]*open-type="getPhoneNumber"[^>]*>[\s\S]*?<\/button>/g, '<view>演示环境不获取手机号，也不联系真人顾问。</view>')
     assert.ok(!/open-type=/.test(text), 'Unhandled native authorization surface in demo: ' + file)
@@ -146,22 +151,54 @@ for (const [file, data] of source) {
     if (file.startsWith('components/demo-tools/')) {
       for (const [name, content] of source) if (name.startsWith('styles/') && name.endsWith('.less')) put(staged, name, content)
     }
-    const result = await less.render(data.toString(), { filename, javascriptEnabled: false })
-    put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
+    const result = await less.render(data.toString(), { filename, javascriptEnabled: false, compress: true })
+    // This shared Less is fully inlined into its page consumers. Do not also
+    // package an unused standalone copy; retain source and compile validation.
+    if (!['styles/institution-directory.less', 'styles/browse-buttons.less'].includes(file)) put(runtime, file.replace(/\.less$/, '.wxss'), result.css)
   }
 }
-for (const file of modules) put(runtime, file, emitted.get(file))
+for (const file of modules) {
+  // CommonJS modules stay separate. Preserve all public properties, callbacks
+  // and require paths; only shorten lexical names and remove formatting.
+  const result = await minify(emitted.get(file), {
+    ecma: 5,
+    compress: false,
+    mangle: { toplevel: true, properties: false, reserved: ['require', 'module', 'exports'] },
+    format: { comments: false },
+  })
+  assert.ok(result.code, 'Empty minified module: ' + file)
+  put(runtime, file, result.code + '\n')
+}
+// Reuse the exact compiled base prefix in each style scope. Expanding this
+// import reproduces the previous bytes, including declaration order.
+const baseStyle = fs.readFileSync(path.join(runtime, 'styles/base.wxss'), 'utf8')
+let deduplicatedStyleBytes = 0
+for (const file of walk(runtime).filter(file => file.endsWith('.wxss') && file !== path.join(runtime, 'styles/base.wxss'))) {
+  const css = fs.readFileSync(file, 'utf8')
+  if (!css.startsWith(baseStyle)) continue
+  const ref = path.relative(path.dirname(file), path.join(runtime, 'styles/base.wxss')).replaceAll('\\', '/')
+  const prefix = `@import "${ref}";`
+  assert.equal(baseStyle + css.slice(baseStyle.length), css)
+  fs.writeFileSync(file, prefix + css.slice(baseStyle.length))
+  deduplicatedStyleBytes += Buffer.byteLength(baseStyle) - Buffer.byteLength(prefix)
+}
+console.log(`Exact base style reuse saved ${deduplicatedStyleBytes} bytes`)
 // Remove stale generated files only, never the open project directory itself.
 for (const file of walk(runtime)) if (!writtenRuntime.has(path.resolve(file))) {
   assert.ok(path.resolve(file).startsWith(path.resolve(runtime) + path.sep))
   fs.unlinkSync(file)
+}
+// Fail closed if a future runtime consumer starts importing the omitted copy.
+for (const file of walk(runtime).filter(file => /\.(wxss|wxml|json|js)$/.test(file))) {
+  const cssSource = fs.readFileSync(file, 'utf8')
+  assert.ok(!['institution-directory.wxss', 'browse-buttons.wxss'].some(name => cssSource.includes(name)), 'Omitted standalone WXSS now has a runtime consumer: ' + file)
 }
 if (mode === 'production') assert.ok(![...modules].some(f => f.startsWith('demo/') || f.includes('demo-tools')))
 config.projectname = 'eldercare-shared-' + mode
 config.miniprogramRoot = 'miniprogram/'
 config.srcMiniprogramRoot = 'miniprogram/'
 // Output contains already compiled JS/WXSS. Source compiler plugins stay unchanged.
-config.setting = { ...config.setting, useCompilerPlugins: [] }
+config.setting = { ...config.setting, useCompilerPlugins: [], minified: true, minifyWXSS: true, minifyWXML: true, uploadWithSourceMap: false }
 assert.ok(!config.cloudfunctionRoot && !config.cloudbaseRoot)
 put(out, 'project.config.json', JSON.stringify(config, null, 2) + '\n')
 // Offline native WXML compiler: local files only, no preview/upload side effect.
@@ -169,5 +206,6 @@ const compiler = path.join(install, 'resources/app.asar.unpacked/node_modules/wc
 const templates = [...source.keys()].filter(f => f.endsWith('.wxml'))
 const compiled = spawnSync(compiler, ['-o', path.join(out, 'wxml-compiled.js'), ...templates], { cwd: runtime, encoding: 'utf8', windowsHide: true, timeout: 60000 })
 assert.equal(compiled.status, 0, (compiled.stdout || '') + (compiled.stderr || '') + (compiled.error || ''))
-put(out, '.shared-build.json', JSON.stringify({ ...marker, status: 'PASS_LOCAL_BUILD', routes: app.pages.length, modules: modules.size, provider: mode === 'demo' ? 'ISOLATED_SYNTHETIC_MEMORY' : 'REVIEWED_PUBLIC_DIRECTORY_READ_ONLY' }, null, 2) + '\n')
+const packageBytes = checkRunModePackageSize(out)
+put(out, '.shared-build.json', JSON.stringify({ ...marker, status: 'PASS_LOCAL_BUILD', routes: app.pages.length, modules: modules.size, packageBytes, provider: mode === 'demo' ? 'ISOLATED_SYNTHETIC_MEMORY' : 'REVIEWED_PUBLIC_DIRECTORY_READ_ONLY' }, null, 2) + '\n')
 console.log(`${mode.toUpperCase()}: TypeScript 4.1.2 + Less + native WXML + generated syntax PASS; ${app.pages.length} routes; ${modules.size} modules. Open dist/${mode}/project.config.json.`)

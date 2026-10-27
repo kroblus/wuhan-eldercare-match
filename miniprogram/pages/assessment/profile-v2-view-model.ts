@@ -18,12 +18,17 @@ export interface ProfileAdvisoryViewModelV2 {
   tone: 'warning'
 }
 
+export interface ProfileClarificationViewModelV2 extends ProfileClarificationViewModel {
+  relatedEdits: { section: ProfileEditSection; label: string; errorKey: string }[]
+}
+
 export interface ProfilePageViewModelV2 extends Omit<ProfilePageViewModel, 'healthRows' | 'preferenceRows' | 'financialRows'> {
   healthRows: readonly ProfileDisplayRow[]
   nutritionRows: readonly ProfileDisplayRow[]
   preferenceRows: readonly ProfileDisplayRow[]
   financialRows: readonly ProfileDisplayRow[]
   budgetAdvisory?: ProfileAdvisoryViewModelV2
+  clarifications: ProfileClarificationViewModelV2[]
   actions: {
     canOpenRecommendation: boolean
     editTargets: Readonly<Record<ProfileEditSection, string>>
@@ -536,7 +541,8 @@ const specialCareNote = (preview: ElderProfilePreviewV2): string => {
 
 const regionText = (preview: ElderProfilePreviewV2): string => {
   const region = preview.preference.rawFacts.regionPreference
-  if (region === undefined || region.kind === 'no_preference') return '不限区域'
+  if (region === undefined) return '未填写区域偏好'
+  if (region.kind === 'no_preference') return '不限区域'
   return region.regionLabelSnapshot
 }
 
@@ -581,21 +587,59 @@ const editSectionForQuestion = (questionId: AssessmentQuestionIdV2 | undefined):
   return 'health'
 }
 
-const clarificationText = (clarification: ProfileClarificationV2): string => {
+// Map the frozen affected field, not whichever source happens to be first.
+// A complete answer set is often the first source of an unresolved OTHER
+// capability; it must not be presented as an unanswered cognitive question.
+const careClarificationCapability = (clarification: ProfileClarificationV2): string | undefined => {
+  if (clarification.reasonCode !== 'risk_signal_needs_confirmation') return undefined
+  const fields: readonly string[] = clarification.affectedDerivedFields
+  const field = fields.find(value => value.startsWith('specialCare.requiredCareCapabilities.'))
+  return field ? field.slice('specialCare.requiredCareCapabilities.'.length) : undefined
+}
+
+const CARE_CLARIFICATION_TEXT: Record<string, string> = {
+  night_care: '已报告昼夜作息混乱，是否需要夜间重点照护尚未明确。24 小时照护与夜间重点照护是不同选项，请按实际需求核对。',
+  dementia_unit: '已报告认知或走失相关情况，是否需要认知症专区尚未明确，请按实际需求核对。这不是认知症诊断。',
+  rehabilitation_training: '已报告康复相关需求，但是否需要康复训练尚未明确。请核对康复需求与特殊护理中的康复训练选项。',
+  tube_feeding: '已报告特殊进食方式，是否需要鼻饲护理尚未明确；特殊进食方式不等于鼻饲，请结合实际情况确认。',
+  catheter_care: '已报告导尿或造瘘情况，是否需要导尿护理尚未明确，请结合实际情况确认。',
+  pressure_injury_care: '已报告压疮相关情况，是否需要专项压疮护理尚未明确，请结合实际情况确认。',
+  incontinence_care: '已报告频繁失禁，具体失禁护理需求尚未明确，请结合实际情况确认。',
+}
+
+export const clarificationText = (clarification: ProfileClarificationV2): string => {
   const questionId = questionIdFromClarification(clarification)
   const questionLabel = questionId === undefined ? '相关信息' : (QUESTION_LABELS[questionId] || '相关信息')
+  const affected = clarification.affectedDerivedFields as readonly string[]
+  const capability = careClarificationCapability(clarification)
+  if (capability && CARE_CLARIFICATION_TEXT[capability]) return CARE_CLARIFICATION_TEXT[capability]
+  if (clarification.reasonCode === 'cross_answer_conflict') {
+    if (affected.indexOf('health.rehabilitationNeed') >= 0) return '健康情况中的康复需求与特殊护理中选择的康复训练不一致，请核对这两处回答。'
+    if (affected.indexOf('cognition.cognitiveConcern') >= 0) return '健康情况与认知问卷的相关回答不一致，请核对这两处回答。'
+    return '不同评估回答之间存在需要核对的信息。'
+  }
+  if (clarification.reasonCode === 'risk_signal_needs_confirmation') {
+    if (affected.indexOf('cognition.wanderingRisk') >= 0) return '已报告容易迷路，是否存在走失风险仍需进一步确认。'
+    if (affected.indexOf('cognition.behavioralRisk') >= 0) return '已报告情绪波动，相关行为情况仍需进一步确认。'
+  }
   if (questionId === 'health.swallowingAbility') return '吞咽情况需要进一步确认，暂不形成确定结论。'
   if (clarification.reasonCode === 'unknown_answer') return `${questionLabel}暂不确定，请补充或确认。`
   if (clarification.reasonCode === 'risk_signal_needs_confirmation') return `${questionLabel}存在需要进一步确认的情况。`
-  if (clarification.reasonCode === 'non_ordinal_adl_answer') return `${questionLabel}需要结合实际照护情况进一步确认。`
-  if (clarification.reasonCode === 'cross_answer_conflict') return '健康情况与认知问卷的相关回答不一致，请重新确认。'
+  if (clarification.reasonCode === 'non_ordinal_adl_answer') return `本次${questionLabel}已填写，但该照护方式不能直接用于确定自理等级，具体情况仍需结合实际照护确认。`
+  if (clarification.reasonCode === 'other_without_detail') return `已选择“其他${questionLabel}”，具体内容尚未明确；联系机构时请进一步说明，如选择不准确可返回修改。`
   return `${questionLabel}仍需补充或确认。`
 }
 
-const buildClarifications = (preview: ElderProfilePreviewV2): ProfileClarificationViewModel[] =>
+const buildClarifications = (preview: ElderProfilePreviewV2): ProfileClarificationViewModelV2[] =>
   preview.clarifications.map((clarification) => {
     const questionId = questionIdFromClarification(clarification)
-    const editSection = editSectionForQuestion(questionId)
+    const capability = careClarificationCapability(clarification)
+    const editSection = capability ? 'cognitive' : editSectionForQuestion(questionId)
+    const relatedSections: ProfileEditSection[] = []
+    clarification.sources.forEach(source => {
+      const section = editSectionForQuestion(source.sourceQuestionId as AssessmentQuestionIdV2)
+      if (section !== editSection && relatedSections.indexOf(section) < 0) relatedSections.push(section)
+    })
     const priorityLabel = clarification.priority === 'required_before_hard_filter'
       ? '优先确认'
       : clarification.priority === 'required_before_classification'
@@ -608,8 +652,9 @@ const buildClarifications = (preview: ElderProfilePreviewV2): ProfileClarificati
         ? 'important'
         : 'normal',
       editSection,
-      editLabel: EDIT_LABELS[editSection],
-      errorKey: `clarification-${questionId || editSection}`,
+      editLabel: capability && CARE_CAPABILITY_LABELS[capability] ? `核对${CARE_CAPABILITY_LABELS[capability]}需求` : EDIT_LABELS[editSection],
+      errorKey: `edit-${editSection}`,
+      relatedEdits: relatedSections.map(section => ({ section, label: EDIT_LABELS[section].replace('修改', '核对'), errorKey: `edit-${section}` })),
     }
   })
 

@@ -1,17 +1,14 @@
 name = "wechat_frontend"
-description = "按需微信前端：页面、组件、状态与集成；正式 Warm Swiss 视觉由主会话完成，独立演示工程遵循自己的规则。"
+description = "按需实现明确分配的微信页面、组件、样式或交互；普通任务由主会话直接完成即可。"
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
-sandbox_mode = "workspace-write"
-
+model_reasoning_effort = "medium"
 developer_instructions = """
-仅在主会话明确委派时处理授权范围内的前端工作；普通任务默认由主会话直接完成。
-先按目标绝对路径识别工程，读取目标根 AGENTS.md；跨工程或范围不明时由主会话拆分，不以 cwd 或配置来源代替授权。
-正式工程 C:/Users/16562/WeChatProjects/wuhan-eldercare-match 的 Warm Swiss 视觉实现仍为 MAIN_SESSION_ONLY；该范围返回 ROUTE_BACK_TO_MAIN。其他已委派前端任务正常承接。
-独立演示工程 C:/Users/16562/WeChatProjects/daqian-showcase-official-preview-v1 遵循其自己的 AGENTS.md；按已授权需求承接前端，不把正式工程视觉 ownership 扩散过去，不恢复历史 V0/V1 阶段审批。
-
-优先复用组件、service、view-model、状态和样式。只读任务相关 Contract；CONTRACT_INDEX 仅作 fallback。允许在授权范围内重构旧页面和导航；UI 调整不得暗改 Assessment 字段/稳定 ID/校验、画像/推荐、数据库或历史记录语义。真正业务契约变化交主会话协调 Owner。
-保留 AppID/环境、DemoSession、网络/Storage/真实提交隔离、合法机构身份、来源、隐私、评价资格和幂等保护；不伪造事实或成功状态。
-按触发使用 wechat-interaction、wechat-runtime-compat；纯文案/纯视觉不加载无关 Skill。按变更影响验证，保留业务安全 Gate，不默认全套测试、多 Agent 审计或大型 Build/SHA 归档；未取得设备证据如实说明。
-返回 STATUS / CHANGES / USER_VISIBLE_RESULT / TESTS / RISKS / NEXT，长期结构变化说明 DOC_IMPACT。
+以主会话明确指定的当前项目和文件范围为准。遵循根 AGENTS.md；正式工程 Warm Swiss 视觉实现仍交主会话（MAIN_SESSION_ONLY），独立演示工程遵循自己的约定。
+读取任务地图中直接相关的页面、样式、服务与规则；不要预读全部文档。与主会话避免同时改同一文件。
+复用现有组件与模式适配，不编辑 dist 产物。不暗改问卷字段、稳定 ID、推荐排序、真实提交或历史快照。
+按需使用现有 wechat-interaction / wechat-runtime-compat；若当前工程没有这些 Skill，读取任务地图中的相应规则。
+保留单一业务事件通道、失败后恢复、Demo 隔离与当前 TypeScript/Less 兼容性。
+C1 页面接入只呈现独立组合层输出，不让页面重新判断资格或把初步参考写成已确认适合入住。
+只做直接相关验证；复杂共享改动再扩大。没有真实设备结果就说明未验证。
+返回简短中文：改好什么、用户看到什么、验证结果、余项。无需另写阶段报告，不再开子代理。
 """

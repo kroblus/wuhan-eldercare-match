@@ -11,7 +11,8 @@
   <text class="source">{{source}}</text>
   <text wx:if="{{loading}}" class="body">正在检查照片并加载纹理…</text>
   <text wx:if="{{error}}" class="error" role="alert">{{error}}</text>
-  <text class="body">左右 / 上下拖动；双指缩放。水平 {{yaw}}° · 俯仰 {{pitch}}° · 视野 {{fov}}°</text>
+  <text class="body">左右 / 上下拖动；双指缩放。</text>
+  <text class="body">水平 {{yaw}}° · 俯仰 {{pitch}}° · 视野 {{fov}}°</text>
   <view class="controls">
     <button id="zoom-out" disabled="{{!rendered}}" bindtap="zoomOut">拉远</button>
     <button id="zoom-in" disabled="{{!rendered}}" bindtap="zoomIn">拉近</button>

@@ -1,0 +1,7 @@
+<navigation-bar warmSwiss="{{true}}" title="我的" back="{{false}}"></navigation-bar>
+<view class="story-shell" style="{{fontStyle}}"><text class="story-badge">演示数据 · 仅供体验</text><text class="story-title">我的照护记录</text><text class="story-muted">查看老人档案、评估与看院安排。</text>
+  <view class="story-section"><text class="story-heading">老人档案</text><text class="story-muted">{{elders}} 位老人 · 查看基本情况和照护需求。</text><view class="story-actions"><button bindtap="navigateNext">查看老人档案</button></view></view>
+  <view class="story-section"><text class="story-heading">我的评估</text><text class="story-muted">{{assessments}} 条评估 · 查看每次评估的结果和当时的机构推荐。</text><view class="story-actions"><button bindtap="openAssessmentHistory">查看我的评估</button></view></view>
+  <view class="story-section"><text class="story-heading">我的预约</text><text class="story-muted">{{appointments}} 条安排 · 查看机构、看院与评价记录。</text><view class="story-actions"><button bindtap="openAppointments">查看我的预约</button></view></view>
+  <button class="story-link" bindtap="settings">演示设置</button><text wx:if="{{error}}" class="story-error">{{error}}</text>
+</view>

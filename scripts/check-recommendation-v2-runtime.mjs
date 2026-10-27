@@ -398,10 +398,10 @@ const run = async () => {
     return rejected(p, 'INVALID_PROFILE_SNAPSHOT')
   })
   const blockedCases = [
-    ['other-swallowing', { [careQuestion]: ['other'], 'health.swallowingAbility': 'occasional_difficulty' }],
+    ['other-chewing-unknown', { [careQuestion]: ['other'], 'health.chewingAbility': 'unknown' }],
     ['other-pressure-injury', { [careQuestion]: ['other', 'round_the_clock_care'], 'health.recentEvents': ['pressure_injury'] }],
     ['unknown-care', { [careQuestion]: ['unknown'] }],
-    ['other-swallowing-unknown', { [careQuestion]: ['other'], 'health.swallowingAbility': 'unknown' }],
+    ['other-night-care', { [careQuestion]: ['other'], 'cognitive.symptoms': ['sleep_wake_disorder'] }],
   ]
   blockedCases.forEach(([name, answers]) => ancillaryCase(`ANC-C01-${name}`, 'VALID_ACCEPTED', () => {
     const p = derivePreview(answers)
@@ -763,7 +763,7 @@ const run = async () => {
         if (scenario === 'safety_unverified') setCapabilityStatus(pool[0], 'capabilities.specialCare.tube_feeding', 'unknown', 'unverified')
         if (scenario === 'safety_conditional') setCapabilityStatus(pool[0], 'capabilities.specialCare.tube_feeding', 'requires_assessment')
       }
-      if (scenario === 'elder_readiness_blocked') profile = derivePreview({ 'health.swallowingAbility': 'unknown' })
+      if (scenario === 'elder_readiness_blocked') profile = derivePreview({ 'health.chewingAbility': 'unknown' })
       if (scenario === 'cards_five_exact') pool = configurePool(5)
       if (scenario === 'cards_two_exact') pool = configurePool(2)
       if (scenario === 'cards_four_soft') {

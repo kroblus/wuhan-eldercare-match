@@ -404,7 +404,7 @@ const runSelfTest = (ts) => {
 }
 
 const parseArguments = (args) => {
-  const options = { selfTest: false, selfTestFail: false, artifactDirectory: undefined, scope: 'all' }
+  const options = { selfTest: false, selfTestFail: false, artifactDirectory: undefined, scope: 'all', demo: false }
   for (let index = 0; index < args.length; index += 1) {
     if (args[index] === '--self-test') {
       options.selfTest = true
@@ -416,8 +416,10 @@ const parseArguments = (args) => {
     } else if (args[index] === '--scope' && args[index + 1] === 'history') {
       options.scope = 'history'
       index += 1
+    } else if (args[index] === '--demo') {
+      options.demo = true
     } else if (args[index] === '--help') {
-      console.log('Usage: node scripts/check-wechat-js-compat.mjs [--artifact-dir <path>] [--scope history] [--self-test|--self-test-fail]')
+      console.log('Usage: node scripts/check-wechat-js-compat.mjs [--artifact-dir <path>] [--demo] [--scope history] [--self-test|--self-test-fail]')
       process.exit(0)
     } else {
       throw new Error(`unknown or incomplete argument: ${args[index]}`)
@@ -427,16 +429,25 @@ const parseArguments = (args) => {
 }
 
 const runRepositoryCheck = async (ts, parserPath, options) => {
-  const { configuration, sourceRoot } = await readProject()
+  const project = await readProject()
+  const configuration = project.configuration
+  const sourceRoot = options.demo ? path.join(repositoryRoot, 'dist/demo/.source') : project.sourceRoot
+  if (options.demo && !options.artifactDirectory) throw new Error('--demo requires an explicit fresh --artifact-dir')
   const classModules = await getClassSourceModules(ts, sourceRoot)
   if (classModules.length === 0) {
     throw new Error(`no TypeScript class sources found under ${sourceRoot}`)
   }
   const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
-  const a14RequiredModules = await getRequiredSourceModules(sourceRoot, a14RequiredSourcePaths)
+  const a14RequiredModules = await getRequiredSourceModules(sourceRoot, options.demo
+    ? a14RequiredSourcePaths.map(file => file === 'pages/consultant/consultant-page.ts' ? 'demo/consultant.ts' : file).concat([
+      'demo/story.ts', 'demo/story-name.ts', 'components/demo-story-preview/demo-story-preview.ts', 'pages/appointment/create.ts',
+    ]) : a14RequiredSourcePaths)
   const b6RequiredModules = await getRequiredSourceModules(sourceRoot, b6RequiredSourcePaths)
   const b7RequiredModules = await getRequiredSourceModules(sourceRoot, b7RequiredSourcePaths)
-  const historyRequiredModules = await getRequiredSourceModules(sourceRoot, historyRequiredSourcePaths)
+  const historyRequiredModules = await getRequiredSourceModules(sourceRoot, options.demo ? [
+    'pages/assessment/history.ts', 'pages/elder/index.ts', 'pages/elder/detail.ts', 'pages/appointment/index.ts',
+    'demo/record-pages.ts', 'demo/session.ts', 'demo/scenario.ts', 'runtime/evaluation-session.ts', 'pages/visit/evaluation.ts',
+  ] : historyRequiredSourcePaths)
   const requiredModules = options.scope === 'history' ? mergeSourceModules(classModules, historyRequiredModules) : mergeSourceModules(
     classModules,
     a13RequiredModules,

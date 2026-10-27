@@ -8,6 +8,9 @@ import {
 } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
+import { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../../runtime/institution-source-notes'
+import { createDetailReading } from './detail-reading'
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import {
   createInstitutionDetailErrorViewModel,
   createInstitutionDetailPageViewModel,
@@ -30,6 +33,7 @@ import {
 type DetailPageState = 'loading' | InstitutionDetailErrorViewModelV12['pageState'] | 'ready'
 
 interface InstitutionDetailPageData {
+  fontStyle: string
   pageState: DetailPageState
   viewModel: InstitutionDetailPageViewModelV12 | null
   errorViewModel: InstitutionDetailErrorViewModelV12 | null
@@ -39,6 +43,11 @@ interface InstitutionDetailPageData {
   expandedSections: Record<string, boolean>
   coverLoadFailed: boolean
   canRequestService: boolean
+  reading: ReturnType<typeof createDetailReading> | null
+  sourceNotes: ReturnType<typeof readInstitutionSourceNotes>
+  directoryInfo: ReturnType<typeof readInstitutionDirectoryInfo>
+  capabilityReview: ReturnType<typeof readInstitutionCapabilityReview>
+  consultationExpanded: boolean
 }
 
 const routeByPage = new WeakMap<object, InstitutionDetailRoute>()
@@ -193,6 +202,7 @@ const runPhoneAction = (
 
 Page({
   data: {
+    fontStyle: '',
     pageState: 'loading',
     viewModel: null,
     errorViewModel: null,
@@ -202,6 +212,7 @@ Page({
     expandedSections: {},
     coverLoadFailed: false,
     canRequestService: true,
+    reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, capabilityReview: null, consultationExpanded: false,
   } as InstitutionDetailPageData,
 
   onLoad(query: Record<string, string | undefined>) {
@@ -221,6 +232,7 @@ Page({
   },
 
   onShow() {
+    this.setData({ fontStyle: readBrowseFontStyle() })
     // Detail has a single build entry in onLoad.  Showing the page again only
     // resets navigation protection; it does not rebuild the same snapshot.
     resetNavigationGuard(this)
@@ -238,6 +250,7 @@ Page({
       isSwitchingRevision: false,
       expandedSections: {},
       coverLoadFailed: false,
+      reading: null, sourceNotes: [], directoryInfo: { natureLabel: '', notes: [] }, capabilityReview: null, consultationExpanded: false,
     })
     buildInstitutionDetailPageSnapshot(route).then((result) => {
       if (!isCurrentGeneration(this, generation)) return
@@ -246,6 +259,10 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
+          reading: createDetailReading(viewModel),
+          sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
+          directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
+          capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           actionErrorKey: '',
           actionErrorMessage: '',
@@ -295,6 +312,11 @@ Page({
     })
   },
 
+  onConsultationToggle() {
+    if (this.data.pageState !== 'ready') return
+    this.setData({ consultationExpanded: !this.data.consultationExpanded })
+  },
+
   onCoverLoadError() {
     if (this.data.pageState !== 'ready' || !this.data.viewModel || !this.data.viewModel.media.hasCover) return
     this.setData({ coverLoadFailed: true })
@@ -334,6 +356,10 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
+          reading: createDetailReading(viewModel),
+          sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
+          directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
+          capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
           errorViewModel: null,
           isSwitchingRevision: false,
           actionErrorKey: '',
@@ -367,7 +393,6 @@ Page({
 
   onVrTap() {
     if (this.data.pageState !== 'ready' || this.data.viewModel === null) return
-    if (!this.data.viewModel.media.canOpenVr) return
     const route = routeByPage.get(this)
     if (!route) return
     const detailUrl = serializeInstitutionDetailRoute(route.identity, route.source === 'recommendation' ? 'recommendation' : 'direct_link', route.sourceContextRef)
@@ -440,6 +465,14 @@ Page({
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     navigateToWithGuard(this, 'institution.detail.faq', '/pages/service/ai-chat/index', undefined, () => {
       this.setData({ actionErrorKey: 'faq', actionErrorMessage: '暂时无法打开常见问题，请稍后重试。' })
+    })
+  },
+
+  onAdmissionGuideTap() {
+    if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
+    this.setData({ actionErrorKey: '', actionErrorMessage: '' })
+    navigateToWithGuard(this, 'institution.detail.admission', '/pages/service/admission/index', undefined, () => {
+      this.setData({ actionErrorKey: 'admission', actionErrorMessage: '暂时无法打开入住指南，请重试。' })
     })
   },
 

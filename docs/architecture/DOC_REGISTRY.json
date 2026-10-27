@@ -174,21 +174,21 @@
     {
       "path": "docs/agent/README_AGENT_ENGINEERING_V2_1.md",
       "doc_id": "agent.engineering.v2_1",
-      "status": "CURRENT",
+      "status": "HISTORICAL",
       "kind": "REFERENCE",
-      "normative": true,
+      "normative": false,
       "owner": "main_session",
-      "superseded_by": null,
+      "superseded_by": "AGENTS.md",
       "archive_target": null
     },
     {
       "path": "docs/agent/MODEL_STRATEGIES.md",
       "doc_id": "agent.model_strategies",
-      "status": "CURRENT",
-      "kind": "REFERENCE",
+      "status": "HISTORICAL",
+      "kind": "POLICY",
       "normative": false,
       "owner": "main_session",
-      "superseded_by": null,
+      "superseded_by": ".codex/README.md",
       "archive_target": null
     },
     {
@@ -1127,6 +1127,96 @@
       "doc_id": "audit.b01_phase_boundary_d.owner_signoff.v1",
       "status": "HISTORICAL",
       "kind": "AUDIT",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_ORDINARY_DIRECTORY_DISPLAY_AMENDMENT_V1.md",
+      "doc_id": "institution.ordinary_directory.display.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "project_owner",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INSTITUTION_ORDINARY_DIRECTORY_CALL_AMENDMENT_V1.md",
+      "doc_id": "institution.ordinary_directory.call.v1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "project_owner",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/CURRENT_PRD.md",
+      "doc_id": "product.current_prd_readable",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/CURRENT_MVP.md",
+      "doc_id": "product.current_mvp_readable",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": false,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/RECOMMENDATION_AND_HISTORY_PRODUCT_RULES_V1_3_DRAFT.md",
+      "doc_id": "product.recommendation_history_rules.v1_3",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/PAGE_LEVEL_PRD_V1_3_ADDENDUM.md",
+      "doc_id": "product.page_level_prd.v1_3",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/product/MVP_PAGE_FLOW_V1_3_ADDENDUM.md",
+      "doc_id": "product.mvp_page_flow.v1_3",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
+      "normative": true,
+      "owner": "product",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/INITIAL_REFERENCE_RECOMMENDATION_CONTRACT_V1_3_C1.md",
+      "doc_id": "contract.initial_reference.v1_3_c1",
+      "status": "FROZEN",
+      "kind": "CONTRACT",
+      "normative": true,
+      "owner": "matching_engine",
+      "superseded_by": null,
+      "archive_target": null
+    },
+    {
+      "path": "docs/architecture/PRODUCTION_CAPABILITY_EVIDENCE.md",
+      "doc_id": "reference.production_capability_evidence",
+      "status": "CURRENT",
+      "kind": "REFERENCE",
       "normative": false,
       "owner": "main_session",
       "superseded_by": null,

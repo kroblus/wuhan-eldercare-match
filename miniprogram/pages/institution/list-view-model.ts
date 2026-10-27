@@ -7,6 +7,8 @@ import type {
   InstitutionRouteSource,
 } from '../../types/institution-list-detail'
 import type { InstitutionTypeCode } from '../../types/institution'
+import { readDirectoryMetadata } from '../../runtime/directory-metadata'
+import { readInstitutionDirectoryInfo } from '../../runtime/institution-source-notes'
 
 export interface InstitutionListNavigationIntentViewModel {
   institutionId: string
@@ -43,6 +45,13 @@ export interface InstitutionListItemViewModel {
   showGroupHeading: boolean
   placementLabel: string
   navigationIntent: InstitutionListNavigationIntentViewModel
+  card: {
+    compact?: boolean
+    phoneKey?: string
+    title: string; region: string; price: string; feature: string; isDemo: boolean
+    nature: string; address: string; addressStatus: string; phone: string
+    notes: readonly string[]; factTags: readonly string[]
+  }
 }
 
 export interface InstitutionListPageViewModelV12 {
@@ -138,6 +147,8 @@ const formatItem = (
   const region = valueOrStatus(item.region, (value) => value.displayName)
   const type = valueOrStatus(item.institutionType, formatTypes)
   const price = formatPrice(item.referenceMonthlyPrice)
+  const directoryMetadata: readonly { institutionId: string; recordRevision?: number; natureLabel?: string }[] = readDirectoryMetadata()
+  const metadata = directoryMetadata.find(row => row.institutionId === item.institutionId && (row.recordRevision === undefined || row.recordRevision === item.recordRevision))
   const vrLabel = item.vr.state === 'available'
     ? 'VR看院资料已核验'
     : item.vr.state === 'unavailable'
@@ -178,6 +189,20 @@ const formatItem = (
       recordRevision: item.recordRevision,
       source,
       sourceContextRef,
+    },
+    card: {
+      nature: metadata && metadata.natureLabel ? metadata.natureLabel : '性质待确认',
+      address: '地址资料请查看详情', addressStatus: '', phone: '公开电话状态请查看详情',
+      notes: readInstitutionDirectoryInfo(item.institutionId, item.recordRevision).notes,
+      // Ordinary directory decoration may allocate evidence-gated nature to one chip.
+      // Other sources keep basic facts; no service/type-derived T2/T3 chips.
+      factTags: [],
+      title: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
+        ? name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '') || '机构名称待确认' : name.value || '机构名称待确认',
+      region: item.region.availability === 'provided' && item.region.effectiveVerification === 'current_verified' ? region.value : '区域待确认',
+      price: item.referenceMonthlyPrice.availability === 'provided' && item.referenceMonthlyPrice.effectiveVerification === 'current_verified' ? '参考月费 ' + price.value : '费用待咨询',
+      feature: metadata && metadata.natureLabel ? metadata.natureLabel : item.institutionType.availability === 'provided' && item.institutionType.effectiveVerification === 'current_verified' ? type.value : '',
+      isDemo: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY',
     },
   }
 }

@@ -1,4 +1,0 @@
-{
-  "desc": "Development synthetic shell; no public indexing",
-  "rules": [{ "action": "disallow", "page": "*" }]
-}

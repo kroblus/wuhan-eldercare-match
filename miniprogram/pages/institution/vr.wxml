@@ -1,7 +1,9 @@
 <navigation-bar warmSwiss="{{true}}" title="VR 看院" back="{{true}}" fallbackUrl="/pages/institution/index" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <web-view wx:if="{{url}}" src="{{url}}" binderror="onWebError"></web-view>
-<page-container wx:else extraClass="vr-page"><view class="page-shell vr-shell">
+<page-container wx:else extraClass="vr-page"><view class="page-shell vr-shell" style="{{fontStyle}}">
   <text class="page-title">VR 看院</text>
+  <text class="vr-note">{{name}}</text>
+  <text class="vr-note">{{disclosure}}</text>
   <state-panel wx:if="{{loading}}" state="loading" title="正在读取全景资料"></state-panel>
   <state-panel wx:else state="empty" title="全景暂不可用" message="{{message}}" actionText="重试" bind:action="loadResource"></state-panel>
   <text class="vr-note">全景用于辅助了解机构环境，实际环境和服务请到院确认。</text>

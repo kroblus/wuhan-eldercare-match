@@ -1,0 +1,1 @@
+<import src="../consultant.wxml"/><template is="demoConsultant" data="{{backEnabled,fontStyle,loading,name,role,region,status,needs,story,questions,reply,contacting,error}}"/>

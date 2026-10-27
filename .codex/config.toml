@@ -1,16 +1,17 @@
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
 # Project-scoped Codex configuration.
-# Main session model/reasoning are selected per session in Codex UI.
 # SOLO_FAST_ITERATION: use the main session by default; agents remain available on demand.
 # Agent availability does not require delegation or independent QA.
-# Existing model, sandbox, approval and MCP settings are preserved.
+# Existing sandbox, approval and MCP settings are preserved.
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
 [agents]
 enabled = true
-max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-6-luna"
-default_subagent_reasoning_effort = "max"
+max_concurrent_threads_per_session = 2
+default_subagent_model = "gpt-6.1-sol"
+default_subagent_reasoning_effort = "medium"
 
 [sandbox_workspace_write]
 network_access = true

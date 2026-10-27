@@ -1,6 +1,6 @@
 <navigation-bar warmSwiss="{{true}}" title="养老咨询助手" back="{{true}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
 <page-container extraClass="assistant-page">
-  <view class="page-shell ai-chat-shell">
+  <view class="page-shell ai-chat-shell" style="{{fontStyle}}">
     <view class="page-head ai-chat-head">
       <text class="page-title">养老咨询助手</text>
       <text class="page-description">只解释已经批准的公开资料，不替代医疗、机构或顾问的正式判断。</text>
@@ -50,7 +50,7 @@
   </view>
 </page-container>
 
-<view class="ai-chat-composer">
+<view class="ai-chat-composer" style="{{fontStyle}}">
   <view wx:if="{{inputError}}" class="ai-chat-error" role="alert">{{inputError}}</view>
   <view class="ai-chat-composer__row">
     <view class="ai-chat-input-wrap">

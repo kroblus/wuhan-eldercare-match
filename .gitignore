@@ -45,3 +45,23 @@ Desktop.ini
 !.env.example
 .secrets/
 *.secret
+
+# Portable project AI defaults; personal state and credentials remain ignored
+.codex/*
+!.codex/config.toml
+!.codex/README.md
+!.codex/agents/
+.codex/agents/*
+!.codex/agents/*.toml
+!.codex/wechatide-mcp.ps1
+
+# Recovery artifacts
+*.bundle
+*.zip
+
+# Generated Python audit caches
+__pycache__/
+*.py[cod]
+
+# One-time local workspace recovery; not a new development checkout
+/archive/recovery/

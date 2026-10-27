@@ -1,0 +1,34 @@
+@import '../styles/base.less';
+@import '../styles/tokens.less';
+.demo-records { color: @ws-ink; font-size: var(--browse-body-size, 16px); line-height: 1.65; padding: 20px 0 calc(32px + env(safe-area-inset-bottom)); min-width: 0; }
+.demo-records text { display: block; }
+.record-head { padding-bottom: 24px; border-bottom: 1px solid @ws-border; }
+.record-kicker,.record-label,.record-note,.record-footnote { color: @ws-muted; font-size: var(--browse-meta-size, 14px); }
+.record-title { font-size: var(--browse-hero-size, 26px); font-weight: 600; line-height: 1.4; margin: 8px 0 12px; }
+.record-test-label { display: inline-block !important; color: @ws-secondary; font-size: var(--browse-meta-size, 13px); border: 1px solid @ws-border; border-radius: @ws-radius; padding: 2px 8px; }
+.record-section,.record-item { padding: 24px 0; border-bottom: 1px solid @ws-border; }
+.record-heading,.record-name,.record-result-title { font-weight: 600; line-height: 1.5; }
+.record-heading { font-size: var(--browse-title-size, 18px); margin-bottom: 16px; }
+.record-name,.record-result-title { font-size: var(--browse-title-size, 20px); overflow-wrap: break-word; word-break: normal; }
+.record-name + text { margin-top: 8px; }
+.record-subheading { margin-top: 24px; font-weight: 600; }
+.record-copy { margin-top: 12px; white-space: pre-wrap; overflow-wrap: break-word; }
+.record-fact { padding: 12px 0; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.record-label { flex: 0 0 100%; }
+.record-value { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.record-status { color: @ws-accent; font-weight: 600; margin: 8px 0; }
+.record-candidate { padding: 20px 0; border-bottom: 1px solid @ws-border; }
+.record-list-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.record-list-heading .record-heading { margin: 0; }
+.record-filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 20px 0; border-bottom: 1px solid @ws-border; }
+.demo-records button { margin: 0; min-height: 44px; line-height: 1.5; padding: 10px 16px; background: @ws-background; border: 1px solid @ws-border; border-radius: @ws-radius; color: @ws-accent; font-size: var(--browse-control-size, 16px); white-space: normal; word-break: keep-all; }
+.record-filters .record-filter { flex: 1 0 28%; padding: 8px; }
+.record-filters .record-filter--selected { background: @ws-accent-soft; border-color: @ws-accent; font-weight: 600; }
+.record-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.record-actions .record-button { flex: 1 1 140px; }
+.record-actions .record-button--quiet { color: @ws-ink; }
+.record-empty { display: block; padding: 28px 0; }
+.record-footnote { margin-top: 24px; }
+.record-error { color: @color-error; margin: 16px 0; }
+
+.demo-records--appointments .record-actions .record-button { flex: 1 1 calc(var(--browse-control-size, 16px) * 6 + 32px); min-width: 0; max-width: 100%; width: auto; height: auto; overflow-wrap: anywhere; text-wrap: balance; }

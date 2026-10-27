@@ -1030,7 +1030,7 @@ const buildReadinessV2 = (
         code: 'ELDER_REQUIREMENT_NEEDS_CONFIRMATION',
         sourceDerivedField: field,
         disposition: 'unresolved',
-        blocksEligibility: true,
+        blocksEligibility: field !== 'nutrition.swallowingConcern',
         clarificationIds: [clarification.clarificationId],
         elderEvidenceRefs: evidence.map((entry) => derivedRef(field, entry.evidenceId)),
       })

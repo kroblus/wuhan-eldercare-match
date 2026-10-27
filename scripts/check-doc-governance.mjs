@@ -178,7 +178,8 @@ const referenceCandidates = (sourceRelativePath, rawReference) => {
         reference,
         path.posix.join('docs/architecture', reference),
         path.posix.join('docs/agent', reference),
-        path.posix.join('docs/product', reference)
+        path.posix.join('docs/product', reference),
+        path.posix.join('docs/design', reference)
       ]
   return [...new Set(candidates.map(normalizeRelativePath))]
 }

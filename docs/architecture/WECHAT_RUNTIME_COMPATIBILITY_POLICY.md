@@ -28,8 +28,6 @@ class NavigationGuard {
 - `store/assessment-draft.js`
 - `utils/navigation-guard.js`
 
-真机调试包曾在 `pages/assessment/history.js` 拒绝可选链 `?.`（`Unexpected token .`）。当前 TS ES2020 和既有编译配置可能保留该语法；不得以 DevTools 可执行或 TS 编译成功替代真机调试包兼容性。小程序源码避免使用 `?.` / `??`，使用保持 null/undefined 语义的显式守卫；不通过修改正式 AppID、编译配置或业务状态绕过。
-
 ## 2. Class 编码规则
 
 TypeScript class 中不得使用 property initializer。必须先声明字段，再在 constructor 中赋值：
@@ -68,8 +66,6 @@ npm run check:wechat-js-compat
 - 自动定位当前项目的 DevTools 编译缓存；也支持用 `--artifact-dir` 指定解包后的真实产物目录。
 - 只分析生成 JavaScript 正文，不扫描 source map 内嵌的 TypeScript 源码。
 - 复用仓库或微信开发者工具现有的 TypeScript parser，通过 AST 识别 class fields；
-- 同时检查生成正文中的可选链与 nullish coalescing；字符串、注释和 source map 内嵌源码不作为语法命中；
-- History 页面及其 view-model/user-loop 必须进入覆盖；可用 `--scope history` 取得明确标识的局部结果，不能代替默认全局 Gate；
 - 检查每个含 class 的当前 TypeScript 模块都有对应产物，且产物时间不早于源码。
 - FAIL 时打印生成模块、产物文件、行列和附近代码。
 - 找不到产物、产物不完整或产物过期时直接 FAIL，不以源码检查冒充产物检查。

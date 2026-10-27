@@ -1,3 +1,4 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   PreferenceRegionAnswer,
 } from '../../types/assessment'
@@ -31,6 +32,7 @@ type ChoiceOption = {
 type RegionCatalogStatus = 'loading' | 'ready' | 'empty' | 'error'
 
 interface AssessmentPreferenceData {
+  fontStyle: string
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
@@ -180,6 +182,7 @@ const withNoPreference = (options: readonly InstitutionRegionCatalogOption[]): I
 
 Page({
   data: {
+    fontStyle: '',
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
@@ -225,6 +228,8 @@ Page({
   },
 
   onShow() {
+    const fontStyle = readBrowseFontStyle()
+    if (this.data.fontStyle !== fontStyle) this.setData({ fontStyle })
     resetAssessmentPageNavigation(this)
     this.setData({ backText: getAssessmentBackText('preference') })
     this.syncFromDraft()

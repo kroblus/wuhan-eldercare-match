@@ -1,6 +1,6 @@
 <navigation-bar warmSwiss="{{true}}" title="老人基本情况" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/intro" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
-  <view class="page-shell">
+  <view class="page-shell assessment-readable" style="{{fontStyle}}">
     <progress-header warmSwiss="{{true}}" current="1" total="6" label="养老需求评估"></progress-header>
     <text class="basic-intro">先了解老人的基本生活情况。草稿成功保存在本机后，回来可以继续；请留意页面底部的保存提示。</text>
     <view wx:if="{{formError}}" class="form-error" role="alert">{{formError}}</view>

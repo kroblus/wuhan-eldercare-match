@@ -1,0 +1,16 @@
+@import '../../styles/tokens.less';
+@import (reference) '../../styles/institution-directory.less';
+.story-preview { font-size: var(--browse-body-size,16px); line-height: 1.65; color: @ws-ink; }
+.story-preview text { display:block; overflow-wrap:break-word; }
+.story-media-module { padding:24px 0; border-bottom:1px solid @ws-border; }
+.story-section-title { font-size:var(--browse-title-size,20px); font-weight:600; margin-bottom:16px; }
+.story-muted { color:@ws-secondary; font-size:var(--browse-meta-size,14px); margin:12px 0; }
+.story-map-sketch { position:relative; overflow:hidden; padding:38px 20px; background:@ws-accent-soft; border-radius:@ws-radius; }
+.story-map-sketch text { position:relative; z-index:1; }
+.story-road { position:absolute; background:@ws-surface; width:160%; height:12px; left:-20%; top:30%; transform:rotate(-18deg); }
+.story-road--two { top:62%; transform:rotate(28deg); }
+.story-vr-cover { width:100%; height:160px; border-radius:@ws-radius; }
+.story-button,.story-button:not([size='mini']) { box-sizing:border-box; width:100%; display:flex; align-items:center; justify-content:center; min-height:48px; height:auto; margin:16px 0 0; padding:10px 16px; border:1px solid @directory-orange; border-radius:@ws-radius; background:@ws-surface; color:@directory-orange-text; font-size:var(--browse-control-size,16px); line-height:1.55; white-space:normal; word-break:keep-all; overflow-wrap:break-word; }
+.story-button--primary,.story-button--primary:not([size='mini']) { background:@directory-orange; color:@ws-ink; }
+.story-button::after {border:0;}
+.story-error {color:@color-error;}

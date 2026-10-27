@@ -31,10 +31,11 @@ export const collectTree=(directory,accept)=>{
 }
 export const freshDestination=(source,destination)=>{
   source=fs.realpathSync(source);destination=path.resolve(destination)
-  if(destination===source||inside(source,destination))throw Error('Test project must be outside original source tree')
-  if(fs.existsSync(destination))throw Error('Destination exists; preserve it and choose a new directory')
-  const parent=fs.realpathSync(path.dirname(destination))
-  if(parent!==path.dirname(destination))throw Error('Linked destination parent refused')
+  if(!inside(path.join(source,'output'),destination))throw Error('Test project must stay under the source repository output directory')
+  if(fs.existsSync(destination))throw Error('Destination exists; preserve it and choose a new directory under output')
+  let parent=path.dirname(destination)
+  while(!fs.existsSync(parent))parent=path.dirname(parent)
+  if(!fs.statSync(parent).isDirectory()||fs.realpathSync(parent)!==parent)throw Error('Linked or non-directory destination parent refused')
   return destination
 }
 export const safeTestAppId=(appid,formal)=>{
@@ -82,7 +83,9 @@ export const verifyPreparation=prepared=>{
   return m
 }
 export const prepareProject=({source=repository,destination,testAppId,approvalReference}={})=>{
-  const realSource=fs.realpathSync(source),dest=freshDestination(realSource,destination||path.join(path.dirname(realSource),'wuhan-eldercare-match-test'))
+  const realSource=fs.realpathSync(source)
+  const task=new Date().toISOString().replace(/[:.]/g,'-')
+  const dest=freshDestination(realSource,destination||path.join(realSource,'output','history-test',task,'generated-project'))
   const commonBytes=readSafe(path.join(realSource,'project.config.json')),common=JSON.parse(commonBytes),privateFile=path.join(realSource,'project.private.config.json')
   const privateBytes=fs.existsSync(privateFile)?fs.readFileSync(privateFile):null,privateConfig=privateBytes?JSON.parse(privateBytes):{}
   if(common.miniprogramRoot!=='miniprogram/'||common.srcMiniprogramRoot&&common.srcMiniprogramRoot!=='miniprogram/'||common.compileType!=='miniprogram'
@@ -91,13 +94,17 @@ export const prepareProject=({source=repository,destination,testAppId,approvalRe
   const appid=safeTestAppId(testAppId,common.appid)
   if(appid&&(!approvalReference||typeof approvalReference!=='string'||!/^[-A-Za-z0-9_.:]{3,96}$/.test(approvalReference)))throw Error('Short non-sensitive Owner approval reference required; not platform verification')
   const sourceInputs=collectTree(path.join(realSource,'miniprogram'),p=>allowedMini.has(path.extname(p))).map(x=>({...x,relative:'miniprogram/'+x.relative}))
-  for(const subtree of ['server/src/main','server/tools'])sourceInputs.push(...collectTree(path.join(realSource,subtree),p=>['.java','.sql','.yml','.yaml','.mjs'].includes(path.extname(p))).map(x=>({...x,relative:subtree+'/'+x.relative})))
+  for(const subtree of ['server/src/main','server/tools']){
+    if(!fs.existsSync(path.join(realSource,subtree)))throw Error(`Historical TEST_ONLY preparation requires ${subtree}; this frontend-only checkout cannot prepare a History backend`)
+    sourceInputs.push(...collectTree(path.join(realSource,subtree),p=>['.java','.sql','.yml','.yaml','.mjs'].includes(path.extname(p))).map(x=>({...x,relative:subtree+'/'+x.relative})))
+  }
   for(const rel of ['server/pom.xml','server/src/test/java/com/wuhan/eldercare/visit/assessment/HistoryIsolatedEnvironmentServer.java',...approvedFixtures.map(n=>'server/src/test/resources/assessment-history/'+n)]){
     const file=path.join(realSource,rel);if(!fs.existsSync(file))throw Error('Required isolated harness input missing');sourceInputs.push({file,relative:rel})
   }
   sourceInputs.sort((a,b)=>a.relative.localeCompare(b.relative))
   // Validate all inputs before creating the destination; no private config or credential files copied.
   const inputs=sourceInputs.map(x=>({...x,bytes:readSafe(x.file)})),head=execFileSync('git',['-C',realSource,'rev-parse','HEAD'],{encoding:'utf8'}).trim()
+  fs.mkdirSync(path.dirname(dest),{recursive:true})
   fs.mkdirSync(dest)
   const files=[]
   for(const item of inputs){writeNew(path.join(dest,'source',item.relative),item.bytes);files.push({path:item.relative,size:item.bytes.length,sha256:hash(item.bytes)})}

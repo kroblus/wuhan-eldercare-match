@@ -45,3 +45,6 @@
 .progress-header__segment { flex: 1; height: @space-1; background: @ws-border; }
 .progress-header__segment.is-current { background: @ws-accent; }
 .progress-header__segment.is-completed { background: @ws-secondary; }
+
+.is-warm-swiss .progress-header__row { flex-wrap: var(--assessment-heading-wrap, nowrap); gap: var(--assessment-progress-gap, 0px); }
+.is-warm-swiss .progress-header__label, .is-warm-swiss .progress-header__count { font-size: var(--assessment-meta-size, @font-size-caption); }

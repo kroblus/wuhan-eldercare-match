@@ -1,5 +1,13 @@
 # 小程序前端结构与所有权
 
+V2.1-B1：首页采用 A2 资讯与双服务入口，继续使用 N1 TabBar。原位查询共用 `institution-directory-search`；首页仅在无查询条件且未展开时截取普通目录前 2 条，主动查询显示全部匹配。`pages/institution/directory-presentation.ts` 为普通目录卡片复用现有详情应用投影，保持同一 identity/revision/evaluationAsOf，只补充地址资料状态、电话状态与原有风险；List 不展示完整地址或电话号码；不生成护理特质或改变推荐。三个静态阅读路由继续共用内容 Service / 阅读模板。公告入口仅打开原生空状态，不读取公告数据或保存已读。
+
+B1.1：普通目录展示投影仅将已核验的机构性质分配到一个事实标签，避免副标题重复；不生成护理能力、价格或距离标签。`utils/browse-font.ts` 将微信字号偏好映射到首页和目录页的 `--browse-*` 变量，通过内置 `page-meta` 应用；不改变评估和详情的业务状态。
+
+B1.2：首页复用该字体和交互机制，采用品牌/铃铛横排、原生品牌构图、可换行三资讯网格及双服务卡。共享目录模板只重组现有资料显示；演示工具插槽位于搜索区之前，搜索控件与结果区保持相邻，数据和导航规则不变。
+
+V1.9 结果页仍消费冻结 Recommendation V2 应用快照，`result-v2-view-model.ts` 仅映射原有状态、依据和差异。普通目录入口不注册推荐 sourceContext；候选详情继续使用 canonical identity 和同源上下文。页面隐藏/卸载使未完成的刷新失效，重新显示时读取最新画像。详情的咨询清单只读取已有候选差异，不重新计算推荐。
+
 > 适用项目：武汉养老机构精准匹配小程序 / 养老对接小程序
 > 文档定位：前端长期稳定结构、模块职责与所有权约束。
 > 本文件不记录某个历史 Phase 的临时实施步骤；阶段性实现细节应由对应 Contract、交接摘要或任务记录承载。
@@ -13,6 +21,8 @@
 - 不引入额外 UI 框架或复杂构建层。
 
 ## 2. 目录职责
+
+V1.8正式只读目录位于`modes/production/`：来源登记、精简机构数据行、逐字段记录构建器及行政区划表共同供给现有Institution投影。目录性质使用绑定正式身份和revision的证据旁表；不改变Frozen护理类型或推荐输入。新增机构不需要改动搜索、卡片及详情核心。电话与地图／VR仍由原有可信状态决定是否可操作。
 
 ```text
 miniprogram/
@@ -28,42 +38,28 @@ miniprogram/
 └─ utils/       无业务状态的通用工具
 ```
 
-`modes/demo/` 只包含合成数据、独立内存 Session、启动隔离及模拟服务组件；正式与演示均由
+`modes/demo/` 包含合成数据、独立内存 Session、启动隔离、模拟服务组件及只在演示构建选择的记录页适配器；正式与演示均由
 `scripts/build-run-mode.mjs` 组合 `miniprogram/` 的同一页面、组件与领域规则，生成忽略目录
 `dist/production`、`dist/demo`。构建时选择数据提供者及草稿存储适配器，不使用页面参数或 Storage
 开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
 正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
 
+Demo 连续场景由 `modes/demo/scenario.ts` 声明显式 TEST_ONLY ID，`session.ts` 保存老人、已完成合成 Assessment / Profile / Recommendation 快照、预约与 completed Visit、私有评价；重复载入不重置、不复制，显式重置或进程重启清除。老人/历史/预约页从同一会话读取；历史结果只展示保存快照，重新保存已完成草稿追加新记录。记录页共用 `modes/demo/pages/records.wxml` / `records.less`，由 `record-presentation.ts` 和 `utils/display-date.ts` 生成分组摘要及中国日期展示；实体 ID 仅用于路由与关联，另存评估操作只在 TEST ONLY 工具区提供。`runtime/evaluation-session.ts` 是评价会话端口：正式实现不提供演示数据，Demo 构建接入隔离上下文、展示姓名、编辑草稿和一次提交后的只读评价。三步评价复用正式表单和既有校验；21 项数字评分与费用清楚/不清楚保持冻结编码。评价页按实际 footer 高度预留末尾空间，键盘高度事件只调整展示，已提交查看隐藏提交按钮。构建器精确复用基础 WXSS 前缀，不改变样式顺序或包预算，不新增分包。
+
 ### 2.1 页面与组件
+
+B1.2.6 的业务演示只通过 `scripts/support/demo-story-composition.mjs` 组合进 Demo 构建。Demo App 首次启动幂等初始化案例；首页轻量引导进入画像与推荐，“我的”以三类记录为主，管理操作位于 Demo 专属的 `pages/showcase/index` 演示设置。`demo/story.ts` 校验现有详情路由、当前 revision、来源上下文和会话 epoch；`story-name.ts` 只为既有主讲实体提供展示别名，不改机构事实或历史快照。详情中的 `demo-story-preview` 保留机构上下文进入既有原生地图 / WebGL 全景引擎；城市视野不标院址，合成全景不成为核验 VR。`demo/consultant.ts` 与 Demo 预约页提供固定演示回复及内存记录；Tab 不虚构选中机构，completed 判定和三步评价仍使用原端口。顾问操作在渲染后按实际导航栏高度定位既有问答 / 回复，并拒绝离页后的滚动；不新增通信或更改视觉。生产构建不包含这些 Provider、组件、管理入口或合成媒体，正式顾问及地图 / VR Gate 保持原实现。
+
+V1.7 首页与独立机构目录通过 `services/institution-directory-search.ts` 复用原名称/性质/区域谓词，
+通过 `templates/institution-directory.wxml` 和对应共享 Less 复用搜索控件及卡片。筛选保留目录顺序，
+不参与 Recommendation V2。正式的目录元数据仅消费当前已核对地址，机构性质未知时不推断。
+`content/family-reading.ts` 提供三类静态阅读内容和来源，三个 service 路由复用 reading-page 注册与阅读模板，
+无身份、健康答案读取或业务写入；官方网址复制失败时保留可选择的网址及反馈，不绕过演示 API 隔离。
 
 - `pages/` 负责页面展示、页面级交互、页面生命周期和应用层调用；
 - `components/` 只承载小而稳定、可复用的 UI/交互单元；
 - 页面和组件不得复制 Frozen Contract 中的领域算法；
 - 页面展示只消费合法的 Application / Service 输出，不直接解释底层 verification、evidence 或领域判定。
-
-顾问 Tab `pages/consultant/index` 与非 Tab `pages/consultant/consultation` 通过 `consultant-page.ts` 注册同一页面实现，复用 `index.wxml` / `index.less`、现有 ViewModel 和 Global Consultant Application。两条路由只在返回箭头可见性上不同，不按来源选择顾问或复制联系、授权逻辑。消费者导航范围见 `ROUTES.md`。
-
-机构详情可打开既有公共 FAQ 页 `service/ai-chat/index`；该导航不传递老人、推荐、机构身份或快照。FAQ 页面只解释既有获准资料，明确未读取本次个性化上下文，答复后定位最新消息；转人工仍使用顾问 Tab。此入口不增加 Provider、模型、存储或业务写入能力。
-
-页面实例级导航保护由 `utils/navigation-guard.ts` 承担。需要回到既有 non-Tab 目录的局部入口先查合法祖先；有祖先返回原实例，无祖先由调用者明确选择 push 或替换当前错误页。我的页面与共用说明页的 non-Tab Next 复用实例 guard，失败释放，页面再次显示时重置；导航 helper 本身不增加老人档案或 History 数据能力。
-
-我的页直接展示老人档案、我的评估、我的预约入口；评估入口只guard导航至既有 `pages/assessment/history`，不传owner/Elder/Assessment参数，不导入History/身份/Draft服务，不预先发起读取。失败在入口旁提示，返回后释放guard。History目标页继续遵守原有capability、身份和TEST_ONLY来源门禁；增加导航入口不代表历史读取或保存已开放。帮助继续使用既有养老顾问Tab。
-
-History 页面通过独立 `services/completed-assessment-history.ts` 读取 C5 认证后的完成态元数据，不读取 Draft Store 或复用 Visit Provider。当前后端只实现独立提案的 TEST_ONLY disposable 数据源，普通未配置环境保持 UNAVAILABLE；服务端来源显式展示为隔离合成保存记录，不代表生产历史已开放。分页仅使用 owner-scoped cursor；页面 hide/detached 后拒绝迟到响应，加载更多保持单一 Action 和 pending guard。页面不自动保存评估、不改当前 Profile/Recommendation。额外服务器 user-loop capability 仅在隔离 TEST_ONLY 环境开放 History 内联操作区；`completed-assessment-user-loop.ts` 负责显式保存的固定幂等意图、授权详情读取及空草稿检查，`history-user-loop.ts` 负责私有 capability/lifecycle 状态和返回列表位置。普通读取不加载 Draft Store；显式保存通过门禁后读取 Draft 并保留；D03/D04 已批准的新评估确认流程仅在可信保存且答案未修改时比较替换单活动槽，不调用 clear/reset。历史画像只展示已保存的最小不可变 Profile display V1；旧记录缺失时 unavailable，历史 Recommendation 通过独立 owner-scoped `/{id}/recommendation` 读取保存时的 Formal V2 受控投影。服务器来源与能力缺失时不生成快照；旧记录 unavailable、合法 no-safe、unsupported version 与网络错误分别展示。`domain/assessment-history/recommendation-view.ts` 只做版本/绑定/结构守卫与已有显示词典投影，不导入当前 Draft/Catalog/算法；保存时的独立 `recommendation-display.ts` 调用现行 Formal core，保持版本与候选顺序。内联子视图返回原画像/列表，来源明确 TEST_ONLY/Mock，机构当前事实不能补写。未保存修改、待确认或恢复证据不足的草稿阻止替换，可继续现有 Intro；已保存未修改草稿经确认创建独立空会话，合法空 V2 context 使用既有 Intro → Basic，不新增路由或多草稿语义。开发合同草案见 `COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md`，状态仍为 PROPOSED_NOT_FROZEN；此实现事实不赋予草案 Frozen 权威或真实敏感数据收集授权。
-
-History client 在 C5 获取会话前读取不含身份/记录的 public capability；未开放、旧后端缺少 endpoint 或来源未获本阶段 TEST_ONLY 授权时不触发 History-driven 登录。生产来源仍未批准；该探测不代替后端归属校验。
-
-Assessment 阶段的局部导航由 `utils/assessment-phase-navigation.ts` 协调，复用实例 guard，按实际页面栈、目标题组、单个 API 栈变化和剩余步骤计算容量。只负责已签署 B01-D Scope A 的题组入口、前进边界、确认后 Intro-only 重置和 Intro 一次性目标交接；临时交接仅包含稳定 step/来源，绑定页面与操作有效性，不承载答案或业务上下文，不持久化，不构成通用导航框架或全局业务 Store。Budget 保留既有校验/保存门禁后建立 Profile 根；Profile 的原 version-dispatched Application、onShow 刷新和四状态保持。独立深业务 Scope B 的恢复协议不属于此 helper。
-
-预约 Create 的异步请求与页面展示生命周期分离：页面私有状态只负责实例有效性、前台/栈顶位置和结果页导航，业务请求及幂等仍由原 client/service 负责。迟到受理回执保持原业务事实；失效页面不能执行跳转或写入新页面展示态。页面 guard 不承担取消请求、修改预约状态或持久化个人数据的职责。
-
-### 2.1.1 隔离原生功能演示（开发构建）
-
-`pages/showcase/**` 是独立开发展示边界，仍在当前小程序源码中注册，只有 `envVersion=develop` 才加载内容；未取得开发构建信息时关闭。没有正式产品导航入口。`navigation.ts` 仅允许三个演示 route，返回不会进入业务页；不复用机构 Provider、Draft、C5、History、Visit、Appointment、Evaluation 或 Recommendation。该局部隔离不证明整个工程启动/热编译期间无业务请求，也不产生独立 TEST AppID。
-
-`sphere-renderer.ts` 实现原生 WebGL 球体内壁 UV 纹理与透视相机，仅在视角变更时绘制；隐藏、卸载释放图形资源、图片回调和动画请求。几何校准纹理显式标为程序生成、非照片。真实照片仅从用户相册取得本地临时文件，经 Owner 授权/隐私/完整球形投影确认及 JPEG 尺寸和元数据检查后交给 Canvas Image；路径只存在页面私有临时状态，不进入 setData、日志、Store、上传或机构资料。`scripts/prepare-showcase-panorama.py` 可在仓库外生成无元数据压缩副本与本地 provenance manifest；它不自动识别人脸/证件，也不证明投影，人工检查仍必要。未经 Owner 提供与检查，家庭实景验收保持等待。
-
-`map-real` 使用原生 map 的武汉城市视野、平移/缩放、中心点只读与复位；无自定义 POI、机构坐标、geocoding、用户定位或 `wx.openLocation`。地图服务底图网络读取与业务请求边界分别审计；updated 事件不能证明瓦片完整加载，超时/空白需明确反馈。正式 Institution VR 和 map-ready 判断继续只来自原 frozen Contract 与 presentation application，不消费演示状态。
 
 ### 2.2 Domain
 
@@ -220,14 +216,3 @@ FRONTEND_STRUCTURE.md
 ```
 
 若本文件与当前 Frozen Contract 或当前正式实现证据冲突，以更高优先级来源为准。
-
-
-TEST_ONLY History cold-start recovery: explicit save prepares a server-bound random intent and verifies metadata-only local persistence before sending answers. History opens with scope-checked reconciliation and an explicit retry-query action; unknown results block new submission. No new page route or production save entrance. The scoped backend `save-intents/scope`, `save-intents`, `save-intents/reconcile` endpoints reuse C5 + sole Elder transaction authorization and completion metadata; V4 runs only in the existing isolated disposable migration chain. Proposal policy/details: `COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md`. No Frozen or Draft semantics changed.
-
-
-TEST_ONLY Session lifecycle: D03/D04 approved behavior is implemented only in the isolated History operation area; the whole History proposal remains PROPOSED_NOT_FROZEN. V5 adds immutable AssessmentSession → SaveIntent → CompletedAssessment associations. Same-session preparation/replay never creates a second completion. Initial registration allows one scoped root; explicit `assessment-sessions/new` requires an authorized completed predecessor and idempotently returns one successor for the durable candidate context. Save acknowledgment retains Draft. The private confirmation action can replace the existing single active slot only after trusted original-payload ACK evidence, unchanged answers and fresh C5/Elder checks; cancel/edited/pending/unknown/cold-proof-missing states preserve and block. `history-assessment-session.ts` stores only non-sensitive context/transition metadata, with SWITCH_REQUESTED readback before the new-session request and SWITCH_PREPARED before single-slot CAS. No clear/reset, new sensitive local backup, formal Recommendation UI, production route or real-user enablement. Existing Intro → Basic navigation is reused. Cold-start reconciliation remains supported; lack of content evidence never becomes permission to replace Draft. See the latest Owner decision update and Session lifecycle boundary in `COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md`.
-
-
-Decision alignment TEST_ONLY increment: the latest D01–D12 approval levels and formal-release plan are in the current register and Release Readiness section of COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md, still PROPOSED_NOT_FROZEN. History Save now opens a private single-use confirmation; cancel creates no intent/upload, confirmation rechecks answers/C5/sole-Elder/environment. It explicitly disclaims equality with the anonymous Preview and is not sensitive-data consent. Owner-scoped POST assessment-sessions/inspect-context reads only workflow state; missing/corrupt recovery markers block resubmission, and ALREADY_PREPARED cannot become a fresh request. V6 preserves non-sensitive context provenance with a unique claim to prevent cross-scope reassignment of inherited Draft contexts; no answer/history backfill, cleanup or production migration. Unassociated legacy intents/completions fence new allocations (RECOVERY_REQUIRED/LEGACY_RECOVERY_REQUIRED) while old authorized reads, original late completion and replay remain available. Existing A→B and cold recovery stay; late list/detail/Recommendation replies recheck current scope. Scope GET uses base isolated History authorization for metadata-only reads; prepare/reconcile still require user-loop. No formal Recommendation UI, route, real identity, sensitive consent/deletion or production enablement is implemented. Human recovery channel/terminal closure, D08 release/retention, D09 final fields, D10 real source and D11/D12 detailed processes still require approval.
-
-Controlled Result Save UI: the quiet block after Consultant CTA retains original cards/ranking/actions/safe-area layout. recommendation-save-build.ts remains null in the normal build; no URL/storage activation or passive auth/History request. After independent reviewed build admission, explicit C5/sole-Elder verification and explicit trusted Preview request may show a separate server-controlled synthetic projection. trusted-assessment-preview.ts validates/maps pinned display only; recommendation-result-save.ts checks actual projected page data and private one-use D02 proof. completed-assessment-user-loop.ts reuses existing Session/SaveIntent/persist-before-POST/idempotent save and cold reconcile, with memory-only candidate/nonce/input fingerprint and unchanged seven-field durable recovery. No anonymous claim or upper-card promotion; no Domain/Frozen shape/production route changes. Server V7 binds candidate to authorized owner/Elder/namespace/Session and commits pinned snapshots atomically (only final completion identity/time remapped). Independent TEST AppID/package/transport evidence remains unavailable, so device submission is blocked; virtual controller HTTP tests do not approve a build. See Controlled Result UI and trusted Preview binding in COMPLETED_ASSESSMENT_HISTORY_CONTRACT_V1.md, still PROPOSED_NOT_FROZEN.

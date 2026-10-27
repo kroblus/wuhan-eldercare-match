@@ -26,7 +26,10 @@
     "pages/visit/evaluation",
     "pages/showcase/index",
     "pages/showcase/vr-real",
-    "pages/showcase/map-real"
+    "pages/showcase/map-real",
+    "pages/service/policy/index",
+    "pages/service/education/index",
+    "pages/service/admission/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

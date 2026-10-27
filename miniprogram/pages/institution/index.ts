@@ -1,3 +1,5 @@
+import { readBrowseFontStyle } from '../../utils/browse-font'
+import { filterInstitutionDirectory } from '../../services/institution-directory-search'
 import {
   buildInstitutionListPageSnapshot,
 } from '../../services/institution-list-detail-page'
@@ -12,12 +14,15 @@ import {
   resetNavigationGuard,
 } from '../../utils/navigation-guard'
 import { serializeInstitutionDetailRoute } from '../../services/institution-detail-route'
-import { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
+import { directoryNatureOptions, directoryDistrictOptions } from '../../runtime/directory-metadata'
 import type { InstitutionListItemViewModel } from './list-view-model'
+import { decorateDirectoryCards } from './directory-presentation'
+import { callDirectoryPhone, invalidateDirectoryCall } from './directory-call'
 
 type ListPageState = InstitutionListPageViewModelV12['pageState']
 
 interface InstitutionListPageData {
+  browseFontStyle: string
   pageState: ListPageState
   viewModel: InstitutionListPageViewModelV12 | null
   sourceContextRef: string | null
@@ -91,6 +96,7 @@ const runBack = (
 
 Page({
   data: {
+    browseFontStyle: '',
     pageState: 'loading',
     viewModel: null,
     sourceContextRef: null,
@@ -112,10 +118,16 @@ Page({
   },
 
   onShow() {
+    invalidateDirectoryCall(this, true)
+    const browseFontStyle = readBrowseFontStyle()
+    if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
     resetNavigationGuard(this)
   },
+  onHide() { invalidateDirectoryCall(this, false) },
+  onUnload() { invalidateDirectoryCall(this, false) },
 
   loadList(sourceContextRef: string | null) {
+    invalidateDirectoryCall(this)
     if (listLoadsInFlight.has(this)) return
     listLoadsInFlight.add(this)
     const generation = nextGeneration(this)
@@ -126,11 +138,17 @@ Page({
       actionErrorKey: '',
       actionErrorMessage: '',
     })
-    buildInstitutionListPageSnapshot(sourceContextRef).then((result) => {
-      listLoadsInFlight.delete(this)
+    buildInstitutionListPageSnapshot(sourceContextRef).then(async (result) => {
       if (!isCurrentGeneration(this, generation)) return
       if (result.ok) {
         const viewModel = createInstitutionListPageViewModel(result.value)
+        // Recommendation lists keep their existing pinned presentation/context.
+        if (!sourceContextRef) {
+          viewModel.items = await decorateDirectoryCards(viewModel.items, result.value.evaluationAsOf)
+          viewModel.otherItems = viewModel.items
+        }
+        listLoadsInFlight.delete(this)
+        if (!isCurrentGeneration(this, generation)) return
         this.setData({
           pageState: viewModel.pageState,
           viewModel,
@@ -140,6 +158,7 @@ Page({
         this.filterDirectory()
         return
       }
+      listLoadsInFlight.delete(this)
       const pageState = pageStateForError(result.error.code)
       const viewModel = createInstitutionListErrorViewModel(pageState)
       this.setData({
@@ -162,24 +181,14 @@ Page({
   },
 
   filterDirectory() {
-    const items = this.data.viewModel ? this.data.viewModel.items : []
-    const keyword = this.data.keyword.trim().toLowerCase()
-    const metadata = readDirectoryMetadata()
-    const nature = directoryNatureOptions[this.data.natureIndex].value
-    const district = directoryDistrictOptions[this.data.districtIndex].value
-    this.setData({
-      hasMetadataFilters: metadata.length > 0,
-      visibleItems: items.filter(item => {
-        if (keyword && item.name.toLowerCase().indexOf(keyword) < 0) return false
-        const entry = metadata.find(row => row.institutionId === item.institutionId)
-        return (nature === 'all' || !!entry && entry.nature === nature)
-          && (district === 'all' || !!entry && entry.district === district)
-      }),
-    })
+    invalidateDirectoryCall(this)
+    this.setData({ hasMetadataFilters: true,
+      visibleItems: filterInstitutionDirectory(this.data.viewModel ? this.data.viewModel.items : [], this.data.keyword, this.data.natureIndex, this.data.districtIndex) })
   },
   onSearchInput(event: WechatMiniprogram.Input) {
     this.setData({ keyword: event.detail.value }); this.filterDirectory()
   },
+  onSearchBlur() { /* Shared input: only Home requests focus programmatically. */ },
   onNatureChange(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value)
     if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
@@ -193,6 +202,7 @@ Page({
   clearSearch() {
     this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
   },
+  clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
 
   onRetry() {
     if (this.data.pageState === 'loading') return
@@ -242,6 +252,12 @@ Page({
     } catch (_error) {
       fail()
     }
+  },
+
+  onDirectoryPhoneTap(event: WechatMiniprogram.BaseEvent) {
+    const key = event.currentTarget.dataset.itemKey as string
+    void callDirectoryPhone(this, key, () => this.data.pageState === 'ready' && !this.data.sourceContextRef ? this.data.visibleItems : [],
+      message => this.setData({ actionErrorKey: message ? key : '', actionErrorMessage: message }))
   },
 
   onBackToHome() {

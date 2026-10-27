@@ -1,0 +1,75 @@
+@import './base.less';
+@import './mixins.less';
+@import './brand-content.less';
+@import './browse-buttons.less';
+// Local browsing palette; shared brand and business-status tokens stay unchanged.
+@directory-orange: #FF6A00;
+@directory-orange-pressed: #E85E00;
+@directory-orange-soft: #FFF1E6;
+@directory-orange-text: #B54808;
+@directory-ink: #202020;
+@directory-secondary: #707070;
+@directory-surface: #FFFFFF;
+@directory-background: #FFF9F5;
+@directory-border: #E8E2DD;
+@directory-control-radius: 11px;
+@directory-card-radius: 13px;
+@directory-tag-radius: 7px;
+page { .ws-page-surface(); background: @directory-background; }
+.directory-search { margin: 16px 0; }
+.directory-input-wrap { position: relative; border: 1px solid @ws-accent; border-radius: @directory-control-radius; background: @ws-surface; }
+.directory-search-mark { position: absolute; left: 14px; top: 10px; color: @ws-accent; font-size: 27px; line-height: 1; }
+.directory-input-wrap input { box-sizing: border-box; width: 100%; min-height: 52px; height: calc(var(--browse-control-size, 17px) + 36px); padding: 10px 76px 10px 42px; color: @ws-ink; font-size: var(--browse-control-size, 17px); line-height: 1.5; }
+.directory-clear, .directory-clear:not([size='mini']) { .browse-button-layout(); position: absolute; right: 0; top: 0; width: 76px; min-height: 50px; height: 100%; padding: 8px; background: transparent; color: @ws-accent; border: 0; font-size: var(--browse-control-size, 16px); font-weight: 400; }
+.directory-clear::after { border: 0; }
+.directory-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.directory-filters picker { flex: 1 1 calc(var(--browse-control-size, 16px) * 8); min-width: 0; }
+.directory-filter { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 50px; height: 100%; padding: 10px 12px; border: 1px solid @color-control-border; border-radius: @directory-control-radius; background: @ws-surface; color: @ws-ink; font-size: var(--browse-control-size, 16px); line-height: 1.6; }
+.directory-filter > text:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.directory-arrow { flex: 0 0 auto; font-size: 18px; line-height: 1; color: @ws-accent; }
+.directory-filter.is-selected { border-color: @ws-accent; background: @ws-accent-soft; }
+.directory-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; margin: 8px 0 12px; }
+.directory-heading__title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+.section-kicker { padding-left: 10px; border-left: 4px solid @directory-orange; color: @ws-ink; font-size: var(--browse-title-size, 21px); font-weight: 600; line-height: 1.5; }
+.directory-count { color: @ws-secondary; font-size: var(--browse-meta-size, 15px); line-height: 1.6; }
+.directory-reset:not([size='mini']) { margin-left: auto; }
+.institution-card { margin-bottom: 12px; padding: 14px 16px; border: 1px solid @directory-border; border-radius: @directory-card-radius; background: @directory-surface; }
+.institution-card__head { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.institution-name { flex: 1 1 160px; min-width: 0; display: block; color: @directory-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.institution-demo-label { flex: 0 0 auto; padding: 2px 6px; background: @directory-orange-soft; border-radius: @directory-tag-radius; color: @directory-ink; font-size: var(--browse-meta-size, 14px); line-height: 1.6; }
+.institution-identity { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-top: 4px; }
+.institution-region { color: @directory-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
+.institution-info { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; }
+.institution-info > view { flex: 1 1 calc(var(--browse-body-size, 16px) * 5); min-width: 0; }
+.institution-info > view:first-child { flex: 2 1 calc(var(--browse-body-size, 16px) * 12); }
+.institution-card__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; margin-top: 8px; color: @ws-accent; }
+.institution-address, .institution-meta, .institution-price { display: block; color: @directory-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; overflow-wrap: anywhere; }
+.institution-address { color: @directory-ink; word-break: keep-all; }
+.institution-address--direct { margin-top: 6px; }
+.institution-price--direct { margin-top: 4px; color: @directory-ink; font-weight: 600; }
+.institution-detail-link { display: flex; align-items: center; min-height: 44px; margin-left: auto; padding: 4px 10px; border-radius: @directory-control-radius; background: @directory-orange-soft; color: @directory-orange-text; font-size: var(--browse-control-size, 16px); font-weight: 600; }
+.institution-card__actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+.institution-card__actions > view { flex: 0 0 44px; }
+.institution-card__actions button:not([size='mini']) { display: flex; align-items: center; justify-content: center; white-space: normal; box-sizing: border-box; width: auto; min-width: 0; min-height: 44px; margin: 0; padding: 7px 14px; border: 0; border-radius: @directory-control-radius; font-size: var(--browse-control-size, 16px); line-height: 1.6; overflow-wrap: anywhere; font-weight: 600; background: @directory-orange; color: @directory-ink; }
+.institution-card__actions .institution-phone:not([size='mini']) { width: 44px; height: 44px; padding: 10px; background: transparent; color: #D95800; }
+.institution-card__actions .institution-phone[disabled] { background: transparent; color: @directory-secondary; }
+.institution-card__actions .button-hover { background: @directory-orange-pressed; }
+.institution-phone-icon { width: 24px; height: 24px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23D95800' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M7 3H4a1 1 0 0 0-1 1c0 9.4 7.6 17 17 17a1 1 0 0 0 1-1v-3l-5-2-3 3-7-7 3-3Z'/%3E%3C/svg%3E") center/contain no-repeat; }
+.institution-phone[disabled] .institution-phone-icon { filter: grayscale(1); }
+.institution-card__actions button::after { border: 0; }
+.institution-risk { display: block; margin-top: 8px; padding: 8px 10px; border-left: 2px solid @color-control-border; background: @ws-background; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.65; overflow-wrap: anywhere; }
+.institution-fact-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.institution-fact-tag { padding: 2px 8px; border-radius: @directory-tag-radius; background: @directory-orange-soft; color: @directory-ink; font-size: var(--browse-body-size, 16px); line-height: 1.5; }
+.institution-group-heading { display: block; margin-bottom: 12px; color: @ws-accent; font-size: var(--browse-body-size, 16px); }
+.directory-search-empty, .directory-state { padding: 24px 0; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.75; }
+.directory-search-empty > text, .directory-state > text { display: block; }
+.directory-empty-title { margin-bottom: 8px; color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; }
+.directory-search-empty .browse-button { margin-top: 16px; }
+.action-error { margin-top: 12px; color: @color-error; font-size: var(--browse-body-size, 16px); line-height: 1.65; }
+.institution-list-shell { padding-top: 16px; }
+.institution-list-head { padding: 0; }
+.page-title { color: @ws-ink; font-size: var(--browse-hero-size, 26px); line-height: 1.45; }
+.page-description, .mock-disclosure { display: block; margin-top: 12px; color: @ws-secondary; font-size: var(--browse-body-size, 16px); line-height: 1.7; }
+.directory-state__title { color: @ws-ink; font-size: var(--browse-title-size, 20px); font-weight: 600; }
+.directory-state .primary-action, .directory-state .secondary-action { .browse-button-layout(); margin-top: 12px; background: @ws-surface; color: @ws-accent; }
+.directory-state .primary-action { background: @ws-accent; color: #fff; }

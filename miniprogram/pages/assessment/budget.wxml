@@ -1,6 +1,6 @@
 <navigation-bar warmSwiss="{{true}}" title="预算与入住计划" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/preference" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
 <page-container extraClass="assessment-page">
-  <view class="page-shell">
+  <view class="page-shell assessment-readable" style="{{fontStyle}}">
     <progress-header warmSwiss="{{true}}" current="6" total="6" label="养老需求评估"></progress-header>
     <text class="assessment-intro">了解家庭接受的费用范围与入住计划。这些信息用于匹配与沟通参考，不代表机构报价。</text>
 

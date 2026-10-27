@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:b1-2-6-story": "node scripts/check-b1-2-6-story.mjs",
+    "check:visit-evaluation-runtime": "node scripts/check-visit-evaluation-runtime.mjs",
+    "check:wechat-js-compat:demo": "node scripts/check-wechat-js-compat.mjs --demo --artifact-dir dist/demo/miniprogram",
+    "check:b1-2-5-continuity": "node scripts/check-b1-2-5-continuity.mjs",
     "check:showcase-native-vr-map": "node scripts/check-showcase-native-vr-map.mjs",
     "check:assessment-history-presentation": "node scripts/check-assessment-history-presentation-runtime.mjs",
     "check:completed-assessment-history-provider": "node scripts/check-completed-assessment-history-provider-runtime.mjs",
@@ -14,7 +18,6 @@
     "check:history-cold-start-e2e": "node scripts/check-history-cold-start-e2e.mjs",
     "check:completed-assessment-recommendation-runtime": "node scripts/check-completed-assessment-recommendation-runtime.mjs",
     "check:completed-assessment-recommendation-e2e": "node scripts/check-completed-assessment-user-loop-e2e.mjs --recommendation",
-    "check": "node scripts/check-current-agent-routing.mjs",
     "check:assessment-intro-nav-p0": "node scripts/check-assessment-intro-nav-p0.mjs",
     "check:navigation-home-dedup-p0": "node scripts/check-navigation-home-dedup-p0.mjs",
     "check:dqa-001-root-back-runtime": "node scripts/check-dqa-001-root-back-runtime.mjs",
@@ -62,17 +65,34 @@
     "check:mine-appointment-entry-runtime": "node scripts/check-mine-appointment-entry-runtime.mjs",
     "check:ai-b6-runtime": "node scripts/check-ai-b6-runtime.mjs",
     "check:ai-b7-runtime": "node scripts/check-ai-b7-runtime.mjs",
+    "check:run-mode-package-size": "node scripts/check-run-mode-package-size.mjs",
     "build:production": "node scripts/build-run-mode.mjs production",
     "build:demo": "node scripts/build-run-mode.mjs demo",
     "check:run-mode-convergence": "node scripts/check-run-mode-convergence.mjs",
     "check:institution-vr-runtime": "node scripts/check-institution-vr-runtime.mjs",
-    "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs"
+    "check:real-institution-provider": "node scripts/check-real-institution-provider.mjs",
+    "check:production-directory-data": "node scripts/check-production-directory-data.mjs",
+    "check:v1-7-homepage": "node scripts/check-v1-7-homepage.mjs",
+    "check:v1-9-assessment-recommendation": "node scripts/check-v1-9-assessment-recommendation.mjs",
+    "check:profile-clarification-guidance": "node scripts/check-profile-clarification-guidance.mjs",
+    "check:capability-evidence": "node scripts/check-capability-evidence.mjs",
+    "check:capability-evidence-runtime": "node scripts/check-capability-evidence.mjs --with-build",
+    "check:v2-1-b1-ui": "node scripts/check-v2-1-b1-ui.mjs",
+    "check:v2-1-b1-1-visual": "node scripts/check-v2-1-b1-1-visual.mjs",
+    "check:v2-1-b1-2-home": "node scripts/check-v2-1-b1-2-home.mjs",
+    "check:v2-1-b1-2-1-visual": "node scripts/check-v2-1-b1-2-1-visual.mjs",
+    "check:v2-1-b1-2-3-cards": "node scripts/check-v2-1-b1-2-3-cards.mjs",
+    "check:v2-1-b1-2-4-card-actions": "node scripts/check-v2-1-b1-2-4-card-actions.mjs",
+    "check:c1:domain": "node scripts/check-initial-reference-v1-runtime.mjs",
+    "check:c1:composition": "node scripts/check-reference-composition-v1-runtime.mjs",
+    "check:c1:page": "node scripts/check-c1-result-page-runtime.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "",
-  "dependencies": {},
   "devDependencies": {
-    "miniprogram-api-typings": "^2.8.3-1"
+    "miniprogram-api-typings": "^2.8.3-1",
+    "terser": "5.44.1",
+    "typescript": "4.1.2"
   }
 }

@@ -57,6 +57,9 @@
 .is-warm-swiss .multi-choice__item.is-selected { border-color: @ws-accent; background: @ws-accent-soft; color: @ws-ink; }
 .is-warm-swiss .multi-choice__mark { order: -1; flex-shrink: 0; width: 28rpx; height: 28rpx; margin: 0 @space-2 0 0; border-color: @ws-border; border-radius: 4rpx; }
 .is-warm-swiss .is-selected .multi-choice__mark { border-color: @ws-accent; background: @ws-accent; }
-.is-warm-swiss .multi-choice__label { font-size: @ws-body; }
+.is-warm-swiss .multi-choice__label { min-width: var(--assessment-text-min, auto); font-size: var(--assessment-body-size, @ws-body); }
 .is-warm-swiss .multi-choice__check { font-size: @ws-helper; }
 .is-warm-swiss .multi-choice__item.is-full-width { flex-basis: 100%; min-width: 100%; }
+
+.is-warm-swiss .multi-choice__item { min-width: var(--assessment-option-min, calc(50% - @space-2)); }
+.is-warm-swiss .multi-choice__label { text-wrap: var(--assessment-text-wrap, wrap); overflow-wrap: var(--assessment-overflow-wrap, normal); }

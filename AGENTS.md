@@ -1,33 +1,64 @@
-# 武汉养老机构精准匹配小程序 — 开发约定
+# 武汉养老小程序：个人开发协作约定
 
-`DEVELOPMENT_MODE = SOLO_FAST_ITERATION`
-`PRIORITY = WORKING_BUSINESS_FEATURES`
+帮助 K 尽快完成可用功能，并让 K 看懂进度。默认中文，先说结果，再给必要的技术依据。当前用户要求决定任务范围，已明确的授权持续有效。
 
-## 日常开发
+## 1. 从一个入口按需阅读
 
-- 需求明确时，由当前主 Codex 阅读相关代码并直接实现、验证；简单任务尽量一轮完成。仅重大业务决策、危险操作或不明确的核心需求需要 Owner 决定，独立工作继续。
-- 默认单 Agent。复杂跨域或委派能明显节约时间时才使用专项 Agent；不强制先委派再深读，不默认独立 QA 或全套 Agent。实际委派时划清文件范围，避免重复阅读和并发修改同一文件。
-- 允许合并页面、简化导航、重构组件、调整信息架构、复用逻辑及删除确认无引用的开发辅助代码。阶段关闭和历史 UI 冻结不限制新的已授权实现；数据迁移、公开 API、不兼容字段变化须先评估。
-- 使用 Git 保留可回退状态；提交按当前授权和工程约定执行，不擅自 push、改写历史、上传体验版、提审或发布。保留既有未提交改动。
+- 新任务先看根 `README.md` 的当前进度和导航；本次上下文已有且未变化时不用重读。然后直接读本次相关代码与适用规则，不预读整个 docs。
+- 查阶段成果才读 `docs/phases/README.md`，追溯旧决定才读 `docs/archive/README.md`；两份索引都不是每轮必读。先定位一行，再打开对应报告的相关段落，不递归加载链接、截图、日志或批量 JSON。
+- 用具体模块、关键词和路径搜索。普通样式修改不通读 PRD、全部 Contract 和全部 Skill。只有版本或领域不明确时再用契约索引。
+- 旧报告的“当前、下一步、未实现、等批准”、旧目录名和 PASS 只说明当时。结合当前用户要求、源码、适用规则与后续证据判断；不重启已完成阶段，不把历史材料缺失变成无关任务的阻碍。
+- 根 README 是唯一日常进度入口；其他状态页只跳转或描述自己的阶段。不并行维护内容重复的 Agent.md、AGENTS.md 和多份当前状态。移动文件不会清空已读入会话的内容。
 
-## 按需查阅与业务底线
+## 2. 直接完成，减少流程
 
-- 当前产品入口：[docs/product/README.md](docs/product/README.md)。业务语义以适用版本 Frozen Contract / Ruleset 为准；实现可修改，真正改变契约时说明最小影响并由 Owner 决定，走显式 successor/version/migration，不改写旧 Frozen 语义。
-- `docs/architecture/CONTRACT_INDEX.md` 仅作 fallback router，跨域、版本或直接 Contract 不明确时再读；不默认深读全部 Contract。Proposal、历史审计、归档、旧阶段 Handoff 不覆盖当前业务依据，也不构成每轮审批流程。
-- 不伪造机构价格、床位、人员、护理/医疗能力、资质、评价、电话、地址、坐标、VR 或政策事实。Mock / synthetic 必须显式保留开发来源；`unknown / unavailable / unverified / expired / false` 按所属 Contract 保持不同语义。
-- Institution verified facts、公开内容、运营状态、用户反馈/VisitEvaluation 保持权威边界。V1.2 CareProcess、AI、Consultant、Visit/Evaluation、电话/地址/Geo/简介不得改变 Recommendation V2 的 Safety、Eligibility、Exactness、PriorityFitVector、Rank Tuple 或 `NO_EXACT_MATCH`，除非新版本 Contract 明确批准。
-- AI 只解释允许读取的快照/已核验展示数据，不重算、重排或写回推荐及机构核验事实。历史 CompletedAssessment、ElderProfile / Recommendation、Institution revision 不就地升级或覆盖。
-- 保留数据库、持久化、身份和微信平台权限要求；健康、认知、护理及联系方式最小化读取传递，不记录完整健康答案/Profile。AppSecret、密钥和真实凭证不得进入前端、日志或仓库。
-- 正式与独立演示工程保持环境、数据、身份、网络、存储和真实提交隔离；`catalogId` 不冒充 `institutionId`。跨工程任务按授权目标绝对路径读取各自 AGENTS.md，不假定兄弟配置自动继承。
+- 需求明确就阅读、实现、验证、修复并交付；普通改码、文档、配置和可逆重构直接做。多文件任务简述方向后继续，不等计划审批。
+- 主会话默认自己完成；能省时或提高质量才委派，通常最多同时 2 个子任务。不给小任务强制分派、独立 QA、全项目回归、Build/SHA 清单或计划/审计/交接多份报告。
+- 只有尚未明确、会改变核心业务含义、产生线上影响或不可逆损失的问题才请 K 决定；先完成可独立完成的部分，说明具体选项和影响。已授权的下一阶段不再二次请示。
+- 保留已有未提交修改，不 reset/clean 或覆盖无关成果。提交、push、上传、提审、发布和真实业务操作按本次已有授权处理；准确区分本地修改与已上线。
 
-## 可选工具与 UI
+## 3. 一个主项目，副产物留在里面
 
-- 按需使用 `wechat_frontend`（前端）、`backend_domain`（后端/持久化）、`matching_engine`（纯领域规则）、`qa_reviewer`（独立只读审查）。保留现有配置和模型选择，不把模型推荐变成前置审批。
-- 本正式工程 Warm Swiss 视觉实现仍由主会话独占（`UI_IMPLEMENTATION_OWNER = MAIN_SESSION_ONLY`），无需因此启动 QA。`docs/ui/warm-swiss-v1/` PDF 是视觉参考基线，业务 Contract 优先；Owner 已授权的页面和产品调整可以偏离历史 UI 方案，不需恢复旧阶段审批。该 ownership 不扩散到独立演示工程。
-- Skills 按触发加载：`wechat-interaction` 用于 action/validation/navigation/loading/Assessment 交互；`wechat-runtime-compat` 用于 class、`wx.*`、生成 JS、共享事件；`recommendation-v2` 用于推荐 V2 语义/集成。纯文案、纯视觉样式不加载无关 Skill。保留 MCP 与安全设置，不为提速放宽 Sandbox、密钥或发布权限。
+- 收拢后的主目录为 `wuhan-eldercare-match`。本次已迁入最新活动源码；旧活动路径仅作恢复保留，不再作为日常入口。
+- 共享源码在 `miniprogram/`，模式覆盖在 `modes/`，构建在 `dist/demo/` 与 `dist/production/`。不直接改 dist，不复制整份源码作每个阶段的默认开发入口。
+- 不新建与主项目平行的 `wuhan-eldercare-*` 阶段、ready、verify、test 工程。普通开发在主工作区完成；确有并行工作树需求时说明具体理由，使用主目录内的隔离位置，不沿用旧交接文档的兄弟目录指令。
+- 截图、日志、页面抓取及生成的临时测试项目放 `output/<任务名>/`；可随时重建的短期文件放 `tmp/`。系统临时目录中会自动清理的短命测试夹具可沿用，不把它们留下成为项目副本。持久阶段总结放 `docs/phases/`。
+- 调用旧生成器前确认输出位置；仍默认生成兄弟项目的入口应先修正或退役。一次性目录收拢按迁移说明处理 Git 关系和独有成果，不把迁移检查变成每次开发的关卡。
 
-## 验证与交付
+## 4. 代码保持直接
 
-- 验证按请求行为、改动文件、受影响 Contract 和真实回归面选择，脚本以 `package.json` 为准。小 UI 做编译和直接相关检查；搜索/数据/导航做交互回归及必要真机测试；身份/支付/隐私/持久化/线上发布提高强度；纯配置/文档做语法和引用检查。
-- 相关检查通过后不无理由扩大；不默认全项目测试、多 Agent 交叉审计、大型 Build/SHA 清单、阶段归档或多份报告。保留业务安全 Gate；区分自动化、DevTools、ADB 与人工真机证据，未取得的如实说明。
-- 每轮简报 `STATUS / CHANGES / USER_VISIBLE_RESULT / TESTS / RISKS / NEXT`。`DOC_IMPACT = NONE | CURRENT_DOC_UPDATE_REQUIRED | NEW_CONTRACT_REQUIRED | AUDIT_ONLY`；仅长期结构变化更新对应 CURRENT 文档，真正契约变化走新版本，普通小改不新增治理报告。
+1. **连贯逻辑优先放同一函数。** 真正复用、需要组合、隔离复杂外部边界，或独立业务概念能明显改善阅读时再拆分；不预设未来抽象，也不把无关职责堆成巨型函数。
+2. **未知输入在所属边界校验一次，向内传已确认的类型。** 网络、微信 API、存储、JSON、路由参数与外部 Provider 是有效边界。内部已有有效 schema/构造保证时，不逐层重复 typeof 和属性检查；TypeScript 声明或 as 断言不算运行时保证。重新读取外部数据、跨版本输入、身份与关联检查各有自己的责任，不能当重复校验删掉。
+3. **不预先抽取只用一次的 helper。** 短而清楚的逻辑留在调用处；实际复用、复杂边界或一个清楚的独立业务名字能降低理解成本时再提取。不为风格机械删除已有好函数。
+4. **复杂化应对应具体问题。** 对当前需求之外、极低可能性的竞态或安全猜测，先说明怎样失败、现有证据/可能性及复杂度成本，再让 K 决定是否扩大范围；不编造概率。明确的身份隔离、重复提交和数据完整性问题在任务范围内直接修复，不逐项请示。
+5. **正常分支少用 try/catch。** 未填字段、无候选、取消等预期结果用现有返回类型或状态表达。网络、微信、存储和 JSON 等确实可能失败时，在负责恢复或解释错误的边界捕获；保留释放锁/loading/资源所需的 finally 或完成回调。不逐层兜底，不吞异常后伪装成“没有机构”或“操作成功”。
+
+这些规则用于本次相关改动和新增代码，不发起全仓去 helper、去校验或去 try/catch 改造。
+
+## 5. 保留真实业务边界
+
+- 机构价格、能力、床位、资质、坐标、VR 等必须有来源；Demo 明确虚构，缺资料保持未知。保留适用规则中的 unknown / unavailable / unverified / expired / false 区别。
+- 现有 V2 推荐和 C1 独立通道按适用版本工作；不因 UI 调整暗改问卷字段、稳定 ID、排序、关联或旧快照。AI 不重排确定性推荐，不写回核验事实。业务语义改变简述影响并沿用版本机制，不补形式化审批材料。
+- 正式与 Demo 保持数据、身份、网络、存储和提交隔离。模拟预约、内存记录和截图不能证明真实服务、正式保存或手机通过。
+- 主根保留的旧 server 只是历史实现参考，当前前端尚未接通正式历史服务。C2 正式历史须核对实际身份、接口与持久化能力，不把 test-only 或 Mock 当成生产能力。
+- 保留身份、必要幂等性、隐私与数据一致性；不以放宽沙盒、暴露密钥或关闭真实业务校验换取提速。
+
+- 正式工程 Warm Swiss 视觉实现仍由主会话负责（MAIN_SESSION_ONLY）；该限制不扩散到独立演示工程。
+- 核验机构事实、公开内容、运营状态与 VisitEvaluation 保持权威边界；catalogId 不冒充 institutionId。V1.2 模块不改变 V2 Safety、Eligibility、Exactness、PriorityFitVector、Rank Tuple 或 NO_EXACT_MATCH。历史 CompletedAssessment、ElderProfile、Recommendation 和 Institution revision 不就地升级覆盖。健康、护理、认知与联系方式最小化读取，不记录完整答案或 Profile，凭证不进入前端、日志和仓库。
+
+## 6. 模型、Skills 与工具
+
+- 日常实现用 Sol 6.1 medium；复杂领域按需 high，检索可用 Luna medium。角色配置是可选分工，不是必经流水线。
+- **需要实际 GUI 操作的任务默认委派给 `computer_operator`（Terra 6.1 medium）**，如微信开发者工具操作、页面复现、截图与视觉复核。已有可靠 CLI/API 可直接完成的步骤继续用它，不强制改成鼠标操作。
+- 同一窗口/浏览器/开发者工具实例同时只允许一个操作者；主会话可并行读代码。子 Agent 仅能用父会话实际提供的工具和权限，TOML 不能凭空增加桌面控制。
+- 现有 wechat-interaction、wechat-runtime-compat、recommendation-v2 按触发读取；不要每任务加载全部。缺 Skill 或工具时说明影响，按任务地图直接规则入口继续可完成部分，不擅自安装个人 Skill。
+- 保留当前 TypeScript/Less 与微信编译链；涉及 class、生成 JS、导航/提交事件时核对实际运行兼容、单一事件通道和失败恢复。
+
+## 7. 验证与中文交付
+
+- 检查以当前 package.json 和脚本为准。文档/配置查语法与链接；小 UI 查相关页面和必要编译；交互/数据查变更链路；推荐、身份、持久化补对应业务回归。只为具体风险扩大，够用就收尾。
+- 不为可逆小改写只重复实现的测试，不默认重跑历史阶段 Gate；缺设备或服务时说明未验证范围，已能完成的本地工作继续。
+- 交付用中文说清：**做成了什么、现在能做什么、还缺什么/验证到哪、下一步**。阶段编号首次出现加中文解释，不用状态码或文件清单代替结论，不编造完成百分比。
+- 代码已写、检查通过、开发者工具可见、手机确认、上传和正式发布分别按实际证据说明；历史报告记载与本轮重测分开。这些是证据说明，不是每个小改都必须走的流程。
+- 只有可独立交接、值得长期复用的成果才留一份 `docs/phases/<阶段或功能>/SUMMARY.md`，说明成果、当前能力、缺口、验证、下一步与相关文件。小修改在回复交付即可。
+- 写总结的同次更新 `docs/phases/README.md` 一行；整体能力或下一步改变时更新根 README 的短摘要。必要原始证据链接到 output 中具体文件；不自动删除。索引维护不新增审批或注册流程。
