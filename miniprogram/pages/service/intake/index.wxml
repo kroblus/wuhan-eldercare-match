@@ -1,0 +1,46 @@
+<page-meta page-style="{{browseFontStyle}}" />
+<navigation-bar warmSwiss="{{true}}" title="咨询与带看意向" back="{{true}}" />
+<page-container>
+  <view class="p1-intro"><text class="p1-eyebrow">快康养 · 免费信息对接</text><text class="p1-title">先了解，再作安排</text><text>浏览不需要填写问卷。平台咨询与对接免费，机构入住仍按机构收费。</text></view>
+  <view class="p1-card">
+    <text class="p1-heading">{{institution.name}}</text>
+    <view class="p1-tags"><text wx:for="{{institution.tags}}" wx:key="*this">{{item}}</text></view>
+    <text class="p1-note">{{institution.tagNote}}</text><text class="p1-note">性质：{{institution.nature}}</text><text class="p1-note">地址：{{institution.address}}</text>
+    <text class="p1-heading">2026 年公示价 · 双人间</text><text class="p1-price">3600—7200 元/月</text>
+    <view wx:for="{{institution.prices}}" wx:key="level" class="p1-price-row"><view><text>{{item.level}}</text><text class="p1-price-total">{{item.total}} 元/月</text></view><text class="p1-note">床位 {{item.bed}} ＋ 护理 {{item.care}} ＋ 伙食 {{item.food}}</text></view>
+    <text class="p1-note">{{institution.otherFees}}</text><text class="p1-note">{{institution.priceNote}}</text><text class="p1-source">来源：{{institution.source}}</text><text class="p1-source">{{institution.historyNote}}</text>
+    <text class="p1-heading">平台咨询</text><text class="p1-note">由平台顾问协调机构与家属，不是机构官方电话。机构官方电话待补充。</text>
+    <button wx:if="{{config.platformContact.phone && config.datasetMode === 'PRODUCTION'}}" bindtap="callPlatform" disabled="{{calling}}">拨打平台电话 {{config.platformContact.phone}}</button>
+    <text wx:else class="p1-note">平台公开号码暂未开放，不能拨号。</text>
+  </view>
+  <view class="p1-card">
+    <text class="p1-heading">主动提出服务意向</text>
+    <text wx:if="{{loading}}" role="status">正在获取服务状态…</text>
+    <text wx:if="{{configError}}" class="p1-error" role="alert">{{configError}}</text>
+    <text wx:if="{{!loading && (!config || !config.enabled || !config.notice)}}" class="p1-notice">真实申请尚未开放。联系号码、获批告知与服务环境就绪后才能受理；当前浏览不会上传资料。Demo 不连接真实服务。</text>
+    <button bindtap="loadConfig" disabled="{{loading || busy}}">重新获取服务状态</button>
+    <block wx:if="{{config.enabled && config.notice}}">
+      <text wx:if="{{config.datasetMode === 'SYNTHETIC_TEST_ONLY'}}" class="p1-notice">合成研发环境：仅使用虚构称呼和测试号码，不输入真实个人资料；不会联系机构。</text>
+      <text class="p1-note">仅为本次联系收集以下资料，不读取旧问卷或健康档案。意向时间可以重叠，不代表已预约。</text>
+      <label class="p1-field"><text>服务类型</text><picker range="{{kinds}}" value="{{kindIndex}}" data-field="kindIndex" bindchange="choose" disabled="{{busy || pending}}"><view>{{kinds[kindIndex]}} ▾</view></picker></label>
+      <label class="p1-field"><text>目标机构（可以未定）</text><picker range="{{institutions}}" value="{{institutionIndex}}" data-field="institutionIndex" bindchange="choose" disabled="{{busy || pending}}"><view>{{institutions[institutionIndex]}} ▾</view></picker></label>
+      <label class="p1-field"><text>联系人称呼</text><input value="{{contactName}}" data-field="contactName" bindinput="editText" maxlength="40" disabled="{{busy || pending}}" placeholder="用于本次联系" /></label>
+      <label class="p1-field"><text>联系手机</text><input type="number" value="{{contactPhone}}" data-field="contactPhone" bindinput="editText" maxlength="11" disabled="{{busy || pending}}" placeholder="接收平台顾问联系" /></label>
+      <label class="p1-field"><text>与服务对象的关系</text><picker range="{{relationships}}" value="{{relationshipIndex}}" data-field="relationshipIndex" bindchange="choose" disabled="{{busy || pending}}"><view>{{relationships[relationshipIndex]}} ▾</view></picker></label>
+      <label class="p1-field"><text>服务场景（用于联系准备）</text><picker range="{{scenarios}}" value="{{scenarioIndex}}" data-field="scenarioIndex" bindchange="choose" disabled="{{busy || pending}}"><view>{{scenarios[scenarioIndex]}} ▾</view></picker></label>
+      <label class="p1-field"><text>意向时间（选填，可写多个备选）</text><textarea value="{{preferredWindow}}" data-field="preferredWindow" bindinput="editText" maxlength="120" auto-height disabled="{{busy || pending}}" placeholder="例如：周六上午或下周二下午，待协商" /></label>
+      <label wx:if="{{kindIndex === 1}}" class="p1-field"><text>参加人数（安排出行使用）</text><input type="number" value="{{partySize}}" data-field="partySize" bindinput="editText" maxlength="2" disabled="{{busy || pending}}" /></label>
+      <label class="p1-field"><text>出行协助说明（选填，最多 200 字）</text><textarea value="{{assistanceNote}}" data-field="assistanceNote" bindinput="editText" maxlength="200" auto-height disabled="{{busy || pending}}" placeholder="只填写需要协助的事项，请勿填写完整病史、身份证等" /></label>
+      <text class="p1-notice">{{config.notice.text}}</text>
+      <checkbox-group bindchange="consentChanged"><label class="p1-consent"><checkbox value="accepted" checked="{{consent}}" disabled="{{busy || pending}}" />我已阅读本次服务告知，确认有权提供联系资料并申请服务。</label></checkbox-group>
+      <text wx:if="{{pending}}" class="p1-notice">正在保留上次申请原文与编号。重试会发送同一申请，不读取当前表单。</text>
+      <button class="p1-primary" bindtap="submit" loading="{{busy}}" disabled="{{busy || (!consent && !pending)}}">{{pending ? '使用原申请重试' : '提交服务意向'}}</button>
+    </block>
+    <text wx:if="{{error}}" class="p1-error" role="alert">{{error}}</text><text wx:if="{{feedback}}" class="p1-notice" role="status">{{feedback}}</text>
+  </view>
+  <view class="p1-card"><text class="p1-heading">本人申请进度</text><text class="p1-note">主动查询时才验证微信身份；仅显示本人最近 100 条申请。带看意向尚无确认时段。</text>
+    <button bindtap="loadMine" disabled="{{busy || loading || !config}}">查询 / 刷新本人进度</button>
+    <text wx:if="{{listError}}" class="p1-error" role="alert">{{listError}}</text><text wx:if="{{listLoaded && !items.length}}">当前没有本人申请。</text>
+    <view wx:for="{{items}}" wx:key="id" class="p1-request"><text class="p1-heading">{{item.kindLabel}} · {{item.statusLabel}}</text><text>{{item.institutionName || '请顾问协助推荐'}}</text><text class="p1-note">意向：{{item.preferredWindow || '待协商'}} · 实际安排尚未确认</text><text class="p1-source">提交时间：{{item.createdLabel}}</text><text wx:if="{{item.datasetMode === 'SYNTHETIC_TEST_ONLY'}}" class="p1-source">合成测试申请</text><button wx:if="{{item.status !== 'CANCELLED'}}" data-id="{{item.id}}" bindtap="cancelRequest" disabled="{{busy}}">取消这次申请</button></view>
+  </view>
+</page-container>

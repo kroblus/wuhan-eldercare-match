@@ -57,6 +57,11 @@
     <build>
         <resources>
             <resource>
+                <directory>../admin-web</directory>
+                <targetPath>static/p1-admin</targetPath>
+                <includes><include>*.html</include><include>*.css</include><include>*.js</include></includes>
+            </resource>
+            <resource>
                 <directory>../miniprogram/types</directory>
                 <targetPath>assessment-validator/types</targetPath>
                 <includes><include>assessment.ts</include><include>assessment-v2.ts</include></includes>

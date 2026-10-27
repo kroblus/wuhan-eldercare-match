@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/service/intake/index",
     "pages/assessment/intro",
     "pages/assessment/basic",
     "pages/assessment/health",

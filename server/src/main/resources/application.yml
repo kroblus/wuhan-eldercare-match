@@ -28,3 +28,14 @@ server:
   error:
     include-message: never
     include-stacktrace: never
+
+p1:
+  intake:
+    enabled: ${P1_INTAKE_ENABLED:false}
+    notice-version: ${P1_NOTICE_VERSION:}
+    notice-text: ${P1_NOTICE_TEXT:}
+    notice-approval-ref: ${P1_NOTICE_APPROVAL_REF:}
+  platform-phone: ${P1_PLATFORM_PHONE:}
+  admin:
+    username: ${P1_ADMIN_USERNAME:}
+    password-hash: ${P1_ADMIN_PASSWORD_HASH:}

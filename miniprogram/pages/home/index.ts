@@ -137,6 +137,11 @@ Component({
   },
 
   methods: {
+    openP1Service() {
+      this.setData({ readingActionError: '' })
+      navigateToWithGuard(this, 'home.p1Service', '/pages/service/intake/index', undefined,
+        () => this.setData({ readingActionError: '暂时无法打开服务意向页，请重试。' }))
+    },
     syncBrowseFont() {
       const browseFontStyle = readBrowseFontStyle()
       if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })

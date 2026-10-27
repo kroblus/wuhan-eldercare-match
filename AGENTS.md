@@ -46,6 +46,14 @@
 - 正式工程 Warm Swiss 视觉实现仍由主会话负责（MAIN_SESSION_ONLY）；该限制不扩散到独立演示工程。
 - 核验机构事实、公开内容、运营状态与 VisitEvaluation 保持权威边界；catalogId 不冒充 institutionId。V1.2 模块不改变 V2 Safety、Eligibility、Exactness、PriorityFitVector、Rank Tuple 或 NO_EXACT_MATCH。历史 CompletedAssessment、ElderProfile、Recommendation 和 Institution revision 不就地升级覆盖。健康、护理、认知与联系方式最小化读取，不记录完整答案或 Profile，凭证不进入前端、日志和仓库。
 
+## P1 R1：免费对接、接单与排期
+
+- P1 软件只做免费信息对接、需求接收、带看排期和获客报表；朋友与机构的签约、年费、佣金及结算在线下，不新建相应模块或扩展框架。
+- 机构性质、地址按真实确认录入，保留确认人/日期；未确认不伪造已核验。平台顾问与机构官方电话分开；“医养结合”展示标签不能代替医疗资格、护理能力及接收核实。
+- 新输入说明服务或报表用途，使用独立版本，不补造旧问卷答案或改变旧结果。带看意向不等于确认时间；后续排期检查同负责人/家庭冲突及交通缓冲，用事务保证一致性，不建通用调度引擎。
+- 对外报表默认聚合、不可识别，内部明细独立；隐藏 Excel 页也不能外泄联系人或病史。统计分清 Demo、线下来源、去重需求、人次及真实到访。
+- 沿用主线程与按需后端/Terra协作、已验证模型和现有工具。定向验证后按 V5 提交推送与短回执，不另建同步服务、审批或报表 Agent。
+
 ## 6. 模型、Skills 与工具
 
 - 日常实现用 Sol 6.1 medium；复杂领域按需 high，检索可用 Luna medium。角色配置是可选分工，不是必经流水线。

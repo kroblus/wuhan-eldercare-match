@@ -19,6 +19,7 @@
     <button class="home-service home-service--assessment" bindtap="startAssessment"><view class="home-service__top"><text class="home-service__icon" aria-hidden="true">▤</text><text class="home-service__action" aria-hidden="true">→</text></view><text class="home-service__title">了解照护需求</text><text class="home-service__summary">六步整理家庭需求</text></button>
   </view>
   <!-- demo-home-entry -->
+  <view class="home-boundary"><text class="home-section-title">免费咨询与带看意向</text><text class="home-description">柠月颐养中心 · 医养结合 / 术后康养 / 短期托养（服务方向，具体接收条件待核实）</text><text class="home-description">2026 年公示价 · 双人间 · 参考总月费 3600—7200 元/月</text><button class="browse-button" bindtap="openP1Service">查看公示明细与平台咨询 →</button></view>
   <view id="home-search" class="home-search" aria-label="查找武汉养老机构">
     <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters, searchFocus: searchFocus}}" />
   </view>

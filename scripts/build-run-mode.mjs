@@ -53,7 +53,8 @@ export { readModeCatalog } from '../${mode === 'demo' ? 'demo' : 'production'}/c
 export const mockInstitutionCatalogProvider = { loadCatalog: async (): Promise<InstitutionCatalogPayload> => ({datasetVersion:'legacy-provider-not-configured',datasetMode:'PRODUCTION',records:[]}) }
 `))
 const catalogService = source.get('services/institution-catalog-v1-2-1.ts').toString()
-source.set('services/institution-catalog-v1-2-1.ts', Buffer.from(catalogService.replace(/import \{ MOCK_INSTITUTION_CATALOG_V121 \}/, 'import { readModeCatalog }').replace('cloneValue(MOCK_INSTITUTION_CATALOG_V121)', 'cloneValue(readModeCatalog())')))
+assert.match(catalogService, /import \{ MOCK_INSTITUTION_CATALOG_V121 \}/, 'Catalog provider import changed; review mode injection')
+source.set('services/institution-catalog-v1-2-1.ts', Buffer.from(catalogService.replace(/import \{ MOCK_INSTITUTION_CATALOG_V121 \}/, 'import { readModeCatalog }').replaceAll('MOCK_INSTITUTION_CATALOG_V121', 'readModeCatalog()')))
 source.set('mock/institution-public-content.mock.ts', Buffer.from("export const MOCK_INSTITUTION_PUBLIC_CONTENT_CATALOG = {records:[],currentHeads:[]}\n"))
 source.set('mock/institutions.mock.ts', Buffer.from("import type { Institution } from '../types/domain'\nexport const MOCK_INSTITUTIONS: Institution[] = []\n"))
 source.set('pages/showcase/development.ts', Buffer.from(`export function isDevelopmentBuild(): boolean { return ${mode === 'demo'} }\n`))

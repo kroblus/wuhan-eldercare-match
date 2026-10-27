@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:p1": "node scripts/check-p1-runtime.mjs",
     "check:b1-2-6-story": "node scripts/check-b1-2-6-story.mjs",
     "check:visit-evaluation-runtime": "node scripts/check-visit-evaluation-runtime.mjs",
     "check:wechat-js-compat:demo": "node scripts/check-wechat-js-compat.mjs --demo --artifact-dir dist/demo/miniprogram",

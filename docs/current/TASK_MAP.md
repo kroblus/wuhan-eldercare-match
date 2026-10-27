@@ -6,6 +6,7 @@
 
 | 你想做什么 | 先看哪里 | 需要时做什么检查 |
 | --- | --- | --- |
+| P1 免费咨询/带看意向与后台 | `docs/product/p1/PRD_P1_DRAFT.md`；`pages/service/intake/`、`services/p1-service-client.ts`、`admin-web/`、`server/.../p1/` | `check:p1`、双模式构建；P1 Java/MySQL 定向测试及新 GUI。真实服务与合成测试分开，不改 C1/C2 |
 | 改单页文字、间距、颜色、卡片 | 目标 `miniprogram/pages/**`；Demo 专属内容再查 `modes/demo/**` | 看受影响页面；布局改动看窄屏，字号改动再看 150%；必要时构建相应模式，不默认写新测试 |
 | 修改 C1 初步参考页面 | `pages/recommendation/result.*`、`initial-reference-view-model.ts`；`services/recommendation-result-application.ts`；`runtime/recommendation-mode.ts`；独立 C1 契约 | `check:c1:page`、两个 C1 检查与结果页相关交互；运行模式接线变更再做双构建/隔离，页面变化看开发者工具及相关手机操作 |
 | 改 C1 计算逻辑 | `types/initial-reference-v1.ts`；`domain/recommendation/initial-reference-v1/` | `check:c1:domain`、`check:c1:composition`；影响旧边界才加相应旧回归 |
