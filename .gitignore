@@ -50,6 +50,7 @@ Desktop.ini
 .codex/*
 !.codex/config.toml
 !.codex/README.md
+!.codex/delivery-targets.json
 !.codex/agents/
 .codex/agents/*
 !.codex/agents/*.toml

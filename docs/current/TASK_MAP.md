@@ -17,6 +17,7 @@
 | 做正式历史保存 | `server/.../history/C2History*`、`miniprogram/types/formal-assessment-history.ts`、[C2-A 接入说明](../phases/v1-3-c2-a/SUMMARY.md) | C2 定向 Java/MySQL 与所改页面链路；独立正式 API 默认关写，旧 TEST_ONLY 不提升为正式 |
 | 在微信工具/浏览器复现、操作或截图 | 委派 `computer_operator`（Terra）；给定实际工程、模式、页面与复现目标 | 同一界面一个操作者；证据留在 `output/<任务名>/`，只看受影响流程；CLI 可直接完成的继续用 CLI |
 | 查阶段成果或旧决定 | [阶段索引](../phases/README.md) 或 [历史导航](../archive/README.md) 中相关一行 | 只打开需要的报告/段落；不运行历史全部检查 |
+| 完成任务后同步 GitHub / 短回执 | [交付流程](../development/DELIVERY_WORKFLOW.md)、[定位与接入状态](../../.codex/delivery-targets.json) | 核实当前 upstream、相关验证及实际远程 SHA；Drive 受限通道未接通时只留本地 outbox，不读取 Drive |
 | 只改文档或 AI 配置 | 本次变更文件及直接引用 | TOML/JSON 语法、路径和指令一致性；不需要微信构建、手机验收或全项目业务测试 |
 
 表中未写完整路径的源码均相对于 `miniprogram/`。实际可用命令以当前 `package.json` 为准。

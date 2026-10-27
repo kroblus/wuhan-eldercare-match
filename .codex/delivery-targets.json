@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "repository": "kroblus/wuhan-eldercare-match",
+  "localRoot": "C:/Users/16562/WeChatProjects/wuhan-eldercare-match",
+  "remote": "origin",
+  "branchPolicy": "verified_current_upstream_no_forced_switch",
+  "driveInboxFolderId": "1d-DE2eNyq78DnbZspC_UpvExUHke1aFR",
+  "driveMode": "CREATE_RECEIPT_ONLY",
+  "timezone": "Asia/Shanghai",
+  "receiptBodyMaxCharacters": 300,
+  "localOutbox": "output/sync-outbox",
+  "activationStatus": "PARTIALLY_ACTIVATED",
+  "gitDeliveryStatus": "CONFIGURED",
+  "driveWriteOnlyStatus": "PENDING_SETUP",
+  "driveRestrictionLevel": "BEHAVIOR_ONLY_NOT_TOOL_ENFORCED",
+  "driveSetupBlocker": "No receipt-only tool with a server-fixed inbox is available; generic Drive plugin is not used for delivery."
+}

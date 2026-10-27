@@ -1,6 +1,6 @@
 # 武汉养老机构精准匹配小程序
 
-这是项目的日常进度与资料入口。更新：2026-10-27（北京时间）；已完成本机源码收拢和 V4 工作流合入；历史验收与本轮验证分别记录。
+这是项目的日常进度与资料入口。更新：2026-10-27（北京时间）；已完成本机源码收拢、V4 轻量工作流与 V5 交付同步规则合入；历史验收与本轮验证分别记录。
 
 ## 现在做到哪里
 
@@ -16,6 +16,8 @@
 
 继续 V1.3 时，从 [C2-A 后端与页面接入说明](docs/phases/v1-3-c2-a/SUMMARY.md) 进入 C2-B；旧 TEST_ONLY History 保持隔离。旧 V2 吞咽条款与当前 readiness 实现的既有差异仍保留，见[复验说明](docs/design/V1_3_C1_A_IMPLEMENTATION_REPORT.md)；本次未改 Frozen 或领域规则。当前问卷 V2 为 **32 题、26 必填、6 选填**；部分旧报告的 27/21 不用于回改当前问卷。
 
+V5 交付同步已配置：今后任务完成相关验证后自动 commit/push 已核实的当前工作分支。首次备份按 V4/C1、C2-A、V5 分组；实际推送结果看本地短回执。Drive 受限只写通道仍为 `PENDING_SETUP`，回执暂存 `output/sync-outbox/`；微信上传和生产部署仍需独立授权。详见[交付流程](docs/development/DELIVERY_WORKFLOW.md)。
+
 ## 按任务找资料
 
 | 你要做什么 | 需要时打开 |
@@ -25,6 +27,7 @@
 | 查某一阶段做了什么、测到哪里 | [阶段成果索引](docs/phases/README.md) |
 | 找旧设计、旧工作流程或原始依据 | [历史导航](docs/archive/README.md) |
 | 看模型、Terra 分工和配置生效 | [Codex 配置说明](.codex/README.md) |
+| 开发完成后的提交、推送和短回执 | [交付流程](docs/development/DELIVERY_WORKFLOW.md) · [收件箱定位及接入状态](.codex/delivery-targets.json) |
 | 收拢旧目录与安排副产物 | [单一主目录说明](docs/current/WORKSPACE.md) |
 
 无需依次打开这些链接。Codex 按根 [AGENTS.md](AGENTS.md) 协作，只读取本次任务需要的内容。
@@ -37,7 +40,7 @@
 
 按任务选择 `npm run build:demo`、`npm run build:production` 或相关检查即可；构建后分别从 `dist/demo/` 与 `dist/production/` 打开工程。不要直接改 dist；编译环境与 C1 检查命令见任务地图。
 
-本轮两项 C1-A、[C1 页面运行检查](scripts/check-c1-result-page-runtime.mjs)、旧 V1/V2 推荐页及交互检查、production/demo 原生构建、模式隔离与产物 JS 兼容检查通过。导航总检查仍保留既有 NAV-019／NAV-024 失败；结果页可执行导航用例通过。DevTools 长风险合成夹具证据留在 `output/c1-b/`，与手机验收分开；未提交、上传或发布。目录收拢的恢复材料见[此前工作流记录](docs/phases/2026-10-27-workflow/SUMMARY.md)。
+本轮两项 C1-A、[C1 页面运行检查](scripts/check-c1-result-page-runtime.mjs)、旧 V1/V2 推荐页及交互检查、production/demo 原生构建、模式隔离与产物 JS 兼容检查通过。导航总检查仍保留既有 NAV-019／NAV-024 失败；结果页可执行导航用例通过。DevTools 长风险合成夹具证据留在 `output/c1-b/`，与手机验收分开；当时未提交、上传或发布，后续 Git 备份按上方 V5 交付规则执行。目录收拢的恢复材料见[此前工作流记录](docs/phases/2026-10-27-workflow/SUMMARY.md)。
 
 DevTools 已验证隔离合成参考页：逻辑宽度 320／375／430px、字号 24（默认 16 的 150%）下，首屏、首卡长风险与公开详情按钮正常换行，按钮可滚动到且无遮挡；已实际跳转公开详情。截图在 `output/c1-b/`，仅覆盖合成夹具和首张长卡，不代替手机验收。自动化点击通道返回 `App.CDPEnable unimplemented`，本轮未取得真实 Demo 旧候选页的 GUI 截图；该分支与模式隔离已由运行脚本验证，手机上仍需检查。
 

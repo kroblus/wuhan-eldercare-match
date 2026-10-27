@@ -1221,6 +1221,16 @@
       "owner": "main_session",
       "superseded_by": null,
       "archive_target": null
+    },
+    {
+      "path": "docs/development/DELIVERY_WORKFLOW.md",
+      "doc_id": "development.delivery_workflow.v5",
+      "status": "CURRENT",
+      "kind": "POLICY",
+      "normative": true,
+      "owner": "main_session",
+      "superseded_by": null,
+      "archive_target": null
     }
   ]
 }
