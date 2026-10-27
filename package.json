@@ -85,7 +85,8 @@
     "check:v2-1-b1-2-4-card-actions": "node scripts/check-v2-1-b1-2-4-card-actions.mjs",
     "check:c1:domain": "node scripts/check-initial-reference-v1-runtime.mjs",
     "check:c1:composition": "node scripts/check-reference-composition-v1-runtime.mjs",
-    "check:c1:page": "node scripts/check-c1-result-page-runtime.mjs"
+    "check:c1:page": "node scripts/check-c1-result-page-runtime.mjs",
+    "check:delivery-receipt": "node --test tools/delivery-receipt/check.test.mjs"
   },
   "keywords": [],
   "author": "",

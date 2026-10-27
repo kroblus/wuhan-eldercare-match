@@ -55,6 +55,7 @@ Git 失败：保留提交及本地回执，明确未推送；不伪造远程链�
 
 - Git：origin 已核实为本项目私有仓库；当前分支为 `codex/unified-source-baseline`，upstream 为同名 origin 分支。不切 main。现有 workflow 仅源码检查，push 触发限定 main；仓库无 Webhook、Pages 或既有 deployment，未发现本次分支推送的部署副作用。实际推送状态与完整 SHA 记录在本地回执。
 - 首次备份按 V4/C1、C2-A（Owner 本轮明确授权单独备份）、V5 三组提交。既有业务验证沿用对应记录，本轮仅核对配置与文档，不声称重跑业务验收。原始 GUI 截图/调用日志 `docs/design/*-evidence/`、output 和恢复包保留本地；历史报告中的本地证据链接不代表 GitHub 已包含这些附件。
-- `DRIVE_WRITE_ONLY=PENDING_SETUP`：项目 MCP 只有微信服务，用户 MCP 为 node_repl；当前 Drive 为通用插件，没有只接收短回执、服务端固定收件箱的受限工具。未修改模型/TOML、MCP、Skills 或权限，也未调用 Drive 读取/写入工具。
-- Drive 禁读目前只是行为约束，不是工具级只写权限。所缺的是受限回执工具及其接入：服务端固定 `.codex/delivery-targets.json` 中的收件箱，只允许 create，最好按 receipt_id 幂等；Codex 端仅开放该实际工具，禁止替代读取路径。通用插件的读取/管理能力尚未被工具级移除，不能宣称只写接入完成。
-- 回执保存在 `output/sync-outbox/`；在受限通道接好前不使用通用插件代投，不启动后台任务。该 JSON 是定位与状态数据，AGENTS 是任务收尾约定，二者不会自行执行推送。
+- `DRIVE_WRITE_ONLY=PENDING_SETUP`：V5 受限回执接收器和薄本地调用端已实现，见[一页安装步骤](../../tools/delivery-receipt/README.md)。云端固定目录、鉴权、300 字正文、严格字段、同 ID 摘要及创建前持久化记录；无 Drive 读取/管理入口。本地 Mock 与真实 stdio 测试通过，未授权部署或真实投递。
+- 项目 TOML 已新增仅暴露 `submit_delivery_receipt` 的 MCP，并禁用本项目通用 Drive connector/plugin；保留原模型、微信 MCP、Skills 和权限，不修改 ChatGPT 全局连接。strict startup 配置校验通过，但当前会话仍有 45 个通用 Drive 工具，新增工具尚未热加载。重载后须核对实际工具目录；未完成前不声称工具级禁读已生效。这也不是整台电脑的系统级安全隔离。
+- Owner 还需：Apps Script 首次授权与部署、在本地隐藏输入专用投递凭证、重载并确认工具边界，然后补发原 ID `ac516a92-e859-4729-b6b1-16a4a6b63e2e`。保留原时间/SHA/正文，不重写成新成果；只用创建响应确认，文件落点与内容由 Owner 或 ChatGPT 对话核对。
+- 回执保存在 `output/sync-outbox/`，调用状态在 `.delivery-state/`；UNKNOWN 不等于失败未创建，不自动换 ID 或盲目重建。云端幂等记录不自动清理。接通前不使用通用插件代投，不启动后台任务。该定位 JSON 和 AGENTS 约定不会自行执行推送。

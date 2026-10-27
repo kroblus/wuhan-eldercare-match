@@ -12,6 +12,10 @@
   "activationStatus": "PARTIALLY_ACTIVATED",
   "gitDeliveryStatus": "CONFIGURED",
   "driveWriteOnlyStatus": "PENDING_SETUP",
-  "driveRestrictionLevel": "BEHAVIOR_ONLY_NOT_TOOL_ENFORCED",
-  "driveSetupBlocker": "No receipt-only tool with a server-fixed inbox is available; generic Drive plugin is not used for delivery."
+  "driveRestrictionLevel": "RESTRICTED_CHANNEL_IMPLEMENTED_RUNTIME_VERIFICATION_PENDING",
+  "driveSetupBlocker": "Owner cloud authorization/deployment and local receiver credential are missing. Project-only connector disable is configured, but the current session still exposes generic Drive tools; reload and verify the tool catalog before real delivery.",
+  "receiptTool": "submit_delivery_receipt",
+  "receiptImplementation": "tools/delivery-receipt",
+  "cloudDeliveryStatus": "NOT_DEPLOYED_NOT_SENT",
+  "genericDriveToolExposure": "CURRENT_SESSION_STILL_EXPOSED_RELOAD_REQUIRED"
 }
