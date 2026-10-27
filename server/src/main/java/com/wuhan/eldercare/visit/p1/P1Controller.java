@@ -84,6 +84,19 @@ public final class P1Controller {
             @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,HttpServletRequest request){
         var result=service.operations().resources(cookie,csrf,operationBody(request));result.put("contractVersion",P1Service.CONTRACT);return ok(result);
     }
+    @PostMapping(value="/admin/reports",consumes="application/json")public ResponseEntity<?> report(
+            @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,HttpServletRequest request){
+        return ok(envelope("report",new P1Reports(service).preview(cookie,csrf,operationBody(request))));
+    }
+    @GetMapping("/admin/reports/{id}/xlsx")public ResponseEntity<?> workbook(
+            @CookieValue(name=COOKIE,required=false)String cookie,@RequestHeader(value="X-P1-CSRF",required=false)String csrf,@PathVariable String id){
+        var report=new P1Reports(service).snapshot(cookie,csrf,id);
+        String institution=report.path("institutionId").isNull()?"platform":report.path("institutionId").asText();
+        String generatedDay=java.time.Instant.parse(report.path("generatedAt").asText()).atZone(java.time.ZoneId.of("Asia/Shanghai")).toLocalDate().toString();
+        String filename="p1-"+institution+"-"+report.path("from").asText()+"-"+report.path("to").asText()+"-"+generatedDay+".xlsx";
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL,"no-store, private").header(HttpHeaders.CONTENT_TYPE,"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+filename+"\"").body(P1Workbook.create(report));
+    }
     JsonNode operationBody(HttpServletRequest request){
         try{
             var bytes=request.getInputStream().readNBytes(8193);if(bytes.length>8192)throw new P1Failure(413,"REQUEST_TOO_LARGE");

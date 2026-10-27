@@ -78,3 +78,12 @@ const restored=page(); await tick(); const listing=restored.loadMine(); restored
 const script=fs.readFileSync(path.join(root,'admin-web/app.js'),'utf8')
 assert.ok(!script.includes('innerHTML')); assert.ok(!script.includes('localStorage')); assert.ok(!script.includes('setInterval'))
 console.log('P1: five-grade sums, mode isolation, response identity, C5 recovery, permissions failures, consent, same-ID retry, double submit, unload guard and safe admin rendering PASS')
+const visit={id:'18552c03-fdb2-4db4-a8b2-937079f890c8',status:'CONFIRMED',institutionId:prices.id,institutionName:prices.name,start:'2026-10-27T16:00:00Z',end:'2026-10-27T17:00:00Z',meetingNote:'合成集合说明',actualAt:null}
+assert.equal(clientModule.readP1Item({...item,status:'CONFIRMED',visits:[visit],canCancel:true},mode).visits.length,1)
+assert.throws(()=>clientModule.readP1Item({...item,status:'CONFIRMED',visits:[]},mode))
+assert.throws(()=>clientModule.readP1Item({...item,visits:[{...visit,status:'DRAFT'}]},mode))
+assert.throws(()=>clientModule.readP1Item({...item,status:'VISITED',visits:[{...visit,status:'ARRIVED',actualAt:visit.start}],canCancel:true},mode))
+assert.throws(()=>clientModule.readP1Item({...item,visits:[visit,{...visit}]},mode))
+assert.equal(clientModule.p1BeijingTime('2026-10-27T16:05:00Z'),'2026-10-28 00:05（北京时间）')
+assert.equal(clientModule.p1BeijingTime('2026-12-31T20:00:00Z'),'2027-01-01 04:00（北京时间）')
+console.log('P1 progress: confirmed/draft/outcome boundaries, duplicate visit IDs, cancellation protection and Beijing day/year rollover PASS')

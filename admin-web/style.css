@@ -45,3 +45,6 @@ table { width:100%; border-collapse:collapse; line-height:1.5; } th,td { text-al
 body[data-font-percent='150'] .layout { grid-template-columns:1fr; }
 body[data-font-percent='150'] .filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
 @media(max-width:700px) { body[data-font-percent='150'] .filters { grid-template-columns:1fr; } }
+.table-scroll .wide-table { min-width:44rem; }
+.table-scroll:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+@media(max-width:700px) { .table-scroll:has(.wide-table)::before { content:'左右滑动查看完整表格'; display:block; margin:10px 0; font-size:.85rem; color:#72685b; } }

@@ -61,7 +61,12 @@ export function readP1Item(v: unknown, mode: string): P1Item {
   }))) throw new Error('INVALID_RESPONSE')
   if (v.canCancel !== undefined && typeof v.canCancel !== 'boolean') throw new Error('INVALID_RESPONSE')
   const visits = (v.visits || []) as P1Visit[]
-  if (['CONFIRMED', 'VISITED', 'NO_SHOW'].includes(String(v.status)) && !visits.length) throw new Error('INVALID_RESPONSE')
+  if (new Set(visits.map(visit => visit.id)).size !== visits.length
+    || visits.some(visit => ['ARRIVED', 'NO_SHOW'].includes(visit.status) ? !visit.actualAt : visit.actualAt !== null)
+    || v.status === 'CONFIRMED' && !visits.some(visit => visit.status === 'CONFIRMED')
+    || v.status === 'VISITED' && !visits.some(visit => visit.status === 'ARRIVED')
+    || v.status === 'NO_SHOW' && !visits.some(visit => visit.status === 'NO_SHOW')
+    || v.canCancel === true && (v.status === 'CANCELLED' || visits.some(visit => visit.status === 'ARRIVED'))) throw new Error('INVALID_RESPONSE')
   return { ...v, visits, canCancel: v.canCancel === undefined ? v.status !== 'CANCELLED' && !visits.some(visit => visit.status === 'ARRIVED') : v.canCancel } as unknown as P1Item
 }
 

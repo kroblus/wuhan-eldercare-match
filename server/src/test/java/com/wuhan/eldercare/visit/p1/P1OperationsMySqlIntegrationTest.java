@@ -98,6 +98,21 @@ class P1OperationsMySqlIntegrationTest {
         save(id,action(v,"NO_SHOW",1).put("actualAt",start.plusSeconds(4000).toString()));
         assertEquals("NO_SHOW",s.service.ownDetail(s.alice,id).path("status").asText());
     }
+    @Test void rescheduleAndCancelRaceUseOneRevisionAndKeepEventAndRequestConsistent()throws Exception{
+        String id=request(s.alice);var v=visit("CONFIRM",start,start.plusSeconds(3600));save(id,v);
+        var moved=v.deepCopy().put("operationId",UUID.randomUUID().toString()).put("action","RESCHEDULE").put("expectedRevision",1).put("start",start.plusSeconds(7200).toString()).put("end",start.plusSeconds(10800).toString());
+        var cancelled=action(v,"CANCEL",1);var pool=Executors.newFixedThreadPool(2);var gate=new CountDownLatch(1);var results=new ArrayList<Future<String>>();
+        for(var body:List.of(moved,cancelled))results.add(pool.submit(()->{gate.await();try{save(id,body);return "OK";}catch(P1Failure e){return e.code();}}));
+        gate.countDown();int successes=0;for(var result:results)if(result.get(15,TimeUnit.SECONDS).equals("OK"))successes++;pool.shutdownNow();assertEquals(1,successes);
+        var actual=s.service.adminDetail(login.token(),id);assertEquals(3,actual.path("events").size());assertEquals(2,actual.path("item").path("visits").get(0).path("revision").asInt());
+        String status=actual.path("item").path("visits").get(0).path("status").asText();assertEquals(status.equals("CONFIRMED")?"CONFIRMED":"PENDING_ARRANGEMENT",actual.path("item").path("status").asText());
+    }
+    @Test void retryContactAfterItsDueTimeDoesNotDuplicateOrRejectAlreadyRecordedOperation(){
+        String id=request(s.alice);var body=follow("NO_ANSWER").put("nextContactAt",Instant.now().plusSeconds(60).toString()).put("nextAction","合成回访");
+        s.service.operations().followup(login.token(),login.csrfToken(),id,body);
+        var later=new P1Service(s.database,s.auth,s.mapper,Clock.offset(s.clock,Duration.ofMinutes(2)),s.settings);
+        later.operations().followup(login.token(),login.csrfToken(),id,body);assertEquals(2,s.service.adminDetail(login.token(),id).path("events").size());
+    }
     @Test void cancelRequestAndConfirmRaceCannotResurrect()throws Exception{
         String id=request(s.alice);var v=visit("CONFIRM",start,start.plusSeconds(3600));var pool=Executors.newFixedThreadPool(2);var gate=new CountDownLatch(1);
         var f=pool.submit(()->{gate.await();return s.service.cancel(s.alice,id);});
@@ -114,6 +129,8 @@ class P1OperationsMySqlIntegrationTest {
         // Capacity is explicit on a synthetic site and cleaned after the test.
         var capacity=s.mapper.createObjectNode().put("action","CAPACITY").put("institutionId",P1Operations.SECOND_INSTITUTION).put("capacity",1);
         s.service.operations().resources(login.token(),login.csrfToken(),capacity);
+        String date=start.atZone(ZoneId.of("Asia/Shanghai")).toLocalDate().toString();
+        assertTrue(s.service.operations().calendar(login.token(),date,date).path("capacities").toString().contains("\"capacity\":1"));
         var v=visit("CONFIRM",start,start.plusSeconds(3600)).put("institutionId",P1Operations.SECOND_INSTITUTION);save(a,v);
         fails("INSTITUTION_CAPACITY_CONFLICT",()->save(request(s.bob),visit("CONFIRM",start,start.plusSeconds(3600)).put("staffId","other-"+staff).put("institutionId",P1Operations.SECOND_INSTITUTION)));
         save(a,action(v,"CANCEL",1));s.service.operations().resources(login.token(),login.csrfToken(),capacity.put("capacity",0));

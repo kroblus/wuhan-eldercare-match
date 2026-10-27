@@ -219,6 +219,9 @@ public final class P1Operations {
             }
             var blocks=result.putArray("blocks");try(var s=c.prepareStatement("SELECT block_id,staff_id,starts_at,ends_at FROM p1_staff_block_v1 WHERE dataset_mode=? AND starts_at<? AND ends_at>?")){
                 s.setString(1,service.datasetMode());s.setTimestamp(2,Timestamp.from(high));s.setTimestamp(3,Timestamp.from(low));try(var r=s.executeQuery()){while(r.next())blocks.addObject().put("id",r.getString(1)).put("staffId",r.getString(2)).put("start",r.getTimestamp(3).toInstant().toString()).put("end",r.getTimestamp(4).toInstant().toString());}
+            }
+            var capacities=result.putArray("capacities");try(var s=c.prepareStatement("SELECT institution_id,capacity FROM p1_institution_capacity_v1 WHERE dataset_mode=? ORDER BY institution_id")){
+                s.setString(1,service.datasetMode());try(var r=s.executeQuery()){while(r.next())capacities.addObject().put("institutionName",institutionName(r.getString(1))).put("capacity",r.getInt(2));}
             }return result;
         });
     }

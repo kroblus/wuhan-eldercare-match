@@ -46,6 +46,7 @@ function mutationForm(form,key,path,bodyFactory,onSaved) {
 }
 function renderOperations(result) {
   const item=result.item,id=item.id,synthetic=item.datasetMode==='SYNTHETIC_TEST_ONLY',root=$('detail')
+  const recorded=new Set(result.events.map(event=>event.operationId).filter(Boolean));for(const [key,body] of pendingOperations)if(recorded.has(body.operationId))pendingOperations.delete(key)
   for(const button of $('list').children)if(button.dataset.requestId===id&&button.querySelector('strong'))button.querySelector('strong').textContent=kindText[item.kind]+' · '+statusText[item.status]
   for(const select of document.querySelectorAll('.institution-options')){
     if(synthetic&&!select.querySelector('[value="synthetic-reception-b"]')){const o=element('option','合成接待点 B（虚构）');o.value='synthetic-reception-b';select.append(o)}
@@ -107,9 +108,10 @@ function visitEditor(item,visit) {
 $('calendarFilter').addEventListener('submit',async event=>{
   event.preventDefault();const generation=++calendarGeneration,sessionEpoch=epoch,form=event.target;const query=new URLSearchParams(new FormData(form));const target=$('calendarEntries');target.textContent='读取日程…'
   try{const result=await api('/calendar?'+query);if(generation!==calendarGeneration||sessionEpoch!==epoch)return;target.replaceChildren()
+    target.append(element('p',result.capacities.length?result.capacities.map(c=>`${c.institutionName}：已手工配置同时接待 ${c.capacity} 组`).join('；'):'机构接待容量未配置，不额外限制组数；负责人和本人冲突仍须检查。','muted'))
     for(const v of result.visits){const button=element('button',`${time(v.start)} — ${time(v.end)} · ${v.institutionName} · ${v.staffId} · ${visitText[v.status]}`,'request');button.addEventListener('click',()=>loadDetail(v.requestId,null));target.append(button)}
     for(const b of result.blocks){const row=element('p',`${b.staffId} 不可用：${time(b.start)} — ${time(b.end)} `);const remove=element('button','移除不可用时段');remove.addEventListener('click',async()=>{remove.disabled=true;try{await api('/resources',{method:'POST',headers:{'X-P1-CSRF':csrf},body:JSON.stringify({action:'REMOVE_BLOCK',blockId:b.id})});form.requestSubmit()}catch(e){$('message').textContent=e.message}finally{remove.disabled=false}});row.append(remove);target.append(row)}
-    if(!result.visits.length&&!result.blocks.length)target.textContent='该区间没有安排或不可用时段。'
+    if(!result.visits.length&&!result.blocks.length)target.append(element('p','该区间没有安排或不可用时段。'))
   }catch(e){if(generation===calendarGeneration&&sessionEpoch===epoch)target.textContent=e.message}
 })
 function renderResources(){
@@ -123,3 +125,31 @@ function renderResources(){
   mutationForm(capacity.form,'resource-capacity','/resources',()=>{const d=new FormData(capacity.form);return {action:'CAPACITY',institutionId:d.get('institutionId'),capacity:Number(d.get('capacity'))}},()=>Promise.resolve());$('resources').append(capacity.section)
 }
 renderResources()
+const metricLabels={newRequests:'新需求（条）',visitIntentRequests:'关联带看意向（条）',contactEvents:'期间联系记录（次）',connectedEvents:'已接通（次）',noAnswerEvents:'未接通（次）',refusedEvents:'拒绝联系（次）',confirmedSessions:'期间首次确认（场）',rescheduledEvents:'期间改期（次）',arrivedSessions:'期间实际到访（场）',arrivedRequests:'期间到访去重需求（条）',cancelledSessions:'取消带看（场）',noShowSessions:'未到访（场）',movedInFeedbackEvents:'有来源入住反馈（次）',notMovedInFeedbackEvents:'未入住反馈（次）',unknownFeedbackEvents:'未知入住反馈（次）'}
+const sourceLabels={MINIPROGRAM:'小程序主动申请',OFFLINE_MANUAL:'线下人工来源',SELF_TEST:'员工自测',SYNTHETIC_TEST_ONLY:'合成测试',UNKNOWN:'来源未知'}
+function reportTable(headers,rows){const wrap=element('div','','table-scroll'),table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');if(headers.length>2){table.classList.add('wide-table');wrap.tabIndex=0;wrap.setAttribute('aria-label','可左右滚动的报告表格')}for(const title of headers){const th=element('th',title);th.scope='col';tr.append(th)}head.append(tr);table.append(head);const body=document.createElement('tbody');for(const values of rows){const line=document.createElement('tr');for(const value of values)line.append(element('td',String(value)));body.append(line)}table.append(body);wrap.append(table);return wrap}
+$('reportFilter').addEventListener('input',()=>{++reportGeneration;reportSnapshot=null;$('downloadReport').disabled=true;$('reportPreview').textContent='筛选已更改，请重新生成报告。'})
+$('reportFilter').addEventListener('submit',async event=>{
+  event.preventDefault();const generation=++reportGeneration,sessionEpoch=epoch,button=event.target.querySelector('button'),target=$('reportPreview');button.disabled=true;$('downloadReport').disabled=true;reportSnapshot=null;target.textContent='正在查询完整筛选范围并固定本批次…'
+  try{const d=new FormData(event.target),response=await api('/reports',{method:'POST',headers:{'X-P1-CSRF':csrf},body:JSON.stringify({from:d.get('from'),to:d.get('to'),institutionId:d.get('institutionId')||null,source:d.get('source')||null})});if(generation!==reportGeneration||sessionEpoch!==epoch)return
+    const report=response.report;reportSnapshot=report;target.replaceChildren(element('p',report.warning,'banner'),element('p',`${report.institutionName}\n${report.from} 至 ${report.to}（含结束日）\n生成 / 观察截止：${time(report.generatedAt)}（北京时间）\n来源：${report.sourceFilter}\n口径：${report.policyVersion}\n批次：${report.snapshotId}`,'report-meta'))
+    const grid=element('div','','metric-grid');for(const key of ['newRequests','contactEvents','confirmedSessions','arrivedSessions']){const cell=element('div',metricLabels[key],'metric');cell.append(element('strong',String(report.metrics[key])));grid.append(cell)}target.append(grid)
+    target.append(element('h3','期间活动'),reportTable(['指标','实际数量'],Object.entries(metricLabels).map(([key,label])=>[label,report.metrics[key]])))
+    target.append(element('h3','同批需求转化'),element('p',`同批需求分母 ${report.metrics.cohortDenominator} 条；其中明确到访 ${report.metrics.cohortArrivedRequests} 条。到访率：${report.metrics.cohortArrivalRate===null?'无可用比率':(report.metrics.cohortArrivalRate*100).toFixed(1)+'%'}。分母是本区间创建的关联需求，观察至本批生成时刻。`))
+    target.append(element('h3','需求画像'),reportTable(['维度','分类','需求数（条）','说明'],report.profiles.map(p=>[p.dimension,p.category,p.count===null?'不展示':p.count,p.note])))
+    target.append(element('h3','分机构成果'),element('p','各机构行独立去重，平台总数不能由这些行相加。','muted'),reportTable(['机构','新需求（条）','确认（场）','到访（场）','到访需求（条）','入住反馈（次）'],report.institutions.map(row=>[row.institutionName,row.metrics.newRequests,row.metrics.confirmedSessions,row.metrics.arrivedSessions,row.metrics.arrivedRequests,row.metrics.movedInFeedbackEvents])))
+    target.append(element('h3','数据来源'),reportTable(['来源','同批需求（条）'],report.sources.map(s=>[sourceLabels[s.source]||'来源未知',s.count])))
+    const details=document.createElement('details');details.append(element('summary','统计口径与小样本规则'));for(const rule of report.rules)details.append(element('p',rule));target.append(details);$('downloadReport').disabled=false
+  }catch(error){if(generation===reportGeneration&&sessionEpoch===epoch)target.textContent=error.message||'未生成报告，请重试。'}finally{button.disabled=false}
+})
+$('downloadReport').addEventListener('click',async()=>{
+  const report=reportSnapshot;if(!report)return;const sessionEpoch=epoch,generation=reportGeneration;const button=$('downloadReport');button.disabled=true
+  try{const response=await fetch(API+'/reports/'+encodeURIComponent(report.snapshotId)+'/xlsx',{credentials:'same-origin',cache:'no-store',headers:{'X-P1-CSRF':csrf},signal:AbortSignal.timeout(30000)})
+    if(response.status===401){if(sessionEpoch===epoch)signedOut();throw Error('登录失效，请重新登录。')}
+    if(!response.ok||!response.headers.get('content-type')?.includes('spreadsheetml'))throw Error('导出未完成，请重试原批次。')
+    const blob=await response.blob();if(sessionEpoch!==epoch||generation!==reportGeneration)return
+    const generatedDay=new Date(Date.parse(report.generatedAt)+8*3600000).toISOString().slice(0,10)
+    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=`快康养-${report.institutionId||'平台'}-${report.from}-${report.to}-${generatedDay}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),30000)
+    $('message').textContent='已生成本批次聚合 Excel。文件不含个人或隐藏明细。'
+  }catch(e){if(sessionEpoch===epoch)$('message').textContent=e.message}finally{if(sessionEpoch===epoch&&generation===reportGeneration)button.disabled=false}
+})
