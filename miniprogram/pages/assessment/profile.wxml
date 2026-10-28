@@ -116,7 +116,7 @@
             <text class="clarification__priority">{{item.priorityLabel}}</text>
             <text class="clarification__text">{{item.text}}</text>
             <text wx:if="{{item.followUpNote}}" class="clarification__note">{{item.followUpNote}}</text>
-            <button class="clarification__edit" data-section="{{item.editSection}}" catchtap="onEdit">{{item.editLabel}} →</button>
+            <button class="clarification__edit" data-section="{{item.editSection}}" data-focus-special-care="{{item.guidanceKind === 'care_detail'}}" catchtap="onEdit">{{item.editLabel}} →</button>
             <view wx:if="{{actionErrorKey === item.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
             <view wx:for="{{item.relatedEdits}}" wx:for-item="relatedEdit" wx:key="section">
               <button class="clarification__edit" data-section="{{relatedEdit.section}}" catchtap="onEdit">{{relatedEdit.label}} →</button>

@@ -8,10 +8,20 @@ import { makeCompletedAssessmentV2 } from './fixtures/elder-profile-v2-fixtures.
 const { ts } = loadWechatTypeScript()
 let definition, pages = [], failNavigation = true
 const navigations = []
+const scrollTargets = []
 const navigate = options => { navigations.push(options); if (failNavigation) options.fail?.(); else options.success?.(); options.complete?.() }
 const rt = createWechatTsRuntime(ts, { Page(value) { definition = value }, Component() {}, getCurrentPages: () => pages, wx: {
   getStorageSync() {}, getSystemInfoSync: () => ({ safeArea: { top: 20 }, platform: 'android' }),
-  navigateTo: navigate, redirectTo: navigate, reLaunch: navigate, navigateBack: navigate,
+  navigateTo: navigate, redirectTo: navigate, reLaunch: navigate,
+  navigateBack(options) {
+    if (!failNavigation) {
+      pages.slice(-options.delta).reverse().forEach(page => page.onUnload?.())
+      pages = pages.slice(0, -options.delta)
+      pages[pages.length - 1].onShow?.()
+    }
+    navigate(options)
+  },
+  nextTick(callback) { callback() }, pageScrollTo(options) { scrollTargets.push(options.selector) },
 } })
 const load = file => rt.load('miniprogram/' + file + '.ts')
 const derive = load('domain/elder-profile/v2/derive-elder-profile-preview-v2').deriveElderProfilePreviewV2
@@ -157,6 +167,32 @@ assert.equal(page.data.viewModel.clarifications.length, 0, 'editing unknown to a
 current = { draft: makeProfileV2UiDraft({ 'health.swallowingAbility': undefined }) }
 page.onShow()
 assert.equal(page.data.pageState, 'incomplete', 'unanswered required input stays distinct from a completed risk answer')
+
+// The care-detail button focuses the existing question without bypassing guards.
+current = inspect({ 'health.rehabilitationNeed': 'possible' })
+pages = [page]; page.onShow()
+page.onEdit({ currentTarget: { dataset: { section: 'cognitive', focusSpecialCare: true } } })
+assert.equal(navigations[navigations.length - 1].url, '/pages/assessment/cognitive?focus=special-care')
+const afterFocusedEdit = navigations.length
+page.onEdit({ currentTarget: { dataset: { section: 'cognitive', focusSpecialCare: true } } })
+assert.equal(navigations.length, afterFocusedEdit, 'focused rapid clicks still cause one navigation')
+load('pages/assessment/cognitive')
+const cognitive = { ...definition, route: 'pages/assessment/cognitive', data: clone(definition.data), setData(patch, callback) { Object.assign(this.data, patch); callback?.() } }
+cognitive.onLoad({ focus: 'special-care' }); cognitive.onShow(); cognitive.onReady()
+assert.equal(scrollTargets.pop(), '#assessment-question-cognitive-specialCareNeeds')
+cognitive.onLoad({ focus: 'unsupported' }); cognitive.onReady()
+assert.equal(scrollTargets.length, 0, 'unknown focus input cannot select another target')
+
+// Preserve the legal ancestor path rather than replacing it with another push.
+pages = [cognitive, { route: 'pages/assessment/preference' }, { route: 'pages/assessment/budget' }, page]
+page.onShow()
+page.onEdit({ currentTarget: { dataset: { section: 'cognitive', focusSpecialCare: true } } })
+assert.equal(navigations[navigations.length - 1].delta, 3)
+assert.equal(pages[pages.length - 1], cognitive)
+assert.equal(scrollTargets.pop(), '#assessment-question-cognitive-specialCareNeeds')
+const navigation = navigations[navigations.length - 1]
+navigation.success?.()
+assert.equal(scrollTargets.length, 0, 'duplicate/late success cannot repeat the target scroll')
 const markup = fs.readFileSync('miniprogram/pages/assessment/profile.wxml', 'utf8')
 assert.ok(markup.includes('本次问卷已填写完成'))
 assert.ok(markup.includes('已记录的照护情况与后续提醒'))
@@ -170,6 +206,7 @@ for (const template of [markup, demoMarkup]) {
   assert.ok(template.includes('item.followUpNote'))
   assert.ok(template.includes('已报告的风险无需重复作答'))
   assert.ok(template.includes('不能生成已确认安全适合的推荐'))
+  assert.ok(template.includes('data-focus-special-care'))
   assert.ok(!template.includes('仍需核对的照护事项'))
 }
 assert.ok(demoMarkup.includes('虚构机构资料'), 'Demo must keep its fictional-data boundary')

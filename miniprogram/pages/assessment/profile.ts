@@ -235,12 +235,13 @@ Page({
     targetStep: AssessmentStepId,
     action: string,
     actionErrorKey: string,
+    focusSpecialCare = false,
   ) {
     this.clearActionError()
     const onFailure = () => {
       this.showNavigationFailure(actionErrorKey, '暂时无法返回修改，请稍后重试。')
     }
-    navigateProfileToAssessmentStep(this, targetStep, 'profile-edit', action, onFailure)
+    navigateProfileToAssessmentStep(this, targetStep, 'profile-edit', action, onFailure, focusSpecialCare)
   },
 
   onEdit(event: WechatMiniprogram.BaseEvent) {
@@ -252,6 +253,7 @@ Page({
       section,
       `profile.edit.${section}`,
       `edit-${section}`,
+      section === 'cognitive' && event.currentTarget.dataset.focusSpecialCare === true,
     )
   },
 

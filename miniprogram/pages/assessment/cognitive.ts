@@ -20,6 +20,7 @@ interface AssessmentCognitiveData {
   backEnabled: boolean
   backText: string
   warmSwissHeaderHeight: number
+  focusSpecialCare: boolean
   symptoms: CognitiveSymptomV2[]
   specialCareNeeds: CognitiveSpecialCareNeedV2[]
   symptomsOptions: ChoiceOption[]
@@ -78,6 +79,7 @@ Page({
     backEnabled: true,
     backText: '返回上一页',
     warmSwissHeaderHeight: 0,
+    focusSpecialCare: false,
     symptoms: [],
     specialCareNeeds: [],
     symptomsOptions,
@@ -91,12 +93,17 @@ Page({
     persistenceFailed: false,
   } as AssessmentCognitiveData,
 
-  onLoad() {
+  onLoad(options: Record<string, string | undefined> = {}) {
     // Match UI-0 AppHeader geometry so the first-error anchor stays visible.
     const system = wx.getSystemInfoSync()
     this.setData({
       warmSwissHeaderHeight: (system.platform === 'android' ? 48 : 44) + system.safeArea.top,
+      focusSpecialCare: options.focus === 'special-care',
     })
+  },
+
+  onReady() {
+    if (this.data.focusSpecialCare) scrollToAssessmentQuestion('cognitive.specialCareNeeds')
   },
 
   onShow() {

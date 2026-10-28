@@ -1,6 +1,7 @@
 import { assessmentDraftStore } from '../store/assessment-draft'
 import type { AssessmentDraftV2 } from '../types/assessment-v2'
 import type { AssessmentStepId } from '../types/assessment'
+import { scrollToAssessmentQuestion } from './assessment-validation'
 import { validateAssessmentDraftForCompletionV2 } from '../types/assessment-v2'
 import { getAssessmentResumeDestinationV2, getAssessmentResumeRouteV2 } from './assessment-resume'
 import { getNavigationGuard } from './navigation-guard'
@@ -331,10 +332,34 @@ const invokeSingleNavigation = (
   url: string,
   delta: number,
   onFailure?: () => void,
+  onSuccess?: () => void,
 ): boolean => {
   const prepared = makeNavigationCallbacks(page, action, onFailure)
   if (!prepared) return false
   const callbacks = prepared.callbacks
+  if (onSuccess) {
+    // A source page may unload before navigateBack succeeds. The target-only
+    // scroll must survive that lifecycle; business guard callbacks stay intact.
+    const success = callbacks.success
+    const fail = callbacks.fail
+    const complete = callbacks.complete
+    let settled = false
+    callbacks.success = () => {
+      if (settled) return
+      settled = true
+      if (success) success()
+      onSuccess()
+    }
+    callbacks.fail = () => {
+      if (settled) return
+      settled = true
+      if (fail) fail()
+    }
+    callbacks.complete = () => {
+      settled = true
+      if (complete) complete()
+    }
+  }
   const options = api === 'navigateBack'
     ? { delta, ...callbacks }
     : { url, ...callbacks }
@@ -613,6 +638,7 @@ export const navigateProfileToAssessmentStep = (
   source: 'profile-edit' | 'profile-recovery',
   action: string,
   onFailure: () => void,
+  focusSpecialCare = false,
 ): ProfileAssessmentEntryResult => {
   const pages = getCurrentStack()
   if (!pages || pages[pages.length - 1] !== page
@@ -626,7 +652,16 @@ export const navigateProfileToAssessmentStep = (
     const depthAfterBack = ancestorIndex + 1
     if (requiredPeakDepth(depthAfterBack, targetStep) <= ASSESSMENT_STACK_CAPACITY) {
       const delta = pages.length - 1 - ancestorIndex
-      const invoked = invokeSingleNavigation(page, action, 'navigateBack', '', delta, onFailure)
+      const focusTarget = focusSpecialCare && targetStep === 'cognitive'
+        ? () => {
+          const current = getCurrentStack()
+          if (current && current[current.length - 1] === pages[ancestorIndex]
+            && normalizeRoute(current[current.length - 1].route) === 'pages/assessment/cognitive') {
+            scrollToAssessmentQuestion('cognitive.specialCareNeeds')
+          }
+        }
+        : undefined
+      const invoked = invokeSingleNavigation(page, action, 'navigateBack', '', delta, onFailure, focusTarget)
       return invoked ? 'navigateBack' : null
     }
     const prompted = beginCapacityReset(page, targetStep, source, action, pages, onFailure)
@@ -635,7 +670,8 @@ export const navigateProfileToAssessmentStep = (
 
   const depthAfterPush = pages.length + 1
   if (requiredPeakDepth(depthAfterPush, targetStep) <= ASSESSMENT_STACK_CAPACITY) {
-    const invoked = invokeSingleNavigation(page, action, 'navigateTo', routeForStep(targetStep), 0, onFailure)
+    const url = routeForStep(targetStep) + (focusSpecialCare && targetStep === 'cognitive' ? '?focus=special-care' : '')
+    const invoked = invokeSingleNavigation(page, action, 'navigateTo', url, 0, onFailure)
     return invoked ? 'navigateTo' : null
   }
   const prompted = beginCapacityReset(page, targetStep, source, action, pages, onFailure)

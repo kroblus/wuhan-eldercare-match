@@ -6,7 +6,7 @@
 
 - 画像标题为“已记录的照护情况与后续提醒”。风险已记录、原答案不确定、具体护理需求未明确、回答冲突分别标明。
 - 正常吞咽、偶尔吞咽不顺或容易呛咳、明显吞咽困难、不确定各自展示实际答案；风险已记录不表示已核验安全。提示核实进食照护安排和机构接收能力，无需重复作答。
-- “可能需要康复”显示已选答案，解释它与特殊护理中的专门康复训练不同。知道需要专门训练时可到特殊护理修改；不清楚可保持原回答，无需重提健康情况。
+- “可能需要康复”显示已选答案，解释它与特殊护理中的专门康复训练不同。知道需要专门训练时可直达特殊护理题修改；不清楚可保持原回答，无需重提健康情况。
 - 已记录风险的编辑按钮使用可选语义；真实冲突保留两个相关原题入口。沿用单一事件链、导航守卫、失败反馈与返回画像的 onShow 刷新。
 - Demo 覆盖模板同步修复，保留虚构机构标识。未新增路由、正式业务流程或专业核实功能。
 
@@ -22,8 +22,9 @@
 
 使用合成输入，不读取真实老人草稿：
 
-- `check:profile-clarification-guidance`：偶尔吞咽不顺+可能康复、正常/明显困难/不确定、康复训练明确、康复真实冲突、缺必填、编辑失败重试与返回刷新、同答案重复提交；逐个比较 Formal/Preview 全部语义及推荐结果，验证显示前后没有副作用。双模板检查防止 Demo 覆盖层漏同步。
+- `check:profile-clarification-guidance`：偶尔吞咽不顺+可能康复、正常/明显困难/不确定、康复训练明确、康复真实冲突、缺必填、编辑失败重试与返回刷新、同答案重复提交；逐个比较 Formal/Preview 全部语义及推荐结果，验证显示前后没有副作用。双模板检查防止 Demo 覆盖层漏同步。另覆盖新页题目定位、非法 focus、快速点击、合法祖先复用，以及源页先 onUnload 后 success 的真实时序和重复回调。
 - `check:profile-page-runtime` 20/20；`check:profile-v2-ui-runtime` 12/12；`check:profile-result-v2-interactions` 10/10。
+- `check:assessment-interactions` 47 项运行用例及 2 项结构断言通过；题目定位只影响显式护理提醒入口，既有父栈、容量确认、失败与返回规则不变。
 - `check:assessment-v2-runtime` 44 项；`check:elder-profile-v2-runtime` 18/18、Formal/Preview 5/5、冻结 ADL 22 项；`check:recommendation-v2-runtime` 68/68、Formal/Preview 6/6；推荐 Preview 集成 20/20。
 - C1 领域、组合和结果页回归通过；TypeScript 定向兼容检查通过。
 - Demo/Production 双构建通过（31 路由，232/245 个生成模块）；模式源码隔离、模式运行隔离和两套实际生成 JS 兼容检查通过。
@@ -38,10 +39,13 @@
 
 在 375px、模拟 150% 字号下，实际点击“如需康复训练，修改特殊护理”进入认知与特殊护理，选择合成的康复训练并返回画像；提醒由 2 项变为 1 项，吞咽提醒继续保留。
 
+首轮实点发现入口停在认知页首，已补上既有特殊护理题锚点定位；最终产物实点已直接显示 [特殊护理题](../../../output/profile-recorded-care-20261028/375-final-focus-direct.png)。未新增页面，题目、选项、返回守卫与容量确认规则均保留。
+
 下一步是 Owner 手机检查这两类提醒和编辑返回；真实进食照护及康复安排仍须结合实际情况与机构核实。本轮不上传微信、不提审、不发布、不部署、不打开真实服务。
 
 ## 修改入口
 
 - [V2 展示投影](../../../miniprogram/presentation/assessment/profile-v2-view-model.ts)
 - [正式页面模板](../../../miniprogram/pages/assessment/profile.wxml)、[Demo 覆盖模板](../../../modes/demo/overrides/pages/assessment/profile.wxml)、[页面样式](../../../miniprogram/pages/assessment/profile.less)
+- [画像编辑事件](../../../miniprogram/pages/assessment/profile.ts)、[特殊护理定位](../../../miniprogram/pages/assessment/cognitive.ts)、[复用原导航守卫](../../../miniprogram/utils/assessment-phase-navigation.ts)
 - [合成场景回归](../../../scripts/check-profile-clarification-guidance.mjs)、[V2 UI 检查](../../../scripts/check-profile-v2-ui-runtime.mjs)、[画像页面检查](../../../scripts/check-profile-page-runtime.mjs)
