@@ -1,0 +1,60 @@
+:root {
+  --radius: 18px;
+  --adm-color-primary: var(--primary);
+  --adm-color-text: var(--ink);
+  --adm-color-text-secondary: var(--muted);
+  --adm-color-border: var(--line);
+  --adm-color-background: #fff;
+  --adm-font-size-main: 1rem;
+  --adm-font-family: 'Microsoft YaHei UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: var(--adm-font-family);
+  color: var(--ink);
+  background: var(--canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+a {
+  color: var(--primary);
+}
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+.preview-loading {
+  padding: 32px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
