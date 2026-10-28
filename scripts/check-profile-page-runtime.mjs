@@ -508,7 +508,10 @@ const assertPureProfileGraph = (loadedSourcePaths) => {
   loadedSourcePaths.forEach((filePath) => {
     assert.equal(filePath.startsWith(miniprogramRoot), true, `profile graph escaped miniprogram: ${filePath}`)
     assert.equal(filePath.includes(`${path.sep}tmp${path.sep}`), false, `tmp artifact loaded: ${filePath}`)
-    assert.equal(/(?:institution|recommendation|appointment|consultant)/i.test(filePath), false,
+    // The current mode adapter only formats the headline. Keep actual domain /
+    // service imports forbidden, while allowing this exact pure display seam.
+    const isDisplayAdapter = filePath === path.join(miniprogramRoot, 'runtime', 'institution-display.ts')
+    assert.equal(!isDisplayAdapter && /(?:institution|recommendation|appointment|consultant)/i.test(filePath), false,
       `profile graph loaded out-of-scope module: ${filePath}`)
   })
 }

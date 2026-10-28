@@ -85,4 +85,8 @@ page { .ws-page-surface(); }
 .pending-count, .action-error { font-size: var(--browse-meta-size, 14px); }
 .profile-section--nutrition .nutrition-title { font-size: var(--browse-title-size, 20px); }
 .profile-shell .clarification__edit { font-size: var(--browse-meta-size, 14px); }
+.clarification__note { display: block; margin-top: @space-2; color: @ws-secondary; font-size: var(--browse-meta-size, 14px); line-height: @line-height-body; }
+.profile-pending .nutrition-title { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.profile-pending .pending-count { flex-shrink: 0; }
+.profile-shell .clarification__edit { max-width: 100%; white-space: normal; word-break: break-word; height: auto; }
 .profile-row__label, .recommendation-boundary__note { text-wrap: balance; }

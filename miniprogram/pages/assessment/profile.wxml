@@ -2,7 +2,7 @@
 <page-container extraClass="profile-page">
   <view class="profile-shell" style="{{hierarchyFontStyle}}">
     <view class="profile-head">
-      <text class="profile-intro">以下是本次评估整理的养老需求，不是医疗诊断。请先核对；如需调整，可点击各区“修改”，确认后再查看机构推荐。</text>
+      <text class="profile-intro">以下是本次评估已记录的养老需求，不是医疗诊断。如原回答有变化，可点击各区“修改”；照护风险与后续提醒见下方。</text>
       <button class="edit-action" catchtap="onHome" aria-label="返回首页">返回首页</button>
       <view wx:if="{{actionErrorKey === 'home'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
       <text wx:if="{{isRootProfile}}" class="boundary-note">系统返回可能离开小程序；返回首页请点击“返回首页”。</text>
@@ -109,12 +109,13 @@
       </view>
 
       <view wx:if="{{viewModel.clarifications.length}}" class="profile-section profile-pending">
-        <view class="section-heading"><text class="nutrition-title">仍需核对的照护事项</text><text class="pending-count">{{viewModel.clarifications.length}} 项</text></view>
-        <text class="section-subtitle">本次问卷已填写完成。以下事项是根据回答发现的具体待确认条件，不代表漏填；仅在实际情况或回答有变化时修改，重复勾选相同答案不会消除真实待确认项。</text>
+        <view class="section-heading"><text class="nutrition-title">已记录的照护情况与后续提醒</text><text class="pending-count">{{viewModel.clarifications.length}} 项</text></view>
+        <text class="section-subtitle">本次问卷已填写完成。已报告的风险无需重复作答；不确定的信息可在了解后补充，真正冲突的回答会单独标明。照护需求与机构接收能力仍须核实。</text>
         <view class="clarification-list">
           <view wx:for="{{viewModel.clarifications}}" wx:key="text" class="clarification">
             <text class="clarification__priority">{{item.priorityLabel}}</text>
             <text class="clarification__text">{{item.text}}</text>
+            <text wx:if="{{item.followUpNote}}" class="clarification__note">{{item.followUpNote}}</text>
             <button class="clarification__edit" data-section="{{item.editSection}}" catchtap="onEdit">{{item.editLabel}} →</button>
             <view wx:if="{{actionErrorKey === item.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
             <view wx:for="{{item.relatedEdits}}" wx:for-item="relatedEdit" wx:key="section">
@@ -126,7 +127,7 @@
       </view>
 
       <view class="recommendation-boundary">
-        <text class="recommendation-boundary__note">下一页会核对本次照护需求与机构资料。资料不足时不会生成推荐，你仍可浏览机构目录并了解公开联系方式。</text>
+        <text class="recommendation-boundary__note">下一页会核对本次照护需求与机构资料。如安全核实条件尚未满足，目前不能生成已确认安全适合的推荐；你仍可浏览机构公开资料与联系方式。</text>
       </view>
       <view class="profile-footer">
         <view wx:if="{{actionErrorKey === 'recommendation'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>

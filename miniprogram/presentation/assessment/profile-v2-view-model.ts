@@ -19,6 +19,9 @@ export interface ProfileAdvisoryViewModelV2 {
 }
 
 export interface ProfileClarificationViewModelV2 extends ProfileClarificationViewModel {
+  // Presentation only: open clarifications and their frozen priorities stay intact.
+  guidanceKind: 'answer_needed' | 'recorded_risk' | 'care_detail' | 'conflict'
+  followUpNote: string
   relatedEdits: { section: ProfileEditSection; label: string; errorKey: string }[]
 }
 
@@ -394,7 +397,7 @@ const rehabilitationText = (fact: DerivedFact<RehabilitationRequirement>): Profi
   if (fact.status !== 'known') return row('康复需求', '仍需进一步确认', 'attention')
   const labels: Record<string, string> = {
     required: '明确需要康复支持',
-    possible: '可能需要康复支持',
+    possible: '已选择可能需要康复',
     not_required: '本次明确选择不需要康复支持',
   }
   return row('康复需求', valueLabel(fact.value, labels))
@@ -437,13 +440,15 @@ const buildNutritionRows = (preview: ElderProfilePreviewV2): ProfileDisplayRow[]
     rows.push(row('饮食适配', raw.chewingAbilityAnswer === 'unknown' ? '咀嚼情况仍需确认' : '饮食适配情况仍需确认', 'attention'))
   }
 
-  const swallowing = derived.swallowingConcern
-  if (swallowing.status === 'known' && swallowing.value === 'normal') {
+  const swallowing = raw.swallowingAbilityAnswer
+  if (swallowing === 'normal') {
     rows.push(row('吞咽情况', '吞咽情况正常'))
-  } else if (swallowing.status === 'needs_confirmation') {
-    rows.push(row('吞咽情况', '吞咽情况需要进一步确认', 'attention'))
+  } else if (swallowing === 'occasional_difficulty') {
+    rows.push(row('吞咽情况', '已记录：偶尔吞咽不顺或容易呛咳', 'attention'))
+  } else if (swallowing === 'significant_difficulty') {
+    rows.push(row('吞咽情况', '已记录：有明显吞咽困难', 'attention'))
   } else {
-    rows.push(row('吞咽情况', '吞咽情况仍需确认', 'attention'))
+    rows.push(row('吞咽情况', '已选择不确定：吞咽情况尚不清楚', 'attention'))
   }
   return rows
 }
@@ -600,7 +605,7 @@ const careClarificationCapability = (clarification: ProfileClarificationV2): str
 const CARE_CLARIFICATION_TEXT: Record<string, string> = {
   night_care: '已报告昼夜作息混乱，是否需要夜间重点照护尚未明确。24 小时照护与夜间重点照护是不同选项，请按实际需求核对。',
   dementia_unit: '已报告认知或走失相关情况，是否需要认知症专区尚未明确，请按实际需求核对。这不是认知症诊断。',
-  rehabilitation_training: '已报告康复相关需求，但是否需要康复训练尚未明确。请核对康复需求与特殊护理中的康复训练选项。',
+  rehabilitation_training: '已记录康复相关需求。“康复需求”和特殊护理中的“专门康复训练”是不同问题，是否需要专门训练尚未明确。',
   tube_feeding: '已报告特殊进食方式，是否需要鼻饲护理尚未明确；特殊进食方式不等于鼻饲，请结合实际情况确认。',
   catheter_care: '已报告导尿或造瘘情况，是否需要导尿护理尚未明确，请结合实际情况确认。',
   pressure_injury_care: '已报告压疮相关情况，是否需要专项压疮护理尚未明确，请结合实际情况确认。',
@@ -622,8 +627,8 @@ export const clarificationText = (clarification: ProfileClarificationV2): string
     if (affected.indexOf('cognition.wanderingRisk') >= 0) return '已报告容易迷路，是否存在走失风险仍需进一步确认。'
     if (affected.indexOf('cognition.behavioralRisk') >= 0) return '已报告情绪波动，相关行为情况仍需进一步确认。'
   }
-  if (questionId === 'health.swallowingAbility') return '吞咽情况需要进一步确认，暂不形成确定结论。'
-  if (clarification.reasonCode === 'unknown_answer') return `${questionLabel}暂不确定，请补充或确认。`
+  if (clarification.reasonCode === 'unknown_answer') return `${questionLabel}已选择“不确定”，目前尚不清楚；了解后可补充原回答，不清楚时可保留，不必猜测。`
+  if (questionId === 'health.swallowingAbility') return '已记录吞咽风险；后续仍需核实进食照护安排与机构接收能力，尚未形成安全适合的结论。'
   if (clarification.reasonCode === 'risk_signal_needs_confirmation') return `${questionLabel}存在需要进一步确认的情况。`
   if (clarification.reasonCode === 'non_ordinal_adl_answer') return `本次${questionLabel}已填写，但该照护方式不能直接用于确定自理等级，具体情况仍需结合实际照护确认。`
   if (clarification.reasonCode === 'other_without_detail') return `已选择“其他${questionLabel}”，具体内容尚未明确；联系机构时请进一步说明，如选择不准确可返回修改。`
@@ -635,24 +640,45 @@ const buildClarifications = (preview: ElderProfilePreviewV2): ProfileClarificati
     const questionId = questionIdFromClarification(clarification)
     const capability = careClarificationCapability(clarification)
     const editSection = capability ? 'cognitive' : editSectionForQuestion(questionId)
+    const guidanceKind: ProfileClarificationViewModelV2['guidanceKind'] = clarification.reasonCode === 'cross_answer_conflict'
+      ? 'conflict'
+      : clarification.reasonCode === 'unknown_answer'
+        ? 'answer_needed'
+        : capability ? 'care_detail' : 'recorded_risk'
     const relatedSections: ProfileEditSection[] = []
     clarification.sources.forEach(source => {
       const section = editSectionForQuestion(source.sourceQuestionId as AssessmentQuestionIdV2)
-      if (section !== editSection && relatedSections.indexOf(section) < 0) relatedSections.push(section)
+      if (guidanceKind === 'conflict' && section !== editSection && relatedSections.indexOf(section) < 0) relatedSections.push(section)
     })
-    const priorityLabel = clarification.priority === 'required_before_hard_filter'
-      ? '优先确认'
-      : clarification.priority === 'required_before_classification'
-        ? '建议先确认'
-        : '提示'
+    const priorityLabel = guidanceKind === 'conflict' ? '回答冲突 · 请核对'
+      : guidanceKind === 'answer_needed' ? '原答案不确定 · 可补充'
+        : guidanceKind === 'care_detail' ? '已记录 · 具体护理需求尚未明确'
+          : '已记录 · 照护安排仍待核实'
+    const isRehabilitation = capability === 'rehabilitation_training'
+    const isSwallowingRisk = guidanceKind === 'recorded_risk' && questionId === 'health.swallowingAbility'
+    const rehabilitation = preview.health.rawFacts.rehabilitationNeedAnswer
+    const text = isRehabilitation && rehabilitation === 'possible'
+      ? '已选择可能需要康复。“康复需求”和特殊护理中的“专门康复训练”是不同问题，是否需要专门训练尚未明确。'
+      : isSwallowingRisk
+        ? `已记录：${preview.nutrition.rawFacts.swallowingAbilityAnswer === 'occasional_difficulty' ? '偶尔吞咽不顺或容易呛咳' : '有明显吞咽困难'}。后续仍需核实进食照护安排与机构接收能力，尚未形成安全适合的结论。`
+        : clarificationText(clarification)
     return {
-      text: clarificationText(clarification),
+      text,
+      guidanceKind,
+      followUpNote: guidanceKind === 'conflict' ? '请按实际情况核对相关回答；核对前仍保留安全限制。'
+        : guidanceKind === 'answer_needed' ? '这是尚未明确的信息，不是漏填；原有安全核实要求仍然保留。'
+          : isRehabilitation ? '如果知道需要专门训练，可到特殊护理中修改；尚不清楚可保持原回答，无需重复提交健康情况。'
+            : '原回答已记录，无需重复作答；如原回答不准确或实际情况有变化，可修改。',
       priorityLabel,
       tone: clarification.priority === 'required_before_hard_filter' || clarification.priority === 'required_before_classification'
         ? 'important'
         : 'normal',
       editSection,
-      editLabel: capability && CARE_CAPABILITY_LABELS[capability] ? `核对${CARE_CAPABILITY_LABELS[capability]}需求` : EDIT_LABELS[editSection],
+      editLabel: isRehabilitation ? '如需康复训练，修改特殊护理'
+        : guidanceKind === 'conflict' ? EDIT_LABELS[editSection].replace('修改', '核对')
+          : guidanceKind === 'answer_needed' ? EDIT_LABELS[editSection].replace('修改', '补充')
+            : capability && CARE_CAPABILITY_LABELS[capability] ? `如已明确，修改${CARE_CAPABILITY_LABELS[capability]}需求`
+              : `如有变化，${EDIT_LABELS[editSection]}`,
       errorKey: `edit-${editSection}`,
       relatedEdits: relatedSections.map(section => ({ section, label: EDIT_LABELS[section].replace('修改', '核对'), errorKey: `edit-${section}` })),
     }

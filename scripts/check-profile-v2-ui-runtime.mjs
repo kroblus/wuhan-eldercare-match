@@ -182,7 +182,7 @@ const main = async () => {
     const viewModel = vmModule.createProfilePageViewModelV2(result.value.preview)
     c.equal(result.value.preview.nutrition.derivedFacts.swallowingConcern.status, 'needs_confirmation')
     c.ok(result.value.preview.clarifications.some((item) => item.reasonCode === 'risk_signal_needs_confirmation'))
-    c.equal(findRow(viewModel.nutritionRows, '吞咽情况').value, '吞咽情况需要进一步确认')
+    c.equal(findRow(viewModel.nutritionRows, '吞咽情况').value, '已记录：有明显吞咽困难')
     c.ok(viewModel.clarifications.some((item) => item.editSection === 'health' && item.text.includes('吞咽')))
     c.equal(viewModel.specialCareTags.some((tag) => tag.text.includes('鼻饲')), false)
   })
