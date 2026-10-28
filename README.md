@@ -53,6 +53,8 @@ V5 交付已简化：完成相关验证后自动 commit/push；Drive 使用桌�
 
 源码：`miniprogram/`；模式适配：`modes/`；构建：`dist/`；截图、日志与生成测试项目：`output/<任务名>/`；值得长期保留的总结：`docs/phases/`。以后不新建平行的小程序阶段目录。
 
+查看本机目录占用：运行 `python tools/disk-explorer/scan.py`，打开 `output/disk-explorer/index.html`，可用目录树、搜索、排序、类型筛选与矩形图查看大小。页面是离线快照，更新数据需重新扫描；[工具用法与大小口径](tools/disk-explorer/README.md)。
+
 按任务选择 `npm run build:demo`、`npm run build:production` 或相关检查即可；构建后分别从 `dist/demo/` 与 `dist/production/` 打开工程。不要直接改 dist；编译环境与 C1 检查命令见任务地图。
 
 2026-10-27 C1-B 阶段的两项 C1-A、[C1 页面运行检查](scripts/check-c1-result-page-runtime.mjs)、旧 V1/V2 推荐页及交互检查、production/demo 原生构建、模式隔离与产物 JS 兼容检查通过。导航总检查仍保留既有 NAV-019／NAV-024 失败；结果页可执行导航用例通过。DevTools 长风险合成夹具证据留在 `output/c1-b/`，与手机验收分开；当时未提交、上传或发布，后续 Git 备份按上方 V5 交付规则执行。目录收拢的恢复材料见[此前工作流记录](docs/phases/2026-10-27-workflow/SUMMARY.md)。
