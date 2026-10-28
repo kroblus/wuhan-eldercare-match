@@ -1,3 +1,8 @@
+import {
+  verificationState, projectInstitutionField, projectReferencePrice,
+  projectInstitutionPrice as projectPrice,
+} from '../domain/institution/presentation-facts'
+export { projectInstitutionField } from '../domain/institution/presentation-facts'
 import { modeText } from '../runtime/presentation-copy'
 /**
  * Versioned, display-safe projections for the Institution List / Detail
@@ -5,12 +10,11 @@ import { modeText } from '../runtime/presentation-copy'
  * capability from a neighbouring field.
  */
 
-import { isHttpsUrl, isValidIsoTimestamp } from '../domain/institution/primitives'
+import { isHttpsUrl } from '../domain/institution/primitives'
 import { resolveEffectiveCapability, isVerificationCurrentAt } from '../domain/institution/verification'
 import type {
   InstitutionCapability,
   InstitutionField,
-  ReferenceMonthlyPrice,
   InstitutionTypeCode,
 } from '../types/institution'
 import type { InstitutionRecordV11 } from '../types/institution-v1-1'
@@ -31,7 +35,6 @@ import type {
   InstitutionPresentationAvailability,
   InstitutionPresentationFact,
   InstitutionRecommendationPlacement,
-  InstitutionReferenceMonthlyPriceDisplay,
   InstitutionRevisionDisplayContext,
   InstitutionVrDisplayState,
 } from '../types/institution-list-detail'
@@ -47,32 +50,6 @@ export const institutionDataDisclosure = (
 ): InstitutionDataDisclosure => datasetMode === 'MOCK_DEVELOPMENT_ONLY'
   ? { kind: 'MOCK_DEVELOPMENT_ONLY', text: MOCK_DEVELOPMENT_DISCLOSURE }
   : { kind: 'PRODUCTION', text: null }
-
-const verificationState = (
-  verification: InstitutionField<unknown>['verification'],
-  evaluationAsOf: string,
-): InstitutionEffectiveVerification => {
-  if (verification.status === 'expired') return 'expired'
-  if (verification.status === 'verified'
-    && verification.validUntil !== undefined
-    && isValidIsoTimestamp(evaluationAsOf)
-    && isValidIsoTimestamp(verification.validUntil)
-    && Date.parse(verification.validUntil) < Date.parse(evaluationAsOf)) {
-    return 'expired'
-  }
-  return verification.status === 'verified' && isVerificationCurrentAt(verification, evaluationAsOf)
-    ? 'current_verified'
-    : 'unverified'
-}
-
-export const projectInstitutionField = <T>(
-  field: InstitutionField<T>,
-  evaluationAsOf: string,
-): InstitutionPresentationFact<T> => ({
-  availability: field.availability,
-  value: field.availability === 'provided' ? field.value : null,
-  effectiveVerification: verificationState(field.verification, evaluationAsOf),
-})
 
 const mergeAvailability = (
   left: InstitutionPresentationAvailability,
@@ -104,42 +81,6 @@ const projectRegion = (
       ? { code: code.value, displayName: displayName.value }
       : null,
     effectiveVerification: mergeVerification(code.effectiveVerification, displayName.effectiveVerification),
-  }
-}
-
-const projectReferencePrice = (
-  field: InstitutionField<ReferenceMonthlyPrice>,
-  evaluationAsOf: string,
-): InstitutionPresentationFact<InstitutionReferenceMonthlyPriceDisplay> => {
-  const fact = projectInstitutionField(field, evaluationAsOf)
-  if (fact.value === null) {
-    return {
-      availability: fact.availability,
-      value: null,
-      effectiveVerification: fact.effectiveVerification,
-    }
-  }
-  const range = fact.value.range
-  return {
-    availability: fact.availability,
-    effectiveVerification: fact.effectiveVerification,
-    value: range.kind === 'bounded'
-      ? {
-        kind: 'bounded',
-        minAmountMinor: range.min.amountMinor,
-        maxAmountMinor: range.max.amountMinor,
-        currency: 'CNY',
-        period: 'month',
-        basis: 'reference_total',
-      }
-      : {
-        kind: 'starting_at',
-        minAmountMinor: range.min.amountMinor,
-        maxAmountMinor: null,
-        currency: 'CNY',
-        period: 'month',
-        basis: 'reference_total',
-      },
   }
 }
 
@@ -358,25 +299,6 @@ const projectTransportHospital = (
     travelTimeMinutes: projectInstitutionField(hospital.travelTimeMinutes, evaluationAsOf),
     travelMode: projectInstitutionField(hospital.travelMode, evaluationAsOf),
   })),
-})
-
-const projectPrice = (
-  record: InstitutionRecordV11,
-  evaluationAsOf: string,
-): Readonly<Record<string, InstitutionPresentationFact<unknown> | readonly unknown[]>> => ({
-  referenceMonthlyPrice: projectReferencePrice(record.price.referenceMonthlyPrice, evaluationAsOf),
-  recurringComponents: record.price.recurringComponents.map((component) => ({
-    component: component.component,
-    referenceAmount: projectInstitutionField(component.referenceAmount, evaluationAsOf),
-  })),
-  deposit: projectInstitutionField(record.price.deposit, evaluationAsOf),
-  oneTimeFees: record.price.oneTimeFees.map((fee) => ({
-    feeId: fee.feeId,
-    label: fee.label,
-    referenceAmount: projectInstitutionField(fee.referenceAmount, evaluationAsOf),
-  })),
-  adjustmentFactors: projectInstitutionField(record.price.adjustmentFactors, evaluationAsOf),
-  priceNote: projectInstitutionField(record.price.priceNote, evaluationAsOf),
 })
 
 const projectQualifications = (

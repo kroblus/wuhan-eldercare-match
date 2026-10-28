@@ -98,8 +98,11 @@ const loadWechatTypeScript = async () => {
 
 const createSourceLoader = (typescript) => {
   const moduleCache = new Map()
-  // The current catalog presentation imports this inert build-time validation adapter.
-  const allowedRoots = [servicesRoot, typesRoot, institutionDomainRoot, path.join(miniprogramRoot, 'runtime', 'institution-validation.ts')]
+  // Only these inert build-time adapters belong to the application boundary;
+  // other runtime modules, Pages, storage and Recommendation remain forbidden.
+  const allowedRoots = [servicesRoot, typesRoot, institutionDomainRoot,
+    path.join(miniprogramRoot, 'runtime', 'institution-validation.ts'),
+    path.join(miniprogramRoot, 'runtime', 'presentation-copy.ts')]
   const resolveModule = (request, importer) => {
     const basePath = path.resolve(path.dirname(importer), request)
     const candidates = [

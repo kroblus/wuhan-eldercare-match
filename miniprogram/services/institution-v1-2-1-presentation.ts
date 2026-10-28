@@ -1,3 +1,6 @@
+import {
+  projectOfficialContact, projectOfficialAddress, projectMap, unavailableMap,
+} from '../domain/institution/v1-2-1/contact-location-projection'
 /**
  * Application-safe projections for Institution V1.2.1 Detail.
  *
@@ -8,10 +11,6 @@
  * these sections yet.
  */
 
-import {
-  deriveInstitutionMapReadiness,
-} from '../domain/institution/v1-2-1/map-readiness'
-import { deriveOfficialPhonePublicSnapshot } from '../domain/institution/v1-2-1/official-phone'
 import { isValidIsoTimestamp } from '../domain/institution/primitives'
 import type { InstitutionField } from '../types/institution'
 import { institutionValidationOptions } from '../runtime/institution-validation'
@@ -20,21 +19,16 @@ import type {
   HandoverContentCode,
 } from '../types/institution-v1-2'
 import type {
-  InstitutionOfficialPhoneV1,
   InstitutionPublicContentV1,
   InstitutionRecordV121,
 } from '../types/institution-v1-2-1'
 import type {
   InstitutionCareProcessApplicationSnapshotV121,
   InstitutionDetailFutureSectionsV121,
-  InstitutionMapApplicationSnapshotV121,
-  InstitutionOfficialAddressApplicationSnapshotV121,
-  InstitutionOfficialContactApplicationSnapshotV121,
-  InstitutionOfficialPhoneApplicationSnapshotV121,
   InstitutionPublicIntroductionApplicationSnapshotV121,
   InstitutionPresentationFact,
 } from '../types/institution-list-detail'
-import { projectInstitutionField } from './institution-presentation'
+import { projectInstitutionField } from '../domain/institution/presentation-facts'
 
 export type InstitutionPublicContentApplicationInputV121 =
   | { status: 'ready'; value: InstitutionPublicContentV1 }
@@ -67,90 +61,6 @@ export const projectInstitutionPublicIntroductionV121 = (
     text: content.introduction.text,
     sourceType: content.introduction.sourceType,
     updatedAt: content.updatedAt,
-  }
-}
-
-const projectOfficialPhone = (
-  record: InstitutionRecordV121,
-  phone: InstitutionOfficialPhoneV1,
-  evaluationAsOf: string,
-): InstitutionOfficialPhoneApplicationSnapshotV121 => {
-  const snapshot = deriveOfficialPhonePublicSnapshot(record, phone, evaluationAsOf)
-  return {
-    officialPhoneKey: snapshot.officialPhoneKey,
-    purpose: snapshot.purpose,
-    displayValue: snapshot.displayValue,
-    dialValue: snapshot.dialValue,
-    extension: snapshot.extension,
-    status: snapshot.status,
-    verifiedDate: snapshot.verifiedDate,
-    callActionAvailable: snapshot.callActionAvailable,
-  }
-}
-
-const projectOfficialContact = (
-  record: InstitutionRecordV121,
-  evaluationAsOf: string,
-): InstitutionOfficialContactApplicationSnapshotV121 => {
-  const directory = projectInstitutionField(
-    record.officialContact.phoneDirectoryPresence,
-    evaluationAsOf,
-  )
-  const phones = directory.value === 'present'
-    ? record.officialContact.officialPhones.map((phone) =>
-      projectOfficialPhone(record, phone, evaluationAsOf))
-    : []
-  const status = directory.availability === 'provided'
-    ? directory.value === 'present' ? 'provided' : 'unavailable'
-    : directory.availability
-  return {
-    status,
-    directory,
-    phones,
-  }
-}
-
-const projectOfficialAddress = (
-  record: InstitutionRecordV121,
-  evaluationAsOf: string,
-  formattedAddress: string | null,
-): InstitutionOfficialAddressApplicationSnapshotV121 => {
-  const address = projectInstitutionField(record.publicLocation.address, evaluationAsOf)
-  return {
-    status: address.availability,
-    formattedAddress: address.value === null ? null : formattedAddress,
-    effectiveVerification: address.effectiveVerification,
-  }
-}
-
-const unavailableMap = (): InstitutionMapApplicationSnapshotV121 => ({
-  status: 'unavailable',
-  institutionName: '',
-  formattedAddress: null,
-  latitude: null,
-  longitude: null,
-  coordinateSystem: null,
-  addressVerification: null,
-  geoVerification: null,
-  mapActionAvailable: false,
-})
-
-const projectMap = (
-  record: InstitutionRecordV121,
-  evaluationAsOf: string,
-): InstitutionMapApplicationSnapshotV121 => {
-  const result = deriveInstitutionMapReadiness(record, evaluationAsOf, institutionValidationOptions)
-  if (!result.ok) return unavailableMap()
-  return {
-    status: result.value.status,
-    institutionName: result.value.institutionName,
-    formattedAddress: result.value.formattedAddress,
-    latitude: result.value.latitude,
-    longitude: result.value.longitude,
-    coordinateSystem: result.value.coordinateSystem,
-    addressVerification: result.value.addressVerification,
-    geoVerification: result.value.geoVerification,
-    mapActionAvailable: result.value.mapActionAvailable,
   }
 }
 
@@ -209,7 +119,7 @@ export const projectInstitutionFutureSectionsV121 = (
   if (!isValidIsoTimestamp(evaluationAsOf)) {
     throw new Error('INVALID_EVALUATION_AS_OF')
   }
-  const map = projectMap(record, evaluationAsOf)
+  const map = projectMap(record, evaluationAsOf, institutionValidationOptions)
   return {
     publicIntroduction: projectInstitutionPublicIntroductionV121(
       publicContent,

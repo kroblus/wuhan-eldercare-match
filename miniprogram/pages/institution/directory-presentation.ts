@@ -1,15 +1,16 @@
-import { institutionDetailApplicationV12 } from '../../services/institution-list-detail-page'
+import { institutionDirectoryReadService } from '../../services/institution-directory-read'
 import { readInstitutionDirectoryInfo } from '../../runtime/institution-source-notes'
-import { createInstitutionDetailPageViewModel } from './detail-view-model'
+import { addressViewModel, officialContactViewModel } from '../../presentation/institution/contact-location'
 import type { InstitutionListItemViewModel } from './list-view-model'
 import type { InstitutionDetailApplicationSnapshotV12, InstitutionListDisplayItemV12 } from '../../types/institution-list-detail'
+import type { InstitutionDirectoryReadContext, InstitutionDirectoryContactFacts, InstitutionDirectoryReadResult } from '../../types/institution-directory-read'
 
 // Allocate the existing evidence-gated nature label once, never infer from name/type.
 export const presentDirectoryNature = (nature: string): { nature: string; factTags: readonly string[] } =>
   ['公办', '民办', '公建民营'].indexOf(nature) >= 0
     ? { nature: '', factTags: [nature] } : { nature, factTags: [] }
 
-export const directorySnapshotMatches = (snapshot: InstitutionDetailApplicationSnapshotV12,
+export const directorySnapshotMatches = (snapshot: InstitutionDirectoryReadContext,
   item: InstitutionListItemViewModel, evaluationAsOf: string): boolean =>
   snapshot.identity.institutionId === item.institutionId && snapshot.identity.recordRevision === item.recordRevision
   && snapshot.source === 'direct' && snapshot.contextKind === 'DIRECT_CURRENT' && !snapshot.recommendationContext
@@ -17,12 +18,12 @@ export const directorySnapshotMatches = (snapshot: InstitutionDetailApplicationS
   && snapshot.datasetMode === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION')
   && snapshot.recordProvenance === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION_CANDIDATE')
 
-export const directoryPhone = (snapshot: InstitutionDetailApplicationSnapshotV12,
-  detail?: ReturnType<typeof createInstitutionDetailPageViewModel>) => {
+export const directoryPhone = (snapshot: { sections: { futureV121?: Pick<InstitutionDirectoryContactFacts, 'officialContact'> } },
+  detail?: { officialContact: ReturnType<typeof officialContactViewModel> }) => {
   const contact = snapshot.sections.futureV121 && snapshot.sections.futureV121.officialContact
   if (!contact || contact.status !== 'provided' || contact.directory.availability !== 'provided'
     || contact.directory.effectiveVerification !== 'current_verified' || contact.directory.value !== 'present') return undefined
-  return (detail || createInstitutionDetailPageViewModel(snapshot)).officialContact.phones.find(phone =>
+  return (detail ? detail.officialContact : officialContactViewModel(contact)).phones.find(phone =>
     phone.state === 'verified' && phone.callAction.available && !!phone.callAction.dialValue)
 }
 
@@ -50,42 +51,51 @@ export const presentDirectoryPrice = (price: InstitutionDetailApplicationSnapsho
     ? `参考月费 ¥${min}–${max}/月` : ''
 }
 
-// Ordinary directory display only. Reuse the exact revision and evaluation time
-// through the existing application projector; never read raw provider facts here.
+// Ordinary directory only. One bounded read supplies exact, application-safe facts;
+// the same address/contact projectors are also used by Detail. No raw records here.
 export const decorateDirectoryCards = async (
   items: readonly InstitutionListItemViewModel[], evaluationAsOf: string,
-): Promise<readonly InstitutionListItemViewModel[]> => Promise.all(items.map(async item => {
-  if (item.navigationIntent.source !== 'direct_list' || item.navigationIntent.sourceContextRef) return item
-  const card = { ...item.card, compact: true, address: '', addressStatus: '', price: '', phone: '', phoneKey: '' }
-  try {
-    const info = readInstitutionDirectoryInfo(item.institutionId, item.recordRevision)
-    Object.assign(card, presentDirectoryNature(info.natureLabel || item.card.nature))
-    card.notes = Array.from(new Set(item.card.notes.concat(info.notes)))
-    const result = await institutionDetailApplicationV12.build({
-      identity: { institutionId: item.institutionId, recordRevision: item.recordRevision },
-      source: 'direct', sourceContextRef: null, evaluationAsOf,
-    })
-    if (!result.ok) return { ...item, card }
-    const snapshot = result.value
-    if (!directorySnapshotMatches(snapshot, item, evaluationAsOf)) return { ...item, card }
-    const detail = createInstitutionDetailPageViewModel(snapshot)
-    // institution-ordinary-directory-display-v1; Recommendation remains unchanged.
-    card.address = detail.location.addressState === 'ready' ? detail.location.address : ''
-    if (detail.location.addressState === 'address_expired' || detail.location.addressState === 'address_unverified') {
-      card.notes = Array.from(new Set(card.notes.concat(detail.location.addressStatus)))
-    }
-    // Keep concrete contact warnings, not a generic unknown/no-call row on every card.
-    const contact = detail.officialContact
-    const contactRisks = contact.phones.filter(phone => phone.state !== 'verified').map(phone =>
-      phone.state === 'pending' ? `官方电话：${phone.statusLabel}` : phone.statusLabel)
-    if (contact.state === 'unavailable') contactRisks.push(contact.statusLabel)
-    card.notes = Array.from(new Set(card.notes.concat(contactRisks)))
-    card.price = presentDirectoryPrice(snapshot.sections.price)
-    const phone = directoryPhone(snapshot, detail)
-    card.phoneKey = !card.isDemo && phone ? phone.key : ''
-    return { ...item, card }
-  } catch (_error) {
-    // Supplemental display failure does not hide the basic directory or risks.
-    return { ...item, card }
+): Promise<readonly InstitutionListItemViewModel[]> => {
+  const prepared = items.map(item => {
+    if (item.navigationIntent.source !== 'direct_list' || item.navigationIntent.sourceContextRef) return { item, card: null, read: false }
+    const card = { ...item.card, compact: true, address: '', addressStatus: '', price: '', phone: '', phoneKey: '' }
+    try {
+      const info = readInstitutionDirectoryInfo(item.institutionId, item.recordRevision)
+      Object.assign(card, presentDirectoryNature(info.natureLabel || item.card.nature))
+      card.notes = Array.from(new Set(item.card.notes.concat(info.notes)))
+      return { item, card, read: true }
+    } catch (_) { return { item, card, read: false } }
+  })
+  const requested = prepared.filter(entry => entry.read)
+  let results: readonly InstitutionDirectoryReadResult[] = []
+  if (requested.length) {
+    try {
+      results = await institutionDirectoryReadService.read(requested.map(({ item }) => ({ institutionId: item.institutionId, recordRevision: item.recordRevision })), evaluationAsOf)
+    } catch (_) { /* Optional fields fail closed; retain the basic directory and its risks. */ }
   }
-}))
+  let resultIndex = 0
+  return prepared.map(({ item, card, read }) => {
+    if (card === null) return item
+    if (!read) return { ...item, card }
+    const result = results[resultIndex++]
+    if (!result || !result.ok) return { ...item, card }
+    try {
+      const snapshot = result.value
+      if (!directorySnapshotMatches(snapshot, item, evaluationAsOf)) return { ...item, card }
+      const location = addressViewModel(snapshot.sections.futureV121.officialAddress)
+      card.address = location.addressState === 'ready' ? location.address : ''
+      if (location.addressState === 'address_expired' || location.addressState === 'address_unverified') {
+        card.notes = Array.from(new Set(card.notes.concat(location.addressStatus)))
+      }
+      const contact = officialContactViewModel(snapshot.sections.futureV121.officialContact)
+      const contactRisks = contact.phones.filter(phone => phone.state !== 'verified').map(phone =>
+        phone.state === 'pending' ? `官方电话：${phone.statusLabel}` : phone.statusLabel)
+      if (contact.state === 'unavailable') contactRisks.push(contact.statusLabel)
+      card.notes = Array.from(new Set(card.notes.concat(contactRisks)))
+      card.price = presentDirectoryPrice(snapshot.sections.price)
+      const phone = directoryPhone(snapshot, { officialContact: contact })
+      card.phoneKey = !card.isDemo && phone ? phone.key : ''
+    } catch (_) { /* A failed supplemental projection never hides basic facts or source risks. */ }
+    return { ...item, card }
+  })
+}

@@ -13,10 +13,9 @@ import {
   createInstitutionListApplicationServiceV12,
 } from './institution-list-detail-application'
 import {
-  createInstitutionCurrentCatalogResolverV121,
   createNotConfiguredHistoricalRevisionResolver,
 } from './institution-record-resolver'
-import { institutionCatalogServiceV121 } from './institution-catalog-v1-2-1'
+import { institutionCurrentCatalogResolver as currentCatalogResolver } from './institution-current-catalog'
 import {
   createInstitutionSourceContextRegistry,
 } from './institution-source-context'
@@ -60,7 +59,6 @@ const evaluationAsOfForSourceContext = (
  */
 export const institutionSourceContextRegistry = createInstitutionSourceContextRegistry()
 
-const currentCatalogResolver = createInstitutionCurrentCatalogResolverV121(institutionCatalogServiceV121, { sharePendingLoads: true })
 const historicalRevisionResolver = createNotConfiguredHistoricalRevisionResolver()
 
 export const institutionListApplicationV12 = createInstitutionListApplicationServiceV12({

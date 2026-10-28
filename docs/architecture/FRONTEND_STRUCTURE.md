@@ -1,6 +1,8 @@
 # 小程序前端结构与所有权
 
-V2.1-B1：首页采用 A2 资讯与双服务入口，继续使用 N1 TabBar。原位查询共用 `institution-directory-search`；首页仅在无查询条件且未展开时截取普通目录前 2 条，主动查询显示全部匹配。`pages/institution/directory-presentation.ts` 为普通目录卡片复用现有详情应用投影，保持同一 identity/revision/evaluationAsOf，只补充地址资料状态、电话状态与原有风险；List 不展示完整地址或电话号码；不生成护理特质或改变推荐。三个静态阅读路由继续共用内容 Service / 阅读模板。公告入口仅打开原生空状态，不读取公告数据或保存已读。
+V2.1-B1：首页采用 A2 资讯与双服务入口，继续使用 N1 TabBar。原位查询共用 `institution-directory-search`；首页仅在无查询条件且未展开时截取普通目录前 2 条，主动查询显示全部匹配。普通目录展示遵循后继 `institution-ordinary-directory-display-v1`：仅显示当前核验的完整地址、无附加限制的准确参考月费，保留具体电话与机构风险，不展示电话号码，不生成护理特质或改变推荐。三个静态阅读路由继续共用内容 Service / 阅读模板。公告入口仅打开原生空状态，不读取公告数据或保存已读。
+
+架构第 4 项：`services/institution-directory-read.ts` 每批读取一次当前目录，以相同 identity/revision/evaluationAsOf 核对 V1.2.1 来源与 V1.1 投影关联，返回价格、地址、电话的最小应用结果。详情与目录共用 `domain/institution/presentation-facts.ts`、`domain/institution/v1-2-1/contact-location-projection.ts` 和 `presentation/institution/contact-location.ts`；目录不再逐卡构建完整 Detail snapshot/VM。`institution-current-catalog.ts` 只合并进行中的读取，不保存已完成事实；电话点击仍由 `directory-call.ts` 读取最新详情并校验。此变化不升级展示政策、历史快照或推荐算法；[成果与复测入口](../phases/directory-read-v1-20261028/SUMMARY.md)。
 
 B1.1：普通目录展示投影仅将已核验的机构性质分配到一个事实标签，避免副标题重复；不生成护理能力、价格或距离标签。`utils/browse-font.ts` 将微信字号偏好映射到首页和目录页的 `--browse-*` 变量，通过内置 `page-meta` 应用；不改变评估和详情的业务状态。
 

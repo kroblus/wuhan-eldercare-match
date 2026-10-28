@@ -22,6 +22,7 @@ for (const mode of ['production', 'demo']) {
   for (const patch of [{ currency: 'USD' }, { period: 'one_time' }, { basis: 'care_fee' }, { minAmountMinor: -1 }, { minAmountMinor: 1.5 }, { maxAmountMinor: 1 }, { kind: 'starting_at' }, { kind: 'invented' }]) check(presentDirectoryPrice({ ...price, referenceMonthlyPrice: current({ ...value, ...patch }) }) === '', 'wrong unit/scope/range hidden: ' + JSON.stringify(patch))
   for (const patch of [{ priceNote: current('仅限某房型') }, { adjustmentFactors: current([{ factor: 'care_level' }]) }, { deposit: current({ min: 100 }) }, { oneTimeFees: [{ label: '另行收费' }] }, { recurringComponents: [{ referenceAmount: current(100) }] }]) check(presentDirectoryPrice({ ...price, ...patch }) === '', 'quote with extra limitations stays in Detail: ' + JSON.stringify(patch))
   const service = load('services/institution-list-detail-page')
+  const directoryService = load('services/institution-directory-read').institutionDirectoryReadService
   const result = await service.buildInstitutionListPageSnapshot(null)
   check(result.ok, mode + ' application list builds')
   const list = load('pages/institution/list-view-model').createInstitutionListPageViewModel(result.value).items
@@ -29,14 +30,21 @@ for (const mode of ['production', 'demo']) {
   const pinned = { ...list[0], navigationIntent: { ...list[0].navigationIntent, source: 'recommendation', sourceContextRef: 'TEST_ONLY-pinned-context' } }
   check((await decorateDirectoryCards([pinned], result.value.evaluationAsOf))[0] === pinned, 'recommended candidate bypasses compact decoration and keeps full source context')
   const cards = await decorateDirectoryCards(list, result.value.evaluationAsOf)
+  const reads = await directoryService.read(list.map(item => ({ institutionId: item.institutionId, recordRevision: item.recordRevision })), result.value.evaluationAsOf)
   check(JSON.stringify(list) === before, 'ordinary decoration cannot mutate recommendation/base view model')
   check(cards.length === (mode === 'demo' ? 12 : 11), 'original provider count unchanged')
   check(cards.every((item, index) => item.card.compact && item.key === list[index].key && JSON.stringify(item.navigationIntent) === JSON.stringify(list[index].navigationIntent)), 'compact display preserves canonical identity/revision/source/order')
   check(cards.every((item, index) => list[index].card.notes.every(note => item.card.notes.includes(note))), 'all original phone and institution-specific risks retained')
   check(cards.every(item => !item.card.phone && !item.card.addressStatus), 'ordinary cards have no generic contact/status prose')
-  for (const item of cards) {
+  for (const [index, item] of cards.entries()) {
     const detail = await service.institutionDetailApplicationV12.build({ identity: { institutionId: item.institutionId, recordRevision: item.recordRevision }, source: 'direct', sourceContextRef: null, evaluationAsOf: result.value.evaluationAsOf })
     check(detail.ok, 'exact revision Detail application builds')
+    check(reads[index].ok, 'lightweight read resolves the same exact revision')
+    const light = reads[index].value
+    check(JSON.stringify(light.sections.price) === JSON.stringify(detail.value.sections.price), 'all price facts match the independent full Detail path')
+    check(JSON.stringify(light.sections.futureV121.officialAddress) === JSON.stringify(detail.value.sections.futureV121.officialAddress), 'official address facts match Detail at the same time')
+    check(JSON.stringify(light.sections.futureV121.officialContact) === JSON.stringify(detail.value.sections.futureV121.officialContact), 'official phone states and call intents match Detail at the same time')
+    check(Object.keys(light.sections).sort().join(',') === 'futureV121,price' && Object.keys(light.sections.futureV121).sort().join(',') === 'officialAddress,officialContact', 'read result contains only the required directory sections')
     const view = load('pages/institution/detail-view-model').createInstitutionDetailPageViewModel(detail.value)
     check(item.card.address === (view.location.addressState === 'ready' ? view.location.address : ''), 'address uses exact existing current verified application projection, never guessed data')
   }
@@ -49,14 +57,14 @@ for (const mode of ['production', 'demo']) {
     check(cards.every(item => item.card.isDemo) && cards.some(item => item.card.price.includes('–')) && cards.some(item => item.card.price.includes('起/月')) && cards.some(item => !item.card.price), 'existing Demo bounded/starting/absent values only, TEST ONLY identity stays intact')
     check(cards.every(item => !item.card.notes.includes('官方联系电话待确认')), 'all-unknown Demo contacts do not generate repeated generic warnings')
   }
-  const app = service.institutionDetailApplicationV12, original = app.build
-  const item = list[0], good = await original({ identity: { institutionId: item.institutionId, recordRevision: item.recordRevision }, source: 'direct', sourceContextRef: null, evaluationAsOf: result.value.evaluationAsOf })
-  for (const patch of [{ identity: { ...good.value.identity, recordRevision: 999 } }, { identity: { ...good.value.identity, institutionId: 'TEST_ONLY-wrong' } }, { datasetMode: mode === 'demo' ? 'PRODUCTION' : 'MOCK_DEVELOPMENT_ONLY' }, { recordProvenance: mode === 'demo' ? 'PRODUCTION_CANDIDATE' : 'MOCK_DEVELOPMENT_ONLY' }, { source: 'recommendation' }, { recordStatus: 'archived' }, { contextKind: 'RECOMMENDATION_PINNED' }, { evaluationAsOf: '1999-01-01T00:00:00Z' }]) {
-    app.build = async () => ({ ok: true, value: { ...good.value, ...patch } })
+  const originalRead = directoryService.read
+  const item = list[0], good = reads[0]
+  for (const patch of [{ identity: { ...good.value.identity, recordRevision: 999 } }, { identity: { ...good.value.identity, institutionId: 'TEST_ONLY-wrong' } }, { datasetMode: mode === 'demo' ? 'PRODUCTION' : 'MOCK_DEVELOPMENT_ONLY' }, { recordProvenance: mode === 'demo' ? 'PRODUCTION_CANDIDATE' : 'MOCK_DEVELOPMENT_ONLY' }, { source: 'recommendation' }, { recordStatus: 'archived' }, { contextKind: 'RECOMMENDATION_PINNED' }, { recommendationContext: { unexpected: true } }, { evaluationAsOf: '1999-01-01T00:00:00Z' }]) {
+    directoryService.read = async () => [{ ok: true, value: { ...good.value, ...patch } }]
     const rejected = (await decorateDirectoryCards([item], result.value.evaluationAsOf))[0]
     check(!rejected.card.address && !rejected.card.price && item.card.notes.every(note => rejected.card.notes.includes(note)), 'wrong identity/version/mode/context/date fails closed without losing risks')
   }
-  app.build = original
+  directoryService.read = originalRead
   // The isolated Demo price evidence expires later than Production's public facts.
   const expiredAsOf = mode === 'production' ? '2027-02-01T00:00:00Z' : '2028-01-01T00:00:00Z'
   vm.runInContext('Date.now = () => Date.parse(' + JSON.stringify(expiredAsOf) + ')', rt.context)
@@ -64,6 +72,13 @@ for (const mode of ['production', 'demo']) {
   check(expiredResult.ok && expiredResult.value.evaluationAsOf === expiredAsOf, 'expiry test explicitly evaluates the real application at the requested time; Date.now alone does not replace new Date')
   const expiredList = load('pages/institution/list-view-model').createInstitutionListPageViewModel(expiredResult.value).items
   const expiredCards = await decorateDirectoryCards(expiredList, expiredResult.value.evaluationAsOf)
+  const expiredReads = await directoryService.read(expiredList.map(item => ({ institutionId: item.institutionId, recordRevision: item.recordRevision })), expiredAsOf)
+  for (const [index, item] of expiredList.entries()) {
+    const detail = await service.institutionDetailApplicationV12.build({ identity: { institutionId: item.institutionId, recordRevision: item.recordRevision }, source: 'direct', sourceContextRef: null, evaluationAsOf: expiredAsOf })
+    check(detail.ok && expiredReads[index].ok, 'both paths resolve the expired record')
+    const light = expiredReads[index].value.sections, full = detail.value.sections
+    check(JSON.stringify(light.price) === JSON.stringify(full.price) && JSON.stringify(light.futureV121.officialAddress) === JSON.stringify(full.futureV121.officialAddress) && JSON.stringify(light.futureV121.officialContact) === JSON.stringify(full.futureV121.officialContact), 'expiry preserves identical price/address/phone facts across both paths')
+  }
   check(expiredCards.every(item => !item.card.price && !item.card.address), 'expired address and price cannot retain a direct factual value')
   if (mode === 'production') {
     const expiredPhone = expiredCards.find(item => item.institutionId === 'wh-dongxihu-baiquan-eldercare').card

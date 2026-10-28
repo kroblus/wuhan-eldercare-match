@@ -99,30 +99,33 @@ for (const mode of ['production', 'demo']) {
   resolvers[2](snapshot);await flush();check(!reattached.data.loadError && reattached.data.institutions.length===2,'reattached current generation publishes')
   service.buildInstitutionListPageSnapshot = originalBuild
   const decorate=load('pages/institution/directory-presentation').decorateDirectoryCards
-  const application=service.institutionDetailApplicationV12,originalDetailBuild=application.build
+  const directoryRead=load('services/institution-directory-read').institutionDirectoryReadService,originalRead=directoryRead.read
   const itemWithRisk={ ...home.data.institutions[0], card:{ ...home.data.institutions[0].card, notes:['TEST_ONLY institution-specific risk'] } }
   const originalCard=JSON.stringify(itemWithRisk.card)
   for(const outcome of ['error','rejected']) {
-    application.build=()=>outcome==='error' ? Promise.resolve({ok:false}) : Promise.reject(new Error('TEST_ONLY supplemental failure'))
+    directoryRead.read=identities=>outcome==='error' ? Promise.resolve(identities.map(()=>({ok:false,error:{code:'TEST_ONLY_READ_FAILURE'}}))) : Promise.reject(new Error('TEST_ONLY supplemental failure'))
     const fallback=await decorate([itemWithRisk],snapshot.value.evaluationAsOf)
     check(fallback.length===1 && fallback[0].key===itemWithRisk.key && fallback[0].card.notes.includes('TEST_ONLY institution-specific risk'),'supplemental '+outcome+' preserves institution-specific risk/identity')
   }
-  application.build=originalDetailBuild
+  directoryRead.read=originalRead
   check(JSON.stringify(itemWithRisk.card)===originalCard,'supplemental projection never mutates existing card')
-  const detailProjection=load('pages/institution/detail-view-model'),originalDetailProjection=detailProjection.createInstitutionDetailPageViewModel
-  const originalDetailSnapshot=await originalDetailBuild({identity:{institutionId:itemWithRisk.institutionId,recordRevision:itemWithRisk.recordRevision},source:'direct',sourceContextRef:null,evaluationAsOf:snapshot.value.evaluationAsOf})
+  const contactProjection=load('presentation/institution/contact-location'),originalAddressProjection=contactProjection.addressViewModel,originalContactProjection=contactProjection.officialContactViewModel
+  const originalReadSnapshot=await originalRead([{institutionId:itemWithRisk.institutionId,recordRevision:itemWithRisk.recordRevision}],snapshot.value.evaluationAsOf)
+  check(originalReadSnapshot.length===1 && originalReadSnapshot[0].ok,'supplemental read supplies the exact requested institution before display-state injection')
+  directoryRead.read=()=>Promise.resolve(originalReadSnapshot)
   for(const [state,status] of [['ready','地址已核验'],['address_unknown','机构地址待确认'],['address_unavailable','当前暂无可提供的机构地址'],['address_unverified','地址资料待核验'],['address_expired','地址资料已过核验期']]) {
-    application.build=()=>Promise.resolve(originalDetailSnapshot)
-    detailProjection.createInstitutionDetailPageViewModel=()=>({location:{address:'TEST_ONLY full address',addressState:state,addressStatus:status},officialContact:{phones:[],statusLabel:'TEST_ONLY contact status'}})
+    contactProjection.addressViewModel=()=>({address:'TEST_ONLY full address',addressState:state,addressStatus:status})
+    contactProjection.officialContactViewModel=()=>({phones:[],statusLabel:'TEST_ONLY contact status'})
     const stateOnly=await decorate([itemWithRisk],snapshot.value.evaluationAsOf)
     check(stateOnly[0].card.address===(state==='ready'?'TEST_ONLY full address':'') && (!['address_unverified','address_expired'].includes(state)||stateOnly[0].card.notes.includes(status)),'ordinary directory '+state+' follows approved direct-address disclosure and preserves important warning')
   }
   const phoneCases=[['verified','已核验'],['pending','机构提供，平台待核验'],['expired','电话资料已过核验期'],['unavailable','当前暂无可提供的官方联系电话'],['unknown','官方联系电话待确认']]
   const withPhones=async (phones,state='ready',statusLabel='机构官方联系方式')=>{
-    detailProjection.createInstitutionDetailPageViewModel=()=>({location:{addressState:'address_unknown',addressStatus:'机构地址待确认'},officialContact:{state,phones,statusLabel}})
+    contactProjection.addressViewModel=()=>({addressState:'address_unknown',addressStatus:'机构地址待确认'})
+    contactProjection.officialContactViewModel=()=>({state,phones,statusLabel})
     return (await decorate([itemWithRisk],snapshot.value.evaluationAsOf))[0].card
   }
-  const phones=phoneCases.map(([state,statusLabel])=>({state,statusLabel,displayValue:'TEST_ONLY complete phone'}))
+  const phones=phoneCases.map(([state,statusLabel])=>({key:'TEST_ONLY-phone-'+state,state,statusLabel,displayValue:'TEST_ONLY complete phone',callAction:state==='verified'?{available:true,dialValue:'TEST_ONLY complete phone'}:{available:false}}))
   for(const phone of phones) {
     const card=await withPhones([phone]),risk=phone.state==='pending'?'官方电话：'+phone.statusLabel:phone.statusLabel
     check(!card.phone && card.notes.includes('TEST_ONLY institution-specific risk') && (phone.state==='verified'?!card.notes.includes(phone.statusLabel):card.notes.includes(risk)), 'ordinary phone '+phone.state+' omits generic row but keeps exact concrete warning and original risk')
@@ -133,7 +136,7 @@ for (const mode of ['production', 'demo']) {
   check(unavailable.notes.includes('当前暂无可提供的官方联系电话'),'explicitly unavailable official contact remains a visible institution risk')
   const unknown=await withPhones([],'unknown','官方联系电话待确认')
   check(!unknown.notes.includes('官方联系电话待确认') && unknown.notes.includes('TEST_ONLY institution-specific risk'),'generic unknown contact does not add a repeated status row or erase specific source risks')
-  application.build=originalDetailBuild;detailProjection.createInstitutionDetailPageViewModel=originalDetailProjection
+  directoryRead.read=originalRead;contactProjection.addressViewModel=originalAddressProjection;contactProjection.officialContactViewModel=originalContactProjection
   // Expired source facts cannot gain positive contact/address tags or overwrite history.
   vm.runInContext("Date.now = () => Date.parse('2027-02-01T00:00:00Z')", rt.context)
   const expiredSnapshot = await originalBuild(null)

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:institution-directory-read": "node scripts/check-institution-directory-read.mjs",
     "check:architecture-boundaries": "node scripts/check-architecture-boundaries.mjs",
     "check:mode-source": "node scripts/check-mode-source.mjs",
     "check:mode-adapters-runtime": "node scripts/check-mode-adapters-runtime.mjs",
