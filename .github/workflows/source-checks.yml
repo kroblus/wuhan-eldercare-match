@@ -26,6 +26,7 @@ jobs:
       - run: npm run check:architecture-boundaries
       - run: npm run check:institution-directory-read
       - run: npm run check:institution-publication-runtime
+      - run: npm run check:publication-preflight
       - run: npm run check:institution-publication-admin
       - run: npm run check:production-directory-data
       - run: npm run check:assessment-v2-runtime

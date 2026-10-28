@@ -16,6 +16,17 @@ export const isPublicationInstitutionId = (value: unknown): value is string =>
   typeof value === 'string' && /^[a-z][a-z0-9-]{1,99}$/.test(value)
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value)
 
+// Release addresses must be public DNS names. Approval, DNS and the WeChat
+// allowlist are checked separately before connecting a real environment.
+export function isReleasePublicationOrigin(value: unknown): value is string {
+  if (typeof value !== 'string' || !resolveC5BackendOriginV1('develop', value)) return false
+  const match = /^https:\/\/([a-zA-Z0-9.-]+)(?::[0-9]+)?$/.exec(value)
+  if (!match) return false
+  const host = match[1].toLowerCase()
+  return /[a-z]/.test(host.split('.').slice(-1)[0])
+    && !/(^|\.)(localhost|local|internal|lan|home|test|invalid|example)$/.test(host)
+}
+
 export function readInstitutionPublicProfile(value: unknown): InstitutionPublicProfile {
   const textFields = ['name', 'source', 'room', 'address', 'nature', 'tagNote', 'otherFees', 'priceNote', 'historyNote']
   if (!object(value) || value.schemaVersion !== 'institution-public-profile-v1' || !isPublicationInstitutionId(value.id)
@@ -44,9 +55,10 @@ export function createInstitutionPublicationClient(transport: InstitutionPublica
   const resolveOrigin = (): string => {
     if (expectedMode !== 'PRODUCTION') return ''
     const development = transport.environment() === 'develop' ? transport.developmentPublicationOrigin() : ''
-    const configured = development || releaseOrigin
-    if (!configured) return ''
-    if (typeof configured !== 'string' || (!development && !configured.startsWith('https://'))) throw new Error('INVALID_PUBLICATION_ORIGIN')
+    const hasDevelopment = development !== undefined && development !== null && development !== ''
+    const configured = hasDevelopment ? development : releaseOrigin
+    if (configured === '') return ''
+    if (typeof configured !== 'string' || (!hasDevelopment && !isReleasePublicationOrigin(configured))) throw new Error('INVALID_PUBLICATION_ORIGIN')
     const origin = resolveC5BackendOriginV1('develop', configured)
     if (!origin) throw new Error('INVALID_PUBLICATION_ORIGIN')
     return origin

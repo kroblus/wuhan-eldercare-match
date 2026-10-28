@@ -21,6 +21,8 @@ if ($p1Settings.P1_DISPOSABLE_MYSQL -ne 'true' -or $p1Settings.P1_MYSQL_URL -not
 }
 $p1JavaVersion = (& $JavaExecutable --version 2>&1 | Out-String)
 if ($LASTEXITCODE -ne 0 -or $p1JavaVersion -notmatch '(?m)(?:openjdk|java) (?:2[1-9]|[3-9][0-9])\.') { throw 'Java 21+ executable is required' }
+$p1JavaPath = (Get-Command $JavaExecutable -CommandType Application -ErrorAction Stop).Source
+$p1JavaHome = Split-Path (Split-Path $p1JavaPath -Parent) -Parent
 $p1PortCheck = [Net.Sockets.TcpClient]::new()
 try {
     $p1Connecting = $p1PortCheck.BeginConnect($BindAddress, $Port, $null, $null)
@@ -32,17 +34,20 @@ if (-not $p1Output.StartsWith((Join-Path $p1Root 'output') + [IO.Path]::Director
 $p1Runtime = Join-Path $p1Output 'runtime.private.json'
 $p1Previous = @{}
 try {
-    foreach ($p1Name in @('P1_DISPOSABLE_MYSQL','P1_MYSQL_URL','P1_MYSQL_USERNAME','P1_MYSQL_PASSWORD')) {
+    foreach ($p1Name in @('P1_DISPOSABLE_MYSQL','P1_MYSQL_URL','P1_MYSQL_USERNAME','P1_MYSQL_PASSWORD','JAVA_HOME','Path')) {
         $p1Previous[$p1Name] = [Environment]::GetEnvironmentVariable($p1Name, 'Process')
-        [Environment]::SetEnvironmentVariable($p1Name, [string]$p1Settings.$p1Name, 'Process')
+        if ($p1Name -notin @('JAVA_HOME','Path')) { [Environment]::SetEnvironmentVariable($p1Name, [string]$p1Settings.$p1Name, 'Process') }
     }
+    # Maven must use the same Java21+ checked above, even when the shell's java is an older installation.
+    $env:JAVA_HOME = $p1JavaHome
+    $env:Path = (Join-Path $p1JavaHome 'bin') + ';' + $env:Path
     Push-Location (Join-Path $p1Root 'server')
     try {
         & mvn -q '-DskipTests' test-compile dependency:build-classpath '-Dmdep.outputFile=target/p1-classpath.txt'
         if ($LASTEXITCODE -ne 0) { throw 'Synthetic server compilation failed' }
         $p1Classpath = (Join-Path (Get-Location) 'target/test-classes') + ';' + (Join-Path (Get-Location) 'target/classes') + ';' + (Get-Content target/p1-classpath.txt -Raw).Trim()
         $p1Arguments = @('-cp', ('"' + $p1Classpath + '"'), 'com.wuhan.eldercare.visit.p1.P1SyntheticServer', ('"' + $p1Runtime + '"'),[string]$Port,$BindAddress)
-        $p1Process = Start-Process -FilePath $JavaExecutable -ArgumentList $p1Arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $p1Output 'synthetic-server.log') -RedirectStandardError (Join-Path $p1Output 'synthetic-server-error.log')
+        $p1Process = Start-Process -FilePath $p1JavaPath -ArgumentList $p1Arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $p1Output 'synthetic-server.log') -RedirectStandardError (Join-Path $p1Output 'synthetic-server-error.log')
     } finally { Pop-Location }
 } finally {
     foreach ($p1Name in $p1Previous.Keys) { [Environment]::SetEnvironmentVariable($p1Name, $p1Previous[$p1Name], 'Process') }
@@ -56,7 +61,10 @@ for ($p1Attempt=0; $p1Attempt -lt 40; $p1Attempt++) {
     if ($p1Process.HasExited) { break }
     Start-Sleep -Milliseconds 250
 }
-if (-not $p1Ready) { throw 'Synthetic server did not become ready; inspect local output logs' }
+if (-not $p1Ready) {
+    if (-not $p1Process.HasExited) { Stop-Process -Id $p1Process.Id -ErrorAction Stop }
+    throw 'Synthetic server did not become ready; its process was stopped. Check Java/MySQL and local synthetic-server logs.'
+}
 @{baseUrl="http://$($BindAddress):$Port";adminUrl="http://$($BindAddress):$Port/p1-admin/";datasetMode='SYNTHETIC_TEST_ONLY';processId=$p1Process.Id;privateRuntimeFile=$p1Runtime} |
     ConvertTo-Json | Set-Content -LiteralPath (Join-Path $p1Output 'runtime.json') -Encoding UTF8
 Write-Output "Synthetic P1 server ready: http://$($BindAddress):$Port/p1-admin/ (explicit synthetic binding)"

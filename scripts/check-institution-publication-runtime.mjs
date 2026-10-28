@@ -8,6 +8,14 @@ const clone = value => JSON.parse(JSON.stringify(value))
 const rt = createWechatTsRuntime(ts, {})
 const load = name => rt.load(path.join(root, 'miniprogram', name + '.ts'))
 const module = load('services/institution-publications')
+for (const origin of ['https://192.168.1.2', 'https://10.0.0.1', 'https://[fc00::1]', 'https://service.local',
+  'https://service.internal', 'https://service.test', 'https://service.invalid', 'https://service.example',
+  'https://localhost', 'https://user:password@example.org', 'https://example.org/api', 'https://example.org?token=x',
+  'http://example.org', 'https://2130706433', 'https://0x7f.0.0.1']) {
+  assert.equal(module.isReleasePublicationOrigin(origin), false, 'Reject non-release origin: ' + origin)
+}
+assert.equal(module.isReleasePublicationOrigin('https://public.example.org'), true)
+assert.equal(module.isReleasePublicationOrigin('https://public.example.org:8443'), true)
 const legacy = load('content/p1-public-institution').p1Institution
 const a = makeInitialReferenceRecordV121(), b = reidentifyInitialReferenceRecordV121(a, 'publication-synthetic-second')
 for (const row of [a, b]) row.recordProvenance = 'PRODUCTION_CANDIDATE'
@@ -36,6 +44,10 @@ const count = calls.length
 assert.equal(await module.createInstitutionPublicationClient(transport, 'MOCK_DEVELOPMENT_ONLY', 'https://example.org').load(), null)
 assert.equal(calls.length, count, 'Demo never requests public or private production services')
 origin = ''; assert.equal(await client.load(), null)
+for (const invalid of [false, 0, {}, ['https://example.org']]) {
+  origin = invalid
+  await assert.rejects(client.load(), /INVALID_PUBLICATION_ORIGIN/, 'Malformed storage cannot select bundled facts')
+}
 origin = 'file:///tmp/data'; await assert.rejects(client.load(), /INVALID_PUBLICATION_ORIGIN/)
 origin = 'http://192.168.7.8:18341'
 status = 503; await assert.rejects(client.load(), /PUBLICATION_LOAD_FAILED/); status = 200
@@ -53,6 +65,13 @@ for (const change of [
   value => { value.publicProfiles[0].profile.schemaVersion = 'unknown' },
 ]) { response = clone(body); change(response); await assert.rejects(client.load()) }
 response = body
+const normalRequest = transport.request
+for (const reason of ['ENOTFOUND', 'ECONNREFUSED', 'request:fail timeout']) {
+  transport.request = async () => { throw new Error(reason) }
+  await assert.rejects(client.load(), error => error.message === reason)
+}
+transport.request = normalRequest
+assert.equal((await client.load()).publicProfiles.length, 2, 'DNS/connect/timeout failures do not cache a failed result')
 environment = 'release'; assert.equal(await client.load(), null, 'A develop-only address cannot enable release network access')
 const release = module.createInstitutionPublicationClient(transport, 'PRODUCTION', 'https://example.org')
 await assert.rejects(release.load(), /PUBLICATION_LOAD_FAILED/, 'Synthetic catalog cannot enter release')

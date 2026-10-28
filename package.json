@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:publication-preflight": "node scripts/check-publication-preflight.mjs",
+    "check:publication-http-readiness": "node scripts/check-publication-http-readiness.mjs",
     "export:institution-publication-baseline": "node scripts/export-institution-publication-baseline.mjs",
     "check:institution-publication-runtime": "node scripts/check-institution-publication-runtime.mjs",
     "check:institution-publication-admin": "node scripts/check-institution-publication-admin.mjs",
