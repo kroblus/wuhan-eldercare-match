@@ -47,7 +47,7 @@ V5 交付已简化：完成相关验证后自动 commit/push；Drive 使用桌�
 
 ## 在哪里开发
 
-唯一日常主目录：`C:/Users/16562/WeChatProjects/wuhan-eldercare-match`。最新活动源码及 9 个未提交文件已迁入；原活动路径保留为恢复来源，Windows 拒绝移动，停止作为日常入口。旧三个演示目录已移到恢复区。
+唯一日常主目录：`C:/Users/16562/WeChatProjects/wuhan-eldercare-match`。最新活动源码及当时 9 个未提交文件已迁入；2026-10-28 对父目录的旧阶段、验收、测试工程及旧备份做了压缩保全与目录清理，恢复位置、逐文件校验和实际结果见[清理说明](docs/phases/workspace-cleanup-20261028/SUMMARY.md)。旧三个演示目录仍保留在此前恢复区。
 
 源码：`miniprogram/`；模式适配：`modes/`；构建：`dist/`；截图、日志与生成测试项目：`output/<任务名>/`；值得长期保留的总结：`docs/phases/`。以后不新建平行的小程序阶段目录。
 
