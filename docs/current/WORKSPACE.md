@@ -27,6 +27,8 @@
 
 ## 旧目录怎么处理
 
+2026-10-28 后续空间清理：下表中的旧解压树已去重，原文件仍在保留的恢复 ZIP；旧 `active-working-files.zip` 和 `active-history.bundle` 已证明完整包含于 `2026-10-28-workspace-cleanup/retired-projects.zip`，移除重复副本。`main-working-files.zip` 仍含独有旧文件，连同 `main-history.bundle` 保留。具体清理与当前恢复位置见[空间清理说明](../phases/space-cleanup-20261028/SUMMARY.md)；下表保留首次收拢经过。
+
 | 目录/类别 | 处理方式 |
 |---|---|
 | 原活动 `wuhan-eldercare-v2-1-b1-2-4` | 最新磁盘源码已于 10-27 完整迁入并校验；10-28 再将完整磁盘文件（含 9 个未提交文件）压缩校验后退役，恢复包见本轮清理说明 |
