@@ -3,7 +3,7 @@ import { readModeCatalog } from '../runtime/institution-catalog-provider'
 import { createInstitutionCatalogServiceV121, createInstitutionCatalogServiceV11Adapter } from './institution-catalog-validation-v121'
 export * from './institution-catalog-validation-v121'
 export const mockInstitutionCatalogProviderV121 = {
-  loadCatalog: () => Promise.resolve(JSON.parse(JSON.stringify(readModeCatalog()))),
+  loadCatalog: async () => JSON.parse(JSON.stringify(await readModeCatalog())),
 }
 export const institutionCatalogServiceV121 = createInstitutionCatalogServiceV121(mockInstitutionCatalogProviderV121)
 export const institutionCatalogServiceV11Adapter = createInstitutionCatalogServiceV11Adapter(institutionCatalogServiceV121)

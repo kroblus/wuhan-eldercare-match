@@ -47,4 +47,23 @@ body[data-font-percent='150'] .filters { grid-template-columns:repeat(2,minmax(0
 @media(max-width:700px) { body[data-font-percent='150'] .filters { grid-template-columns:1fr; } }
 .table-scroll .wide-table { min-width:44rem; }
 .table-scroll:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+.publication-layout { display:grid; grid-template-columns:minmax(220px,.65fr) minmax(0,1.8fr); gap:32px; align-items:start; }
+.publication-layout aside { border-right:1px solid #e1d4c3; padding-right:28px; min-width:0; }
+.publication-layout #institutionEditor { min-width:0; scroll-margin-top:20px; }
+.publication-form { margin:22px 0; }
+.publication-form label { min-width:0; }
+.publication-state { padding:12px 16px; border-left:4px solid var(--accent-bright); background:#fff0dc; line-height:1.7; }
+.publication-step { border-top:1px solid #e1d4c3; margin-top:28px; padding-top:8px; }
+.publication-price-row { display:grid; grid-template-columns:1.5fr repeat(4,minmax(90px,1fr)); gap:12px; align-items:end; border-top:1px solid #e1d4c3; padding:12px 0 20px; }
+.publication-price-row label { margin-bottom:0; }
+.publication-price-row button { grid-column:1 / -1; justify-self:start; }
+.publication-record { font-family:ui-monospace,Consolas,monospace; font-size:.85rem; line-height:1.6; tab-size:2; white-space:pre; }
+.baseline-import { margin-top:28px; border-top:1px solid #e1d4c3; }
+#institutionMessage { color:#92402d; line-height:1.7; }
+#institutionMessage:empty { display:none; }
+body[data-font-percent='150'] .publication-layout { grid-template-columns:1fr; }
+body[data-font-percent='150'] .publication-layout aside { border-right:0; padding-right:0; border-bottom:1px solid #e1d4c3; padding-bottom:24px; }
+body[data-font-percent='150'] .publication-price-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+@media(max-width:1100px) { .publication-layout { grid-template-columns:1fr; } .publication-layout aside { border-right:0; padding-right:0; border-bottom:1px solid #e1d4c3; padding-bottom:24px; } }
+@media(max-width:700px) { .publication-price-row { grid-template-columns:repeat(2,minmax(0,1fr)); } .publication-price-row label:first-child { grid-column:1 / -1; } }
 @media(max-width:700px) { .table-scroll:has(.wide-table)::before { content:'左右滑动查看完整表格'; display:block; margin:10px 0; font-size:.85rem; color:#72685b; } }

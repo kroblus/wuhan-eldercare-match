@@ -117,6 +117,11 @@
                     <include>validate-institution-record.mjs</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>../modes/production</directory>
+                <targetPath>institution-validator/miniprogram/runtime</targetPath>
+                <includes><include>administrative-divisions.ts</include></includes>
+            </resource>
         </resources>
         <testResources>
             <testResource><directory>src/test/resources</directory></testResource>

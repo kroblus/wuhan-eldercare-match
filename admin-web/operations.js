@@ -18,7 +18,22 @@ function field(form,label,name,type='text',value='',options=null) {
   if(type==='number'){input.min='0';input.max='240'}
   wrapper.append(input);form.append(wrapper);return input
 }
-function institutionChoices(synthetic){return {'ningyue-yiyang-center':'柠月颐养中心',...(synthetic?{'synthetic-reception-b':'合成接待点 B（虚构）'}:{})}}
+let serviceInstitutionRows=[]
+function institutionChoices(){return Object.fromEntries(serviceInstitutionRows.filter(row=>row.enabled).map(row=>[row.institutionId,row.institutionName]))}
+window.setP1InstitutionChoices=rows=>{
+  if(!Array.isArray(rows)||!rows.every(row=>row&&typeof row.institutionId==='string'&&typeof row.institutionName==='string'&&typeof row.enabled==='boolean'))throw Error('机构服务名单格式不正确。')
+  serviceInstitutionRows=rows
+  for(const select of document.querySelectorAll('.institution-options,.institution-active-options')){
+    const selected=select.value,old=select.selectedOptions[0],placeholder=select.dataset.placeholder||select.options[0]?.textContent||'请选择'
+    select.dataset.placeholder=placeholder;select.replaceChildren()
+    const blank=element('option',placeholder);blank.value='';select.append(blank)
+    for(const row of rows.filter(row=>!select.classList.contains('institution-active-options')||row.enabled)){
+      const option=element('option',row.institutionName+(row.enabled?'':'（已停用）'));option.value=row.institutionId;select.append(option)
+    }
+    if(selected&&!Array.from(select.options).some(option=>option.value===selected)){const option=element('option',old?.textContent||selected+'（历史机构）');option.value=selected;select.append(option)}
+    select.value=selected
+  }
+}
 function formSection(title){const section=element('section','', 'operation-section');section.append(element('h3',title));const form=document.createElement('form');form.className='operation-form';section.append(form);return {section,form}}
 function mutationForm(form,key,path,bodyFactory,onSaved) {
   const feedback=element('p','','operation-feedback');feedback.setAttribute('role','status');form.append(feedback)
@@ -48,9 +63,6 @@ function renderOperations(result) {
   const item=result.item,id=item.id,synthetic=item.datasetMode==='SYNTHETIC_TEST_ONLY',root=$('detail')
   const recorded=new Set(result.events.map(event=>event.operationId).filter(Boolean));for(const [key,body] of pendingOperations)if(recorded.has(body.operationId))pendingOperations.delete(key)
   for(const button of $('list').children)if(button.dataset.requestId===id&&button.querySelector('strong'))button.querySelector('strong').textContent=kindText[item.kind]+' · '+statusText[item.status]
-  for(const select of document.querySelectorAll('.institution-options')){
-    if(synthetic&&!select.querySelector('[value="synthetic-reception-b"]')){const o=element('option','合成接待点 B（虚构）');o.value='synthetic-reception-b';select.append(o)}
-  }
   const refresh=element('button','刷新这份需求');refresh.addEventListener('click',()=>loadDetail(id,null));root.append(refresh)
   if(result.nextContact&&result.nextContact.nextContactAt&&!['CANCELLED','CLOSED'].includes(item.status))root.append(element('p',`下一动作：${result.nextContact.nextAction} · ${time(result.nextContact.nextContactAt)}（北京时间）`,'banner'))
   if(item.status!=='CANCELLED') {
@@ -61,7 +73,7 @@ function renderOperations(result) {
     field(form,'下次联系（北京时间，选填）','nextContactAt','datetime-local')
     field(form,'下一动作（有下次时间时必填）','nextAction').maxLength=200
     field(form,'入住反馈来源（反馈时必填）','feedbackSource','text','',{'':'未记录',FAMILY:'家属明确反馈',INSTITUTION:'机构明确反馈',CONSULTANT:'顾问明确核实'})
-    field(form,'反馈关联机构（反馈时必填）','institutionId','text','',{'':'请选择',...institutionChoices(synthetic)})
+    field(form,'反馈关联机构（反馈时必填）','institutionId','text','',{'':'请选择',...institutionChoices()}).className='institution-active-options'
     form.append(element('p','拒绝联系将结束待办并取消未完成行程。入住只记录反馈，不涉及签约、收费或结算。','muted'))
     mutationForm(form,id+'/followup','/requests/'+id+'/followups',()=>{const d=new FormData(form);return {operationId:crypto.randomUUID(),result:d.get('result'),note:String(d.get('note')).trim()||null,nextContactAt:utcInput(d.get('nextContactAt')),nextAction:String(d.get('nextAction')).trim()||null,feedbackSource:d.get('feedbackSource')||null,institutionId:d.get('institutionId')||null}},()=>loadDetail(id,null))
     root.append(section)
@@ -91,7 +103,9 @@ function renderOperations(result) {
 function visitEditor(item,visit) {
   const {section,form}=formSection(visit?(visit.status==='CONFIRMED'?'改期（重新取得双方确认）':'编辑待确认行程'):'新增另一场带看')
   const key=item.id+'/'+(visit?visit.id:'new')+'/schedule',saved=pendingOperations.get(key),v=saved||visit||{}
-  field(form,'机构','institutionId','text',v.institutionId||item.institutionId||'ningyue-yiyang-center',institutionChoices(item.datasetMode==='SYNTHETIC_TEST_ONLY'))
+  const selectedInstitution=v.institutionId||item.institutionId||'',choices={'':'请选择机构',...institutionChoices()}
+  if(selectedInstitution&&!choices[selectedInstitution])choices[selectedInstitution]=(v.institutionName||item.institutionName||selectedInstitution)+'（历史机构，需重新核对接入状态）'
+  field(form,'机构','institutionId','text',selectedInstitution,choices).className='institution-active-options'
   field(form,'带看负责人标识（同一人请保持一致）','staffId','text',v.staffId||'顾问一').maxLength=80
   field(form,'开始（北京时间）','start','datetime-local',beijingInput(v.start)).required=true
   field(form,'结束（北京时间）','end','datetime-local',beijingInput(v.end)).required=true
@@ -119,7 +133,7 @@ function renderResources(){
   field(form,'负责人标识','staffId','text','顾问一').required=true;field(form,'开始（北京时间）','start','datetime-local').required=true;field(form,'结束（北京时间）','end','datetime-local').required=true
   mutationForm(form,'resource-block','/resources',()=>{const d=new FormData(form);return {action:'BLOCK',blockId:crypto.randomUUID(),staffId:String(d.get('staffId')).trim(),start:utcInput(d.get('start')),end:utcInput(d.get('end'))}},()=>{form.reset();$('calendarFilter').requestSubmit()});$('resources').append(section)
   const capacity=formSection('仅在机构明确限定时设置容量')
-  field(capacity.form,'机构','institutionId','text','ningyue-yiyang-center',{'ningyue-yiyang-center':'柠月颐养中心','synthetic-reception-b':'合成接待点 B（仅合成环境）'})
+  field(capacity.form,'机构','institutionId','text','',{'':'请选择机构',...institutionChoices()}).className='institution-active-options'
   const input=field(capacity.form,'同时接待组数（0 = 未配置，不限制）','capacity','number',0);input.max='100'
   capacity.form.append(element('p','这是手工明确配置，不代表已核实机构真实接待能力。存在未来确认行程时需先处理行程。','muted'))
   mutationForm(capacity.form,'resource-capacity','/resources',()=>{const d=new FormData(capacity.form);return {action:'CAPACITY',institutionId:d.get('institutionId'),capacity:Number(d.get('capacity'))}},()=>Promise.resolve());$('resources').append(capacity.section)

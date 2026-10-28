@@ -9,7 +9,7 @@ import java.util.*;
 
 /** Aggregate-only snapshot. Reads only IDs, times and enumerated categories, never contact/notes. */
 public final class P1Reports {
-    public static final String POLICY="p1-aggregate-v1-k5";
+    public static final String POLICY="p1-aggregate-v2-k5";
     private final P1Service service;
     public P1Reports(P1Service service){this.service=service;}
     private record Request(String id,Instant created,String kind,String source,String scenario,String institution){}
@@ -46,16 +46,20 @@ public final class P1Reports {
             var report=service.mapper.createObjectNode().put("snapshotId",snapshot).put("policyVersion",POLICY).put("datasetMode",service.datasetMode())
                     .put("warning",service.synthetic()?"合成测试，不代表真实获客":"免费信息对接服务汇总")
                     .put("from",from).put("to",to).put("timeZone","Asia/Shanghai").put("generatedAt",now.toString())
-                    .put("institutionName",institution==null?"平台去重总览":service.operations().institutionName(institution))
+                    .put("institutionName",institution==null?"平台去重总览":service.operations().institutionName(c,institution))
                     .put("sourceFilter",source==null?"全部来源（按数据环境隔离）":source);
             if(institution==null)report.putNull("institutionId");else report.put("institutionId",institution);
             var selected=associated(requests,visits,institution);
             var metrics=aggregate(selected,visits,events,institution,low,high,now);report.set("metrics",metrics);
             var institutions=report.putArray("institutions");
-            if(institution!=null){var row=institutions.addObject().put("institutionName",service.operations().institutionName(institution));row.set("metrics",metrics);}
+            if(institution!=null){var row=institutions.addObject().put("institutionName",service.operations().institutionName(c,institution));row.set("metrics",metrics);}
             else{
                 var ids=new TreeSet<String>();for(var r:requests.values())if(r.institution()!=null)ids.add(r.institution());for(var v:visits)ids.add(v.institution());
-                for(String id:ids){var row=institutions.addObject().put("institutionName",service.operations().institutionName(id));row.set("metrics",aggregate(associated(requests,visits,id),visits,events,id,low,high,now));}
+                for(String id:ids){
+                    var values=aggregate(associated(requests,visits,id),visits,events,id,low,high,now);
+                    boolean activity=false;for(var value:values)if(value.isNumber()&&value.asDouble()>0)activity=true;
+                    if(activity){var row=institutions.addObject().put("institutionName",service.operations().institutionName(c,id));row.set("metrics",values);}
+                }
             }
             var cohort=selected.values().stream().filter(r->during(r.created(),low,high)&&!r.created().isAfter(now)).toList();
             var profiles=report.putArray("profiles");

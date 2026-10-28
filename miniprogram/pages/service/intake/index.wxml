@@ -3,13 +3,25 @@
 <page-container>
   <view class="p1-intro"><text class="p1-eyebrow">快康养 · 免费信息对接</text><text class="p1-title">先了解，再作安排</text><text>浏览不需要填写问卷。平台咨询与对接免费，机构入住仍按机构收费。</text></view>
   <view class="p1-card">
+    <text wx:if="{{publicSynthetic}}" class="p1-notice">合成研发资料：以下机构与价目只用于测试，不代表真实机构服务。</text>
+    <text wx:if="{{publicLoading}}" class="p1-note">正在读取机构资料…</text>
+    <text wx:if="{{publicError}}" class="p1-error" role="alert">{{publicError}}</text>
+    <text wx:if="{{publicOnline && !publicLoading && !publicError && !institution}}" class="p1-note">当前暂无已发布的机构介绍。</text>
+    <label wx:if="{{publicNames.length > 1}}" class="p1-field"><text>浏览机构资料</text><picker range="{{publicNames}}" value="{{publicIndex}}" bindchange="choosePublicInstitution" disabled="{{publicLoading}}"><view>{{publicNames[publicIndex]}} ▾</view></picker></label>
+    <button bindtap="loadPublicInstitutions" disabled="{{publicLoading}}">刷新机构资料</button>
+    <text class="p1-note">公开资料不代表已开通平台对接，可申请机构以下方选项为准。</text>
+  </view>
+  <view wx:if="{{institution}}" class="p1-card">
     <text class="p1-heading">{{institution.name}}</text>
     <view class="p1-tags"><text wx:for="{{institution.tags}}" wx:key="*this">{{item}}</text></view>
     <text class="p1-note">{{institution.tagNote}}</text><text class="p1-note">性质：{{institution.nature}}</text><text class="p1-note">地址：{{institution.address}}</text>
-    <text class="p1-heading">2026 年公示价 · 双人间</text><text class="p1-price">3600—7200 元/月</text>
+    <text class="p1-heading">公开价目<text wx:if="{{institution.room}}"> · {{institution.room}}</text></text><text wx:if="{{publicPriceSummary}}" class="p1-price">{{publicPriceSummary}}</text>
+    <text wx:if="{{!institution.prices.length}}" class="p1-note">暂无已公开价目，具体费用请咨询。</text>
     <view wx:for="{{institution.prices}}" wx:key="level" class="p1-price-row"><view><text>{{item.level}}</text><text class="p1-price-total">{{item.total}} 元/月</text></view><text class="p1-note">床位 {{item.bed}} ＋ 护理 {{item.care}} ＋ 伙食 {{item.food}}</text></view>
     <text class="p1-note">{{institution.otherFees}}</text><text class="p1-note">{{institution.priceNote}}</text><text class="p1-source">来源：{{institution.source}}</text><text class="p1-source">{{institution.historyNote}}</text>
-    <text class="p1-heading">平台咨询</text><text class="p1-note">由平台顾问协调机构与家属，不是机构官方电话。机构官方电话待补充。</text>
+  </view>
+  <view class="p1-card">
+    <text class="p1-heading">平台咨询</text><text class="p1-note">由平台顾问协调机构与家属，不是机构官方电话。机构官方电话请以该机构公开详情为准。</text>
     <button wx:if="{{config.platformContact.phone && config.datasetMode === 'PRODUCTION'}}" bindtap="callPlatform" disabled="{{calling}}">拨打平台电话 {{config.platformContact.phone}}</button>
     <text wx:else class="p1-note">平台公开号码暂未开放，不能拨号。</text>
   </view>

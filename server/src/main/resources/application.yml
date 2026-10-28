@@ -29,6 +29,10 @@ server:
     include-message: never
     include-stacktrace: never
 
+institution:
+  publications:
+    enabled: ${INSTITUTION_PUBLICATIONS_ENABLED:false}
+
 p1:
   intake:
     enabled: ${P1_INTAKE_ENABLED:false}

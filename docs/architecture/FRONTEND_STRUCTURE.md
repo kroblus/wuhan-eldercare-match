@@ -1,5 +1,7 @@
 # 小程序前端结构与所有权
 
+架构第 5 项：`services/institution-publications.ts` 负责公开在线目录、介绍与精确历史版本的外部输入校验。Production 模式适配器在未配置时沿用静态目录，配置后使用单一在线池，任何读取错误不回退旧事实；Demo 不触及其存储或网络。普通推荐只接收正式环境；开发版 P1 咨询页可带显式标识浏览合成公开资料，申请选项独立读取服务资格。页面组合已接入精确历史 resolver，发布新版本不重写旧推荐。[维护、发布与接线说明](../phases/institution-publication-v1-20261028/SUMMARY.md)。
+
 V2.1-B1：首页采用 A2 资讯与双服务入口，继续使用 N1 TabBar。原位查询共用 `institution-directory-search`；首页仅在无查询条件且未展开时截取普通目录前 2 条，主动查询显示全部匹配。普通目录展示遵循后继 `institution-ordinary-directory-display-v1`：仅显示当前核验的完整地址、无附加限制的准确参考月费，保留具体电话与机构风险，不展示电话号码，不生成护理特质或改变推荐。三个静态阅读路由继续共用内容 Service / 阅读模板。公告入口仅打开原生空状态，不读取公告数据或保存已读。
 
 架构第 4 项：`services/institution-directory-read.ts` 每批读取一次当前目录，以相同 identity/revision/evaluationAsOf 核对 V1.2.1 来源与 V1.1 投影关联，返回价格、地址、电话的最小应用结果。详情与目录共用 `domain/institution/presentation-facts.ts`、`domain/institution/v1-2-1/contact-location-projection.ts` 和 `presentation/institution/contact-location.ts`；目录不再逐卡构建完整 Detail snapshot/VM。`institution-current-catalog.ts` 只合并进行中的读取，不保存已完成事实；电话点击仍由 `directory-call.ts` 读取最新详情并校验。此变化不升级展示政策、历史快照或推荐算法；[成果与复测入口](../phases/directory-read-v1-20261028/SUMMARY.md)。
@@ -47,7 +49,7 @@ miniprogram/
 开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
 正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
 
-2026-10-28 架构收敛：模式行为写在 `modes/<mode>/runtime/`，模式独有页面在 `modes/<mode>/pages/`，共享页面的完整静态模板/组件配置覆盖在 `modes/<mode>/overrides/`。选择顺序为共享源码 → 双模式共用 runtime → 模式页面/runtime → overrides；修改已覆盖模板时直接编辑对应模式文件。不同模式可以共用页面逻辑，构建器不再搜索中文文案或替换 TypeScript 函数体。运行文案由 `runtime/presentation-copy` 处理，展示别名与导航由独立端口处理；它们不写回事实、推荐或旧快照。`source-origins.json` 记录实际选中文件，构建前逐字节核对来源；唯一生成的运行值是公开 AppID，JSON 转普通模块属于微信编译适配。
+2026-10-28 架构收敛：模式行为写在 `modes/<mode>/runtime/`，模式独有页面在 `modes/<mode>/pages/`，共享页面的完整静态模板/组件配置覆盖在 `modes/<mode>/overrides/`。选择顺序为共享源码 → 双模式共用 runtime → 模式页面/runtime → overrides；修改已覆盖模板时直接编辑对应模式文件。不同模式可以共用页面逻辑，构建器不再搜索中文文案或替换 TypeScript 函数体。运行文案由 `runtime/presentation-copy` 处理，展示别名与导航由独立端口处理；它们不写回事实、推荐或旧快照。构建产物中的 source-origins.json 记录实际选中文件，构建前逐字节核对来源；唯一生成的运行值是公开 AppID，JSON 转普通模块属于微信编译适配。
 
 Demo 连续场景由 `modes/demo/scenario.ts` 声明显式 TEST_ONLY ID，`session.ts` 保存老人、已完成合成 Assessment / Profile / Recommendation 快照、预约与 completed Visit、私有评价；重复载入不重置、不复制，显式重置或进程重启清除。老人/历史/预约页从同一会话读取；历史结果只展示保存快照，重新保存已完成草稿追加新记录。记录页共用 `modes/demo/pages/records.wxml` / `records.less`，由 `record-presentation.ts` 和 `utils/display-date.ts` 生成分组摘要及中国日期展示；实体 ID 仅用于路由与关联，另存评估操作只在 TEST ONLY 工具区提供。`runtime/evaluation-session.ts` 是评价会话端口：正式实现不提供演示数据，Demo 构建接入隔离上下文、展示姓名、编辑草稿和一次提交后的只读评价。三步评价复用正式表单和既有校验；21 项数字评分与费用清楚/不清楚保持冻结编码。评价页按实际 footer 高度预留末尾空间，键盘高度事件只调整展示，已提交查看隐藏提交按钮。构建器精确复用基础 WXSS 前缀，不改变样式顺序或包预算，不新增分包。
 

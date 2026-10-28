@@ -33,7 +33,7 @@ class P1ReportsMySqlIntegrationTest {
         .put("start",start.toString()).put("end",start.plusSeconds(3600).toString()).put("bufferBefore",0).put("bufferAfter",0).put("familyConfirmed",true).put("institutionConfirmed",true).put("meetingNote","=合成集合信息，不进报表");service.operations().visit(login.token(),login.csrfToken(),id,b);return b;}
     void arrive(String id,ObjectNode v,Instant actual){service.operations().visit(login.token(),login.csrfToken(),id,s.mapper.createObjectNode().put("operationId",UUID.randomUUID().toString()).put("visitId",v.path("visitId").asText()).put("expectedRevision",1).put("action","ARRIVE").put("actualAt",actual.toString()));}
     @Test void completeRangeBeyond100AndPagingAndSnapshotDoesNotDrift(){
-        for(int i=0;i<155;i++)request();var report=preview();assertEquals(155,report.path("metrics").path("newRequests").asInt());
+        for(int i=0;i<155;i++)request();var report=preview();assertEquals("p1-aggregate-v2-k5",report.path("policyVersion").asText());assertEquals(155,report.path("metrics").path("newRequests").asInt());
         var page=service.operations().page(login.token(),null,null,null,day,day,100,0);var next=service.operations().page(login.token(),null,null,null,day,day,100,100);
         assertEquals(155,page.path("total").asInt());assertEquals(100,page.path("items").size());assertTrue(page.path("hasMore").asBoolean());assertEquals(55,next.path("items").size());assertFalse(next.path("hasMore").asBoolean());
         var ids=new HashSet<String>();for(var item:page.path("items"))assertTrue(ids.add(item.path("id").asText()));for(var item:next.path("items"))assertTrue(ids.add(item.path("id").asText()));

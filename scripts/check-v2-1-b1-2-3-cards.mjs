@@ -7,7 +7,7 @@ const { ts } = loadWechatTypeScript()
 let assertions = 0
 const check = (value, message) => { assert.ok(value, message); assertions++ }
 for (const mode of ['production', 'demo']) {
-  const wx = { cloud: {}, getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }) }
+  const wx = { cloud: {}, getStorageSync() {}, getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }) }
   const rt = createWechatTsRuntime(ts, { wx, App() {}, setTimeout, clearTimeout })
   const load = file => rt.load(path.join('dist', mode, 'miniprogram', file + '.js'))
   vm.runInContext("Date.now = () => Date.parse('2026-10-23T00:00:00Z')", rt.context)

@@ -10,7 +10,7 @@ for (const mode of ['production', 'demo']) {
   const calls = [], messages = []
   let component, pageDefinition, navigations = 0
   let throws = false
-  const wx = { cloud: {}, getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }),
+  const wx = { cloud: {}, getStorageSync() {}, getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }),
     navigateTo: options => { navigations++; options.success(); options.complete() },
     makePhoneCall: options => { if (throws) throw Error('TEST_ONLY API throw'); calls.push(options) } }
   const rt = createWechatTsRuntime(ts, { wx, App() {}, Component(definition) { component = definition }, Page(definition) { pageDefinition = definition }, setTimeout, clearTimeout })

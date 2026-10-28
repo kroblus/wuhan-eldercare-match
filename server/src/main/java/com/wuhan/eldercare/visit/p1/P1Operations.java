@@ -13,8 +13,8 @@ public final class P1Operations {
     static final String SECOND_INSTITUTION="synthetic-reception-b";
     private final P1Service service;
     P1Operations(P1Service service){this.service=service;}
-    String institutionName(String id){return P1Service.INSTITUTION.equals(id)?"柠月颐养中心":SECOND_INSTITUTION.equals(id)?"合成接待点 B（虚构）":"机构未定";}
-    boolean institution(String id){return P1Service.INSTITUTION.equals(id)||(service.synthetic()&&SECOND_INSTITUTION.equals(id));}
+    String institutionName(Connection c,String id)throws Exception{return Objects.toString(service.publications().knownName(c,id),"机构名称未记录");}
+    boolean institution(String id){return service.hasDatabase()&&service.transaction(c->service.publications().knownName(c,id)!=null);}
     void lock(Connection c)throws SQLException{
         try(var s=c.prepareStatement("SELECT dataset_mode FROM p1_operations_mutex_v1 WHERE dataset_mode=? FOR UPDATE")){
             s.setString(1,service.datasetMode());try(var r=s.executeQuery()){if(!r.next())throw new P1Failure(503,"SERVICE_UNAVAILABLE");}
@@ -119,7 +119,9 @@ public final class P1Operations {
                 }
             }else{
                 String institution=string(b,"institutionId",100,false),staff=string(b,"staffId",80,false),meeting=string(b,"meetingNote",300,false);
-                if(!institution(institution)||!P1Service.text(staff,80,false))throw new P1Failure(400,"INVALID_INPUT");
+                if(!P1Service.text(staff,80,false))throw new P1Failure(400,"INVALID_INPUT");
+                String name=service.publications().acceptingName(c,institution);
+                String nameSnapshot=old!=null&&institution.equals(old.path("institutionId").asText())?old.path("institutionName").asText():name;
                 Instant start=instant(b,"start"),end=instant(b,"end");int before=integer(b,"bufferBefore",0,240),after=integer(b,"bufferAfter",0,240);
                 boolean family=bool(b,"familyConfirmed"),reception=bool(b,"institutionConfirmed"),confirmed=!action.equals("SAVE_DRAFT");
                 if(!start.isBefore(end)||Duration.between(start,end).toHours()>24)throw new P1Failure(400,"INVALID_TIME");
@@ -133,14 +135,14 @@ public final class P1Operations {
                     s.setString(1,id);try(var r=s.executeQuery()){r.next();subject=r.getString(1);}
                 }
                 if(confirmed)conflicts(c,visitId,institution,staff,subject,start.minusSeconds(before*60L),end.plusSeconds(after*60L));
-                try(var s=c.prepareStatement("INSERT INTO p1_visit_v1 (visit_id,request_id,dataset_mode,institution_id,staff_id,subject_key,visit_status,revision,starts_at,ends_at,buffer_before,buffer_after,family_confirmed,institution_confirmed,meeting_note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE institution_id=VALUES(institution_id),staff_id=VALUES(staff_id),visit_status=VALUES(visit_status),revision=VALUES(revision),starts_at=VALUES(starts_at),ends_at=VALUES(ends_at),buffer_before=VALUES(buffer_before),buffer_after=VALUES(buffer_after),family_confirmed=VALUES(family_confirmed),institution_confirmed=VALUES(institution_confirmed),meeting_note=VALUES(meeting_note),updated_at=VALUES(updated_at)")){
+                try(var s=c.prepareStatement("INSERT INTO p1_visit_v1 (visit_id,request_id,dataset_mode,institution_id,staff_id,subject_key,visit_status,revision,starts_at,ends_at,buffer_before,buffer_after,family_confirmed,institution_confirmed,meeting_note,created_at,updated_at,institution_name_snapshot) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE institution_id=VALUES(institution_id),staff_id=VALUES(staff_id),visit_status=VALUES(visit_status),revision=VALUES(revision),starts_at=VALUES(starts_at),ends_at=VALUES(ends_at),buffer_before=VALUES(buffer_before),buffer_after=VALUES(buffer_after),family_confirmed=VALUES(family_confirmed),institution_confirmed=VALUES(institution_confirmed),meeting_note=VALUES(meeting_note),updated_at=VALUES(updated_at),institution_name_snapshot=VALUES(institution_name_snapshot)")){
                     // A UUID belonging to another request must never be overwritten.
                     try(var check=c.prepareStatement("SELECT request_id FROM p1_visit_v1 WHERE visit_id=?")){
                         check.setString(1,visitId);try(var r=check.executeQuery()){if(r.next()&&!id.equals(r.getString(1)))throw new P1Failure(409,"VISIT_ID_CONFLICT");}
                     }
                     int i=1;s.setString(i++,visitId);s.setString(i++,id);s.setString(i++,service.datasetMode());s.setString(i++,institution);s.setString(i++,staff);s.setString(i++,subject);
                     s.setString(i++,confirmed?"CONFIRMED":"DRAFT");s.setInt(i++,revision+1);s.setTimestamp(i++,Timestamp.from(start));s.setTimestamp(i++,Timestamp.from(end));
-                    s.setInt(i++,before);s.setInt(i++,after);s.setBoolean(i++,family);s.setBoolean(i++,reception);s.setString(i++,meeting);s.setTimestamp(i++,Timestamp.from(service.clock.instant()));s.setTimestamp(i,Timestamp.from(service.clock.instant()));s.executeUpdate();
+                    s.setInt(i++,before);s.setInt(i++,after);s.setBoolean(i++,family);s.setBoolean(i++,reception);s.setString(i++,meeting);s.setTimestamp(i++,Timestamp.from(service.clock.instant()));s.setTimestamp(i++,Timestamp.from(service.clock.instant()));s.setString(i,nameSnapshot);s.executeUpdate();
                 }
             }
             event(c,id,op,"VISIT_"+action,b,admin.username());recompute(c,id);return detail(c,id);
@@ -174,7 +176,7 @@ public final class P1Operations {
         try(var s=c.prepareStatement("SELECT * FROM p1_visit_v1 WHERE request_id=? AND dataset_mode=? ORDER BY starts_at,visit_id")){
             s.setString(1,id);s.setString(2,service.datasetMode());try(var r=s.executeQuery()){while(r.next()){
                 var v=result.addObject().put("id",r.getString("visit_id")).put("status",r.getString("visit_status"))
-                        .put("institutionId",r.getString("institution_id")).put("institutionName",institutionName(r.getString("institution_id")));
+                        .put("institutionId",r.getString("institution_id")).put("institutionName",Objects.toString(r.getString("institution_name_snapshot"),"机构名称未记录"));
                 // Unconfirmed draft times/meeting instructions remain internal.
                 boolean visible=internal||!r.getString("visit_status").equals("DRAFT");
                 if(visible)v.put("start",r.getTimestamp("starts_at").toInstant().toString()).put("end",r.getTimestamp("ends_at").toInstant().toString()).put("meetingNote",r.getString("meeting_note"));
@@ -221,7 +223,7 @@ public final class P1Operations {
                 s.setString(1,service.datasetMode());s.setTimestamp(2,Timestamp.from(high));s.setTimestamp(3,Timestamp.from(low));try(var r=s.executeQuery()){while(r.next())blocks.addObject().put("id",r.getString(1)).put("staffId",r.getString(2)).put("start",r.getTimestamp(3).toInstant().toString()).put("end",r.getTimestamp(4).toInstant().toString());}
             }
             var capacities=result.putArray("capacities");try(var s=c.prepareStatement("SELECT institution_id,capacity FROM p1_institution_capacity_v1 WHERE dataset_mode=? ORDER BY institution_id")){
-                s.setString(1,service.datasetMode());try(var r=s.executeQuery()){while(r.next())capacities.addObject().put("institutionName",institutionName(r.getString(1))).put("capacity",r.getInt(2));}
+                s.setString(1,service.datasetMode());try(var r=s.executeQuery()){while(r.next())capacities.addObject().put("institutionName",institutionName(c,r.getString(1))).put("capacity",r.getInt(2));}
             }return result;
         });
     }
@@ -244,7 +246,7 @@ public final class P1Operations {
             }else if(action.equals("REMOVE_BLOCK")){
                 try(var s=c.prepareStatement("DELETE FROM p1_staff_block_v1 WHERE block_id=? AND dataset_mode=?")){s.setString(1,identifier(b,"blockId"));s.setString(2,service.datasetMode());s.executeUpdate();}
             }else if(action.equals("CAPACITY")){
-                String institution=string(b,"institutionId",100,false);if(!institution(institution))throw new P1Failure(400,"INVALID_INPUT");int capacity=integer(b,"capacity",0,100);
+                String institution=string(b,"institutionId",100,false);if(service.publications().knownName(c,institution)==null)throw new P1Failure(400,"INVALID_INPUT");int capacity=integer(b,"capacity",0,100);
                 // Editing capacity with active reservations needs manual resolution first.
                 try(var s=c.prepareStatement("SELECT 1 FROM p1_visit_v1 WHERE dataset_mode=? AND institution_id=? AND visit_status='CONFIRMED' AND TIMESTAMPADD(MINUTE,buffer_after,ends_at)>?")){
                     s.setString(1,service.datasetMode());s.setString(2,institution);s.setTimestamp(3,Timestamp.from(service.clock.instant()));try(var r=s.executeQuery()){if(r.next())throw new P1Failure(409,"ACTIVE_SCHEDULES_EXIST");}

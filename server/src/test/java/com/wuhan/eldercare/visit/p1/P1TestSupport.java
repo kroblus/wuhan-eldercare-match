@@ -39,7 +39,13 @@ public final class P1TestSupport implements AutoCloseable {
         sessions.createOrLogin("P1_SYNTHETIC",P1Service.digest(bob),P1Service.digest(bob),now,now.plusSeconds(7200));
         passwordHash=P1Service.passwordHash(adminPassword,new byte[16]);
         settings=new P1Service.Settings(true,true,"P1_SYNTHETIC_NOTICE_V1","仅用于合成测试，不采集真实客户资料。","P1_SYNTHETIC_NOT_PRODUCTION_APPROVAL","","p1-synthetic-admin",passwordHash);
-        service=new P1Service(database,auth,mapper,clock,settings);
+        service=publicationService(true);
+    }
+    public P1Service publicationService(boolean intakeEnabled){
+        var configured=new P1Service.Settings(intakeEnabled,true,settings.noticeVersion(),settings.noticeText(),settings.noticeApprovalRef(),settings.platformPhone(),settings.adminUsername(),settings.adminPasswordHash());
+        return new P1Service(database,auth,mapper,clock,configured,
+                new com.wuhan.eldercare.visit.institution.persistence.JdbcInstitutionRevisionRepository(database,mapper,
+                        new com.wuhan.eldercare.visit.institution.persistence.NodeInstitutionSnapshotValidator("node",mapper)),true,"node");
     }
     public P1Service.Input input(String kind){return new P1Service.Input(UUID.randomUUID().toString(),P1Service.CONTRACT,kind,P1Service.INSTITUTION,
             "合成联系人","13900000000","FAMILY","UNDECIDED","周六上午，待顾问沟通",2,null,settings.noticeVersion(),true);}

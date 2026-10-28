@@ -15,7 +15,7 @@ class P1BoundaryTest {
     @Test void inputHasItsOwnVersionAndPreservesOptionalUnknowns(){var s=service();var i=input(UUID.randomUUID().toString(),null,"13900000000","notice",true,2);assertEquals(i,s.validate(i));assertNull(i.institutionId());assertNull(i.preferredWindow());}
     @Test void malformedIdUnknownInstitutionPhoneMissingConsentAndInvalidSizeReject(){var s=service();String id=UUID.randomUUID().toString();
         assertThrows(P1Failure.class,()->s.validate(input("../file",null,"13900000000","notice",true,2)));
-        assertThrows(P1Failure.class,()->s.validate(input(id,"invented","13900000000","notice",true,2)));
+        assertThrows(P1Failure.class,()->s.validate(input(id,"../invented","13900000000","notice",true,2)));
         assertThrows(P1Failure.class,()->s.validate(input(id,null,"not-phone","notice",true,2)));
         assertThrows(P1Failure.class,()->s.validate(input(id,null,"13900000000","old-notice",true,2)));
         assertThrows(P1Failure.class,()->s.validate(input(id,null,"13900000000","notice",false,2)));
@@ -34,7 +34,7 @@ class P1BoundaryTest {
                 context.getEnvironment().getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource("synthetic-test",java.util.Map.of(
                     "c4.persistence.enabled",true,"c5.auth.enabled",true,"p1.intake.enabled",true,
                     "p1.intake.notice-version","test","p1.intake.notice-text","synthetic","p1.intake.notice-approval-ref","synthetic")));
-                context.registerBean(javax.sql.DataSource.class,()->org.mockito.Mockito.mock(javax.sql.DataSource.class));
+                context.registerBean(javax.sql.DataSource.class,()->org.mockito.Mockito.mock(javax.sql.DataSource.class,org.mockito.Mockito.RETURNS_DEEP_STUBS));
                 context.registerBean(ObjectMapper.class,()->new ObjectMapper());context.registerBean(Clock.class,()->Clock.systemUTC());
                 context.registerBean(AuthEvidenceResolver.class,()->new AuthEvidenceResolver(){
                     public Resolution resolve(String evidence){return Resolution.failure(Resolution.Status.UNAVAILABLE);}

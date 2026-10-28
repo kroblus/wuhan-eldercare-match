@@ -65,6 +65,72 @@ public final class JdbcInstitutionRevisionRepository implements InstitutionRevis
         this.validator = validator;
     }
 
+    @Override public boolean supportsTransactionalPublication() { return true; }
+
+    @Override
+    public InstitutionPublishResult importBaseline(Connection connection,ObjectNode record,String operationId,
+            String sourceReference,java.time.Instant importedAt)throws SQLException,IOException {
+        return importBaseline(connection,record,operationId,sourceReference,importedAt,true);
+    }
+    @Override
+    public InstitutionPublishResult importBaseline(Connection connection,ObjectNode record,String operationId,
+            String sourceReference,java.time.Instant importedAt,boolean promoteCurrent)throws SQLException,IOException {
+        var pack=new InstitutionPublishPackageV1(operationId,sourceReference,"ops:baseline-import",record);
+        if(!isPublishable(pack)||!record.path("recordRevision").isIntegralNumber()||!record.path("recordRevision").canConvertToLong()
+                ||!"published".equals(record.path("recordStatus").asText()))return InstitutionPublishResult.of(InstitutionPublishResult.Status.INVALID_RECORD);
+        String institution=record.path("institutionId").asText();long revision=record.path("recordRevision").longValue();
+        if(revision<1||revision>MAX_SAFE_REVISION)return InstitutionPublishResult.of(InstitutionPublishResult.Status.INVALID_RECORD);
+        try(var s=connection.prepareStatement(INSERT_REVISION_SEQUENCE_SQL)){s.setString(1,institution);s.executeUpdate();}
+        long next;
+        try(var s=connection.prepareStatement(LOCK_REVISION_SEQUENCE_SQL)){s.setString(1,institution);try(var r=s.executeQuery()){r.next();next=r.getLong(1);}}
+        var current=findCurrentHeadForUpdate(connection,institution);
+        if(promoteCurrent&&current.isPresent()&&current.get()!=revision)return InstitutionPublishResult.of(InstitutionPublishResult.Status.BASELINE_REVISION_CONFLICT);
+        try(var s=connection.prepareStatement(UPDATE_REVISION_SEQUENCE_SQL)){s.setLong(1,Math.max(next,revision+1));s.setString(2,institution);s.executeUpdate();}
+        try(var s=connection.prepareStatement(FIND_EXACT_REVISION_SQL+" FOR UPDATE")){
+            s.setString(1,institution);s.setLong(2,revision);try(var r=s.executeQuery()){if(r.next()){
+                JsonNode existing=objectMapper.readTree(r.getString(1));
+                if(!existing.equals(record))return InstitutionPublishResult.of(InstitutionPublishResult.Status.BASELINE_REVISION_CONFLICT);
+                if(promoteCurrent&&current.isEmpty())promoteCurrentHead(connection,institution,revision,importedAt);
+                return InstitutionPublishResult.published(InstitutionPublishResult.Status.REPLAYED,institution,revision,displayablePublicName(record),importedAt);
+            }}
+        }
+        var valid=validator.validate(record);
+        if(valid==null||valid.status()==InstitutionSnapshotValidator.Status.TECHNICAL_FAILURE)return InstitutionPublishResult.of(InstitutionPublishResult.Status.TECHNICAL_FAILURE);
+        if(valid.status()==InstitutionSnapshotValidator.Status.UNAVAILABLE)return InstitutionPublishResult.of(InstitutionPublishResult.Status.VALIDATOR_UNAVAILABLE);
+        if(valid.status()!=InstitutionSnapshotValidator.Status.VALID)return InstitutionPublishResult.invalidRecord(valid.issues());
+        String name=displayablePublicName(record);if(name==null)return InstitutionPublishResult.of(InstitutionPublishResult.Status.INVALID_RECORD);
+        insertRevision(connection,pack,institution,revision,record.path("contractVersion").asText(),objectMapper.writeValueAsString(record),importedAt);
+        if(promoteCurrent)promoteCurrentHead(connection,institution,revision,importedAt);
+        return InstitutionPublishResult.published(InstitutionPublishResult.Status.PUBLISHED,institution,revision,name,importedAt);
+    }
+
+    @Override
+    public InstitutionPublishResult publish(Connection connection, InstitutionPublishPackageV1 publishPackage,
+            java.time.Instant publishedAt, long expectedCurrentRevision) throws SQLException, IOException {
+        if (!isPublishable(publishPackage) || publishedAt == null || expectedCurrentRevision < 0) {
+            return InstitutionPublishResult.of(InstitutionPublishResult.Status.INVALID_PACKAGE);
+        }
+        Optional<StoredRevision> replay = findByOperationId(connection, publishPackage.operationId());
+        if (replay.isPresent()) return resolveReplay(replay.get(), publishPackage);
+        String institutionId = publishPackage.record().path("institutionId").asText();
+        // The sequence row serializes even the first publication, when no head row exists.
+        long revision = allocateRevision(connection, institutionId);
+        if (revision < 1 || revision > MAX_SAFE_REVISION) return InstitutionPublishResult.of(InstitutionPublishResult.Status.TECHNICAL_FAILURE);
+        if (findCurrentHeadForUpdate(connection, institutionId).orElse(0L) != expectedCurrentRevision) {
+            return InstitutionPublishResult.of(InstitutionPublishResult.Status.CURRENT_REVISION_CONFLICT);
+        }
+        ObjectNode serverBound = bindServerIdentity(publishPackage.record(), revision);
+        InstitutionSnapshotValidator.ValidationResult validation = validator.validate(serverBound);
+        if (validation == null || validation.status() == InstitutionSnapshotValidator.Status.TECHNICAL_FAILURE) return InstitutionPublishResult.of(InstitutionPublishResult.Status.TECHNICAL_FAILURE);
+        if (validation.status() == InstitutionSnapshotValidator.Status.UNAVAILABLE) return InstitutionPublishResult.of(InstitutionPublishResult.Status.VALIDATOR_UNAVAILABLE);
+        if (validation.status() != InstitutionSnapshotValidator.Status.VALID) return InstitutionPublishResult.invalidRecord(validation.issues());
+        String contract = serverBound.path("contractVersion").asText(null), name = displayablePublicName(serverBound);
+        if (contract == null || name == null) return InstitutionPublishResult.of(InstitutionPublishResult.Status.INVALID_RECORD);
+        insertRevision(connection, publishPackage, institutionId, revision, contract, objectMapper.writeValueAsString(serverBound), publishedAt);
+        promoteCurrentHead(connection, institutionId, revision, publishedAt);
+        return InstitutionPublishResult.published(InstitutionPublishResult.Status.PUBLISHED, institutionId, revision, name, publishedAt);
+    }
+
     @Override
     public InstitutionPublishResult publish(InstitutionPublishPackageV1 publishPackage, java.time.Instant publishedAt) {
         if (!isPublishable(publishPackage) || publishedAt == null) {

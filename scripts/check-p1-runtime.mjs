@@ -12,7 +12,7 @@ assert.match(prices.otherFees,/医疗备用金 5000/); assert.match(prices.other
 const VERSION=clientModule.P1_VERSION, mode='SYNTHETIC_TEST_ONLY'
 const input={requestId:'ca2a0bb3-b9bd-4418-80b6-c689563f73f2',inputVersion:VERSION,kind:'VISIT_INTENT',institutionId:prices.id,contactName:'合成联系人',contactPhone:'13800000000',relationship:'FAMILY',serviceScenario:'SHORT_STAY',preferredWindow:'周六上午或周二下午',partySize:2,assistanceNote:null,consentVersion:'p1-test',consentAccepted:true}
 const item={...input,id:input.requestId,institutionName:prices.name,status:'PENDING_ARRANGEMENT',createdAt:'2026-10-28T02:00:00Z',updatedAt:'2026-10-28T02:00:00Z',datasetMode:mode,source:mode,assignedTo:null,scheduledStart:null,scheduledEnd:null}
-const config={contractVersion:VERSION,enabled:true,datasetMode:mode,platformContact:{label:'平台咨询',phone:null},notice:{version:'p1-test',text:'合成测试告知，不输入真实个人资料'}}
+const config={contractVersion:VERSION,enabled:true,datasetMode:mode,platformContact:{label:'平台咨询',phone:null},notice:{version:'p1-test',text:'合成测试告知，不输入真实个人资料'},institutions:[{institutionId:prices.id,institutionName:prices.name,recordRevision:null}]}
 let calls=[], origin='http://192.168.7.8:18341',environment='develop', replyItem=item, failSubmit=false, unauthorized=false
 const transport={environment:()=>environment,developmentBackendOrigin:()=>origin,login:async()=>'synthetic-code',request:async request=>{
   calls.push(request)

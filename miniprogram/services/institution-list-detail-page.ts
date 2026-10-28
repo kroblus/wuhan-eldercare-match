@@ -12,9 +12,7 @@ import {
   createInstitutionDetailApplicationServiceV12,
   createInstitutionListApplicationServiceV12,
 } from './institution-list-detail-application'
-import {
-  createNotConfiguredHistoricalRevisionResolver,
-} from './institution-record-resolver'
+import { institutionPublicationClient } from './institution-publications'
 import { institutionCurrentCatalogResolver as currentCatalogResolver } from './institution-current-catalog'
 import {
   createInstitutionSourceContextRegistry,
@@ -59,7 +57,7 @@ const evaluationAsOfForSourceContext = (
  */
 export const institutionSourceContextRegistry = createInstitutionSourceContextRegistry()
 
-const historicalRevisionResolver = createNotConfiguredHistoricalRevisionResolver()
+const historicalRevisionResolver = institutionPublicationClient
 
 export const institutionListApplicationV12 = createInstitutionListApplicationServiceV12({
   currentCatalogResolver,

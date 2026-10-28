@@ -94,6 +94,28 @@ public final class NodeInstitutionSnapshotValidator implements InstitutionSnapsh
         }
     }
 
+    /** Schema-complete unknown facts only; the template is not a published or verified institution. */
+    public JsonNode draftTemplate(String institutionId) {
+        try {
+            ValidatorAssets assets = assets();
+            Process process = new ProcessBuilder(nodeExecutable, "--disable-warning=MODULE_TYPELESS_PACKAGE_JSON",
+                    assets.bridge().toString(), "--source-root", assets.sourceRoot().toString()).start();
+            CompletableFuture<byte[]> stdout = readAsync(process.getInputStream());
+            CompletableFuture<byte[]> stderr = readAsync(process.getErrorStream());
+            try(OutputStream stdin = process.getOutputStream()) {
+                stdin.write(objectMapper.writeValueAsBytes(objectMapper.createObjectNode().put("templateInstitutionId", institutionId)));
+            }
+            if(!process.waitFor(PROCESS_TIMEOUT.toMillis(),TimeUnit.MILLISECONDS)) {
+                process.destroyForcibly(); return null;
+            }
+            byte[] output=stdout.get(PROCESS_TIMEOUT.toMillis(),TimeUnit.MILLISECONDS);
+            stderr.get(PROCESS_TIMEOUT.toMillis(),TimeUnit.MILLISECONDS);
+            JsonNode result=objectMapper.readTree(output);
+            return process.exitValue()==0&&result!=null&&result.path("record").isObject()?result.path("record"):null;
+        } catch(InterruptedException interrupted) { Thread.currentThread().interrupt(); return null; }
+        catch(Exception failure) { return null; }
+    }
+
     private ValidatorAssets assets() throws IOException {
         ValidatorAssets existing = validatorAssets;
         if (existing != null) return existing;

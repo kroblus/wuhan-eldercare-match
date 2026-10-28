@@ -3,11 +3,15 @@ param(
  [string]$Tests='P1BoundaryTest,P1ServiceMySqlIntegrationTest,P1OperationsMySqlIntegrationTest,P1ReportsMySqlIntegrationTest',
  [string]$JavaHome=$env:JAVA_HOME,
  [string]$MigrationRootClient,
- [string]$MySqlExecutable='C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe'
+ [string]$MySqlExecutable='C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe',
+ [string]$OutputDirectory='output/p1-operations',
+ [string]$ReportSuffix=('p1-'+[DateTimeOffset]::UtcNow.ToString('yyyyMMddHHmmss')+'-'+[guid]::NewGuid().ToString('N').Substring(0,8))
 )
 $ErrorActionPreference='Stop'
 $p1Root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-[void](New-Item -ItemType Directory -Force -Path (Join-Path $p1Root 'output/p1-operations'))
+$p1TestOutput=[IO.Path]::GetFullPath((Join-Path $p1Root $OutputDirectory))
+if(-not $p1TestOutput.StartsWith((Join-Path $p1Root 'output')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Test output must stay in project output'}
+[void](New-Item -ItemType Directory -Force -Path $p1TestOutput)
 if(-not $JavaHome -or -not(Test-Path -LiteralPath (Join-Path $JavaHome 'bin/java.exe'))){throw 'Pass -JavaHome with the installed Java21+ directory'}
 $p1SettingsPath=(Resolve-Path -LiteralPath $DatabaseSettings).Path
 if (-not $p1SettingsPath.StartsWith((Join-Path $p1Root 'output')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Private settings must be in project output' }
@@ -29,7 +33,7 @@ try {
     $p1RootConfig -notcontains 'host=127.0.0.1' -or $p1RootConfig -notcontains 'port=33427' -or $p1Settings.P1_MYSQL_USERNAME -notmatch '^p1_test_[a-z0-9]+$') { throw 'Isolated migration provisioning guard failed' }
   $p1MigrationSchemas=@(('p1_intake_disposable_ops'+[guid]::NewGuid().ToString('N')),('p1_intake_disposable_ops'+[guid]::NewGuid().ToString('N')),('p1_intake_disposable_ops'+[guid]::NewGuid().ToString('N')))
   $p1Provision=($p1MigrationSchemas | ForEach-Object { "CREATE DATABASE ``$_`` CHARACTER SET utf8mb4; GRANT ALL PRIVILEGES ON ``$_``.* TO '$($p1Settings.P1_MYSQL_USERNAME)'@'localhost';" }) -join "`n"
-  $p1Provision | & $MySqlExecutable "--defaults-file=$p1RootClient" --batch *> (Join-Path $p1Root 'output/p1-operations/migration-provision.log')
+  $p1Provision | & $MySqlExecutable "--defaults-file=$p1RootClient" --batch *> (Join-Path $p1TestOutput 'migration-provision.log')
   if($LASTEXITCODE -ne 0) { throw 'Isolated migration provisioning failed' }
   $p1Previous['P1_MIGRATION_SCHEMAS']=[Environment]::GetEnvironmentVariable('P1_MIGRATION_SCHEMAS','Process')
   $env:P1_MIGRATION_SCHEMAS=$p1MigrationSchemas[1..2] -join ','
@@ -39,15 +43,15 @@ try {
  $env:JAVA_HOME=$JavaHome; $env:Path=$JavaHome+'/bin;'+$env:Path
  Push-Location (Join-Path $p1Root 'server')
  try {
-  & mvn '-q' "-Dtest=$Tests" test *> (Join-Path $p1Root 'output/p1-operations/backend-tests.log')
+  & mvn '-q' "-Dtest=$Tests" "-Dsurefire.reportNameSuffix=$ReportSuffix" test *> (Join-Path $p1TestOutput 'backend-tests.log')
   $p1Exit=$LASTEXITCODE
  } finally { Pop-Location; $env:JAVA_HOME=$p1OldJava; $env:Path=$p1OldPath }
 } finally {
  foreach($p1Name in $p1Previous.Keys) { [Environment]::SetEnvironmentVariable($p1Name,$p1Previous[$p1Name],'Process') }
  if($p1MigrationSchemas.Count -gt 0) {
   $p1Cleanup=($p1MigrationSchemas | ForEach-Object { if($_ -notmatch '^p1_intake_disposable_ops[a-f0-9]{32}$'){throw 'Unexpected migration schema'}; "REVOKE ALL PRIVILEGES ON ``$_``.* FROM '$($p1Settings.P1_MYSQL_USERNAME)'@'localhost'; DROP DATABASE ``$_``;" }) -join "`n"
-  $p1Cleanup | & $MySqlExecutable "--defaults-file=$p1RootClient" --batch *> (Join-Path $p1Root 'output/p1-operations/migration-cleanup.log')
+  $p1Cleanup | & $MySqlExecutable "--defaults-file=$p1RootClient" --batch *> (Join-Path $p1TestOutput 'migration-cleanup.log')
  }
 }
-if($p1Exit -ne 0) { Write-Output 'P1 checks failed; inspect output/p1-operations/backend-tests.log'; exit $p1Exit }
+if($p1Exit -ne 0) { Write-Output ('P1 checks failed; inspect '+(Join-Path $p1TestOutput 'backend-tests.log')); exit $p1Exit }
 Write-Output 'P1 checks passed; actual test counts are in server/target/surefire-reports.'

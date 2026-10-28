@@ -8,7 +8,7 @@ const load = (base, envVersion = 'develop') => {
   let component, page
   const appid = JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid
   const api = { getAccountInfoSync: () => ({ miniProgram: { appId: appid, envVersion } }), cloud: {} }
-  for (const name of ['request','requestPayment','login','openLocation','makePhoneCall','getStorageSync','setStorageSync','removeStorageSync','clearStorageSync','uploadFile','downloadFile','connectSocket']) api[name] = () => { effects.push(name); return storage.get('real-draft') }
+  for (const name of ['request','requestPayment','login','openLocation','makePhoneCall','getStorageSync','setStorageSync','removeStorageSync','clearStorageSync','uploadFile','downloadFile','connectSocket']) api[name] = key => { effects.push(name); return name === 'getStorageSync' ? storage.get(key) : storage.get('real-draft') }
   for (const name of ['init','callFunction','database','callContainer']) api.cloud[name] = () => effects.push('cloud.' + name)
   const rt = createWechatTsRuntime(ts, { wx: api, App() {}, Component(v) { component = v }, Page(v) { page = v }, getCurrentPages: () => [], setTimeout, clearTimeout })
   return { ...rt, effects, storage, api, component: () => component, page: () => page, module: file => rt.load(path.join(base, file)) }

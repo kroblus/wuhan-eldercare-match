@@ -54,6 +54,7 @@ public final class P1Controller {
         var admin=service.admin(cookie,null,false);
         return ok(Map.of("contractVersion",P1Service.CONTRACT,"authenticated",true,"username",admin.username(),"csrfToken",admin.csrfToken()));
     }
+    @GetMapping("/admin/service-institutions")public ResponseEntity<?> serviceInstitutions(@CookieValue(name=COOKIE,required=false)String cookie){return ok(service.serviceInstitutions(cookie));}
     @PostMapping("/admin/logout")public ResponseEntity<?> logout(@CookieValue(name=COOKIE,required=false)String cookie,
             @RequestHeader(value="X-P1-CSRF",required=false)String csrf){
         service.logout(cookie,csrf);

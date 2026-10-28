@@ -39,13 +39,18 @@ class NodeInstitutionSnapshotValidatorTest {
     }
 
     @Test
-    void databaseFailureIsTechnicalRatherThanMissingHistoricalRevision() throws Exception {
+    void connectionUnavailabilityAndOtherSqlFailuresRemainDistinct() throws Exception {
         DataSource unavailableDatabase = mock(DataSource.class);
         when(unavailableDatabase.getConnection()).thenThrow(new SQLException("synthetic connection failure", "08001"));
         var repository = new JdbcInstitutionRevisionRepository(unavailableDatabase, mapper,
                 new NodeInstitutionSnapshotValidator("node", mapper));
-        assertEquals(InstitutionRevisionRepository.ExactPublicNameResult.Status.TECHNICAL_FAILURE,
+        assertEquals(InstitutionRevisionRepository.ExactPublicNameResult.Status.UNAVAILABLE,
                 repository.resolveExactPublicName("synthetic-institution", 1).status());
+        assertEquals(InstitutionRevisionRepository.CurrentHeadResult.Status.UNAVAILABLE,
+                repository.currentHead("synthetic-institution").status());
+        org.mockito.Mockito.doThrow(new SQLException("synthetic query failure", "42000")).when(unavailableDatabase).getConnection();
+        assertEquals(InstitutionRevisionRepository.ExactPublicNameResult.Status.TECHNICAL_FAILURE,
+                repository.resolveExactPublicName("synthetic-institution",1).status());
         assertEquals(InstitutionRevisionRepository.CurrentHeadResult.Status.TECHNICAL_FAILURE,
                 repository.currentHead("synthetic-institution").status());
     }

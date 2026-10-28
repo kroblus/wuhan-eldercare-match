@@ -13,7 +13,7 @@ const check = (condition, message) => { assert.ok(condition, message); assertion
 for (const mode of ['production', 'demo']) {
   let component, page, modal, scroll, failScroll = false, failModal = false, failNav = false, failCapsule = false
   const pushes = []
-  const wx = { cloud: {}, nextTick: fn => fn(),
+  const wx = { cloud: {}, getStorageSync() {}, nextTick: fn => fn(),
     getMenuButtonBoundingClientRect() { if (failCapsule) throw new Error('TEST_ONLY geometry unavailable'); return { bottom: 89 } },
     getAccountInfoSync: () => ({ miniProgram: { appId: JSON.parse(fs.readFileSync('dist/demo/project.config.json')).appid, envVersion: 'develop' } }),
     navigateTo(o) { pushes.push(o); if (failNav) { o.fail(); if (o.complete) o.complete() } else { if(o.success)o.success();if(o.complete)o.complete() } },

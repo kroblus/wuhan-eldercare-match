@@ -1,5 +1,6 @@
 /** P1 展示资料独立于 V2/C1 护理资格及历史快照；来源为 Owner 提供的 2026 公示表。 */
 export const p1Institution = {
+  schemaVersion: 'institution-public-profile-v1' as const,
   id: 'ningyue-yiyang-center', name: '柠月颐养中心',
   source: '《柠月颐养中心入住价格公示表（2026年）》',
   room: '双人间',

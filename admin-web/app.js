@@ -10,23 +10,24 @@ const relationshipText = { SELF:'本人', FAMILY:'家属', OTHER:'其他合法�
 const scenarioText = { LONG_TERM:'长期养老', SHORT_STAY:'短期托养', POST_OPERATION:'术后阶段', UNDECIDED:'尚未确定' }
 const element = (tag, text, className) => { const node = document.createElement(tag); node.textContent = text; if (className) node.className = className; return node }
 const time = value => value ? new Intl.DateTimeFormat('zh-CN', { timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'medium' }).format(new Date(value)) : '尚未发生'
-function signedOut() { epoch++; csrf=''; $('workspace').hidden=true; $('logout').hidden=true; $('loginPanel').hidden=false; $('list').replaceChildren(); $('detail').replaceChildren(element('h2','需求详情')); if(window.clearP1Operations)window.clearP1Operations(); }
-async function api(path, options={}) {
+function signedOut() { epoch++; csrf=''; $('workspace').hidden=true; $('logout').hidden=true; $('loginPanel').hidden=false; $('list').replaceChildren(); $('detail').replaceChildren(element('h2','需求详情')); if(window.clearP1Operations)window.clearP1Operations(); if(window.clearInstitutionWorkspace)window.clearInstitutionWorkspace(); }
+async function api(path, options={}, expectedContract=VERSION) {
   const sessionEpoch=epoch
   const response = await fetch(API + path, { credentials:'same-origin', cache:'no-store', ...options,
     headers:{ Accept:'application/json', ...(options.body ? { 'Content-Type':'application/json' } : {}), ...options.headers }, signal:AbortSignal.timeout(15000) })
   if (response.status===401) { if (sessionEpoch===epoch) signedOut(); throw new Error('登录已失效，请重新登录。') }
   if (!response.ok) {
     const body=await response.json().catch(()=>({})), error=new Error(operationErrors[body.code] || (response.status===503 ? '服务暂不可用。未确认写入结果时请使用原操作重试。' : response.status===403 ? '操作未获授权，请重新登录后重试。' : '请求失败，请检查输入并重试。'))
-    error.httpStatus=response.status;throw error
+    error.httpStatus=response.status;error.code=body.code;error.validationIssues=body.validationIssues;throw error
   }
   const result=await response.json()
-  if (!result || result.contractVersion!==VERSION) throw new Error('响应格式不正确，未展示需求资料。')
+  if (!result || result.contractVersion!==expectedContract) throw new Error('响应格式不正确，请重新查询服务器状态。')
   return result
 }
 function showSession(session) {
   if (!session.authenticated || typeof session.csrfToken!=='string') throw new Error('管理员会话无效。')
   epoch++; csrf=session.csrfToken; $('workspace').hidden=false; $('logout').hidden=false; $('loginPanel').hidden=true; $('message').textContent=''
+  if(window.loadInstitutionWorkspace)window.loadInstitutionWorkspace()
 }
 $('loginForm').addEventListener('submit', async event => {
   event.preventDefault(); if (loginBusy) return; loginBusy=true

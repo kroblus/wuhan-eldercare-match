@@ -46,6 +46,11 @@ if (Number(process.versions.node.split('.')[0]) < MIN_NODE_MAJOR) {
     process.stdin.setEncoding('utf8')
     for await (const chunk of process.stdin) input += chunk
     const envelope = JSON.parse(input)
+    if (typeof envelope?.templateInstitutionId === 'string' && /^[a-z][a-z0-9-]{1,99}$/.test(envelope.templateInstitutionId)) {
+      const modulePath = path.join(sourceRoot, 'domain', 'institution', 'v1-2-1', 'unknown-record.ts')
+      const { createUnknownProductionRecord } = await import(pathToFileURL(modulePath).href)
+      emit({ record: createUnknownProductionRecord(envelope.templateInstitutionId, 1) })
+    } else {
     const record = envelope && typeof envelope === 'object' ? envelope.record : null
     if (!record || typeof record !== 'object' || Array.isArray(record)) {
       emit({ valid: false, issues: [{ code: 'INVALID_INSTITUTION_RECORD', path: '$' }] })
@@ -63,11 +68,17 @@ if (Number(process.versions.node.split('.')[0]) < MIN_NODE_MAJOR) {
       } else {
         const modulePath = path.join(sourceRoot, 'domain', 'institution', entrypoint[0])
         const validatorModule = await import(pathToFileURL(modulePath).href)
-        const validation = validatorModule[entrypoint[1]](record)
+        let options = {}
+        if (version === 'institution-contract-v1.2.1') {
+          const divisions = path.join(sourceRoot, 'runtime', 'administrative-divisions.ts')
+          if (existsSync(divisions)) options = { administrativeDivisionResolver: (await import(pathToFileURL(divisions).href)).administrativeDivisionResolver }
+        }
+        const validation = validatorModule[entrypoint[1]](record, options)
         emit(validation.ok
           ? { valid: true, issues: [] }
           : { valid: false, issues: validation.issues.map(({ code, path: issuePath }) => ({ code, path: issuePath })) })
       }
+    }
     }
   } catch (_error) {
     // Never print raw records, file contents, source references, or stack traces.

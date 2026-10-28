@@ -1,6 +1,7 @@
 import { EXPECTED_RECOMMENDATION_DATASET_MODE } from '../runtime/recommendation-mode'
 import { createC5AuthenticatedBackendSessionClientV1, createDefaultWeChatC5BackendTransportV1 } from './c5-authenticated-backend-session'
 import type { WeChatC5BackendTransportV1 } from './c5-authenticated-backend-session'
+import { isPublicationInstitutionId } from './institution-publications'
 
 export const P1_VERSION = 'p1-service-request-v1'
 export interface P1Input {
@@ -27,6 +28,7 @@ export interface P1Config {
   enabled: boolean; datasetMode: 'PRODUCTION' | 'SYNTHETIC_TEST_ONLY'
   platformContact: { label: string; phone: string | null }
   notice: { version: string; text: string } | null
+  institutions: { institutionId: string; institutionName: string; recordRevision: number | null }[]
 }
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v)
 const nullableText = (v: unknown): boolean => v === null || typeof v === 'string'
@@ -37,7 +39,7 @@ export function readP1Item(v: unknown, mode: string): P1Item {
   if (!record(v) || typeof v.id !== 'string' || !uuid.test(v.id) || v.datasetMode !== mode
     || !['CONSULTATION', 'VISIT_INTENT'].includes(String(v.kind))
     || !['PENDING_CONTACT', 'FOLLOWING_UP', 'PENDING_ARRANGEMENT', 'CONFIRMED', 'VISITED', 'NO_SHOW', 'CLOSED', 'CANCELLED'].includes(String(v.status))
-    || (v.institutionId !== null && v.institutionId !== 'ningyue-yiyang-center')
+    || (v.institutionId !== null && !isPublicationInstitutionId(v.institutionId))
     || !nullableText(v.institutionName) || !nullableText(v.preferredWindow) || !nullableText(v.assistanceNote)
     || !nullableText(v.assignedTo) || !nullableText(v.scheduledStart) || !nullableText(v.scheduledEnd)
     || typeof v.contactName !== 'string' || typeof v.contactPhone !== 'string'
@@ -52,7 +54,7 @@ export function readP1Item(v: unknown, mode: string): P1Item {
     if (!record(entry) || typeof entry.id !== 'string' || !uuid.test(entry.id)
       || !['DRAFT', 'CONFIRMED', 'CANCELLED', 'ARRIVED', 'NO_SHOW'].includes(String(entry.status))
       || typeof entry.institutionName !== 'string'
-      || !(entry.institutionId === 'ningyue-yiyang-center' || mode === 'SYNTHETIC_TEST_ONLY' && entry.institutionId === 'synthetic-reception-b')
+      || !isPublicationInstitutionId(entry.institutionId)
       || !nullableText(entry.meetingNote) || !nullableText(entry.actualAt)) return false
     const validDate = (value: unknown) => typeof value === 'string' && Number.isFinite(Date.parse(value))
     return (entry.status === 'DRAFT' ? entry.start === null && entry.end === null && entry.meetingNote === null
@@ -123,8 +125,13 @@ export function createP1Client(transport: WeChatC5BackendTransportV1, expectedMo
         || (v.datasetMode !== 'PRODUCTION' && !(v.datasetMode === 'SYNTHETIC_TEST_ONLY' && transport.environment() === 'develop'))
         || !record(v.platformContact) || typeof v.platformContact.label !== 'string'
         || !(v.platformContact.phone === null || (typeof v.platformContact.phone === 'string' && /^1[3-9]\d{9}$/.test(v.platformContact.phone)))
-        || !(v.notice === null || (record(v.notice) && typeof v.notice.version === 'string' && typeof v.notice.text === 'string' && !!v.notice.version && !!v.notice.text))) throw new Error('INVALID_CONFIG')
-      config = { enabled: v.enabled, datasetMode: v.datasetMode, platformContact: v.platformContact as P1Config['platformContact'], notice: v.notice as P1Config['notice'] }
+        || !(v.notice === null || (record(v.notice) && typeof v.notice.version === 'string' && typeof v.notice.text === 'string' && !!v.notice.version && !!v.notice.text))
+        || !Array.isArray(v.institutions) || !v.institutions.every(entry => record(entry) && isPublicationInstitutionId(entry.institutionId)
+          && typeof entry.institutionName === 'string' && !!entry.institutionName.trim() && entry.institutionName.length <= 200
+          && (entry.recordRevision === null || Number.isSafeInteger(entry.recordRevision) && Number(entry.recordRevision) > 0))) throw new Error('INVALID_CONFIG')
+      const institutions = v.institutions as P1Config['institutions']
+      if (new Set(institutions.map(entry => entry.institutionId)).size !== institutions.length) throw new Error('INVALID_CONFIG')
+      config = { enabled: v.enabled, datasetMode: v.datasetMode, platformContact: v.platformContact as P1Config['platformContact'], notice: v.notice as P1Config['notice'], institutions: institutions.map(entry => ({ institutionId: entry.institutionId, institutionName: entry.institutionName, recordRevision: entry.recordRevision })) }
       configuredOrigin = origin
       return config
     },

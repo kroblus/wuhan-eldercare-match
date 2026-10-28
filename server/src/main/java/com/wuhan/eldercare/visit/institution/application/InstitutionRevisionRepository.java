@@ -8,6 +8,25 @@ public interface InstitutionRevisionRepository {
             InstitutionPublishPackageV1 publishPackage,
             Instant publishedAt);
 
+    /** Participates in the caller's transaction; caller commits or rolls back the whole publication. */
+    default InstitutionPublishResult publish(Connection connection, InstitutionPublishPackageV1 publishPackage,
+            Instant publishedAt, long expectedCurrentRevision) throws Exception {
+        return InstitutionPublishResult.of(InstitutionPublishResult.Status.UNAVAILABLE);
+    }
+
+    default boolean supportsTransactionalPublication() { return false; }
+
+    /** Explicit bootstrap preserves original revisions/evidence; never overwrites a stored snapshot. */
+    default InstitutionPublishResult importBaseline(Connection connection, com.fasterxml.jackson.databind.node.ObjectNode record,
+            String operationId, String sourceReference, Instant importedAt) throws Exception {
+        return InstitutionPublishResult.of(InstitutionPublishResult.Status.UNAVAILABLE);
+    }
+    default InstitutionPublishResult importBaseline(Connection connection,com.fasterxml.jackson.databind.node.ObjectNode record,
+            String operationId,String sourceReference,Instant importedAt,boolean promoteCurrent)throws Exception {
+        return promoteCurrent?importBaseline(connection,record,operationId,sourceReference,importedAt)
+                :InstitutionPublishResult.of(InstitutionPublishResult.Status.UNAVAILABLE);
+    }
+
     CurrentHeadResult currentHead(String institutionId);
 
     ExactPublicNameResult resolveExactPublicName(String institutionId, long recordRevision);
