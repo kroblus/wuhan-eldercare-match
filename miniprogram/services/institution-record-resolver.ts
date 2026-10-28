@@ -318,8 +318,9 @@ const mapV121ResultError = (
  */
 export const createInstitutionCurrentCatalogResolverV121 = (
   service: InstitutionCatalogServiceV121,
+  options: { sharePendingLoads?: boolean } = {},
 ): InstitutionCurrentCatalogResolver => {
-  const loadCurrentCatalog = async (): Promise<InstitutionCurrentCatalogResult> => {
+  const readCurrentCatalog = async (): Promise<InstitutionCurrentCatalogResult> => {
     let result: InstitutionCatalogResultV121
     try {
       result = await service.loadCatalog()
@@ -366,8 +367,16 @@ export const createInstitutionCurrentCatalogResolverV121 = (
     }
   }
 
+  // Only overlapping reads share boundary validation. Discard on settlement,
+  // including failure: a later refresh must read current pointers/facts again.
+  let pending: Promise<InstitutionCurrentCatalogResult> | null = null
+  const loadCurrentCatalog = (): Promise<InstitutionCurrentCatalogResult> => {
+    if (!options.sharePendingLoads) return readCurrentCatalog()
+    if (pending === null) pending = readCurrentCatalog().finally(() => { pending = null })
+    return pending
+  }
   return {
-    loadCurrentCatalog,
+    loadCurrentCatalog: async () => cloneValue(await loadCurrentCatalog()),
     resolveExactCurrentRevision: async (
       identity: InstitutionCanonicalIdentity,
     ): Promise<InstitutionCurrentRevisionResult> => {

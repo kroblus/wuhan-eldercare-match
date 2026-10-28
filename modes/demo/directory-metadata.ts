@@ -1,4 +1,4 @@
 import directory from '../demo/directory.json'
-import { readDemo } from '../demo/session'
-export const readDirectoryMetadata = () => readDemo().ready ? directory : []
+import { isDemoReady } from '../demo/session'
+export const readDirectoryMetadata = () => isDemoReady() ? directory : []
 export { directoryNatureOptions, directoryDistrictOptions } from '../runtime/directory-options'

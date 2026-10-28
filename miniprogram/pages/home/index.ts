@@ -47,6 +47,7 @@ const homeLoadsInFlight = new WeakSet<object>()
 const homeReloadRequested = new WeakSet<object>()
 const homeDirectories = new WeakMap<object, readonly InstitutionListItemViewModel[]>()
 const homeLifetimes = new WeakMap<object, number>()
+const homeInitialShows = new WeakSet<object>()
 
 const currentLifetime = (instance: object): number => homeLifetimes.get(instance) || 0
 
@@ -111,6 +112,7 @@ Component({
 
   lifetimes: {
     attached() {
+      homeInitialShows.add(this)
       invalidateDirectoryCall(this, true)
       this.syncBrowseFont()
       this.loadInstitutions()
@@ -122,6 +124,7 @@ Component({
       homeLoadsInFlight.delete(this)
       homeDirectories.delete(this)
       homeReloadRequested.delete(this)
+      homeInitialShows.delete(this)
       resetNavigationGuard(this)
     },
   },
@@ -131,7 +134,9 @@ Component({
       invalidateDirectoryCall(this, true)
       this.syncBrowseFont()
       resetNavigationGuard(this)
-      this.loadInstitutions()
+      // attached already starts the first read. Later returns still refresh.
+      if (homeInitialShows.has(this)) homeInitialShows.delete(this)
+      else this.loadInstitutions()
     },
     hide() { invalidateDirectoryCall(this, false) },
   },
@@ -146,13 +151,14 @@ Component({
       const browseFontStyle = readBrowseFontStyle()
       if (browseFontStyle !== this.data.browseFontStyle) this.setData({ browseFontStyle })
     },
-    filterDirectory() {
+    filterDirectory(patch: Partial<HomePageData> = {}) {
       invalidateDirectoryCall(this)
-      const matches = filterInstitutionDirectory(homeDirectories.get(this) || [], this.data.keyword, this.data.natureIndex, this.data.districtIndex)
-      const activeQuery = this.data.keyword.trim().length > 0 || this.data.natureIndex !== 0 || this.data.districtIndex !== 0
-      this.setData({ institutions: activeQuery || this.data.expanded ? matches : matches.slice(0, 2), activeQuery, resultCount: matches.length, institutionActionError: '', actionErrorKey: '' })
+      const state = { ...this.data, ...patch }
+      const matches = filterInstitutionDirectory(homeDirectories.get(this) || [], state.keyword, state.natureIndex, state.districtIndex)
+      const activeQuery = state.keyword.trim().length > 0 || state.natureIndex !== 0 || state.districtIndex !== 0
+      this.setData({ ...patch, institutions: activeQuery || state.expanded ? matches : matches.slice(0, 2), activeQuery, resultCount: matches.length, institutionActionError: '', actionErrorKey: '' })
     },
-    toggleDirectory() { this.setData({ expanded: !this.data.expanded }); this.filterDirectory() },
+    toggleDirectory() { this.filterDirectory({ expanded: !this.data.expanded }) },
     onSearchBlur() { this.setData({ searchFocus: false }) },
     focusSearch() {
       const guard = getNavigationGuard(this), action = 'home.focusSearch'
@@ -196,22 +202,22 @@ Component({
       } catch (_error) { fail() }
     },
     onSearchInput(event: WechatMiniprogram.Input) {
-      this.setData({ keyword: event.detail.value, expanded: false }); this.filterDirectory()
+      this.filterDirectory({ keyword: event.detail.value, expanded: false })
     },
     onNatureChange(event: WechatMiniprogram.PickerChange) {
       const index = Number(event.detail.value)
       if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
-      this.setData({ natureIndex: index, expanded: false }); this.filterDirectory()
+      this.filterDirectory({ natureIndex: index, expanded: false })
     },
     onDistrictChange(event: WechatMiniprogram.PickerChange) {
       const index = Number(event.detail.value)
       if (!Number.isInteger(index) || !directoryDistrictOptions[index]) return
-      this.setData({ districtIndex: index, expanded: false }); this.filterDirectory()
+      this.filterDirectory({ districtIndex: index, expanded: false })
     },
     clearSearch() {
-      this.setData({ keyword: '', natureIndex: 0, districtIndex: 0, expanded: false }); this.filterDirectory()
+      this.filterDirectory({ keyword: '', natureIndex: 0, districtIndex: 0, expanded: false })
     },
-    clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
+    clearKeyword() { this.filterDirectory({ keyword: '' }) },
     onCardTap(event: WechatMiniprogram.BaseEvent) { this.openInstitution(event) },
     onDirectoryPhoneTap(event: WechatMiniprogram.BaseEvent) {
       const key = event.currentTarget.dataset.itemKey as string
@@ -262,7 +268,7 @@ Component({
         homeLoadsInFlight.delete(this)
         if (homeReloadRequested.has(this)) { homeReloadRequested.delete(this); this.loadInstitutions(); return }
         homeDirectories.set(this, items)
-        this.setData({
+        this.filterDirectory({
           isLoading: false,
           loadError: false,
           empty: viewModel.pageState === 'empty',
@@ -270,7 +276,6 @@ Component({
           mockDisclosure: viewModel.disclosure,
           showMockDisclosure: viewModel.hasDisclosure,
         })
-        this.filterDirectory()
       }).catch(() => {
         if (!isCurrentGeneration(this, generation)) return
         homeLoadsInFlight.delete(this)

@@ -44,6 +44,8 @@ interface DemoFlow {
 }
 let epoch = 0
 let ready = false
+// Directory filters only need readiness, not copies of assessments and visits.
+export const isDemoReady = (): boolean => ready
 let contextRef: string | null = null
 let flows: DemoFlow[] = []
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v))

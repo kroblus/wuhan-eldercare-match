@@ -60,7 +60,7 @@ const evaluationAsOfForSourceContext = (
  */
 export const institutionSourceContextRegistry = createInstitutionSourceContextRegistry()
 
-const currentCatalogResolver = createInstitutionCurrentCatalogResolverV121(institutionCatalogServiceV121)
+const currentCatalogResolver = createInstitutionCurrentCatalogResolverV121(institutionCatalogServiceV121, { sharePendingLoads: true })
 const historicalRevisionResolver = createNotConfiguredHistoricalRevisionResolver()
 
 export const institutionListApplicationV12 = createInstitutionListApplicationServiceV12({

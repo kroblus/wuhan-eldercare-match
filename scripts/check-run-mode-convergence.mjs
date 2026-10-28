@@ -61,8 +61,10 @@ assert.equal(session.readDemo().flows.find(f => f.institutionId === id).evaluati
 // Shared directory Page: combined keyword/nature/district, no engine/ranking changes.
 demo.module('pages/institution/index.js')
 const definition = demo.page()
-const instance = { ...definition, data: { ...definition.data, viewModel: demo.module('pages/institution/list-view-model.js').createInstitutionListPageViewModel(list.value) }, setData(p) { Object.assign(this.data, p) } }
-instance.filterDirectory()
+const instance = { ...definition, data: { ...definition.data }, setData(p) { Object.assign(this.data, p) } }
+instance.onLoad({})
+for (let i = 0; i < 100; i++) await Promise.resolve()
+assert.equal(instance.data.pageState, 'ready')
 assert.equal(instance.data.visibleItems.length, 12)
 instance.onSearchInput({ detail: { value: '春和' } })
 assert.equal(instance.data.visibleItems.length, 3)

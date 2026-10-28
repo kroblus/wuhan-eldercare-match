@@ -159,11 +159,11 @@ for (const [file, data] of source) {
   }
 }
 for (const file of modules) {
-  // CommonJS modules stay separate. Preserve all public properties, callbacks
-  // and require paths; only shorten lexical names and remove formatting.
+  // CommonJS modules stay separate; no property mangling, unsafe transforms,
+  // cross-module assumptions or dropping function arguments used by APIs.
   const result = await minify(emitted.get(file), {
     ecma: 5,
-    compress: false,
+    compress: { passes: 1, unsafe: false, pure_getters: false, keep_fargs: true },
     mangle: { toplevel: true, properties: false, reserved: ['require', 'module', 'exports'] },
     format: { comments: false },
   })

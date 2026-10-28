@@ -17,11 +17,12 @@ export const directorySnapshotMatches = (snapshot: InstitutionDetailApplicationS
   && snapshot.datasetMode === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION')
   && snapshot.recordProvenance === (item.card.isDemo ? 'MOCK_DEVELOPMENT_ONLY' : 'PRODUCTION_CANDIDATE')
 
-export const directoryPhone = (snapshot: InstitutionDetailApplicationSnapshotV12) => {
+export const directoryPhone = (snapshot: InstitutionDetailApplicationSnapshotV12,
+  detail?: ReturnType<typeof createInstitutionDetailPageViewModel>) => {
   const contact = snapshot.sections.futureV121 && snapshot.sections.futureV121.officialContact
   if (!contact || contact.status !== 'provided' || contact.directory.availability !== 'provided'
     || contact.directory.effectiveVerification !== 'current_verified' || contact.directory.value !== 'present') return undefined
-  return createInstitutionDetailPageViewModel(snapshot).officialContact.phones.find(phone =>
+  return (detail || createInstitutionDetailPageViewModel(snapshot)).officialContact.phones.find(phone =>
     phone.state === 'verified' && phone.callAction.available && !!phone.callAction.dialValue)
 }
 
@@ -80,7 +81,7 @@ export const decorateDirectoryCards = async (
     if (contact.state === 'unavailable') contactRisks.push(contact.statusLabel)
     card.notes = Array.from(new Set(card.notes.concat(contactRisks)))
     card.price = presentDirectoryPrice(snapshot.sections.price)
-    const phone = directoryPhone(snapshot)
+    const phone = directoryPhone(snapshot, detail)
     card.phoneKey = !card.isDemo && phone ? phone.key : ''
     return { ...item, card }
   } catch (_error) {

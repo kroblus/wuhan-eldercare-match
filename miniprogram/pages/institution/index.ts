@@ -24,7 +24,7 @@ type ListPageState = InstitutionListPageViewModelV12['pageState']
 interface InstitutionListPageData {
   browseFontStyle: string
   pageState: ListPageState
-  viewModel: InstitutionListPageViewModelV12 | null
+  viewModel: Omit<InstitutionListPageViewModelV12, 'items' | 'recommendedItems' | 'otherItems'> | null
   sourceContextRef: string | null
   actionErrorKey: string
   actionErrorMessage: string
@@ -39,6 +39,8 @@ interface InstitutionListPageData {
 
 const listGenerations = new WeakMap<object, number>()
 const listLoadsInFlight = new WeakSet<object>()
+// Full catalog stays page-local; only filtered cards cross the render boundary.
+const listDirectories = new WeakMap<object, readonly InstitutionListItemViewModel[]>()
 
 const nextGeneration = (instance: object): number => {
   const generation = (listGenerations.get(instance) || 0) + 1
@@ -124,17 +126,25 @@ Page({
     resetNavigationGuard(this)
   },
   onHide() { invalidateDirectoryCall(this, false) },
-  onUnload() { invalidateDirectoryCall(this, false) },
+  onUnload() {
+    invalidateDirectoryCall(this, false)
+    nextGeneration(this)
+    listLoadsInFlight.delete(this)
+    listDirectories.delete(this)
+    resetNavigationGuard(this)
+  },
 
   loadList(sourceContextRef: string | null) {
     invalidateDirectoryCall(this)
     if (listLoadsInFlight.has(this)) return
     listLoadsInFlight.add(this)
+    listDirectories.delete(this)
     const generation = nextGeneration(this)
     const loading = createInstitutionListLoadingViewModel()
     this.setData({
       pageState: loading.pageState,
       viewModel: null,
+      visibleItems: [],
       actionErrorKey: '',
       actionErrorMessage: '',
     })
@@ -149,13 +159,14 @@ Page({
         }
         listLoadsInFlight.delete(this)
         if (!isCurrentGeneration(this, generation)) return
-        this.setData({
+        listDirectories.set(this, viewModel.items)
+        const { items, recommendedItems, otherItems, ...presentation } = viewModel
+        this.filterDirectory({
           pageState: viewModel.pageState,
-          viewModel,
+          viewModel: presentation,
           actionErrorKey: '',
           actionErrorMessage: '',
         })
-        this.filterDirectory()
         return
       }
       listLoadsInFlight.delete(this)
@@ -180,29 +191,30 @@ Page({
     })
   },
 
-  filterDirectory() {
+  filterDirectory(patch: Partial<InstitutionListPageData> = {}) {
     invalidateDirectoryCall(this)
-    this.setData({ hasMetadataFilters: true,
-      visibleItems: filterInstitutionDirectory(this.data.viewModel ? this.data.viewModel.items : [], this.data.keyword, this.data.natureIndex, this.data.districtIndex) })
+    const state = { ...this.data, ...patch }
+    this.setData({ ...patch, hasMetadataFilters: true,
+      visibleItems: filterInstitutionDirectory(listDirectories.get(this) || [], state.keyword, state.natureIndex, state.districtIndex) })
   },
   onSearchInput(event: WechatMiniprogram.Input) {
-    this.setData({ keyword: event.detail.value }); this.filterDirectory()
+    this.filterDirectory({ keyword: event.detail.value })
   },
   onSearchBlur() { /* Shared input: only Home requests focus programmatically. */ },
   onNatureChange(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value)
     if (!Number.isInteger(index) || !directoryNatureOptions[index]) return
-    this.setData({ natureIndex: index }); this.filterDirectory()
+    this.filterDirectory({ natureIndex: index })
   },
   onDistrictChange(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value)
     if (!Number.isInteger(index) || !directoryDistrictOptions[index]) return
-    this.setData({ districtIndex: index }); this.filterDirectory()
+    this.filterDirectory({ districtIndex: index })
   },
   clearSearch() {
-    this.setData({ keyword: '', natureIndex: 0, districtIndex: 0 }); this.filterDirectory()
+    this.filterDirectory({ keyword: '', natureIndex: 0, districtIndex: 0 })
   },
-  clearKeyword() { this.setData({ keyword: '' }); this.filterDirectory() },
+  clearKeyword() { this.filterDirectory({ keyword: '' }) },
 
   onRetry() {
     if (this.data.pageState === 'loading') return
@@ -212,10 +224,7 @@ Page({
   onCardTap(event: WechatMiniprogram.BaseEvent) {
     const itemKey = event.currentTarget.dataset.itemKey as string
     if (!itemKey || this.data.pageState !== 'ready') return
-    const viewModel = this.data.viewModel
-    const item = viewModel === null
-      ? undefined
-      : viewModel.items.find((candidate) => candidate.key === itemKey)
+    const item = this.data.visibleItems.find((candidate) => candidate.key === itemKey)
     if (item === undefined) return
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
     const guard = getNavigationGuard(this)

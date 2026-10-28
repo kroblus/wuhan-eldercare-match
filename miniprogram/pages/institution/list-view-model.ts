@@ -142,12 +142,12 @@ const formatItem = (
   item: InstitutionListDisplayItemV12,
   source: Extract<InstitutionRouteSource, 'direct_list' | 'recommendation'>,
   sourceContextRef: string | null,
+  directoryMetadata: readonly { institutionId: string; recordRevision?: number; natureLabel?: string }[],
 ): InstitutionListItemViewModel => {
   const name = valueOrStatus(item.name, (value) => value)
   const region = valueOrStatus(item.region, (value) => value.displayName)
   const type = valueOrStatus(item.institutionType, formatTypes)
   const price = formatPrice(item.referenceMonthlyPrice)
-  const directoryMetadata: readonly { institutionId: string; recordRevision?: number; natureLabel?: string }[] = readDirectoryMetadata()
   const metadata = directoryMetadata.find(row => row.institutionId === item.institutionId && (row.recordRevision === undefined || row.recordRevision === item.recordRevision))
   const vrLabel = item.vr.state === 'available'
     ? 'VR看院资料已核验'
@@ -245,10 +245,11 @@ export const createInstitutionListPageViewModel = (
   const candidateSource: Extract<InstitutionRouteSource, 'direct_list' | 'recommendation'> =
     snapshot.source === 'recommendation' ? 'recommendation' : 'direct_list'
   const candidateSourceContextRef = candidateSource === 'recommendation' ? snapshot.sourceContextRef : null
+  const directoryMetadata = readDirectoryMetadata()
   const mappedRecommendedItems = snapshot.recommendedCandidates.map((item) =>
-    formatItem(item, candidateSource, candidateSourceContextRef))
+    formatItem(item, candidateSource, candidateSourceContextRef, directoryMetadata))
   const mappedOtherItems = snapshot.otherCurrentPartners.map((item) =>
-    formatItem(item, 'direct_list', null))
+    formatItem(item, 'direct_list', null, directoryMetadata))
   const items = withGroupHeadings(mappedRecommendedItems.concat(mappedOtherItems))
   const recommendedItems = items.slice(0, mappedRecommendedItems.length)
   const otherItems = items.slice(mappedRecommendedItems.length)
