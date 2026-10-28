@@ -333,7 +333,6 @@ export default function Visits() {
     <div className={styles.page}>
       <div className="page-heading">
         <div>
-          <p className={styles.eyebrow}>行程 / 双方确认 / 资源</p>
           <h1>带看日程</h1>
           <p className={styles.description}>按真实确认安排带看，保留每一次改期与到访记录。</p>
         </div>
@@ -369,9 +368,11 @@ export default function Visits() {
               />
             </Form.Item>
           </div>
-          <Button htmlType="submit" type="primary" icon={<IconRefresh />} loading={busy}>
-            查询日程
-          </Button>
+          <div className="actions">
+            <Button htmlType="submit" type="primary" icon={<IconRefresh />} loading={busy}>
+              查询日程
+            </Button>
+          </div>
         </Form>
         <p className={styles.description}>
           仅已确认行程占用资源。交通与准备缓冲由顾问填写，未使用路线测算；同一认证账号的需求共享冲突保护。
@@ -384,6 +385,7 @@ export default function Visits() {
           </p>
         )}
         <Table
+          border={false}
           rowKey="id"
           pagination={{ pageSize: 20, sizeCanChange: false, showTotal: true }}
           data={visible}
@@ -442,7 +444,7 @@ export default function Visits() {
             { title: '集合说明', dataIndex: 'meetingNote', width: 200 },
             {
               title: '操作',
-              width: 130,
+              width: 160,
               render: (_, row) => (
                 <Button
                   type="text"
@@ -456,80 +458,84 @@ export default function Visits() {
           ]}
         />
       </section>
-      <section className="panel" aria-labelledby="resource-current-title">
-        <div className={styles.sectionHeading}>
-          <div>
-            <h2 id="resource-current-title">当前资源配置</h2>
-            <p className={styles.description}>
-              不可用时段按上方日期范围展示；容量是本环境的全部手工配置。
-            </p>
-          </div>
-        </div>
-        {calendar ? (
-          <>
-            <div className={styles.capacities}>
-              {calendar.capacities.length ? (
-                calendar.capacities.map((item, index) => (
-                  <Tag key={index} bordered>
-                    {item.institutionName} · 同时 {item.capacity} 组
-                  </Tag>
-                ))
-              ) : (
-                <p className={styles.description}>
-                  未配置机构组数限制。负责人和本人冲突检查持续生效。
-                </p>
-              )}
+      <details className="panel resource-disclosure">
+        <summary>查看当前资源配置</summary>
+        <section aria-labelledby="resource-current-title">
+          <div className={styles.sectionHeading}>
+            <div>
+              <h2 id="resource-current-title">当前资源配置</h2>
+              <p className={styles.description}>
+                不可用时段按上方日期范围展示；容量是本环境的全部手工配置。
+              </p>
             </div>
-            <Table
-              rowKey="id"
-              pagination={false}
-              data={calendar.blocks}
-              noDataElement="该日期范围未登记负责人不可用时段"
-              scroll={{ x: 720 }}
-              columns={[
-                { title: '负责人', dataIndex: 'staffId', width: 160 },
-                {
-                  title: '不可用时间（北京时间）',
-                  width: 360,
-                  render: (_, row) => `${time(row.start)} 至 ${time(row.end)}`,
-                },
-                {
-                  title: '操作',
-                  width: 160,
-                  render: (_, row) => (
-                    <Button
-                      status="danger"
-                      type="text"
-                      icon={<IconDelete />}
-                      disabled={removeMutation.busy || !!removeMutation.pending}
-                      onClick={() => void removeBlock(row.id)}
-                    >
-                      移除不可用时段
-                    </Button>
-                  ),
-                },
-              ]}
+          </div>
+          {calendar ? (
+            <>
+              <div className={styles.capacities}>
+                {calendar.capacities.length ? (
+                  calendar.capacities.map((item, index) => (
+                    <Tag key={index} bordered>
+                      {item.institutionName} · 同时 {item.capacity} 组
+                    </Tag>
+                  ))
+                ) : (
+                  <p className={styles.description}>
+                    未配置机构组数限制。负责人和本人冲突检查持续生效。
+                  </p>
+                )}
+              </div>
+              <Table
+                border={false}
+                rowKey="id"
+                pagination={false}
+                data={calendar.blocks}
+                noDataElement="该日期范围未登记负责人不可用时段"
+                scroll={{ x: 720 }}
+                columns={[
+                  { title: '负责人', dataIndex: 'staffId', width: 160 },
+                  {
+                    title: '不可用时间（北京时间）',
+                    width: 360,
+                    render: (_, row) => `${time(row.start)} 至 ${time(row.end)}`,
+                  },
+                  {
+                    title: '操作',
+                    width: 160,
+                    render: (_, row) => (
+                      <Button
+                        status="danger"
+                        type="text"
+                        icon={<IconDelete />}
+                        disabled={removeMutation.busy || !!removeMutation.pending}
+                        onClick={() => void removeBlock(row.id)}
+                      >
+                        移除不可用时段
+                      </Button>
+                    ),
+                  },
+                ]}
+              />
+            </>
+          ) : (
+            <p className={styles.description}>查询成功后显示实际配置。</p>
+          )}
+          {pendingRemove && !removeMutation.busy && (
+            <Alert
+              type="warning"
+              content={
+                <Space wrap>
+                  <span>上次移除的结果尚未确认，保留原时段编号。</span>
+                  <Button onClick={() => void removeBlock()}>使用原内容重试移除</Button>
+                </Space>
+              }
             />
-          </>
-        ) : (
-          <p className={styles.description}>查询成功后显示实际配置。</p>
-        )}
-        {pendingRemove && !removeMutation.busy && (
-          <Alert
-            type="warning"
-            content={
-              <Space wrap>
-                <span>上次移除的结果尚未确认，保留原时段编号。</span>
-                <Button onClick={() => void removeBlock()}>使用原内容重试移除</Button>
-              </Space>
-            }
-          />
-        )}
-        {removeMutation.error && <Alert type="error" content={removeMutation.error} />}
-        <p role="status" className={styles.feedback}>
-          {feedback}
-        </p>
-      </section>
+          )}
+          {removeMutation.error && <Alert type="error" content={removeMutation.error} />}
+          <p role="status" className={styles.feedback}>
+            {feedback}
+          </p>
+        </section>
+      </details>
       <section className="panel">
         <Collapse bordered={false}>
           <Collapse.Item name="resources" header="维护负责人不可用与机构接待容量">

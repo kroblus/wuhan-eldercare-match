@@ -19,7 +19,10 @@ describe.skipIf(process.env.ADMIN_LOCAL_HTTP !== '1')(
     it('accepts real session, pagination, detail, calendar, institution drafts and report snapshot', async () => {
       const runtime = JSON.parse(
         readFileSync(
-          resolve('../output/admin-react-rebuild-v1-20261028/backend/runtime.private.json'),
+          resolve(
+            process.env.ADMIN_LOCAL_RUNTIME ||
+              '../output/admin-react-rebuild-v1-20261028/backend/runtime.private.json',
+          ),
           'utf8',
         ),
       );

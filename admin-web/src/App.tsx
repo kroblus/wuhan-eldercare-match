@@ -77,7 +77,6 @@ function Login({ onLogin }: { onLogin: (session: z.infer<typeof sessionSchema>) 
           <span>快</span>快康养 <small>运营工作台</small>
         </div>
         <div>
-          <p className={styles.eyebrow}>CARE, WITH A CLEAR NEXT STEP.</p>
           <h1>
             接住每一份需求。
             <br />
@@ -88,7 +87,6 @@ function Login({ onLogin }: { onLogin: (session: z.infer<typeof sessionSchema>) 
         <div className={styles.loginFooter}>每次联系有记录，每份资料有来源。</div>
       </section>
       <section className={styles.loginCard}>
-        <p className={styles.eyebrow}>WELCOME BACK / 内部工作区</p>
         <h2>登录工作台</h2>
         <p>使用平台管理员账号，继续今天的服务。</p>
         <Form form={form} layout="vertical" onSubmit={submit} disabled={busy}>
@@ -180,15 +178,6 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
           </NavLink>
         ))}
       </nav>
-      <div className={styles.sidebarFoot}>
-        <b>做好服务的每一步</b>
-        <p>
-          免费信息对接
-          <br />
-          以实际联系和双方确认为准
-        </p>
-        <span>KKY / OPERATIONS</span>
-      </div>
     </>
   );
   return (
@@ -218,7 +207,7 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
             </span>
           </div>
           <div className={styles.tools}>
-            <Tag color={env === '正式服务环境' ? 'green' : 'orange'}>{env}</Tag>
+            <Tag color={env === '正式服务环境' ? 'green' : 'gray'}>{env}</Tag>
             <Select
               aria-label="阅读字号"
               value={font}

@@ -42,8 +42,7 @@ export default function Dashboard() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">OPERATIONS / DAILY OVERVIEW</p>
-          <h1>把今天的服务，安排好</h1>
+          <h1>工作台</h1>
           <p>{today()} · 北京时间 · 免费信息对接与带看服务</p>
         </div>
         <Button icon={<IconRefresh />} onClick={() => setRefresh((v) => v + 1)}>
@@ -73,13 +72,14 @@ export default function Dashboard() {
       <div className="split-content">
         <section className="panel">
           <div className="section-caption">
-            <h2>等待第一次回应</h2>
+            <h2>待联系需求</h2>
             <Link to="/requests?status=PENDING_CONTACT">
               查看全部 <IconArrowRight />
             </Link>
           </div>
           <p className="muted">最近 5 条待联系需求 · 按创建时间倒序</p>
           <Table
+            border={false}
             rowKey="id"
             loading={!data && !error}
             data={data?.[0].items || []}
@@ -100,39 +100,24 @@ export default function Dashboard() {
               {
                 title: '状态',
                 render: (_, r) => (
-                  <Tag color="orange">{statusLabels[r.status as keyof typeof statusLabels]}</Tag>
+                  <Tag color="gray">{statusLabels[r.status as keyof typeof statusLabels]}</Tag>
                 ),
               },
             ]}
           />
         </section>
         <section className="panel">
-          <p className="eyebrow">SERVICE CHECKLIST</p>
-          <h2>从信息到行动，每一步都清楚</h2>
+          <h2>快捷办理</h2>
           {[
-            ['01', '回应需求', '查看必要联系资料，记录真实联系结果。', '/requests'],
-            ['02', '安排看院', '双方确认后再排期，检查人员与交通缓冲。', '/visits'],
-            ['03', '维护资料', '有来源的事实，经过确认后按版本发布。', '/institutions'],
-          ].map(([number, title, desc, path]) => (
-            <Link
-              key={number}
-              to={path}
-              style={{
-                display: 'flex',
-                gap: 18,
-                padding: '20px 0',
-                borderBottom: '1px solid #eeeae4',
-                textDecoration: 'none',
-                color: 'inherit',
-              }}
-            >
-              <span style={{ color: '#b9b1a5', fontSize: 22 }}>{number}</span>
-              <div>
-                <b>{title}</b>
-                <p className="muted" style={{ margin: '6px 0 0' }}>
-                  {desc}
-                </p>
-              </div>
+            ['待联系需求', '/requests?status=PENDING_CONTACT'],
+            ['待安排需求', '/requests?status=PENDING_ARRANGEMENT'],
+            ['查看带看日程', '/visits'],
+            ['维护机构资料', '/institutions'],
+            ['生成服务报告', '/reports'],
+          ].map(([title, path]) => (
+            <Link className="quick-link" key={path} to={path}>
+              <span>{title}</span>
+              <IconArrowRight />
             </Link>
           ))}
         </section>

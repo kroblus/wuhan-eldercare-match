@@ -161,7 +161,6 @@ export default function Reports() {
     <div className={styles.page}>
       <div className="page-heading">
         <div>
-          <p className={styles.eyebrow}>服务成效 / 固定批次</p>
           <h1>服务报告</h1>
           <p className={styles.description}>用实际联系与到访记录，查看免费对接的阶段成果。</p>
         </div>
@@ -263,23 +262,26 @@ export default function Reports() {
                   {sourceLabels[report.sourceFilter] || report.sourceFilter}
                 </p>
               </div>
-              <Tag color="orange">本批次已固定</Tag>
+              <Tag color="gray">本批次已固定</Tag>
             </div>
             <Alert type="info" content={report.warning} />
-            <dl className={styles.meta}>
-              <div>
-                <dt>生成 / 观察截止</dt>
-                <dd>{time(report.generatedAt)}（北京时间）</dd>
-              </div>
-              <div>
-                <dt>统计口径</dt>
-                <dd>{report.policyVersion}</dd>
-              </div>
-              <div className={styles.batch}>
-                <dt>批次编号</dt>
-                <dd>{report.snapshotId}</dd>
-              </div>
-            </dl>
+            <details className="report-provenance">
+              <summary>查看批次与统计口径</summary>
+              <dl className={styles.meta}>
+                <div>
+                  <dt>生成 / 观察截止</dt>
+                  <dd>{time(report.generatedAt)}（北京时间）</dd>
+                </div>
+                <div>
+                  <dt>统计口径</dt>
+                  <dd>{report.policyVersion}</dd>
+                </div>
+                <div className={styles.batch}>
+                  <dt>批次编号</dt>
+                  <dd>{report.snapshotId}</dd>
+                </div>
+              </dl>
+            </details>
             <div className="metric-grid">
               {['newRequests', 'contactEvents', 'confirmedSessions', 'arrivedSessions'].map(
                 (key) => (
@@ -294,6 +296,7 @@ export default function Reports() {
           <section className="panel" aria-labelledby="report-activity-title">
             <h2 id="report-activity-title">期间活动</h2>
             <Table
+              border={false}
               rowKey="key"
               pagination={false}
               data={Object.entries(metricLabels).map(([key, label]) => ({
@@ -329,6 +332,7 @@ export default function Reports() {
           <section className="panel" aria-labelledby="report-profiles-title">
             <h2 id="report-profiles-title">需求画像</h2>
             <Table
+              border={false}
               rowKey={(row) => row.dimension + '/' + row.category}
               pagination={false}
               data={report.profiles}
@@ -348,6 +352,7 @@ export default function Reports() {
             <h2 id="report-institutions-title">分机构成果</h2>
             <p className={styles.description}>各机构行独立去重，平台总数不能由这些行相加。</p>
             <Table
+              border={false}
               rowKey="institutionName"
               pagination={false}
               data={report.institutions}
@@ -374,6 +379,7 @@ export default function Reports() {
           <section className="panel" aria-labelledby="report-sources-title">
             <h2 id="report-sources-title">数据来源</h2>
             <Table
+              border={false}
               rowKey="source"
               pagination={false}
               data={report.sources}

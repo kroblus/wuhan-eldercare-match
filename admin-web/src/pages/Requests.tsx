@@ -11,6 +11,7 @@ import RequestDetail from '../components/RequestDetail';
 import { time } from '../time';
 export default function Requests() {
   const [params] = useSearchParams();
+  const [form] = Form.useForm();
   const initial = params.get('status') || '';
   const [filter, setFilter] = useState<Record<string, string>>(initial ? { status: initial } : {}),
     [page, setPage] = useState(1),
@@ -23,7 +24,6 @@ export default function Requests() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">REQUESTS / EVERY CONNECTION COUNTS</p>
           <h1>需求管理</h1>
           <p>记录每次联系，为每个家庭明确下一步。</p>
         </div>
@@ -31,6 +31,7 @@ export default function Requests() {
       </div>
       <section className="panel">
         <Form
+          form={form}
           layout="vertical"
           className="filter-grid"
           initialValues={{ status: initial }}
@@ -62,15 +63,31 @@ export default function Requests() {
               }))}
             />
           </Field>
-          <Field name="from" label="开始日期（北京时间）">
-            <Input type="date" />
-          </Field>
-          <Field name="to" label="结束日期（含当天）">
-            <Input type="date" />
-          </Field>
+          <details className="filter-extra">
+            <summary>按日期筛选</summary>
+            <div className="form-two">
+              {' '}
+              <Field name="from" label="开始日期（北京时间）">
+                <Input type="date" />
+              </Field>
+              <Field name="to" label="结束日期（含当天）">
+                <Input type="date" />
+              </Field>
+            </div>
+          </details>
           <Form.Item>
             <Button htmlType="submit" type="primary" icon={<IconSearch />}>
               查询需求
+            </Button>
+            <Button
+              onClick={() => {
+                form.resetFields();
+                form.setFieldsValue({ status: undefined });
+                setFilter({});
+                setPage(1);
+              }}
+            >
+              重置
             </Button>
           </Form.Item>
         </Form>
@@ -85,6 +102,7 @@ export default function Requests() {
         </div>
         <ErrorNotice message={result.error} retry={result.reload} />
         <Table
+          border={false}
           rowKey="id"
           data={result.data?.items || []}
           loading={result.loading}
@@ -126,7 +144,7 @@ export default function Requests() {
               title: '数据标记',
               width: 140,
               render: (_, r) => (
-                <Tag color={r.datasetMode === 'SYNTHETIC_TEST_ONLY' ? 'orange' : 'green'}>
+                <Tag color={r.datasetMode === 'SYNTHETIC_TEST_ONLY' ? 'gray' : 'green'}>
                   {r.datasetMode === 'SYNTHETIC_TEST_ONLY' ? '合成测试' : '正式申请'}
                 </Tag>
               ),

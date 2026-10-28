@@ -259,6 +259,7 @@ describe('带看日程范围、资源写入与恢复', () => {
       capacity: 3,
     });
     expect(screen.getByLabelText('同时接待组数')).toHaveValue('3');
+    fireEvent.click(screen.getByText('查看当前资源配置'));
     expect(screen.getByText('合成启用机构 · 同时 2 组')).toBeVisible();
   });
   it('跨模块重挂载后保留未知登记的原编号与内容', async () => {

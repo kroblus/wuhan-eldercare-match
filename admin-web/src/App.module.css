@@ -7,12 +7,12 @@
   --reading: 1.5;
 }
 .sidebar {
-  width: 232px;
+  width: 212px;
   position: fixed;
   inset: 0 auto 0 0;
   background: #fff;
-  border-right: 1px solid #e8e6e2;
-  padding: 30px 20px;
+  border-right: 1px solid var(--line);
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   z-index: 20;
@@ -21,97 +21,81 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 750;
   letter-spacing: -0.6px;
   color: #202020;
 }
 .brand > span {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   border-radius: 12px;
   background: #ff6a00;
   color: #202020;
   display: grid;
   place-items: center;
-  font-size: 23px;
+  font-size: 18px;
 }
 .brand small {
   display: block;
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 12px;
+  letter-spacing: 0;
   color: #707070;
   font-weight: 500;
   margin-top: 3px;
 }
 .navLabel {
   color: #8b8881;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 1.5px;
-  margin: 54px 12px 16px;
+  margin: 28px 12px 12px;
 }
 .sidebar nav,
 .drawerNav nav {
   display: grid;
-  gap: 7px;
+  gap: 4px;
 }
 .sidebar nav a,
 .drawerNav nav a {
-  color: #5c5a55;
+  color: var(--text-secondary);
   text-decoration: none;
   display: flex;
   gap: 14px;
   align-items: center;
-  padding: 14px 16px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-size: calc(14px * var(--reading, 1));
-  min-height: 48px;
+  min-height: 40px;
 }
 .sidebar nav svg,
 .drawerNav nav svg {
-  font-size: 20px;
+  font-size: 18px;
   flex-shrink: 0;
 }
 .sidebar nav a:hover,
 .drawerNav nav a:hover {
-  background: #faf7f2;
+  background: var(--surface-subtle);
 }
 .sidebar nav a.active,
 .drawerNav nav a.active {
-  background: #fff0e5;
+  background: var(--brand-light);
   color: #a33e00;
-  font-weight: 700;
-  box-shadow: inset 3px 0 #ff6a00;
-}
-.sidebarFoot {
-  margin-top: auto;
-  padding: 24px 12px 0;
-  border-top: 1px solid #eeeae4;
-  font-size: 12px;
-  color: #707070;
-  line-height: 1.8;
-}
-.sidebarFoot b {
   font-weight: 600;
-  color: #484640;
-}
-.sidebarFoot span {
-  font-size: 9px;
-  letter-spacing: 2px;
+  box-shadow: none;
 }
 .main {
-  margin-left: 232px;
+  margin-left: 212px;
   min-width: 0;
 }
 .toolbar {
-  min-height: 76px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: #ffffffed;
-  border-bottom: 1px solid #e8e6e2;
-  padding: 16px 34px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 28px;
   position: sticky;
   top: 0;
   z-index: 15;
@@ -152,16 +136,16 @@
   display: none !important;
 }
 .content {
-  padding: 32px 36px;
-  max-width: 1760px;
+  padding: 28px;
+  max-width: none;
   margin: auto;
   min-height: calc(100vh - 142px);
 }
 .footer {
   padding: 20px 36px;
   color: #8b8881;
-  font-size: 11px;
-  border-top: 1px solid #e8e6e2;
+  font-size: 12px;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   gap: 10px;
@@ -173,7 +157,7 @@
   background: #fff;
 }
 .loginStory {
-  background: #f2eee7;
+  background: var(--surface-subtle);
   padding: 54px 64px;
   display: flex;
   flex-direction: column;
@@ -181,33 +165,16 @@
   position: relative;
   overflow: hidden;
 }
-.loginStory:after {
-  content: '';
-  width: 370px;
-  height: 370px;
-  border: 65px solid #ff6a00;
-  border-radius: 50%;
-  position: absolute;
-  right: -260px;
-  bottom: 35px;
-  opacity: 0.9;
-}
 .loginStory h1 {
-  font-size: clamp(32px, 3.6vw, 58px);
+  font-size: clamp(28px, 3vw, 42px);
   line-height: 1.35;
   font-weight: 650;
-  letter-spacing: -2px;
+  letter-spacing: -0.8px;
   margin: 20px 0;
 }
 .loginStory p {
   color: #6a665f;
   font-size: 16px;
-}
-.eyebrow {
-  font-size: 10px !important;
-  letter-spacing: 2px;
-  font-weight: 650;
-  color: #a43d00 !important;
 }
 .loginFooter {
   font-size: 12px;
@@ -220,7 +187,7 @@
   padding: 50px;
 }
 .loginCard h2 {
-  font-size: 30px;
+  font-size: 26px;
   margin: 18px 0 12px;
 }
 .loginCard > p {
@@ -234,17 +201,14 @@
   margin: 12px 0 20px;
 }
 .loginCard :global(.arco-input-wrapper) {
-  background: #faf9f7;
-  border-color: #e6e2dc;
+  background: #fff;
+  border-color: var(--line);
 }
 .loginCard :global(.arco-input) {
-  height: 42px;
+  height: 40px;
 }
 .drawerNav {
   --reading: 1;
-}
-.drawerNav .sidebarFoot {
-  margin-top: 40px;
 }
 .drawerNav .navLabel {
   margin-top: 30px;
@@ -319,15 +283,8 @@
     font-size: 32px;
     margin: 26px 0 16px;
   }
-  .loginStory .eyebrow,
   .loginFooter {
     display: none;
-  }
-  .loginStory:after {
-    width: 240px;
-    height: 240px;
-    right: -220px;
-    bottom: -130px;
   }
   .loginCard {
     padding: 32px 26px;
@@ -341,4 +298,25 @@
   .shell[data-reading-size='150'] .tools {
     max-width: 100%;
   }
+}
+
+@media (max-width: 800px) {
+  .loginStory {
+    min-height: 0;
+    padding: 24px;
+    background: #fff;
+  }
+  .loginStory > div:not(:first-child) {
+    display: none;
+  }
+  .loginCard {
+    margin: 0 auto;
+    padding: 24px;
+  }
+  .login {
+    align-content: center;
+  }
+}
+.shell[data-reading-size='150'] .tools :global(.arco-select) {
+  width: 160px;
 }

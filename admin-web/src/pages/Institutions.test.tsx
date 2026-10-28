@@ -79,6 +79,17 @@ beforeEach(() => {
   client.establish('fixture-csrf');
 });
 describe('institution facts and publication state', () => {
+  it('opens collapsed required fields on validation failure without sending a write', async () => {
+    const call = vi.spyOn(client, 'request');
+    editor();
+    change('机构公开名称', '');
+    const section = screen.getByText('基础资料').closest('details')!;
+    section.open = false;
+    fireEvent.click(screen.getByRole('button', { name: '保存草稿' }));
+    await waitFor(() => expect(section.open).toBe(true));
+    expect(call).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('机构公开名称')).toHaveValue('');
+  });
   it('editing immediately disables publish; name change clears field verification without inventing care capability', async () => {
     const initial = fixture();
     initial.record!.identity.name = {

@@ -162,6 +162,7 @@ export function Editor({
     [error, setError] = useState(''),
     [confirmDirty, setConfirmDirty] = useState(false),
     [accessDirty, setAccessDirty] = useState(false);
+  const basicSection = useRef<HTMLDetailsElement>(null);
   const [form] = Form.useForm<Values>(),
     [confirmForm] = Form.useForm<{
       sourceReference: string;
@@ -489,9 +490,10 @@ export function Editor({
             返回机构列表
           </Button>
           <h1>
-            {current.publicProfile?.name || String(current.record?.identity.name?.value || id)}
+            {current.publicProfile?.name ||
+              String(current.record?.identity.name?.value || '新机构草稿')}
           </h1>
-          <p className="muted">
+          <p className="muted institution-meta">
             稳定 ID：{id} · 草稿 {current.draftRevision} · 当前发布{' '}
             {current.currentRecordRevision || '暂无'}
           </p>
@@ -526,10 +528,13 @@ export function Editor({
           />
         )}
       </div>
+      <div className="workflow-status" aria-label="资料发布流程">
+        草稿 <span>→</span> 已保存 <span>→</span> 已确认 <span>→</span> 已发布{' '}
+        <b>{dirty ? '已修改，需保存并重新确认' : statusLabels[current.status]}</b>
+      </div>
       <div className={styles.editorGrid}>
         <div>
           <section className="panel">
-            <p className="eyebrow">01 / DRAFT</p>
             <h2>机构资料草稿</h2>
             <Form
               id="institution-draft"
@@ -539,108 +544,142 @@ export function Editor({
               disabled={locked}
               onValuesChange={changed}
               onSubmit={() => void saveDraft()}
+              onSubmitFailed={() => {
+                if (basicSection.current) {
+                  basicSection.current.open = true;
+                  basicSection.current.scrollIntoView({ block: 'center' });
+                  basicSection.current
+                    .querySelector<HTMLInputElement>('input[aria-invalid="true"], input')
+                    ?.focus();
+                }
+              }}
             >
-              <h3>身份与位置</h3>
-              <Field name="name" label="机构公开名称" required />
-              <div className="form-two">
-                <Field name="regionCode" label="地区代码（按确认资料填写）" required />
-                <Field name="regionDisplayName" label="所属地区名称" required />
+              <div className="actions">
+                <Button
+                  type="primary"
+                  loading={save.busy}
+                  disabled={
+                    busy ||
+                    !!(confirm.pending || publish.pending || access.pending) ||
+                    conflict ||
+                    (!save.pending && !dirty)
+                  }
+                  onClick={() => (save.pending ? void saveDraft() : form.submit())}
+                >
+                  {save.pending ? '使用原内容重试保存' : '保存草稿'}
+                </Button>
+                <span className="muted">保存修改后需重新人工确认</span>
               </div>
-              <p className="muted">名称或地区修改会撤销该字段原核验依据，不自动变成已核验事实。</p>
-              <Form.Item field="hasProfile" triggerPropName="checked">
-                <Checkbox>同时发布详细介绍与价目表</Checkbox>
-              </Form.Item>
-              <div hidden={!hasProfile}>
-                <h3>公开介绍</h3>
-                <Field name="source" label="公开资料来源">
-                  <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 4 }} />
-                </Field>
+              <details ref={basicSection} className="editor-section" open>
+                <summary>基础资料</summary>
+                <Field name="name" label="机构公开名称" required />
                 <div className="form-two">
-                  <Field name="address" label="实际地址（未知保持空白）" />
-                  <Field name="nature" label="机构性质（按确认资料填写）" />
-                  <Field name="room" label="房间与居住条件" />
+                  <Field name="regionCode" label="地区代码（按确认资料填写）" required />
+                  <Field name="regionDisplayName" label="所属地区名称" required />
                 </div>
-                <Field name="tags" label="展示标签（每行一个）">
-                  <Input.TextArea autoSize={{ minRows: 2, maxRows: 4 }} />
-                </Field>
-                <Field name="tagNote" label="标签口径及未核实事项">
-                  <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 4 }} />
-                </Field>
-                <Alert
-                  type="info"
-                  content="“医养结合”等展示标签不会改写医疗资格、护理能力或接收核实结论。"
-                />
-                <div className="section-caption">
-                  <h3>公示价格 / 元每月</h3>
-                  <Button
-                    disabled={locked}
-                    icon={<IconPlus />}
-                    onClick={() => {
-                      setPrices((v) => [...v, { level: '' }]);
-                      setDirty(true);
-                    }}
-                  >
-                    增加价格行
-                  </Button>
-                </div>
-                {!prices.length && (
-                  <p className="muted">暂无已公开价格，保持未知。请勿填写推测金额。</p>
-                )}
-                {prices.map((row, index) => (
-                  <div className={styles.priceRow} key={index}>
-                    <label>
-                      公示护理档位
-                      <Input
-                        aria-label={'第' + (index + 1) + '行护理档位'}
-                        value={row.level}
-                        maxLength={80}
-                        disabled={locked}
-                        onChange={(v) => updatePrice(index, 'level', v)}
-                      />
-                    </label>
-                    {(
-                      [
-                        ['bed', '床位费'],
-                        ['care', '护理费'],
-                        ['food', '伙食费'],
-                        ['total', '总月费'],
-                      ] as const
-                    ).map(([field, label]) => (
-                      <label key={field}>
-                        {label}
-                        <InputNumber
-                          aria-label={'第' + (index + 1) + '行' + label}
-                          min={0}
-                          max={10000000}
-                          precision={0}
-                          disabled={locked}
-                          value={row[field]}
-                          onChange={(v) => updatePrice(index, field, v)}
-                        />
-                      </label>
-                    ))}
+                <p className="muted">
+                  名称或地区修改会撤销该字段原核验依据，不自动变成已核验事实。
+                </p>
+                <Form.Item field="hasProfile" triggerPropName="checked">
+                  <Checkbox>同时发布详细介绍与价目表</Checkbox>
+                </Form.Item>
+              </details>
+              <div hidden={!hasProfile}>
+                <details className="editor-section">
+                  <summary>公开介绍</summary>
+                  <Field name="source" label="公开资料来源">
+                    <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 4 }} />
+                  </Field>
+                  <div className="form-two">
+                    <Field name="address" label="实际地址（未知保持空白）" />
+                    <Field name="nature" label="机构性质（按确认资料填写）" />
+                    <Field name="room" label="房间与居住条件" />
+                  </div>
+                  <Field name="tags" label="展示标签（每行一个）">
+                    <Input.TextArea autoSize={{ minRows: 2, maxRows: 4 }} />
+                  </Field>
+                  <Field name="tagNote" label="标签口径及未核实事项">
+                    <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 4 }} />
+                  </Field>
+                  <Alert
+                    type="info"
+                    content="“医养结合”等展示标签不会改写医疗资格、护理能力或接收核实结论。"
+                  />
+                </details>
+                <details className="editor-section">
+                  <summary>公示价格</summary>
+                  <div className="section-caption">
+                    <h3>公示价格 / 元每月</h3>
                     <Button
-                      status="danger"
-                      type="text"
                       disabled={locked}
+                      icon={<IconPlus />}
                       onClick={() => {
-                        setPrices((rows) => rows.filter((_, i) => i !== index));
+                        setPrices((v) => [...v, { level: '' }]);
                         setDirty(true);
                       }}
                     >
-                      移除此行
+                      增加价格行
                     </Button>
                   </div>
-                ))}
-                <Field name="otherFees" label="另列费用及使用 / 退还条件">
-                  <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
-                </Field>
-                <Field name="priceNote" label="费用口径、适用限制及待确认信息">
-                  <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
-                </Field>
-                <Field name="historyNote" label="与旧版本的关系说明">
-                  <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
-                </Field>
+                  {!prices.length && (
+                    <p className="muted">暂无已公开价格，保持未知。请勿填写推测金额。</p>
+                  )}
+                  {prices.map((row, index) => (
+                    <div className={styles.priceRow} key={index}>
+                      <label>
+                        公示护理档位
+                        <Input
+                          aria-label={'第' + (index + 1) + '行护理档位'}
+                          value={row.level}
+                          maxLength={80}
+                          disabled={locked}
+                          onChange={(v) => updatePrice(index, 'level', v)}
+                        />
+                      </label>
+                      {(
+                        [
+                          ['bed', '床位费'],
+                          ['care', '护理费'],
+                          ['food', '伙食费'],
+                          ['total', '总月费'],
+                        ] as const
+                      ).map(([field, label]) => (
+                        <label key={field}>
+                          {label}
+                          <InputNumber
+                            aria-label={'第' + (index + 1) + '行' + label}
+                            min={0}
+                            max={10000000}
+                            precision={0}
+                            disabled={locked}
+                            value={row[field]}
+                            onChange={(v) => updatePrice(index, field, v)}
+                          />
+                        </label>
+                      ))}
+                      <Button
+                        status="danger"
+                        type="text"
+                        disabled={locked}
+                        onClick={() => {
+                          setPrices((rows) => rows.filter((_, i) => i !== index));
+                          setDirty(true);
+                        }}
+                      >
+                        移除此行
+                      </Button>
+                    </div>
+                  ))}
+                  <Field name="otherFees" label="另列费用及使用 / 退还条件">
+                    <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
+                  </Field>
+                  <Field name="priceNote" label="费用口径、适用限制及待确认信息">
+                    <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
+                  </Field>
+                  <Field name="historyNote" label="与旧版本的关系说明">
+                    <Input.TextArea maxLength={2000} autoSize={{ minRows: 2, maxRows: 5 }} />
+                  </Field>
+                </details>
               </div>
               <Collapse>
                 <Collapse.Item
@@ -661,110 +700,95 @@ export function Editor({
                   </Field>
                 </Collapse.Item>
               </Collapse>
-              <div className="actions">
-                <Button
-                  type="primary"
-                  loading={save.busy}
-                  disabled={
-                    busy ||
-                    !!(confirm.pending || publish.pending || access.pending) ||
-                    conflict ||
-                    (!save.pending && !dirty)
-                  }
-                  onClick={() => (save.pending ? void saveDraft() : form.submit())}
-                >
-                  {save.pending ? '使用原内容重试保存' : '保存草稿'}
-                </Button>
-                <span className="muted">保存修改后需重新人工确认</span>
-              </div>
             </Form>
           </section>
         </div>
         <aside>
           <section className="panel">
-            <p className="eyebrow">02 / VERIFY</p>
-            <h2>人工确认</h2>
-            <p className="muted">只确认已保存的这一份草稿。来源、确认人和日期均按实际填写。</p>
-            <Form
-              id="institution-confirm"
-              form={confirmForm}
-              layout="vertical"
-              initialValues={initial.confirmation || {}}
-              onValuesChange={() => setConfirmDirty(true)}
-              disabled={locked || dirty || conflict || !current.draftRevision}
-              onSubmit={confirmDraft}
-            >
-              <Field name="sourceReference" label="本次确认来源引用" required>
-                <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 5 }} />
-              </Field>
-              <Field name="confirmedBy" label="实际确认人 / 可追溯标识" required />
-              <Field name="confirmedOn" label="实际人工确认日期" required>
-                <Input type="date" />
-              </Field>
+            <details className="editor-section">
+              <summary>来源与确认</summary>
+              <p className="muted">只确认已保存的这一份草稿。来源、确认人和日期均按实际填写。</p>
+              <Form
+                id="institution-confirm"
+                form={confirmForm}
+                layout="vertical"
+                initialValues={initial.confirmation || {}}
+                onValuesChange={() => setConfirmDirty(true)}
+                disabled={locked || dirty || conflict || !current.draftRevision}
+                onSubmit={confirmDraft}
+              >
+                <Field name="sourceReference" label="本次确认来源引用" required>
+                  <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 5 }} />
+                </Field>
+                <Field name="confirmedBy" label="实际确认人 / 可追溯标识" required />
+                <Field name="confirmedOn" label="实际人工确认日期" required>
+                  <Input type="date" />
+                </Field>
+                <Button
+                  long
+                  disabled={
+                    busy ||
+                    dirty ||
+                    conflict ||
+                    !!(save.pending || publish.pending || access.pending) ||
+                    !current.draftRevision
+                  }
+                  loading={confirm.busy}
+                  onClick={() =>
+                    confirm.pending
+                      ? void confirmDraft(
+                          confirmForm.getFieldsValue() as {
+                            sourceReference: string;
+                            confirmedBy: string;
+                            confirmedOn: string;
+                          },
+                        )
+                      : confirmForm.submit()
+                  }
+                >
+                  {confirm.pending ? '使用原内容重试确认' : '确认已保存草稿'}
+                </Button>
+              </Form>
+            </details>
+          </section>
+          <section className="panel">
+            <details className="editor-section">
+              <summary>版本发布</summary>
+              <p className="muted">新版本供当前目录使用。旧推荐和历史资料继续引用原版本。</p>
               <Button
+                type="primary"
                 long
+                loading={publish.busy}
                 disabled={
                   busy ||
                   dirty ||
                   conflict ||
-                  !!(save.pending || publish.pending || access.pending) ||
-                  !current.draftRevision
+                  !!(save.pending || confirm.pending || access.pending) ||
+                  (!publish.pending && (current.status !== 'CONFIRMED' || !current.confirmation))
                 }
-                loading={confirm.busy}
-                onClick={() =>
-                  confirm.pending
-                    ? void confirmDraft(
-                        confirmForm.getFieldsValue() as {
-                          sourceReference: string;
-                          confirmedBy: string;
-                          confirmedOn: string;
-                        },
-                      )
-                    : confirmForm.submit()
-                }
+                onClick={() => void publishDraft()}
               >
-                {confirm.pending ? '使用原内容重试确认' : '确认已保存草稿'}
+                {publish.pending ? '使用原操作重试发布' : '发布已确认版本'}
               </Button>
-            </Form>
+              {current.publishedRecordRevision && (
+                <p>
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={
+                      '/api/v1/institution-publications/' +
+                      encodeURIComponent(id) +
+                      '/revisions/' +
+                      current.publishedRecordRevision
+                    }
+                  >
+                    读取已发布第 {current.publishedRecordRevision} 版公开资料 ↗
+                  </a>
+                </p>
+              )}
+            </details>
           </section>
           <section className="panel">
-            <p className="eyebrow">03 / PUBLISH</p>
-            <h2>发布不可变版本</h2>
-            <p className="muted">新版本供当前目录使用。旧推荐和历史资料继续引用原版本。</p>
-            <Button
-              type="primary"
-              long
-              loading={publish.busy}
-              disabled={
-                busy ||
-                dirty ||
-                conflict ||
-                !!(save.pending || confirm.pending || access.pending) ||
-                (!publish.pending && (current.status !== 'CONFIRMED' || !current.confirmation))
-              }
-              onClick={() => void publishDraft()}
-            >
-              {publish.pending ? '使用原操作重试发布' : '发布已确认版本'}
-            </Button>
-            {current.publishedRecordRevision && (
-              <p>
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={
-                    '/api/v1/institution-publications/' +
-                    encodeURIComponent(id) +
-                    '/revisions/' +
-                    current.publishedRecordRevision
-                  }
-                >
-                  读取已发布第 {current.publishedRecordRevision} 版公开资料 ↗
-                </a>
-              </p>
-            )}
-          </section>
-          <section className="panel">
-            <p className="eyebrow">INDEPENDENT / SERVICE ACCESS</p>
             <h2>平台免费服务接入</h2>
             <Tag color={current.serviceAccess.enabled ? 'green' : 'gray'}>
               {current.serviceAccess.enabled ? '允许新服务申请' : '未接收新服务申请'}
@@ -831,44 +855,33 @@ export function Editor({
         <p className="muted">
           逐项核对不同内容。未选择“采用服务器值”的项目仍保留你的本地输入，继续后还需保存并重新确认。
         </p>
-        <Table
-          rowKey="key"
-          pagination={false}
-          scroll={{ x: 680 }}
-          data={comparisonRows}
-          columns={[
-            { title: '不同项目', dataIndex: 'label', width: 150 },
-            {
-              title: '我的本地输入',
-              render: (_, row) => (
-                <span style={{ whiteSpace: 'pre-wrap' }}>{displayValue(row.mine)}</span>
-              ),
-            },
-            {
-              title: '服务器最新内容',
-              render: (_, row) => (
-                <span style={{ whiteSpace: 'pre-wrap' }}>{displayValue(row.server)}</span>
-              ),
-            },
-            {
-              title: '合并选择',
-              width: 145,
-              render: (_, row) => (
-                <Button
-                  disabled={!!pending}
-                  type="text"
-                  onClick={() => {
-                    const values = { [row.key]: row.server };
-                    writeDraft(values);
-                    changed(values);
-                  }}
-                >
-                  采用服务器值
-                </Button>
-              ),
-            },
-          ]}
-        />
+        <div className={styles.differences}>
+          {comparisonRows.length === 0 && <p className="muted">公开字段没有差异</p>}
+          {comparisonRows.map((row) => (
+            <section className={styles.difference} key={row.key}>
+              <h3>{row.label}</h3>
+              <div>
+                <small>我的本地输入</small>
+                <p>{displayValue(row.mine)}</p>
+              </div>
+              <div>
+                <small>服务器最新内容</small>
+                <p>{displayValue(row.server)}</p>
+              </div>
+              <Button
+                disabled={!!pending}
+                type="text"
+                onClick={() => {
+                  const values = { [row.key]: row.server };
+                  writeDraft(values);
+                  changed(values);
+                }}
+              >
+                采用服务器值
+              </Button>
+            </section>
+          ))}
+        </div>
         {latest && signature(prices) !== signature(latest.publicProfile?.prices || []) && (
           <section className="panel">
             <h3>公示价格不同</h3>
@@ -951,6 +964,7 @@ export function Editor({
               ) {
                 accepted(latest);
                 setComparing(false);
+                setFeedback('已采用服务器资料，本地未保存修改已放弃。');
               }
             }}
           >
@@ -1174,7 +1188,6 @@ export default function Institutions() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">INSTITUTIONS / FACTS WITH A SOURCE</p>
           <h1>机构资料</h1>
           <p>从草稿到发布，每次更新都有来源，每个旧版本都保留。</p>
         </div>
@@ -1212,6 +1225,7 @@ export default function Institutions() {
           搜索和状态筛选作用于服务器返回的完整机构列表。公开资料与平台服务接入独立。
         </p>
         <Table
+          border={false}
           rowKey="institutionId"
           loading={busy || list.loading}
           scroll={{ x: 900 }}

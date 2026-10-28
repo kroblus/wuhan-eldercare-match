@@ -2,8 +2,15 @@
 html body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  color: #202020;
-  background: #f6f5f2;
+  --canvas: #f7f9fc;
+  --surface-subtle: #f7f9fc;
+  --line: #e8edf3;
+  --text-primary: #1f2937;
+  --text-secondary: #667085;
+  --brand: #ff6a00;
+  --brand-light: #fff2e8;
+  color: var(--text-primary);
+  background: var(--canvas);
   font-synthesis: none;
   --primary-1: 255, 244, 234;
   --primary-2: 255, 228, 201;
@@ -16,10 +23,10 @@ html body {
   --primary-9: 135, 46, 0;
   --primary-10: 89, 27, 0;
   --color-primary-light-1: #fff1e5;
-  --color-text-1: #202020;
-  --color-text-2: #585650;
-  --color-text-3: #707070;
-  --color-fill-2: #f5f4f1;
+  --color-text-1: #1f2937;
+  --color-text-2: #475467;
+  --color-text-3: #667085;
+  --color-fill-2: #f7f9fc;
   --border-radius-small: 6px;
   --border-radius-medium: 8px;
 }
@@ -57,17 +64,17 @@ h1,
 h2,
 h3,
 h4 {
-  color: #202020;
+  color: #1f2937;
 }
 h1 {
-  font-size: 2em;
-  font-weight: 650;
+  font-size: 1.8em;
+  font-weight: 600;
   letter-spacing: -0.8px;
   margin: 0 0 10px;
 }
 h2 {
   font-size: 1.3em;
-  font-weight: 650;
+  font-weight: 600;
 }
 h3 {
   font-size: 1.08em;
@@ -76,8 +83,8 @@ p {
   line-height: 1.7;
 }
 .muted {
-  color: #707070;
-  font-size: 0.9em;
+  color: #667085;
+  font-size: 0.93em;
   line-height: 1.7;
 }
 .page-heading {
@@ -89,19 +96,19 @@ p {
 }
 .page-heading p {
   margin: 0;
-  color: #707070;
+  color: #667085;
 }
 .eyebrow {
   font-size: 10px;
   letter-spacing: 2px;
   color: #aa4400;
-  font-weight: 650;
+  font-weight: 600;
   margin: 0 0 10px;
 }
 .panel {
   background: #fff;
-  border: 1px solid #e8e5df;
-  border-radius: 10px;
+  border: 0;
+  border-radius: 12px;
   padding: 24px;
   margin-bottom: 22px;
   min-width: 0;
@@ -132,30 +139,29 @@ p {
   margin-bottom: 24px;
 }
 .metric {
-  padding: 24px;
+  padding: 20px 24px;
   background: #fff;
-  border: 1px solid #e8e5df;
-  border-radius: 10px;
+  border: 0;
+  border-radius: 12px;
 }
 .metric > span {
-  font-size: 0.86em;
-  color: #777269;
+  font-size: 1em;
+  color: #667085;
 }
 .metric strong {
   display: block;
-  font-size: 2.5em;
+  font-size: 2.2em;
   font-weight: 600;
-  margin: 14px 0;
+  margin: 12px 0;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 .metric small {
-  font-size: 0.8em;
-  color: #8b847a;
+  font-size: 0.93em;
+  color: #667085;
 }
 .metric:first-child {
-  border-top: 3px solid #ff6a00;
-  padding-top: 22px;
+  border-top: 0;
 }
 .loading {
   padding: 60px;
@@ -163,27 +169,27 @@ p {
   gap: 14px;
   align-items: center;
   justify-content: center;
-  color: #707070;
+  color: #667085;
 }
 .arco-btn-primary:not(.arco-btn-disabled) {
-  color: #202020;
-  font-weight: 650;
+  color: #1f2937;
+  font-weight: 600;
 }
 .arco-btn-primary:not(.arco-btn-disabled):hover {
   background: #ff8635;
-  color: #202020;
+  color: #1f2937;
 }
 .arco-btn-primary:not(.arco-btn-disabled):active {
   background: #e85e00;
-  color: #202020;
+  color: #1f2937;
 }
 .arco-table-th {
-  background: #f8f7f4 !important;
-  color: #716d66;
+  background: #f7f9fc !important;
+  color: #667085;
   font-weight: 550 !important;
 }
 .arco-table-td {
-  border-color: #eeece7 !important;
+  border-color: #edf1f6 !important;
 }
 .arco-table {
   font-size: inherit;
@@ -205,7 +211,7 @@ p {
 .arco-input-wrapper,
 .arco-select-view,
 .arco-textarea {
-  border: 1px solid #e8e5df;
+  border: 1px solid #e8edf3;
   background: #fff;
 }
 .arco-input-wrapper:focus-within,
@@ -276,7 +282,7 @@ p {
 .empty-hint {
   padding: 32px;
   text-align: center;
-  color: #888176;
+  color: #667085;
 }
 .scroll-table {
   max-width: 100%;
@@ -290,7 +296,7 @@ p {
 }
 .split-content {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
 }
 .arco-drawer-wrapper {
@@ -304,7 +310,7 @@ p {
     padding: 18px;
   }
   .metric:first-child {
-    padding-top: 16px;
+    padding-top: 18px;
   }
   .split-content {
     grid-template-columns: 1fr;
@@ -353,10 +359,10 @@ p {
     padding: 16px;
   }
   .metric:first-child {
-    padding-top: 14px;
+    padding-top: 16px;
   }
   .metric > span {
-    font-size: 0.8em;
+    font-size: 0.93em;
   }
   .arco-drawer .arco-tabs-header-title-text {
     white-space: normal;
@@ -389,10 +395,176 @@ body {
   color: #984000;
   background: #fff0e4;
 }
+.arco-tag-gray {
+  color: var(--text-secondary);
+  background: #f2f4f7;
+}
 .arco-btn-text:not(.arco-btn-disabled) {
   color: #9e3d00;
 }
 .arco-checkbox-checked .arco-checkbox-mask {
   background: #e85e00;
   border-color: #e85e00;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  text-decoration: none;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--line);
+}
+.quick-link:last-child {
+  border: 0;
+}
+.quick-link:hover {
+  color: #a63f00;
+}
+.metric:hover {
+  background: #fffaf6;
+}
+.metric small {
+  display: flex;
+  justify-content: space-between;
+}
+.panel .panel {
+  border-radius: 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+
+.filter-extra {
+  align-self: start;
+  padding: 8px 0;
+}
+.filter-extra summary,
+.editor-section summary,
+.resource-disclosure > summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text-primary);
+  padding: 12px 0;
+}
+.filter-extra[open] {
+  grid-column: 1/-1;
+}
+.editor-section {
+  border-bottom: 1px solid var(--line);
+  padding: 0 0 12px;
+  margin-bottom: 12px;
+}
+.editor-section[open] > summary {
+  margin-bottom: 16px;
+}
+.editor-section summary {
+  font-size: 1.15em;
+}
+.institution-meta {
+  max-width: 100%;
+  font-size: 0.93em;
+  overflow-wrap: anywhere;
+}
+.workflow-status {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0 0 24px;
+  color: var(--text-secondary);
+  font-size: 0.93em;
+}
+.workflow-status b {
+  margin-left: auto;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.workflow-status span {
+  color: #8993a3;
+}
+.resource-disclosure > summary {
+  padding: 0;
+}
+.resource-disclosure[open] > summary {
+  margin-bottom: 20px;
+}
+.arco-form-item .arco-btn + .arco-btn {
+  margin-left: 8px;
+}
+
+.report-provenance {
+  font-size: 0.93em;
+  color: var(--text-secondary);
+  margin: 16px 0;
+}
+.report-provenance summary {
+  cursor: pointer;
+  padding: 8px 0;
+}
+.arco-table-th,
+.arco-table-td {
+  border-left: 0;
+  border-right: 0;
+}
+.arco-drawer-body > .panel {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.arco-drawer .panel {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 16px 0;
+}
+.arco-drawer .arco-collapse {
+  border-color: var(--line);
+}
+
+.arco-table .arco-btn-text {
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.arco-alert-info {
+  background: #f0f5fc;
+  border-color: #dce7f5;
+}
+.arco-alert-info .arco-alert-icon {
+  color: #3564a5;
+}
+.arco-modal .arco-modal-content,
+.arco-drawer .arco-descriptions .arco-descriptions-item,
+.arco-drawer .arco-descriptions .arco-descriptions-item-label,
+.arco-drawer .arco-descriptions .arco-descriptions-item-value,
+.arco-drawer .arco-descriptions .arco-descriptions-item-label-inline,
+.arco-drawer .arco-descriptions .arco-descriptions-item-value-inline {
+  font-size: calc(14px * var(--reading, 1));
+}
+.arco-modal .arco-modal-title,
+.arco-drawer .arco-drawer-header-title {
+  font-size: calc(16px * var(--reading, 1));
+}
+body .arco-select.arco-select-single .arco-select-view,
+body .arco-select.arco-select-multiple .arco-select-view,
+body .arco-select.arco-select-single input,
+body .arco-select.arco-select-multiple input,
+body .arco-select-popup .arco-select-option {
+  font-size: calc(14px * var(--reading, 1));
+}
+body .arco-select-popup .arco-select-option {
+  white-space: normal;
+  line-height: 1.5;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+body .arco-table .arco-table-th,
+body .arco-table .arco-table-td {
+  font-size: calc(14px * var(--reading, 1));
+}
+body .arco-tag {
+  font-size: inherit;
 }

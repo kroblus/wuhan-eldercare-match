@@ -1,6 +1,6 @@
 .editorGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
 }
 .editorGrid > div,
@@ -11,16 +11,16 @@
   display: grid;
   grid-template-columns: 1.5fr repeat(4, 1fr) auto;
   gap: 10px;
-  border: 1px solid #e9e5de;
+  border: 1px solid var(--line);
   padding: 16px;
   border-radius: 8px;
   margin: 12px 0 20px;
-  background: #faf9f6;
+  background: var(--surface-subtle);
   align-items: end;
 }
 .priceRow label {
   font-size: 0.85em;
-  color: #706b62;
+  color: var(--text-secondary);
 }
 .priceRow :global(.arco-input-number) {
   width: 100%;
@@ -51,7 +51,7 @@
   overflow-wrap: anywhere;
   max-height: 45vh;
   overflow: auto;
-  background: #f7f5f1;
+  background: var(--surface-subtle);
   padding: 14px;
   border-radius: 8px;
   font-size: 12px;
@@ -87,5 +87,68 @@
   }
   .comparison {
     grid-template-columns: 1fr;
+  }
+}
+
+.editorGrid > aside {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  align-self: start;
+}
+.editorGrid > aside > :global(.panel) {
+  padding: 0;
+  margin: 0 0 20px;
+  border-radius: 0;
+}
+.editorGrid > aside > :global(.panel):last-child {
+  margin-bottom: 0;
+}
+@media (max-width: 1024px) {
+  .editorGrid > aside {
+    display: block;
+  }
+}
+
+.differences {
+  margin: 20px 0;
+}
+.difference {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) minmax(0, 1fr) 140px;
+  gap: 16px;
+  align-items: start;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+.difference h3 {
+  margin: 0;
+  font-size: 1em;
+}
+.difference small {
+  color: var(--text-secondary);
+  font-size: 0.93em;
+}
+.difference p {
+  white-space: pre-wrap;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.difference > div {
+  min-width: 0;
+  background: var(--surface-subtle);
+  padding: 12px;
+  border-radius: 8px;
+}
+.difference > button {
+  justify-self: start;
+}
+@media (max-width: 700px) {
+  .difference {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .difference > div {
+    width: 100%;
   }
 }
