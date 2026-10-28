@@ -1,5 +1,6 @@
+import type { InstitutionV121ValidationOptions } from '../../institution/v1-2-1/validate-institution-v1-2-1'
 import { isValidIsoTimestamp } from '../../institution/primitives'
-import { validateInstitutionCatalogPayloadV121 } from '../../../services/institution-catalog-validation-v121'
+import { validateInstitutionCatalogPayloadV121 } from '../../institution/v1-2-1/catalog'
 import { compareAsciiV2, copyDomainDataV2 } from '../v2/rules-v2'
 import { projectReferenceInstitutionFactsV1 } from './institution-facts'
 import { evaluateInitialReferenceEligibilityV1 } from './eligibility'
@@ -212,6 +213,7 @@ const displayCard = (
 /** Additive C1 composition. No new tier, old-result mutation, IO, or persistence. */
 export const composeReferenceResultV1 = (
   input: ReferenceCompositionInputV1,
+  validationOptions: InstitutionV121ValidationOptions = {},
 ): InitialReferenceApplicationResultV1 => {
   const error = (causeCode: string): InitialReferenceApplicationResultV1 => ({
     ok: false,
@@ -222,7 +224,7 @@ export const composeReferenceResultV1 = (
   })
   try {
     if (!isValidIsoTimestamp(input.evaluationAsOf)) return error('INVALID_EVALUATION_AS_OF')
-    const validated = validateInstitutionCatalogPayloadV121(input.catalog)
+    const validated = validateInstitutionCatalogPayloadV121(input.catalog, validationOptions)
     if (!validated.ok) return {
       ok: false,
       error: {
@@ -237,7 +239,7 @@ export const composeReferenceResultV1 = (
     const evaluations: InitialReferenceEligibilityDecisionV1[] = []
     const eligible: InitialReferenceEligibleCandidateV1[] = []
     if (legacyPresentationState === 'no_safe_recommendation') {
-      const facts = projectReferenceInstitutionFactsV1(validated.value, input.evaluationAsOf)
+      const facts = projectReferenceInstitutionFactsV1(validated.value, input.evaluationAsOf, validationOptions)
       if (!facts.ok) return error(facts.error.causeCode || facts.error.code)
       for (const institutionFacts of facts.value.institutions) {
         const legacyCandidate = input.legacyV2.preview.semantics.candidateEvaluations.find((item) =>

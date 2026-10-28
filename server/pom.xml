@@ -79,13 +79,7 @@
                     <include>domain/assessment-history/*.ts</include>
                     <include>domain/recommendation/**/*.ts</include>
                     <include>domain/institution/**/*.ts</include>
-                    <include>services/institution-display-projection-v11.ts</include>
-                    <include>services/institution-catalog-validation-v121.ts</include>
-                    <include>runtime/institution-validation.ts</include>
-                    <include>pages/recommendation/initial-reference-view-model.ts</include>
-                    <include>pages/recommendation/result-v2-view-model.ts</include>
-                    <include>pages/recommendation/recommendation-display-semantics.ts</include>
-                    <include>pages/assessment/profile-v2-view-model.ts</include>
+                    <include>presentation/**/*.ts</include>
                     <include>types/initial-reference-v1.ts</include>
                     <include>types/assessment*.ts</include>
                     <include>types/elder-profile*.ts</include>

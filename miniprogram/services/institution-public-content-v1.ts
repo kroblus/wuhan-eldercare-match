@@ -16,7 +16,7 @@ import {
   isStableIdentifier,
   isPlainRecord,
 } from '../domain/institution/primitives'
-import { MOCK_INSTITUTION_PUBLIC_CONTENT_CATALOG } from '../mock/institution-public-content.mock'
+import { institutionPublicContentCatalog } from '../runtime/legacy-institution-data'
 import type {
   InstitutionPublicContentCatalogV1,
   InstitutionPublicContentCurrentHeadV1,
@@ -126,7 +126,7 @@ export const createDevelopmentPublicContentProvider =
   createInstitutionPublicContentProviderV1
 
 export const institutionPublicContentProviderV1 =
-  createInstitutionPublicContentProviderV1(MOCK_INSTITUTION_PUBLIC_CONTENT_CATALOG)
+  createInstitutionPublicContentProviderV1(institutionPublicContentCatalog)
 
 /** Application alias; both current and exact reads use the same provider. */
 export const institutionPublicContentServiceV1 = institutionPublicContentProviderV1

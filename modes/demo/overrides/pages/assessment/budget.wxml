@@ -1,0 +1,70 @@
+<navigation-bar warmSwiss="{{true}}" title="预算与入住计划" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/assessment/preference" bind:navigationfail="onNavigationFailure" color="#111827" background="#FBFAF7"></navigation-bar>
+<page-container extraClass="assessment-page">
+  <view class="page-shell assessment-readable" style="{{fontStyle}}">
+    <progress-header warmSwiss="{{true}}" current="6" total="6" label="养老需求评估"></progress-header>
+    <text class="assessment-intro">了解家庭接受的费用范围与入住计划。这些信息用于匹配与沟通参考，不代表机构报价。</text>
+
+    <view class="assessment-form">
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">01</text><text>每月预算</text></view>
+        <view id="{{monthlyRangeAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="预计每月可以接受的费用"
+            hint="请选择家庭目前可以接受的月度范围"
+            required="{{true}}"
+            error="{{monthlyRangeError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {cny_8000_12000: true, cny_12000_15000: true} }}" options="{{monthlyRangeOptions}}" value="{{monthlyRange}}" bindchange="onMonthlyRangeChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">02</text><text>前期费用接受度</text></view>
+        <view id="{{upfrontCostAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="对押金或一次性费用的接受程度"
+            hint="实际费用以后续核验机构信息为准"
+            required="{{true}}"
+            error="{{upfrontCostError}}"
+          >
+            <single-choice warmSwiss="{{true}}" fullWidthOptions="{{ {avoid_high_one_time_fee: true} }}" options="{{upfrontCostOptions}}" value="{{upfrontCostAcceptance}}" bindchange="onUpfrontCostChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">03</text><text>入住时间</text></view>
+        <view id="{{moveInTimingAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="预计入住时间"
+            hint="按家里目前的计划选择即可"
+            required="{{true}}"
+            error="{{moveInTimingError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{moveInTimingOptions}}" value="{{moveInTiming}}" bindchange="onMoveInTimingChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+
+      <view class="assessment-section">
+        <view class="ws-section-heading"><text class="ws-section-number">04</text><text>顾问协助意愿</text></view>
+        <view id="{{consultantSupportAnchorId}}" class="question-anchor" style="padding-top: {{warmSwissHeaderHeight}}px; margin-top: -{{warmSwissHeaderHeight}}px;">
+          <question-section warmSwiss="{{true}}"
+            title="是否希望养老顾问后续协助"
+            hint="本次仅体验意愿填写，不会有人联系您"
+            required="{{true}}"
+            error="{{consultantSupportError}}"
+          >
+            <single-choice warmSwiss="{{true}}" options="{{consultantSupportOptions}}" value="{{consultantSupport}}" bindchange="onConsultantSupportChange"></single-choice>
+          </question-section>
+        </view>
+      </view>
+    </view>
+
+    <text class="privacy-note">演示咨询和预约不获取联系方式，也不会联系真人。</text>
+    <text class="save-status">{{saveStatus}}</text>
+    <view wx:if="{{formError}}" class="form-error form-error--footer" role="alert">{{formError}}</view>
+    <assessment-footer warmSwiss="{{true}}" wideNext="{{true}}" backText="{{backText}}" nextText="查看照护需求 →" bindback="onBack" bindnext="onNext"></assessment-footer>
+  </view>
+</page-container>

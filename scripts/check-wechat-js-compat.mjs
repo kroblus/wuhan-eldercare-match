@@ -26,6 +26,20 @@ const a13RequiredSourcePaths = [
   'services/institution-record-resolver.ts',
   'services/institution-source-context.ts',
 ]
+const sharedModeRequiredSourcePaths = [
+  'runtime/application.ts',
+  'runtime/institution-catalog-provider.ts',
+  'runtime/legacy-institution-data.ts',
+  'domain/institution/v1-2-1/catalog.ts',
+  'domain/institution/display-projection-v11.ts',
+  'domain/recommendation/v2/display-semantics.ts',
+  'presentation/recommendation/result-v2-view-model.ts',
+  'presentation/recommendation/initial-reference-view-model.ts',
+  'presentation/assessment/profile-v2-view-model.ts',
+]
+const requiredCatalogSourcePaths = (sharedMode) => sharedMode
+  ? a13RequiredSourcePaths.filter(file => !file.startsWith('mock/')).concat(sharedModeRequiredSourcePaths, [`${sharedMode}/catalog.ts`])
+  : a13RequiredSourcePaths
 const a14RequiredSourcePaths = [
   'pages/institution/detail.ts',
   'pages/institution/detail-view-model.ts',
@@ -156,6 +170,25 @@ const readProject = async () => {
     configuration,
     sourceRoot: path.resolve(repositoryRoot, configuration.miniprogramRoot || 'miniprogram/'),
   }
+}
+
+const readSharedBuild = async (options) => {
+  const explicit = options.artifactDirectory || process.env.WECHAT_JS_ARTIFACT_DIR
+  if (!explicit) return undefined
+  const artifactRoot = path.resolve(repositoryRoot, explicit)
+  const buildRoot = path.dirname(artifactRoot)
+  const markerPath = path.join(buildRoot, '.shared-build.json')
+  if (!existsSync(markerPath)) return undefined
+  const marker = JSON.parse(await readFile(markerPath, 'utf8'))
+  if (marker.kind !== 'generated_shared_run_mode' || marker.status !== 'PASS_LOCAL_BUILD'
+    || !['demo', 'production'].includes(marker.mode)
+    || artifactRoot !== path.join(buildRoot, 'miniprogram')) {
+    throw new Error('explicit artifact has an invalid or unfinished shared-build marker')
+  }
+  if (options.demo && marker.mode !== 'demo') throw new Error('--demo conflicts with production artifact marker')
+  const sourceRoot = path.join(buildRoot, '.source')
+  if (!existsSync(sourceRoot)) throw new Error('shared-build staged TypeScript sources are missing')
+  return { mode: marker.mode, sourceRoot, markerPath }
 }
 
 const getClassSourceModules = async (ts, sourceRoot) => {
@@ -401,6 +434,15 @@ const runSelfTest = (ts) => {
   if (unsafeOperators.length !== 7 || safeOperators.length !== 0) throw new Error(`operator self-test mismatch: unsafe=${unsafeOperators.length}, safe=${safeOperators.length}`)
   console.log('SELF_TEST PASS: both historical incidents and 4 class-field variants detected; method assignments ignored')
   console.log('SELF_TEST PASS: optional property/element/call and nullish operators detected; strings/comments ignored')
+  if (!requiredCatalogSourcePaths().includes('mock/institution-catalog.mock.ts')
+    || !requiredCatalogSourcePaths().includes('mock/institution-public-content.mock.ts')
+    || ['demo', 'production'].some(mode => {
+      const paths = requiredCatalogSourcePaths(mode)
+      return paths.some(file => file.startsWith('mock/'))
+        || !sharedModeRequiredSourcePaths.every(file => paths.includes(file))
+        || !paths.includes(`${mode}/catalog.ts`)
+    })) throw new Error('required module coverage self-test mismatch')
+  console.log('SELF_TEST PASS: raw-source Mock coverage and shared-mode runtime/pure-module coverage remain required')
 }
 
 const parseArguments = (args) => {
@@ -431,20 +473,22 @@ const parseArguments = (args) => {
 const runRepositoryCheck = async (ts, parserPath, options) => {
   const project = await readProject()
   const configuration = project.configuration
-  const sourceRoot = options.demo ? path.join(repositoryRoot, 'dist/demo/.source') : project.sourceRoot
+  const sharedBuild = await readSharedBuild(options)
+  const demo = sharedBuild ? sharedBuild.mode === 'demo' : options.demo
+  const sourceRoot = sharedBuild ? sharedBuild.sourceRoot : options.demo ? path.join(repositoryRoot, 'dist/demo/.source') : project.sourceRoot
   if (options.demo && !options.artifactDirectory) throw new Error('--demo requires an explicit fresh --artifact-dir')
   const classModules = await getClassSourceModules(ts, sourceRoot)
   if (classModules.length === 0) {
     throw new Error(`no TypeScript class sources found under ${sourceRoot}`)
   }
-  const a13RequiredModules = await getRequiredSourceModules(sourceRoot, a13RequiredSourcePaths)
-  const a14RequiredModules = await getRequiredSourceModules(sourceRoot, options.demo
+  const a13RequiredModules = await getRequiredSourceModules(sourceRoot, requiredCatalogSourcePaths(sharedBuild?.mode))
+  const a14RequiredModules = await getRequiredSourceModules(sourceRoot, demo
     ? a14RequiredSourcePaths.map(file => file === 'pages/consultant/consultant-page.ts' ? 'demo/consultant.ts' : file).concat([
       'demo/story.ts', 'demo/story-name.ts', 'components/demo-story-preview/demo-story-preview.ts', 'pages/appointment/create.ts',
     ]) : a14RequiredSourcePaths)
   const b6RequiredModules = await getRequiredSourceModules(sourceRoot, b6RequiredSourcePaths)
   const b7RequiredModules = await getRequiredSourceModules(sourceRoot, b7RequiredSourcePaths)
-  const historyRequiredModules = await getRequiredSourceModules(sourceRoot, options.demo ? [
+  const historyRequiredModules = await getRequiredSourceModules(sourceRoot, demo ? [
     'pages/assessment/history.ts', 'pages/elder/index.ts', 'pages/elder/detail.ts', 'pages/appointment/index.ts',
     'demo/record-pages.ts', 'demo/session.ts', 'demo/scenario.ts', 'runtime/evaluation-session.ts', 'pages/visit/evaluation.ts',
   ] : historyRequiredSourcePaths)
@@ -464,6 +508,8 @@ const runRepositoryCheck = async (ts, parserPath, options) => {
   console.log(`PARSER: TypeScript ${ts.version} (${parserPath})`)
   console.log(`ARTIFACT_SOURCE: ${artifacts.source}`)
   console.log(`ARTIFACT_ROOT: ${artifacts.artifactRoot}`)
+  console.log(`SOURCE_ROOT: ${sourceRoot}`)
+  console.log(`SOURCE_COMPOSITION: ${sharedBuild ? 'shared-build ' + sharedBuild.mode : 'direct source / legacy coverage'}`)
   console.log(`GENERATED_JS_MODULES: ${artifacts.units.length}`)
   console.log(`CHECK_SCOPE: ${options.scope}`)
   console.log(`CLASS_SOURCE_MODULES: ${classModules.map((item) => item.moduleName).join(', ')}`)

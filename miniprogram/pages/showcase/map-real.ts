@@ -1,13 +1,22 @@
-import { backToShowcase, unlock } from './navigation'
+import { resolveShowcaseContext, backFromShowcase } from '../../runtime/showcase-context'
+import type { ShowcaseContext } from '../../types/showcase-context'
+import { readBrowseFontStyle } from '../../utils/browse-font'
+import { unlock } from './navigation'
 import { isDevelopmentBuild } from './development'
 // Broad Wuhan city viewport only. This is not an institution or a POI coordinate.
 export const cityView = { latitude: 30.59, longitude: 114.30, scale: 11 }
 interface MapRuntime { active: boolean; generation: number; timer: ReturnType<typeof setTimeout> | null; read: number }
 const runtimes = new WeakMap<object, MapRuntime>()
 Page({
-  data: { allowed: false, latitude: cityView.latitude, longitude: cityView.longitude, scale: cityView.scale,
+  data: { story: null as ShowcaseContext | null, fontStyle: '', allowed: false, latitude: cityView.latitude, longitude: cityView.longitude, scale: cityView.scale,
     center: '武汉城区初始视野', mapVisible: false, mapId: 'city-0', loading: true, updated: false, error: '' },
-  onLoad() { this.setData({ allowed: isDevelopmentBuild() }); runtimes.set(this, { active: false, generation: 0, timer: null, read: 0 }) },
+  onLoad(query: Record<string, string | undefined> = {}) { this.setData({ allowed: isDevelopmentBuild() && !query.institutionId, fontStyle: readBrowseFontStyle() }); runtimes.set(this, { active: false, generation: 0, timer: null, read: 0 })
+    if (query.institutionId) resolveShowcaseContext(query).then(story => {
+      if (!runtimes.has(this)) return
+      this.setData({ story, allowed: !!story && story.mediaAvailable, error: story && story.mediaAvailable ? '' : '机构演示链接不可用，请返回详情。' })
+      if (story && story.mediaAvailable) this.retryMap()
+    })
+  },
   onShow() { unlock(this); const runtime = runtimes.get(this)!; runtime.active = true; this.retryMap() },
   onHide() { this.stopMap() },
   onUnload() { this.stopMap(); runtimes.delete(this) },
@@ -62,5 +71,5 @@ Page({
   },
   resetMap() { this.retryMap() },
   reportBlank() { this.setData({ error: '若底图空白或加载失败，请检查网络、开发者权限及地图能力，再点击重试。原生 updated 事件不能代替底图目视验收。' }) },
-  back() { backToShowcase(this, () => this.setData({ error: '返回功能演示失败，请重试' })) },
+  back() { backFromShowcase(this, this.data.story, () => this.setData({ error: '暂时无法返回，请重试。' })) },
 })

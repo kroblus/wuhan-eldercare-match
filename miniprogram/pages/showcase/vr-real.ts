@@ -1,4 +1,7 @@
-import { backToShowcase, unlock } from './navigation'
+import { resolveShowcaseContext, backFromShowcase, panoramaNotice } from '../../runtime/showcase-context'
+import type { ShowcaseContext } from '../../types/showcase-context'
+import { readBrowseFontStyle } from '../../utils/browse-font'
+import { unlock } from './navigation'
 import { isDevelopmentBuild } from './development'
 import { inspectPanoramaJpeg } from './panorama-input'
 import { panoramaSample } from '../../runtime/panorama-sample'
@@ -17,10 +20,16 @@ function release(runtime: Runtime): void {
   runtime.renderer = null; runtime.points = []
 }
 Page({
-  data: { allowed: false, canvasVisible: true, loading: false, rendered: false, choosing: false, notice: '等待 Owner 提供已脱敏、获授权的完整球形全景 JPEG。', source: '尚未加载照片', yaw: 0, pitch: 0, fov: 75, error: '' },
-  onLoad() {
-    this.setData({ allowed: isDevelopmentBuild(), hasSample: !!panoramaSample })
-    runtimes.set(this, { active: true, ready: false, dead: false, generation: 0, picking: false, renderer: null, points: [], view: initialView(), calibration: false, pendingFile: null, sampleActive: false })
+  data: { story: null as ShowcaseContext | null, fontStyle: '', allowed: false, canvasVisible: true, loading: false, rendered: false, choosing: false, notice: '等待 Owner 提供已脱敏、获授权的完整球形全景 JPEG。', source: '尚未加载照片', yaw: 0, pitch: 0, fov: 75, error: '' },
+  onLoad(query: Record<string, string | undefined> = {}) {
+    this.setData({ allowed: isDevelopmentBuild() && !query.institutionId, fontStyle: readBrowseFontStyle(), hasSample: !!panoramaSample })
+    runtimes.set(this, { active: true, ready: false, dead: false, generation: 0, picking: false, renderer: null, points: [], view: initialView(), calibration: false, pendingFile: null, sampleActive: !!query.institutionId })
+    if (query.institutionId) resolveShowcaseContext(query).then(story => {
+      const runtime = runtimes.get(this)
+      if (!runtime) return
+      this.setData({ story, allowed: !!story && story.mediaAvailable, error: story && story.mediaAvailable ? '' : '机构演示链接不可用，请返回详情。' })
+      if (story && story.mediaAvailable && runtime.ready) this.mountCanvas()
+    })
   },
   onReady() { const runtime = runtimes.get(this)!; runtime.ready = true; this.mountCanvas() },
   onShow() {
@@ -93,7 +102,7 @@ Page({
     runtime.renderer.loadBundledSample(error => {
       if (!runtime.active || runtime.dead || runtime.generation !== generation) return
       this.setData({ loading: false, rendered: !error, source: 'AI 合成演示全景 · 非真实地点或机构实景',
-        notice: '演示资料，仅用于体验拖动与缩放，不关联机构身份。', error: error ? '合成全景加载失败，请重试。' : '' })
+        notice: panoramaNotice, error: error ? '合成全景加载失败，请重试。' : '' })
       if (!error) { runtime.view = initialView(); this.updateView() }
     })
   },
@@ -170,5 +179,5 @@ Page({
   zoomIn() { const runtime = runtimes.get(this)!; runtime.view.fov = clamp(runtime.view.fov - 10, 35, 100); this.updateView() },
   zoomOut() { const runtime = runtimes.get(this)!; runtime.view.fov = clamp(runtime.view.fov + 10, 35, 100); this.updateView() },
   resetView() { runtimes.get(this)!.view = initialView(); this.updateView() },
-  back() { backToShowcase(this, () => this.setData({ error: '返回功能演示失败，请重试' })) },
+  back() { backFromShowcase(this, this.data.story, () => this.setData({ error: '暂时无法返回，请重试。' })) },
 })

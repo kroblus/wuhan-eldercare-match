@@ -1,6 +1,6 @@
 import { deriveElderProfileV2 } from '../elder-profile/v2/derive-elder-profile-v2'
 import { evaluateFormalRecommendationV2 } from '../recommendation/v2'
-import { projectInstitutionDisplaySnapshotV11Pure } from '../../services/institution-display-projection-v11'
+import { projectInstitutionDisplaySnapshotV11Pure } from '../institution/display-projection-v11'
 import type { InstitutionRecordV11 } from '../../types/institution-v1-1'
 import type { RecommendationCandidateEvaluationV2, RecommendationDifferenceV2 } from '../../types/recommendation-v2'
 

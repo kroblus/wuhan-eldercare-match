@@ -1,3 +1,4 @@
+import { presentRecommendationNames } from '../../runtime/institution-display'
 import {
   buildRecommendationResultApplicationSnapshot,
 } from '../../services/recommendation-result-application'
@@ -295,7 +296,7 @@ Page({
         return
       }
       const viewModel = result.version === 2
-        ? result.reference ? createInitialReferenceResultViewModel(result.reference) : createRecommendationResultViewModelV2(result.value)
+        ? presentRecommendationNames(result.reference ? createInitialReferenceResultViewModel(result.reference) : createRecommendationResultViewModelV2(result.value))
         : createRecommendationResultViewModel(result.value)
       const referenceOnly = result.version === 2 && result.reference && result.reference.state !== 'LEGACY_V2_DISPLAY'
       if (referenceOnly && result.version === 2 && result.reference) {

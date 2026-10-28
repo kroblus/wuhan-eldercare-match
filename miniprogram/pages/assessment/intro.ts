@@ -1,3 +1,4 @@
+import { modeText } from '../../runtime/presentation-copy'
 import { assessmentDraftStore } from '../../store/assessment-draft'
 import type { AssessmentStepId } from '../../types/assessment'
 import { getAssessmentResumeRouteV2 } from '../../utils/assessment-resume'
@@ -138,8 +139,8 @@ Page({
         ? draftRecoveryRequired
           ? '检测到旧版草稿，但无法安全迁移；原数据仍保留，请重新开始后再填写'
           : persistence.ok
-          ? '草稿已保存在本机，仅用于本次开发体验'
-          : '本机保存失败，当前答案只在本次打开期间保留，请重试'
+          ? modeText('草稿已保存在本机，仅用于本次开发体验')
+          : modeText('本机保存失败，当前答案只在本次打开期间保留，请重试')
         : '',
       restartError: '',
     })
@@ -202,7 +203,7 @@ Page({
     try {
       wx.showModal({
         title: '重新开始评估？',
-        content: '本机会清除当前未完成的草稿，但不会影响任何历史评估。',
+        content: modeText('本机会清除当前未完成的草稿，但不会影响任何历史评估。'),
         confirmText: '清除重来',
         cancelText: '先保留',
         success: (result) => {
@@ -218,7 +219,7 @@ Page({
             endAssessmentPageAction(this, action)
             this.setData({
               restartPending: false,
-              restartError: '本机草稿清理失败，未开始新的评估，请重试。',
+              restartError: modeText('本机草稿清理失败，未开始新的评估，请重试。'),
             })
             return
           }

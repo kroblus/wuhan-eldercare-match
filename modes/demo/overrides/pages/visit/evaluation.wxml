@@ -1,0 +1,349 @@
+<navigation-bar id="evaluation-navigation" title="看院评价" back="true" warmSwiss="{{true}}" color="#111827" background="#FBFAF7" fallbackUrl="/pages/appointment/index" fallbackIsTab="{{false}}" guardBack="{{true}}" navigationFailureMessage="返回失败，请重试"></navigation-bar>
+<page-container extraClass="route-page">
+  <view class="page-shell evaluation-page {{fontStyle ? 'evaluation-page--large-type' : ''}}" style="{{fontStyle}}{{footerReserve ? ';padding-bottom:' + footerReserve + 'px' : ''}}">
+    <view class="page-head">
+      <text class="eyebrow">看院后的个人记录</text>
+      <text class="page-title">看院评价</text>
+      <text class="page-description">记录本次看院中的个人感受与观察。未选择的项目会保持空白。</text>
+    </view>
+
+    <view class="evaluation-access-state">
+    <state-panel
+      wx:if="{{pageState === 'loading_context'}}"
+      state="loading"
+      title="正在确认预约"
+      message="正在通过当前账号检查看院评价资格。"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'not_completed'}}"
+      state="empty"
+      title="暂不能填写看院评价"
+      message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'denied'}}"
+      state="error"
+      title="无法读取预约记录"
+      message="{{contextMessage}}"
+      actionText="重新检查"
+      bind:action="onRetryContext"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'auth_required'}}"
+      state="error"
+      title="需要重新验证账号"
+      message="{{contextMessage}}"
+      actionText="重新验证账号"
+      bind:action="onRetryContext"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'already_submitted'}}"
+      state="empty"
+      title="这条预约已提交评价"
+      message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'submission_conflict'}}"
+      state="error"
+      title="提交状态需要确认"
+      message="{{contextMessage}}"
+    ></state-panel>
+    <state-panel
+      wx:elif="{{pageState === 'unavailable' || pageState === 'load_error'}}"
+      state="error"
+      title="评价上下文暂不可用"
+      message="{{contextMessage}}"
+      actionText="重新加载"
+      bind:action="onRetryContext"
+    ></state-panel>
+
+    <block wx:else>
+      <view class="evaluation-context">
+        <text wx:if="{{contextMode === 'test_only'}}" class="evaluation-context__label">演示看院记录</text>
+        <text wx:else class="evaluation-context__label">已完成看院 · 当前账号的预约</text>
+        <text class="evaluation-context__message">{{statusMessage}}</text>
+        <text class="evaluation-context__message">{{contextMessage}}</text>
+      </view>
+
+      <view wx:if="{{pageState === 'submitted'}}" class="evaluation-result" aria-live="polite">
+        <text class="evaluation-result__mark" aria-hidden="true">✓</text>
+        <text class="evaluation-result__title">{{contextMode === 'test_only' ? '演示评价已保存' : '看院评价已提交'}}</text>
+        <text class="evaluation-note">本次评价已保存，可查看，不能再次编辑。</text>
+      </view>
+
+      <block wx:if="{{pageState !== 'submitted'}}">
+      <text class="evaluation-step-title">{{step}}/3 {{step === 1 ? '总体体验' : step === 2 ? '现场观察' : '最后确认'}}</text>
+      <block wx:if="{{step === 1}}">
+      <view class="evaluation-part">
+        <text class="evaluation-part__number">01</text><text class="evaluation-part__title">总体体验</text>
+      </view>
+      <view class="evaluation-section" id="evaluation-overall">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">整体印象（必填）</text>
+          <text class="evaluation-section__hint">1–5 分</text>
+        </view>
+        <text class="evaluation-note">根据本次实地看院的整体感受进行评价。</text>
+        <view class="rating-options" aria-role="radiogroup">
+          <view
+            wx:for="{{overallOptions}}"
+            wx:for-item="score"
+            wx:key="value"
+            class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-question="overallRating"
+            data-value="{{score.value}}"
+            bindtap="onRatingTap"
+            aria-role="radio"
+            aria-checked="{{score.selected}}"
+            aria-label="整体印象 {{score.value}} 分，{{score.selected ? '已选' : '未选'}}"
+          ><text>{{score.label}}</text><text wx:if="{{score.selected}}" class="rating-option__mark" aria-hidden="true">✓</text></view>
+        </view>
+        <view class="rating-scale"><text>1 很不满意</text><text>3 一般</text><text>5 很满意</text></view>
+        <text wx:if="{{overallRatingValidationMessage}}" class="evaluation-validation">{{overallRatingValidationMessage}}</text>
+      </view>
+      <view class="evaluation-section" id="evaluation-intent">
+        <text class="evaluation-section__title">后续考虑（必填）</text>
+        <text class="evaluation-note">您是否愿意继续考虑这家机构？</text>
+        <view class="choice-list" aria-role="radiogroup">
+          <view
+            wx:for="{{considerationOptions}}"
+            wx:for-item="option"
+            wx:key="key"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-value="{{option.key}}"
+            bindtap="onConsiderationTap"
+            aria-role="radio"
+            aria-checked="{{option.selected}}"
+            aria-label="{{option.label}}，{{option.selected ? '已选' : '未选'}}"
+          ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
+        </view>
+        <text wx:if="{{considerationValidationMessage}}" class="evaluation-validation">{{considerationValidationMessage}}</text>
+      </view>
+
+      </block>
+      <block wx:if="{{step === 2}}">
+      <view class="evaluation-part" id="evaluation-observation">
+        <text class="evaluation-part__number">02</text><text class="evaluation-part__title">现场观察</text>
+      </view>
+      <text class="evaluation-note">以下项目选填，只记录本次看院时您的个人感受与了解情况。</text>
+      <view class="evaluation-section__heading evaluation-dimensions-heading">
+        <text class="evaluation-section__title">分维度感受</text><text class="evaluation-section__hint">1–5 分 · 选填</text>
+      </view>
+      <view class="rating-scale"><text>1 较差</text><text>3 一般</text><text>5 很好</text></view>
+      <view wx:for="{{ratingSections}}" wx:for-item="section" wx:key="key" class="evaluation-rating-section" id="evaluation-rating-{{section.key}}">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">{{section.title}}</text>
+        </view>
+        <view wx:for="{{section.items}}" wx:for-item="question" wx:key="key" class="rating-question">
+          <text class="evaluation-question">{{question.label}}</text>
+          <view class="rating-options" aria-role="radiogroup">
+            <view
+              wx:for="{{question.options}}"
+              wx:for-item="score"
+              wx:key="value"
+              class="rating-option {{score.selected ? 'rating-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+              data-question="{{question.key}}"
+              data-value="{{score.value}}"
+              bindtap="onRatingTap"
+              aria-role="radio"
+              aria-checked="{{score.selected}}"
+              aria-label="{{question.label}} {{score.value}} 分，{{score.selected ? '已选' : '未选'}}"
+            ><text>{{score.label}}</text><text wx:if="{{score.selected}}" class="rating-option__mark" aria-hidden="true">✓</text></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="evaluation-section" id="evaluation-care-process">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">护理管理观察</text>
+          <text class="evaluation-section__hint">选填</text>
+        </view>
+        <text class="evaluation-note">仅记录您本次了解到的情况，不代表机构制度的核验结论。</text>
+        <text class="evaluation-question">是否了解到完整护理记录</text>
+        <view class="choice-list choice-list--compact">
+          <view
+            wx:for="{{careRecordOptions}}"
+            wx:for-item="option"
+            wx:key="key"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-question="careRecordLearned"
+            data-value="{{option.key}}"
+            bindtap="onObservationTap"
+            aria-role="radio"
+            aria-checked="{{option.selected}}"
+            aria-label="完整护理记录 {{option.label}}，{{option.selected ? '已选' : '未选'}}"
+          ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
+        </view>
+
+        <text class="evaluation-question evaluation-question--spaced">是否了解到 24 小时交接</text>
+        <view class="choice-list choice-list--compact">
+          <view
+            wx:for="{{handoverLearnedOptions}}"
+            wx:for-item="option"
+            wx:key="key"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-question="handoverLearned"
+            data-value="{{option.key}}"
+            bindtap="onObservationTap"
+            aria-role="radio"
+            aria-checked="{{option.selected}}"
+            aria-label="24 小时交接 {{option.label}}，{{option.selected ? '已选' : '未选'}}"
+          ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
+        </view>
+
+        <text class="evaluation-question evaluation-question--spaced">了解到的具体交接内容</text>
+        <text class="evaluation-note">可多选；“未确认”与具体项目互斥。</text>
+        <view class="tag-list tag-list--handover">
+          <view
+            wx:for="{{handoverTopics}}"
+            wx:for-item="topic"
+            wx:key="key"
+            class="selection-tag {{topic.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-value="{{topic.key}}"
+            bindtap="onHandoverTopicTap"
+            aria-role="checkbox"
+            aria-checked="{{topic.selected}}"
+            aria-label="{{topic.label}}，{{topic.selected ? '已选' : '未选'}}"
+          ><text class="selection-tag__mark" aria-hidden="true">{{topic.selected ? '✓' : '+'}}</text><text>{{topic.label}}</text></view>
+        </view>
+        <text class="evaluation-note">“未确认”与具体交接项目互斥；这些选择只记录本次用户观察。</text>
+      </view>
+
+      <view class="evaluation-section" id="evaluation-fees">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">费用透明</text>
+          <text class="evaluation-section__hint">个人观察</text>
+        </view>
+        <text class="evaluation-question">收费介绍是否清楚</text>
+        <view class="choice-list choice-list--compact">
+          <view
+            wx:for="{{feeClarityOptions}}"
+            wx:for-item="option"
+            wx:key="key"
+            class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-value="{{option.key}}"
+            bindtap="onFeeClarityTap"
+            aria-role="radio"
+            aria-checked="{{option.selected}}"
+            aria-label="收费介绍{{option.label}}，{{option.selected ? '已选' : '未选'}}"
+          ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
+        </view>
+        <text class="evaluation-subtitle">各项费用是否得到说明（选填）</text>
+        <view wx:for="{{feeTopicExplanations}}" wx:for-item="topic" wx:key="key" class="evaluation-fee-topic">
+          <text class="evaluation-question">{{topic.label}}</text>
+          <view class="choice-list choice-list--compact">
+            <view
+              wx:for="{{topic.options}}"
+              wx:for-item="option"
+              wx:key="key"
+              class="choice-option {{option.selected ? 'choice-option--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+              data-topic="{{topic.key}}"
+              data-value="{{option.key}}"
+              bindtap="onFeeTopicTap"
+              aria-role="radio"
+              aria-checked="{{option.selected}}"
+              aria-label="{{topic.label}} {{option.label}}，{{option.selected ? '已选' : '未选'}}"
+            ><view class="choice-option__mark" aria-hidden="true"></view><text>{{option.label}}</text></view>
+          </view>
+        </view>
+        <text class="evaluation-note">未选择表示未填写；“未确认”表示本次没有确认到说明情况。</text>
+        <text class="evaluation-note">只记录您是否得到费用说明，不代表已核验价格或最终报价。</text>
+      </view>
+
+      </block>
+      <block wx:if="{{step === 3}}">
+      <view class="evaluation-part" id="evaluation-final">
+        <text class="evaluation-part__number">03</text><text class="evaluation-part__title">最后确认</text>
+      </view>
+      <view wx:for="{{tagGroups}}" wx:for-item="group" wx:key="key" class="evaluation-section" id="evaluation-tags-{{group.key}}">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">{{group.title}}</text>
+          <text class="evaluation-section__hint">已选 {{group.key === 'likedTags' ? draft.likedTags.length : draft.concernTags.length}} / 3</text>
+        </view>
+        <text class="evaluation-note">{{group.key === 'likedTags' ? '请选择本次看院中最满意的方面。' : '请选择目前仍让您有所顾虑的方面。'}}最多选择 3 项。</text>
+        <view class="tag-list">
+          <view
+            wx:for="{{group.items}}"
+            wx:for-item="tag"
+            wx:key="key"
+            class="selection-tag {{tag.selected ? 'selection-tag--selected' : ''}} {{pageState !== 'editing' && pageState !== 'submit_failed' ? 'evaluation-control--disabled' : ''}}"
+            data-group="{{group.key}}"
+            data-tag="{{tag.key}}"
+            bindtap="onTagTap"
+            aria-role="checkbox"
+            aria-checked="{{tag.selected}}"
+            aria-label="{{tag.label}}，{{tag.selected ? '已选' : '未选'}}"
+          ><text class="selection-tag__mark" aria-hidden="true">{{tag.selected ? '✓' : '+'}}</text><text>{{tag.label}}</text></view>
+        </view>
+        <text wx:if="{{tagFeedbackGroup === group.key}}" class="evaluation-validation">{{tagFeedbackMessage}}</text>
+      </view>
+
+      <view class="evaluation-section" id="evaluation-notes">
+        <view class="evaluation-section__heading">
+          <text class="evaluation-section__title">补充说明</text>
+          <text class="evaluation-section__hint">选填 · 最多 200 字</text>
+        </view>
+        <textarea
+          class="evaluation-comment"
+          value="{{draft.comment}}"
+          maxlength="200"
+          auto-height="true"
+          cursor-spacing="{{keyboardOpen ? 24 : (footerReserve || 120)}}"
+          adjust-position="{{true}}"
+          placeholder="记录其他看院感受（选填）"
+          bindinput="onCommentInput"
+          disabled="{{pageState !== 'editing' && pageState !== 'submit_failed'}}"
+        ></textarea>
+        <view class="evaluation-comment__count">已输入 {{commentLength}} 字 · 还可输入 {{commentRemaining}} 字</view>
+      </view>
+      </block>
+
+      </block>
+      <view wx:if="{{step === 3 || pageState === 'submitted'}}" class="evaluation-section evaluation-confirmation" id="evaluation-confirmation">
+        <text class="evaluation-section__title">{{pageState === 'submitted' ? '本次评价记录' : '确认提交'}}</text>
+        <text class="evaluation-note">{{pageState === 'submitted' ? '以下内容来自本次填写的个人记录。' : '请确认本次评价的主要内容。需要修改时，点击对应分组的修改入口。'}}</text>
+        <view wx:for="{{summaryGroups}}" wx:for-item="group" wx:key="title" class="evaluation-section">
+          <text class="evaluation-section__title">{{group.title}}</text>
+          <view wx:for="{{group.rows}}" wx:for-item="row" wx:key="label" class="evaluation-summary-row"><text class="evaluation-summary-row__label">{{row.label}}</text><text class="evaluation-summary-row__value">{{row.value}}</text></view>
+          <button wx:if="{{pageState === 'editing' || pageState === 'submit_failed'}}" class="evaluation-edit" data-step="{{group.step}}" bindtap="onEditGroup">修改{{group.title}}</button>
+        </view>
+        <text class="evaluation-note">评价属于您的个人感受与现场观察，不会直接改变机构核验资料或推荐排序。</text>
+
+      <view wx:if="{{feedbackMessage}}" class="evaluation-feedback evaluation-feedback--{{pageState}}" aria-live="polite">{{feedbackMessage}}</view>
+      <view wx:if="{{validationMessage}}" class="evaluation-validation" aria-live="assertive">{{validationMessage}}</view>
+      <view wx:if="{{pageState === 'submitted' && serverSubmittedAt}}" class="evaluation-receipt">
+        <text wx:if="{{serverSubmittedAt}}" class="evaluation-receipt__label">提交时间</text>
+        <text wx:if="{{serverSubmittedAt}}" class="evaluation-receipt__value">{{submittedAtLabel}}</text>
+      </view>
+      </view>
+      <view wx:if="{{!keyboardOpen && pageState !== 'submitted'}}" class="evaluation-footer">
+      <view wx:if="{{pageState === 'editing' || pageState === 'submit_failed'}}" class="evaluation-step-actions">
+        <button wx:if="{{step > 1}}" bindtap="onPreviousStep">上一步</button>
+        <button wx:if="{{step < 3}}" bindtap="onNextStep">下一步</button>
+      </view>
+      <view wx:if="{{step === 3 && contextMode === 'test_only'}}" class="evaluation-submit">
+        <primary-button
+          warmSwiss="{{true}}"
+          text="{{submitButtonText}}"
+          variant="primary"
+          disabled="{{pageState === 'submitting' || pageState === 'submitted'}}"
+          loading="{{pageState === 'submitting'}}"
+          bind:action="onSubmit"
+        ></primary-button>
+        <text class="evaluation-submit__hint">新增演示记录仅在本次体验期间保留，重置演示或小程序重新启动后清除。</text>
+      </view>
+      <view wx:elif="{{step === 3 && contextMode === 'production'}}" class="evaluation-submit">
+        <primary-button
+          warmSwiss="{{true}}"
+          text="{{submitButtonText}}"
+          variant="primary"
+          disabled="{{pageState === 'submitting' || pageState === 'submitted'}}"
+          loading="{{pageState === 'submitting'}}"
+          bind:action="onSubmit"
+        ></primary-button>
+        <text class="evaluation-submit__hint">评价仅记录本次用户观察，不代表机构核验结论。</text>
+      </view>
+      </view>
+    </block>
+    </view>
+  </view>
+</page-container>

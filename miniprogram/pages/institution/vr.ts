@@ -1,3 +1,4 @@
+import { modeText } from '../../runtime/presentation-copy'
 import { parseInstitutionDetailRouteQuery } from '../../services/institution-detail-route'
 import type { InstitutionDetailRoute } from '../../services/institution-detail-route'
 import { resolveInstitutionVrResource } from '../../services/institution-vr-resource'
@@ -30,7 +31,7 @@ Page({
       if (generations.get(this) !== generation) return
       if (!detail.ok) { this.setData({ loading: false, message: '无法确认该机构及资料版本，请返回详情重新进入。' }); return }
       this.setData({ name: (detail.value.sections.basic.name.value || '机构名称待确认').replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, ''),
-        disclosure: detail.value.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? 'TEST ONLY · 当前机构未关联全景。演示全景素材不代表该机构真实场景。' : '全景资源按当前机构与资料版本读取。' })
+        disclosure: detail.value.datasetMode === 'MOCK_DEVELOPMENT_ONLY' ? modeText('TEST ONLY · 当前机构未关联全景。演示全景素材不代表该机构真实场景。') : '全景资源按当前机构与资料版本读取。' })
       this.setData(resource
         ? { loading: false, url: resource.url, name: resource.name, message: '' }
         : { loading: false, url: '', message: '当前没有可用的已核验全景资料，请返回机构详情。' })

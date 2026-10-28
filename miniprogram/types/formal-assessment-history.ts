@@ -1,8 +1,8 @@
 import type { AssessmentAnswerSnapshotV2 } from './assessment-v2'
 import type { RecommendationVersionsV2 } from './recommendation-v2'
-import type { InitialReferenceResultViewModel } from '../pages/recommendation/initial-reference-view-model'
-import type { RecommendationResultPageViewModelV2 } from '../pages/recommendation/result-v2-view-model'
-import type { ProfilePageViewModelV2 } from '../pages/assessment/profile-v2-view-model'
+import type { InitialReferenceResultViewModel } from '../presentation/recommendation/initial-reference-view-model'
+import type { RecommendationResultPageViewModelV2 } from '../presentation/recommendation/result-v2-view-model'
+import type { ProfilePageViewModelV2 } from '../presentation/assessment/profile-v2-view-model'
 
 /** C2-B wire types only. No provider, upload, page hook, or Storage side effects. */
 export type FormalHistoryState = 'LEGACY_V2_DISPLAY' | 'INITIAL_REFERENCE_ONLY' | 'NO_PERSONALIZED_CANDIDATE'

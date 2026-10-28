@@ -31,24 +31,27 @@ miniprogram/
 ├─ styles/      Less token、mixins 和全局基础样式
 ├─ types/       领域类型与 service contract 类型
 ├─ domain/      不依赖页面、Store、wx 或网络的纯领域规则
+├─ presentation/ 可被前端与服务端复用的纯展示投影
 ├─ services/    页面唯一的数据访问入口
 ├─ store/       评估草稿等跨页状态
-├─ runtime/     构建适配端口：草稿存储、目录展示元数据与可选演示素材
+├─ runtime/     构建选择的启动、目录、存储、文案与展示导航端口
 ├─ mock/        仅开发使用的显式 Mock provider
 └─ utils/       无业务状态的通用工具
 ```
 
 `modes/demo/` 包含合成数据、独立内存 Session、启动隔离、模拟服务组件及只在演示构建选择的记录页适配器；正式与演示均由
-`scripts/build-run-mode.mjs` 组合 `miniprogram/` 的同一页面、组件与领域规则，生成忽略目录
+`scripts/support/select-mode-source.mjs` 选择共享文件和模式适配器，`scripts/build-run-mode.mjs` 编译为忽略目录
 `dist/production`、`dist/demo`。构建时选择数据提供者及草稿存储适配器，不使用页面参数或 Storage
 开关授予演示权限。源码目录直接打开保留开发 Mock；正式模式以 `build:production` 输出为准。
 正式构建通过 modes/production/ 提供带逐字段政府来源证据的只读目录；行政区划 resolver 必须显式配置并严格匹配，未核验事实保持 unknown。公开目录不赋予预约能力，不能回退至演示数据。
+
+2026-10-28 架构收敛：模式行为写在 `modes/<mode>/runtime/`，模式独有页面在 `modes/<mode>/pages/`，共享页面的完整静态模板/组件配置覆盖在 `modes/<mode>/overrides/`。选择顺序为共享源码 → 双模式共用 runtime → 模式页面/runtime → overrides；修改已覆盖模板时直接编辑对应模式文件。不同模式可以共用页面逻辑，构建器不再搜索中文文案或替换 TypeScript 函数体。运行文案由 `runtime/presentation-copy` 处理，展示别名与导航由独立端口处理；它们不写回事实、推荐或旧快照。`source-origins.json` 记录实际选中文件，构建前逐字节核对来源；唯一生成的运行值是公开 AppID，JSON 转普通模块属于微信编译适配。
 
 Demo 连续场景由 `modes/demo/scenario.ts` 声明显式 TEST_ONLY ID，`session.ts` 保存老人、已完成合成 Assessment / Profile / Recommendation 快照、预约与 completed Visit、私有评价；重复载入不重置、不复制，显式重置或进程重启清除。老人/历史/预约页从同一会话读取；历史结果只展示保存快照，重新保存已完成草稿追加新记录。记录页共用 `modes/demo/pages/records.wxml` / `records.less`，由 `record-presentation.ts` 和 `utils/display-date.ts` 生成分组摘要及中国日期展示；实体 ID 仅用于路由与关联，另存评估操作只在 TEST ONLY 工具区提供。`runtime/evaluation-session.ts` 是评价会话端口：正式实现不提供演示数据，Demo 构建接入隔离上下文、展示姓名、编辑草稿和一次提交后的只读评价。三步评价复用正式表单和既有校验；21 项数字评分与费用清楚/不清楚保持冻结编码。评价页按实际 footer 高度预留末尾空间，键盘高度事件只调整展示，已提交查看隐藏提交按钮。构建器精确复用基础 WXSS 前缀，不改变样式顺序或包预算，不新增分包。
 
 ### 2.1 页面与组件
 
-B1.2.6 的业务演示只通过 `scripts/support/demo-story-composition.mjs` 组合进 Demo 构建。Demo App 首次启动幂等初始化案例；首页轻量引导进入画像与推荐，“我的”以三类记录为主，管理操作位于 Demo 专属的 `pages/showcase/index` 演示设置。`demo/story.ts` 校验现有详情路由、当前 revision、来源上下文和会话 epoch；`story-name.ts` 只为既有主讲实体提供展示别名，不改机构事实或历史快照。详情中的 `demo-story-preview` 保留机构上下文进入既有原生地图 / WebGL 全景引擎；城市视野不标院址，合成全景不成为核验 VR。`demo/consultant.ts` 与 Demo 预约页提供固定演示回复及内存记录；Tab 不虚构选中机构，completed 判定和三步评价仍使用原端口。顾问操作在渲染后按实际导航栏高度定位既有问答 / 回复，并拒绝离页后的滚动；不新增通信或更改视觉。生产构建不包含这些 Provider、组件、管理入口或合成媒体，正式顾问及地图 / VR Gate 保持原实现。
+B1.2.6 的业务演示由上述 Demo runtime 与完整模板覆盖组合。Demo App 首次启动幂等初始化案例；首页轻量引导进入画像与推荐，“我的”以三类记录为主，管理操作位于 Demo 专属的 `pages/showcase/index` 演示设置。`demo/story.ts` 校验现有详情路由、当前 revision、来源上下文和会话 epoch；`story-name.ts` 只为既有主讲实体提供展示别名，不改机构事实或历史快照。详情中的 `demo-story-preview` 保留机构上下文进入既有原生地图 / WebGL 全景引擎；城市视野不标院址，合成全景不成为核验 VR。`demo/consultant.ts` 与 Demo 预约页提供固定演示回复及内存记录；Tab 不虚构选中机构，completed 判定和三步评价仍使用原端口。顾问操作在渲染后按实际导航栏高度定位既有问答 / 回复，并拒绝离页后的滚动；不新增通信或更改视觉。生产构建不包含这些 Provider、组件、管理入口或合成媒体，正式顾问及地图 / VR Gate 保持原实现。
 
 V1.7 首页与独立机构目录通过 `services/institution-directory-search.ts` 复用原名称/性质/区域谓词，
 通过 `templates/institution-directory.wxml` 和对应共享 Less 复用搜索控件及卡片。筛选保留目录顺序，
@@ -72,6 +75,10 @@ V1.7 首页与独立机构目录通过 `services/institution-directory-search.ts
 - 不直接持久化；
 - 不直接访问机构 Provider、网络或微信运行时；
 - Frozen Domain 的精确规则以对应 Frozen Contract 为最高依据，本文件不复制其算法细节。
+
+`domain/` 仅依赖 domain/types；新增 `presentation/` 仅依赖 domain/types/presentation。机构 V1.2.1 纯校验/投影位于 `domain/institution/v1-2-1/catalog.ts`，V1.1 展示投影位于 `domain/institution/display-projection-v11.ts`；Service 负责注入行政区 resolver 和 Provider。推荐显示语义位于 `domain/recommendation/v2/display-semantics.ts`。画像与推荐共享 ViewModel 位于 `presentation/assessment/`、`presentation/recommendation/`；旧 pages/services 路径保留兼容导出，新服务端引用直接使用纯路径。服务端资源只打包纯 domain/presentation/types，不引入微信、Demo 或默认 Provider。
+
+`check:architecture-boundaries` 用 AST 检查类型与运行导入、转导出、require/import() 和 wx，含能拒绝越层的负样本；同时检查模式来源和入口闭包。工作分支 `codex/**`、main 推送和 PR 执行源码 CI，包含 C1 三项和 P1。双模式原生 WXML/Less 编译、产物隔离与 `check:mode-adapters-runtime` 仍为本机检查，不把 Linux 源码 CI 当成微信编译或手机通过。
 
 ### 2.3 Services
 

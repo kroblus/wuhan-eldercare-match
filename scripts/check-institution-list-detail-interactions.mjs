@@ -10,6 +10,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const appRoot = path.join(root, 'miniprogram')
@@ -24,6 +25,7 @@ const detailTs = read(path.join(institutionRoot, 'detail.ts'))
 const detailWxml = read(path.join(institutionRoot, 'detail.wxml'))
 const homeTs = read(path.join(homeRoot, 'index.ts'))
 const homeWxml = read(path.join(homeRoot, 'index.wxml')) + directoryTemplate
+const { ts } = loadWechatTypeScript()
 
 const functionBody = (source, name) => {
   const match = source.match(new RegExp('^\\s*' + name + '\\([^\\n]*\\)\\s*\\{', 'm'))
@@ -106,10 +108,32 @@ const main = () => {
     assert.ok(invalidStart >= 0 && buildStart > invalidStart)
     assert.ok(onLoad.slice(invalidStart, buildStart).includes('return'))
   })
-  run('INTERACTION-008', 'Detail onShow only resets guard, never rebuilds', () => {
+  run('INTERACTION-008', 'Detail onShow refreshes font and resets guard without rebuilding its snapshot', () => {
     const body = functionBody(detailTs, 'onShow')
     assert.match(body, /resetNavigationGuard/)
-    assert.equal(/buildRoute|buildInstitutionDetailPageSnapshot|setData/.test(body), false)
+    assert.doesNotMatch(body, /buildRoute|buildInstitutionDetailPageSnapshot/)
+    const ast = ts.createSourceFile('on-show.ts', `function onShow() ${body}`, ts.ScriptTarget.Latest, true)
+    let updates = 0
+    const visit = node => {
+      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)
+        && node.expression.name.text === 'setData') {
+        updates++
+        assert.equal(node.expression.expression.kind, ts.SyntaxKind.ThisKeyword)
+        assert.equal(node.arguments.length, 1)
+        const patch = node.arguments[0]
+        assert.ok(ts.isObjectLiteralExpression(patch))
+        assert.equal(patch.properties.length, 1)
+        const property = patch.properties[0]
+        assert.ok(ts.isPropertyAssignment(property))
+        assert.equal(property.name.getText(ast), 'fontStyle')
+        assert.ok(ts.isCallExpression(property.initializer))
+        assert.equal(property.initializer.expression.getText(ast), 'readBrowseFontStyle')
+        assert.equal(property.initializer.arguments.length, 0)
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(ast)
+    assert.ok(updates <= 1, 'onShow may only update fontStyle once')
   })
   run('INTERACTION-009', 'Detail retry is a single guarded route rebuild', () => {
     const body = functionBody(detailTs, 'onRetry')
@@ -132,14 +156,21 @@ const main = () => {
     assert.match(detailTs, /暂时无法返回/)
     assert.equal((detailWxml.match(/bind:navigationfail="onNavigationFailure"/g) || []).length, 1)
   })
-  run('INTERACTION-012', 'Detail VR action gates availability and preserves canonical context', () => {
+  run('INTERACTION-012', 'Detail VR status-page navigation preserves canonical identity and context', () => {
     const body = functionBody(detailTs, 'onVrTap')
-    assert.match(body, /!this\.data\.viewModel\.media\.canOpenVr/)
+    assert.match(body, /this\.data\.pageState !== 'ready' \|\| this\.data\.viewModel === null/)
     assert.match(body, /routeByPage\.get/)
-    assert.match(body, /serializeInstitutionDetailRoute/)
+    assert.match(body, /if \(!route\) return/)
+    assert.match(body, /serializeInstitutionDetailRoute\(route\.identity,/)
+    assert.match(body, /route\.source === 'recommendation' \? 'recommendation' : 'direct_link'/)
     assert.match(body, /route\.sourceContextRef/)
+    assert.match(body, /if \(!detailUrl\) return/)
+    assert.match(body, /'institution\.detail\.vr'/)
+    assert.match(body, /detailUrl\.replace\('\/detail\?', '\/vr\?'\)/)
     assert.equal((body.match(/navigateToWithGuard\(/g) || []).length, 1)
+    assert.doesNotMatch(body, /wx\.navigateTo/)
     assert.match(body, /actionErrorMessage/)
+    assert.match(body, /actionErrorKey: 'vr'/)
     assert.match(detailWxml, /bindtap="onVrTap"/)
   })
   run('INTERACTION-013', 'Home no longer propagates legacy id-only detail routes', () => {

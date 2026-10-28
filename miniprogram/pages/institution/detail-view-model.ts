@@ -1,3 +1,4 @@
+import { modeText } from '../../runtime/presentation-copy'
 import type {
   CareProcessPresenceCode,
   CareRecordCompletenessCode,
@@ -1243,12 +1244,12 @@ export const createInstitutionDetailPageViewModel = (
 const detailErrorCopy = (
   pageState: Exclude<InstitutionDetailPageStateV12, 'loading' | 'ready'>,
 ): { title: string; message: string; canRetry: boolean } => {
-  if (pageState === 'route_error') return { title: '机构链接无效', message: '当前链接缺少合法的机构版本信息，请从合作机构列表重新进入。', canRetry: false }
-  if (pageState === 'not_found') return { title: '暂时找不到该机构资料', message: '当前资料已无法读取，请返回合作机构列表重新浏览。', canRetry: true }
+  if (pageState === 'route_error') return { title: '机构链接无效', message: modeText('当前链接缺少合法的机构版本信息，请从合作机构列表重新进入。'), canRetry: false }
+  if (pageState === 'not_found') return { title: '暂时找不到该机构资料', message: modeText('当前资料已无法读取，请返回合作机构列表重新浏览。'), canRetry: true }
   if (pageState === 'revision_not_found') return { title: '当前无法找到该版本的机构资料', message: '为了避免展示错误版本，页面没有自动切换到其他资料。', canRetry: true }
   if (pageState === 'source_context_error') return { title: '原推荐上下文已失效', message: '暂时无法展示当时的推荐说明，请返回推荐结果后重试。', canRetry: true }
   if (pageState === 'projection_error') return { title: '机构资料暂时无法展示', message: '当前资料未能通过展示校验，请稍后重试。', canRetry: true }
-  return { title: '机构资料暂时不可用', message: '当前合作机构资料未能读取，请稍后重试。', canRetry: true }
+  return { title: '机构资料暂时不可用', message: modeText('当前合作机构资料未能读取，请稍后重试。'), canRetry: true }
 }
 
 export const createInstitutionDetailErrorViewModel = (

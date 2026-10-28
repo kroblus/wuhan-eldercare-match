@@ -2,12 +2,16 @@ name: Source regression (without WeChat build)
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'codex/**']
 permissions:
   contents: read
+concurrency:
+  group: source-regression-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   source-regression:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       WECHAT_TYPESCRIPT_PATH: ${{ github.workspace }}/node_modules/typescript/lib/typescript.js
     steps:
@@ -19,6 +23,7 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - run: npm ci
+      - run: npm run check:architecture-boundaries
       - run: npm run check:production-directory-data
       - run: npm run check:assessment-v2-runtime
       - run: npm run check:recommendation-v2-runtime
@@ -28,5 +33,9 @@ jobs:
       - run: npm run check:v1-9-assessment-recommendation -- --source-only
       - run: npm run check:profile-clarification-guidance
       - run: npm run check:capability-evidence
+      - run: npm run check:c1:domain
+      - run: npm run check:c1:composition
+      - run: npm run check:c1:page
+      - run: npm run check:p1
       # Production/demo WXML + Less builds require installed WeChat DevTools.
       # They remain local gates; this workflow does not claim to run them.

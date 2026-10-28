@@ -356,7 +356,7 @@ await check('R12', async () => {
     assert.equal(catalog.records.length, 11)
     assert.equal(catalog.datasetMode, 'PRODUCTION')
     assert.equal(prod.catalogApi.validateInstitutionCatalogPayloadV121(catalog).ok, true)
-    const facts = prod.load('domain/recommendation/initial-reference-v1/institution-facts').projectReferenceInstitutionFactsV1(catalog, T)
+    const facts = prod.load('domain/recommendation/initial-reference-v1/institution-facts').projectReferenceInstitutionFactsV1(catalog, T, { administrativeDivisionResolver: resolver })
     assert.equal(facts.ok, true)
     assert.equal(facts.value.institutions.filter(item => item.price.referenceMonthlyPrice.effectiveValue !== null).length, 0)
     assert.equal(facts.value.institutions.filter(item => item.meal.mealSchedule.effectiveValue !== null).length, 0)

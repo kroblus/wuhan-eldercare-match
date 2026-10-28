@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "check:architecture-boundaries": "node scripts/check-architecture-boundaries.mjs",
+    "check:mode-source": "node scripts/check-mode-source.mjs",
+    "check:mode-adapters-runtime": "node scripts/check-mode-adapters-runtime.mjs",
     "check:p1": "node scripts/check-p1-runtime.mjs",
     "check:b1-2-6-story": "node scripts/check-b1-2-6-story.mjs",
     "check:visit-evaluation-runtime": "node scripts/check-visit-evaluation-runtime.mjs",

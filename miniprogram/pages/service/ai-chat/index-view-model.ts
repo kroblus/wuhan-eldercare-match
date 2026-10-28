@@ -1,3 +1,4 @@
+import { modeText } from '../../../runtime/presentation-copy'
 import type {
   AIConsultationPublicApplicationResultV1,
   AIConsultationPublicApplicationSnapshotV1,
@@ -47,10 +48,10 @@ const copyForState = (
 ): { title: string, message: string } => {
   if (state === 'sending') return { title: '正在整理你的问题', message: '请稍候，页面不会重复发送同一条问题。' }
   if (state === 'answer_ready') return { title: '已整理公开资料', message: '以下内容仅用于解释已有资料，不代表实时承诺。' }
-  if (state === 'need_human') return { title: '建议联系养老顾问', message: '这个问题需要人工或专业人员进一步确认。' }
-  if (state === 'network_error') return { title: '网络暂时不可用', message: '请检查网络后重试，页面不会展示内部错误信息。' }
-  if (state === 'service_error') return { title: '咨询服务暂时不可用', message: '请稍后重试，或直接联系养老顾问。' }
-  if (state === 'knowledge_unavailable') return { title: '当前资料不足以回答这个问题', message: '没有找到适用的已批准资料，不会推测答案；可换个问题或联系养老顾问。' }
+  if (state === 'need_human') return { title: modeText('建议联系养老顾问'), message: '这个问题需要人工或专业人员进一步确认。' }
+  if (state === 'network_error') return { title: '网络暂时不可用', message: modeText('请检查网络后重试，页面不会展示内部错误信息。') }
+  if (state === 'service_error') return { title: '咨询服务暂时不可用', message: modeText('请稍后重试，或直接联系养老顾问。') }
+  if (state === 'knowledge_unavailable') return { title: '当前资料不足以回答这个问题', message: modeText('没有找到适用的已批准资料，不会推测答案；可换个问题或联系养老顾问。') }
   return { title: '养老咨询助手', message: '可以先输入关于小程序使用、养老基础概念或已有资料的问题。' }
 }
 
@@ -76,9 +77,9 @@ export const createAIChatPageViewModelV1 = (
     stateTitle: copy.title,
     stateMessage: copy.message,
     provenanceLabel: snapshot.responseProvenance === 'unavailable'
-      ? '本次暂无可用回答；不会以未获批准的资料补全。'
+      ? modeText('本次暂无可用回答；不会以未获批准的资料补全。')
       : snapshot.responseProvenance === 'approved_faq'
-        ? '已批准 FAQ · 常见问题检索，未接入在线模型。'
+        ? modeText('已批准 FAQ · 常见问题检索，未接入在线模型。')
         : '内容来自受控在线咨询服务。',
     messages: snapshot.messages.map(projectMessage),
     canSend: snapshot.actions.canSend,

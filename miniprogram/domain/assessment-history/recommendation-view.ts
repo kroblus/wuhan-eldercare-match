@@ -1,6 +1,6 @@
 import type { captureHistoricalRecommendationV1 } from './recommendation-display'
 import { recommendationReasonLabelV2, recommendationDifferenceLabelV2,
-  isRecommendationReasonVisibleV2, isRecommendationDifferenceVisibleV2 } from '../../pages/recommendation/recommendation-display-semantics'
+  isRecommendationReasonVisibleV2, isRecommendationDifferenceVisibleV2 } from '../recommendation/v2/display-semantics'
 
 export type HistoricalRecommendationDisplayV1 = Extract<ReturnType<typeof captureHistoricalRecommendationV1>, { ok: true }>['display']
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)

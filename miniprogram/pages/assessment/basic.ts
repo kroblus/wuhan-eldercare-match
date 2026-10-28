@@ -1,3 +1,4 @@
+import { modeText } from '../../runtime/presentation-copy'
 import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   BasicGender,
@@ -137,7 +138,7 @@ Page({
     genderError: '',
     formError: '',
     ageError: '',
-    saveStatus: '填写后会尝试保存到本机开发态草稿',
+    saveStatus: modeText('填写后会尝试保存到本机开发态草稿'),
   } as AssessmentBasicData,
 
   onLoad() {
@@ -200,8 +201,8 @@ Page({
       ageError: '',
       formError: '',
       saveStatus: Object.keys(answers).length > 0
-        ? '已从本机草稿恢复（开发态）'
-        : '填写后会尝试保存到本机开发态草稿',
+        ? modeText('已从本机草稿恢复（开发态）')
+        : modeText('填写后会尝试保存到本机开发态草稿'),
     }
     const changedPatch: Partial<AssessmentBasicData> = {}
     if (this.data.warmSwissHeaderHeight !== patch.warmSwissHeaderHeight) changedPatch.warmSwissHeaderHeight = patch.warmSwissHeaderHeight
@@ -225,8 +226,8 @@ Page({
   applyPersistenceResult(result: AssessmentDraftMutationResult) {
     this.setData({
       saveStatus: result.persistence.ok
-        ? '已保存到本机（开发态），不会同步服务器'
-        : '本机保存失败，请重试；答案不会同步服务器',
+        ? modeText('已保存到本机（开发态），不会同步服务器')
+        : modeText('本机保存失败，请重试；答案不会同步服务器'),
     })
   },
 
@@ -337,8 +338,8 @@ Page({
         const result = assessmentDraftStore.setCurrentStep('health')
         if (!result.persistence.ok) {
           this.setData({
-            formError: '本机保存失败，暂时无法进入下一步，请重试',
-            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+            formError: modeText('本机保存失败，暂时无法进入下一步，请重试'),
+            saveStatus: modeText('本机保存失败，请重试；答案不会同步服务器'),
           })
           return false
         }

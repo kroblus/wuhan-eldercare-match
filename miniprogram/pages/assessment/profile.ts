@@ -1,3 +1,5 @@
+import { profileHeadline } from '../../runtime/institution-display'
+import { modeText } from '../../runtime/presentation-copy'
 import { buildProfileApplicationSnapshot } from '../../services/profile-application-v2'
 import type { AssessmentStepId } from '../../types/assessment'
 import {
@@ -167,6 +169,7 @@ Page({
         const viewModel = result.version === 2
           ? createProfilePageViewModelV2(result.value.preview)
           : createProfilePageViewModel(result.value.preview)
+        if (result.version === 2) viewModel.headline = profileHeadline(viewModel.headline)
         this.setData({
           pageState: 'ready',
           viewModel,
@@ -188,7 +191,7 @@ Page({
           pageState: 'incomplete',
           viewModel: null,
           stateTitle: '评估还未完成',
-          stateMessage: `请先补充${recovery.label}中的必填信息，完成后再确认老人需求画像。`,
+          stateMessage: modeText(`请先补充${recovery.label}中的必填信息，完成后再确认老人需求画像。`),
           recoveryRoute: recovery.route,
           recoveryLabel: hasAnswers ? `返回${recovery.label}继续填写` : '返回评估说明',
         })

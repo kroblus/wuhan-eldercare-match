@@ -1,0 +1,57 @@
+<navigation-bar title="评估说明" warmSwiss="{{true}}" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#111827" background="#FBFAF7" bind:navigationfail="onNavigationFailure"></navigation-bar>
+<page-container extraClass="assessment-page">
+  <view class="intro-page">
+    <view class="intro-hero">
+      <text class="intro-title">先花几分钟，了解老人的真实需求。</text>
+      <text class="intro-description">回答一些关于老人生活与照护情况的问题，帮助我们整理更清晰的养老需求。</text>
+    </view>
+
+    <view class="intro-section">
+      <view class="ws-section-heading"><text class="ws-section-number">01</text><text>评估会了解什么</text></view>
+      <view class="overview-list">
+        <view wx:for="{{overviewItems}}" wx:key="index" class="overview-item">
+          <text class="overview-title">{{item.title}}</text>
+          <text class="overview-description">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="intro-section">
+      <view class="ws-section-heading"><text class="ws-section-number">02</text><text>大约需要多久</text></view>
+      <view class="intro-section-copy">
+        <text class="intro-duration">3–5 <text class="intro-duration-unit">分钟</text></text>
+        <text class="intro-note">共六步，可以按自己的节奏填写。内容仅在本次体验期间暂存；重置演示或小程序重新启动后，新增内容会清除。</text>
+      </view>
+    </view>
+    <view class="intro-section">
+      <view class="ws-section-heading"><text class="ws-section-number">03</text><text>不确定也可以继续</text></view>
+      <view class="intro-section-copy">
+        <text class="intro-copy-title">不清楚也没关系，部分问题可以选择“暂不确定”。</text>
+        <text class="intro-note">未知信息会被保留，不会被当作“没有需求”。</text>
+      </view>
+    </view>
+    <view class="intro-section">
+      <view class="ws-section-heading"><text class="ws-section-number">04</text><text>信息怎么使用</text></view>
+      <view class="intro-section-copy">
+        <view class="intro-flow"><text>评估信息</text><text class="intro-flow-arrow">→</text><text>老人照护需求</text><text class="intro-flow-arrow">→</text><text>机构匹配参考</text></view>
+        <text class="intro-note">本次为演示评估，用于体验需求整理与机构匹配，不是医疗诊断。填写完成不代表已存入评估记录；咨询和预约均为模拟体验。</text>
+      </view>
+    </view>
+
+    <view wx:if="{{hasDraft}}" class="draft-banner">
+      <text class="draft-title">发现一份未完成的评估</text>
+      <text class="draft-message">{{savedAtLabel}}</text>
+    </view>
+    <view wx:if="{{phaseIntentStep}}" class="draft-banner">
+      <text class="draft-title">本次要继续的步骤</text>
+      <text class="draft-message">{{phaseIntentMessage}}</text>
+    </view>
+    <view class="intro-actions">
+      <primary-button wx:if="{{phaseIntentStep}}" warmSwiss="{{true}}" text="{{phaseIntentActionLabel}}" bind:action="startAssessment"></primary-button>
+      <primary-button wx:if="{{!phaseIntentStep && !hasDraft}}" warmSwiss="{{true}}" text="开始评估 →" bind:action="startAssessment"></primary-button>
+      <button wx:if="{{!phaseIntentStep && hasDraft && !draftRecoveryRequired}}" class="draft-continue" disabled="{{restartPending}}" bindtap="startAssessment">继续填写 →</button>
+      <button wx:if="{{!phaseIntentStep && hasDraft}}" class="restart-button" loading="{{restartPending}}" disabled="{{restartPending}}" bindtap="restartAssessment">重新开始</button>
+      <view wx:if="{{phaseIntentError}}" class="restart-error">{{phaseIntentError}}</view>
+      <view wx:if="{{restartError}}" class="restart-error">{{restartError}}</view>
+    </view>
+  </view>
+</page-container>

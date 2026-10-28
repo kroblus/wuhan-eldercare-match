@@ -1,6 +1,7 @@
+import type { InstitutionV121ValidationOptions } from '../../institution/v1-2-1/validate-institution-v1-2-1'
 import {
   validateInstitutionCatalogPayloadV121,
-} from '../../../services/institution-catalog-validation-v121'
+} from '../../institution/v1-2-1/catalog'
 import {
   compareIsoTimestamps,
   isValidIsoTimestamp,
@@ -196,12 +197,13 @@ const institutionFacts = (
 export const projectReferenceInstitutionFactsV1 = (
   catalog: unknown,
   evaluationAsOf: string,
+  validationOptions: InstitutionV121ValidationOptions = {},
 ): InitialReferenceFactsProjectionResultV1 => {
   if (!isValidIsoTimestamp(evaluationAsOf)) {
     return dataError('INVALID_EVALUATION_AS_OF')
   }
 
-  const validated = validateInstitutionCatalogPayloadV121(catalog)
+  const validated = validateInstitutionCatalogPayloadV121(catalog, validationOptions)
   if (!validated.ok) {
     return dataError(
       'INVALID_CATALOG',

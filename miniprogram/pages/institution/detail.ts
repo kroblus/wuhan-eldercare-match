@@ -10,6 +10,8 @@ import type { InstitutionDetailRoute } from '../../services/institution-detail-r
 import { canRequestInstitutionService } from '../../runtime/institution-service-access'
 import { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../../runtime/institution-source-notes'
 import { createDetailReading } from './detail-reading'
+import { institutionDisplayName } from '../../runtime/institution-display'
+import { detailPreview, consultationDestination, appointmentDestination } from '../../runtime/institution-navigation'
 import { readBrowseFontStyle } from '../../utils/browse-font'
 import {
   createInstitutionDetailErrorViewModel,
@@ -33,6 +35,8 @@ import {
 type DetailPageState = 'loading' | InstitutionDetailErrorViewModelV12['pageState'] | 'ready'
 
 interface InstitutionDetailPageData {
+  detailPreviewUrl: string
+  hideLocation: boolean
   fontStyle: string
   pageState: DetailPageState
   viewModel: InstitutionDetailPageViewModelV12 | null
@@ -202,6 +206,7 @@ const runPhoneAction = (
 
 Page({
   data: {
+    detailPreviewUrl: '', hideLocation: false,
     fontStyle: '',
     pageState: 'loading',
     viewModel: null,
@@ -228,6 +233,7 @@ Page({
       return
     }
     routeByPage.set(this, parsed.value)
+    this.setData(detailPreview(parsed.value))
     this.buildRoute(parsed.value)
   },
 
@@ -259,7 +265,8 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
-          reading: createDetailReading(viewModel),
+          reading: { ...createDetailReading(viewModel), title: institutionDisplayName(route.identity.institutionId, viewModel.title) },
+          ...detailPreview(route),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
           capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
@@ -356,7 +363,8 @@ Page({
         this.setData({
           pageState: 'ready',
           viewModel,
-          reading: createDetailReading(viewModel),
+          reading: { ...createDetailReading(viewModel), title: institutionDisplayName(currentRoute.identity.institutionId, viewModel.title) },
+          ...detailPreview(currentRoute),
           sourceNotes: readInstitutionSourceNotes(result.value.identity.institutionId, result.value.identity.recordRevision),
           directoryInfo: readInstitutionDirectoryInfo(result.value.identity.institutionId, result.value.identity.recordRevision),
           capabilityReview: readInstitutionCapabilityReview(result.value.identity.institutionId, result.value.identity.recordRevision),
@@ -449,7 +457,7 @@ Page({
       identity.recordRevision,
       displayName,
     )
-    const url = `/pages/appointment/create?institutionId=${encodeURIComponent(identity.institutionId)}&recordRevision=${String(identity.recordRevision)}`
+    const url = appointmentDestination(route)
     const navigationStarted = navigateToWithGuard(this, 'institution.detail.appointment', url, undefined, () => {
       discardAppointmentInstitutionDisplaySnapshotV1(identity.institutionId, identity.recordRevision)
       this.setData({
@@ -481,7 +489,7 @@ Page({
   onConsultantTap() {
     if (this.data.pageState !== 'ready' || !this.data.viewModel || this.data.isSwitchingRevision) return
     this.setData({ actionErrorKey: '', actionErrorMessage: '' })
-    navigateToWithGuard(this, 'institution.detail.consultant', '/pages/consultant/consultation', undefined, () => {
+    navigateToWithGuard(this, 'institution.detail.consultant', consultationDestination(routeByPage.get(this)), undefined, () => {
       this.setData({
         actionErrorKey: 'consultant',
         actionErrorMessage: '暂时无法打开养老顾问，请稍后重试。',

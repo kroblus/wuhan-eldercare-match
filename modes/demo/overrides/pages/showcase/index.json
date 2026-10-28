@@ -1,0 +1,9 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "功能演示 · 开发专用",
+  "disableScroll": false,
+  "usingComponents": {
+    "navigation-bar": "/components/navigation-bar/navigation-bar",
+    "demo-tools": "/components/demo-tools/demo-tools"
+  }
+}

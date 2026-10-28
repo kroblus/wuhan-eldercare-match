@@ -1,0 +1,145 @@
+<navigation-bar title="老人照护需求" warmSwiss="{{true}}" back="{{backEnabled}}" guardBack="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" color="#111827" background="#FBFAF7" bind:navigationfail="onBackNavigationFailure"></navigation-bar>
+<page-container extraClass="profile-page">
+  <view class="profile-shell" style="{{hierarchyFontStyle}}">
+    <view class="profile-head">
+      <text class="profile-intro">以下是本次评估整理的养老需求，不是医疗诊断。请先核对；如需调整，可点击各区“修改”，确认后再查看机构推荐。</text>
+      <button class="edit-action" catchtap="onHome" aria-label="返回首页">返回首页</button>
+      <view wx:if="{{actionErrorKey === 'home'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      <text wx:if="{{isRootProfile}}" class="boundary-note">系统返回可能离开小程序；返回首页请点击“返回首页”。</text>
+      <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+    </view>
+    <view wx:if="{{pageState === 'loading'}}" class="profile-state">
+      <state-panel state="loading" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+    </view>
+    <block wx:elif="{{pageState === 'ready' && viewModel}}">
+      <view class="profile-summary">
+        <text class="profile-headline">{{viewModel.headline}}</text>
+        <view class="section-heading profile-summary-meta">
+          <text class="section-subtitle">{{viewModel.relationshipLine}}</text>
+          <button class="edit-action" data-section="basic" catchtap="onEdit" aria-label="修改基本情况">修改 →</button>
+        </view>
+        <view wx:if="{{viewModel.overviewTags.length}}" class="summary-facts">
+          <text wx:for="{{viewModel.overviewTags}}" wx:key="text" class="summary-fact summary-fact--{{item.tone}}">{{item.text}}</text>
+        </view>
+        <view class="profile-rows profile-rows--overview">
+          <view wx:for="{{viewModel.basicRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{actionErrorKey === 'edit-basic'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view class="profile-section">
+        <view class="section-heading">
+          <view class="ws-section-heading"><text class="ws-section-number">01</text><text>照护需求</text></view>
+          <button class="edit-action" data-section="adl" catchtap="onEdit" aria-label="修改日常生活能力">修改 →</button>
+        </view>
+        <text class="section-subtitle">老人日常需要哪些帮助</text>
+        <view class="profile-rows profile-rows--care">
+          <view wx:for="{{viewModel.dailyRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{viewModel.careModeTags.length}}" class="detail-group">
+          <text class="detail-group__label">重要照护方式</text>
+          <view class="explanation-list"><text wx:for="{{viewModel.careModeTags}}" wx:key="text" class="explanation-item">{{item.text}}</text></view>
+        </view>
+        <text class="boundary-note">{{viewModel.careLevelNote}}</text>
+        <view wx:if="{{actionErrorKey === 'edit-adl'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view class="profile-section">
+        <view class="section-heading">
+          <view class="ws-section-heading"><text class="ws-section-number">02</text><text>健康情况</text></view>
+          <button class="edit-action" data-section="health" catchtap="onEdit" aria-label="修改健康情况">修改 →</button>
+        </view>
+        <text class="section-subtitle">仅汇总评估中已报告的健康事实，不作医学诊断。</text>
+        <view class="profile-rows profile-rows--health">
+          <view wx:for="{{viewModel.healthRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{actionErrorKey === 'edit-health'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+      <view wx:if="{{viewModel.nutritionRows && viewModel.nutritionRows.length}}" class="profile-section profile-section--nutrition">
+        <view class="section-heading">
+          <text class="nutrition-title">进食与饮食</text>
+          <button class="edit-action" data-section="health" catchtap="onEdit" aria-label="修改进食与饮食">修改 →</button>
+        </view>
+        <text class="section-subtitle">根据您的回答整理进食与饮食需求，供进一步沟通参考。</text>
+        <view class="profile-rows">
+          <view wx:for="{{viewModel.nutritionRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{actionErrorKey === 'edit-health'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view class="profile-section">
+        <view class="section-heading">
+          <view class="ws-section-heading"><text class="ws-section-number">03</text><text>认知与特殊护理</text></view>
+          <button class="edit-action" data-section="cognitive" catchtap="onEdit" aria-label="修改认知与特殊护理">修改 →</button>
+        </view>
+        <text class="section-subtitle">展示已报告的情况和明确护理需求，不从症状推断医学诊断。</text>
+        <view class="profile-rows">
+          <view wx:for="{{viewModel.cognitionRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{viewModel.specialCareTags.length}}" class="detail-group">
+          <text class="detail-group__label">已明确或待确认的特殊护理</text>
+          <view class="explanation-list"><text wx:for="{{viewModel.specialCareTags}}" wx:key="text" class="explanation-item">{{item.text}}</text></view>
+        </view>
+        <text wx:if="{{viewModel.specialCareNote}}" class="boundary-note">{{viewModel.specialCareNote}}</text>
+        <view wx:if="{{actionErrorKey === 'edit-cognitive'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view class="profile-section">
+        <view class="section-heading">
+          <view class="ws-section-heading"><text class="ws-section-number">04</text><text>入住偏好</text></view>
+          <button class="edit-action" data-section="preference" catchtap="onEdit" aria-label="修改养老偏好">修改 →</button>
+        </view>
+        <view class="profile-rows profile-rows--preference">
+          <view wx:for="{{viewModel.preferenceRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{actionErrorKey === 'edit-preference'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view class="profile-section">
+        <view class="section-heading">
+          <view class="ws-section-heading"><text class="ws-section-number">05</text><text>预算与计划</text></view>
+          <button class="edit-action" data-section="budget" catchtap="onEdit" aria-label="修改预算与入住计划">修改 →</button>
+        </view>
+        <text class="section-subtitle">顾问协助仅为意向记录，本页不会获取手机号或发起联系。</text>
+        <view class="profile-rows profile-rows--financial">
+          <view wx:for="{{viewModel.financialRows}}" wx:key="label" class="profile-row profile-row--{{item.tone}}"><text class="profile-row__label">{{item.label}}</text><text class="profile-row__value">{{item.value}}</text></view>
+        </view>
+        <view wx:if="{{viewModel.budgetAdvisory}}" class="profile-advisory" role="note">{{viewModel.budgetAdvisory.text}}</view>
+        <view wx:if="{{actionErrorKey === 'edit-budget'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+      </view>
+
+      <view wx:if="{{viewModel.clarifications.length}}" class="profile-section profile-pending">
+        <view class="section-heading"><text class="nutrition-title">仍需核对的照护事项</text><text class="pending-count">{{viewModel.clarifications.length}} 项</text></view>
+        <text class="section-subtitle">问卷已填完，以下照护情况还需要确认。请按提示核对；如果回答符合实际，可以保留原答案。</text>
+        <view class="clarification-list">
+          <view wx:for="{{viewModel.clarifications}}" wx:key="text" class="clarification">
+            <text class="clarification__priority">{{item.priorityLabel}}</text>
+            <text class="clarification__text">{{item.text}}</text>
+            <button class="clarification__edit" data-section="{{item.editSection}}" catchtap="onEdit">{{item.editLabel}} →</button>
+            <view wx:if="{{actionErrorKey === item.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            <view wx:for="{{item.relatedEdits}}" wx:for-item="relatedEdit" wx:key="section">
+              <button class="clarification__edit" data-section="{{relatedEdit.section}}" catchtap="onEdit">{{relatedEdit.label}} →</button>
+              <view wx:if="{{actionErrorKey === relatedEdit.errorKey}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="recommendation-boundary">
+        <text class="recommendation-boundary__note">下一页会将照护需求与虚构机构资料进行匹配。资料不足时不会生成推荐，您仍可浏览演示机构目录。</text>
+      </view>
+      <view class="profile-footer">
+        <view wx:if="{{actionErrorKey === 'recommendation'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <view class="profile-cta"><primary-button warmSwiss="{{true}}" text="查看机构推荐" bind:action="onOpenRecommendation"></primary-button></view>
+      </view>
+    </block>
+    <view wx:else class="profile-state">
+      <state-panel wx:if="{{pageState === 'incomplete'}}" state="empty" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+      <state-panel wx:else state="error" title="{{stateTitle}}" message="{{stateMessage}}"></state-panel>
+      <view class="recovery-action">
+        <view wx:if="{{actionErrorKey === 'recovery'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+        <primary-button warmSwiss="{{true}}" text="{{recoveryLabel}}" variant="secondary" bind:action="onRecover"></primary-button>
+      </view>
+    </view>
+  </view>
+</page-container>

@@ -42,9 +42,9 @@ const load = file => runtime.load(path.join(root,'miniprogram',`${file}.ts`))
 const legacyApi = load('services/recommendation-preview-v2')
 const wrapper = load('services/initial-reference-preview-v1')
 const catalogApi = load('services/institution-catalog-validation-v121')
-const view = load('pages/recommendation/initial-reference-view-model')
+const view = load('presentation/recommendation/initial-reference-view-model')
 const profileApi = load('domain/elder-profile/v2/derive-elder-profile-preview-v2')
-const profileView = load('pages/assessment/profile-v2-view-model')
+const profileView = load('presentation/assessment/profile-v2-view-model')
 bootstrap = false
 for (const [name, completed, expected, source] of cases) {
   const input = { completed, catalog: source, evaluationAsOf: asOf }

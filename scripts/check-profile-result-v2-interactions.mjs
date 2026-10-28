@@ -14,7 +14,7 @@ const primaryButton = read('miniprogram/components/primary-button/primary-button
 const navigationGuard = read('miniprogram/utils/navigation-guard.ts')
 const profileApplication = read('miniprogram/services/profile-application-v2.ts')
 const resultApplication = read('miniprogram/services/recommendation-result-application.ts')
-const resultViewModel = read('miniprogram/pages/recommendation/result-v2-view-model.ts')
+const resultViewModel = read('miniprogram/presentation/recommendation/result-v2-view-model.ts')
 
 const checks = [
   ['INTERACTION-V2-001', 'shared button exposes one non-bubbling action channel', () => {
@@ -86,10 +86,10 @@ const checks = [
     const sources = [
       read('miniprogram/types/profile-application-v2.ts'),
       read('miniprogram/services/profile-application-v2.ts'),
-      read('miniprogram/pages/assessment/profile-v2-view-model.ts'),
+      read('miniprogram/presentation/assessment/profile-v2-view-model.ts'),
       read('miniprogram/types/recommendation-result-v2.ts'),
       read('miniprogram/services/recommendation-result-application.ts'),
-      read('miniprogram/pages/recommendation/result-v2-view-model.ts'),
+      read('miniprogram/presentation/recommendation/result-v2-view-model.ts'),
     ]
     sources.forEach((source) => assert.doesNotMatch(source, /class\s+[A-Za-z_$][\w$]*\s*\{[^}]*\b[A-Za-z_$][\w$]*\s*=/s))
     assert.match(resultSource, /new Date\(\)\.toISOString\(\)/)

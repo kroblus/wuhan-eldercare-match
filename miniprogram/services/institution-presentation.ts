@@ -1,3 +1,4 @@
+import { modeText } from '../runtime/presentation-copy'
 /**
  * Versioned, display-safe projections for the Institution List / Detail
  * application layer. No projector in this file invents facts or derives a
@@ -39,7 +40,7 @@ import {
 } from './institution-display-projection-v11'
 
 export const MOCK_DEVELOPMENT_DISCLOSURE =
-  '开发演示数据\n以下机构、价格与护理能力均为功能测试示例，不代表真实合作机构信息。'
+  modeText('开发演示数据\n以下机构、价格与护理能力均为功能测试示例，不代表真实合作机构信息。')
 
 export const institutionDataDisclosure = (
   datasetMode: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY',

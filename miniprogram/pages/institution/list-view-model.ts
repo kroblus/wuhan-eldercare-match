@@ -1,3 +1,5 @@
+import { institutionDisplayName } from '../../runtime/institution-display'
+import { modeText } from '../../runtime/presentation-copy'
 import type {
   InstitutionListApplicationSnapshotV12,
   InstitutionListDisplayItemV12,
@@ -157,7 +159,7 @@ const formatItem = (
   const recommendationGroup: InstitutionListDisplayGroupViewModel =
     item.recommendationPlacement === null ? 'other' : item.recommendationPlacement.group
   const placementLabel = recommendationGroup === 'other'
-    ? '其他合作机构'
+    ? modeText('其他合作机构')
     : recommendationGroup === 'cards'
       ? '推荐候选'
       : recommendationGroup === 'nearMatches'
@@ -167,7 +169,7 @@ const formatItem = (
     key: `${item.institutionId}#${item.recordRevision}`,
     institutionId: item.institutionId,
     recordRevision: item.recordRevision,
-    name: name.value || '机构名称待提供',
+    name: institutionDisplayName(item.institutionId, name.value || '机构名称待提供'),
     nameStatus: name.status,
     region: region.value || '区域信息待提供',
     regionStatus: region.status,
@@ -198,7 +200,7 @@ const formatItem = (
       // Other sources keep basic facts; no service/type-derived T2/T3 chips.
       factTags: [],
       title: item.recordProvenance === 'MOCK_DEVELOPMENT_ONLY'
-        ? name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '') || '机构名称待确认' : name.value || '机构名称待确认',
+        ? institutionDisplayName(item.institutionId, name.value.replace(/^虚构示例[·・]/, '').replace(/（Mock 演示资料）$/, '')) || '机构名称待确认' : name.value || '机构名称待确认',
       region: item.region.availability === 'provided' && item.region.effectiveVerification === 'current_verified' ? region.value : '区域待确认',
       price: item.referenceMonthlyPrice.availability === 'provided' && item.referenceMonthlyPrice.effectiveVerification === 'current_verified' ? '参考月费 ' + price.value : '费用待咨询',
       feature: metadata && metadata.natureLabel ? metadata.natureLabel : item.institutionType.availability === 'provided' && item.institutionType.effectiveVerification === 'current_verified' ? type.value : '',
@@ -235,7 +237,7 @@ const errorCopy = (
   }
   return {
     title: '机构资料暂时不可用',
-    message: '当前合作机构资料未能读取，请稍后重试。',
+    message: modeText('当前合作机构资料未能读取，请稍后重试。'),
   }
 }
 
@@ -255,16 +257,16 @@ export const createInstitutionListPageViewModel = (
   const otherItems = items.slice(mappedRecommendedItems.length)
   return {
     pageState: items.length > 0 ? 'ready' : 'empty',
-    title: snapshot.source === 'recommendation' ? '推荐机构资料' : '合作机构列表',
+    title: snapshot.source === 'recommendation' ? '推荐机构资料' : modeText('合作机构列表'),
     description: snapshot.source === 'recommendation'
       ? '以下资料来自本次推荐的同一机构版本；请结合实际沟通进一步确认。'
-      : '这里展示平台当前可读取的合作机构资料，先了解基本情况，再决定下一步。',
+      : modeText('这里展示平台当前可读取的合作机构资料，先了解基本情况，再决定下一步。'),
     disclosure: snapshot.dataDisclosure.text || '',
     hasDisclosure: snapshot.dataDisclosure.text !== null,
     items,
     recommendedItems,
     otherItems,
-    emptyTitle: '当前暂无可展示的合作机构资料',
+    emptyTitle: modeText('当前暂无可展示的合作机构资料'),
     emptyMessage: '资料补充后，这里会展示机构的基础信息、参考费用与可核验服务。',
     errorTitle: '',
     errorMessage: '',
@@ -279,8 +281,8 @@ export const createInstitutionListErrorViewModel = (
   const copy = errorCopy(pageState)
   return {
     pageState,
-    title: '合作机构列表',
-    description: '这里展示平台当前可读取的合作机构资料。',
+    title: modeText('合作机构列表'),
+    description: modeText('这里展示平台当前可读取的合作机构资料。'),
     disclosure: '',
     hasDisclosure: false,
     items: [],
@@ -297,8 +299,8 @@ export const createInstitutionListErrorViewModel = (
 
 export const createInstitutionListLoadingViewModel = (): InstitutionListPageViewModelV12 => ({
   pageState: 'loading',
-  title: '合作机构列表',
-  description: '正在读取当前合作机构资料。',
+  title: modeText('合作机构列表'),
+  description: modeText('正在读取当前合作机构资料。'),
   disclosure: '',
   hasDisclosure: false,
   items: [],

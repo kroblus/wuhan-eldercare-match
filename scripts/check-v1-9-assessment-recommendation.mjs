@@ -132,7 +132,7 @@ const markup = fs.readFileSync('miniprogram/pages/recommendation/result.wxml', '
 assert.match(markup, /公开资料目录，并非根据当前照护需求确认适合的推荐名单/)
 assert.match(markup, /wx:for="\{\{item.differences\}\}"/)
 assert.match(markup, /bindtap="onBrowseDirectory"/)
-assert.doesNotMatch(fs.readFileSync('miniprogram/pages/recommendation/result-v2-view-model.ts', 'utf8'), /合作机构|开发目录中的结构化资料/)
+assert.doesNotMatch(fs.readFileSync('miniprogram/presentation/recommendation/result-v2-view-model.ts', 'utf8'), /合作机构|开发目录中的结构化资料/)
 console.log('PASS source UI: contextless directory, retry, duplicate navigation guard, unload race, complete difference rendering')
 
 if (!process.argv.includes('--source-only')) for (const mode of ['production', 'demo']) {

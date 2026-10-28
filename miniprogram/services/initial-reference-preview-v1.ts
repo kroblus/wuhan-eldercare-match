@@ -1,3 +1,4 @@
+import { institutionValidationOptions } from '../runtime/institution-validation'
 import { createInstitutionCatalogServiceV11Adapter, validateInstitutionCatalogPayloadV121 } from './institution-catalog-v1-2-1'
 import { composeReferenceResultV1 } from '../domain/recommendation/initial-reference-v1/composition'
 import { copyDomainDataV2 } from '../domain/recommendation/v2/rules-v2'
@@ -91,7 +92,7 @@ export const createInitialReferencePreviewServiceV1 = (
       return composeReferenceResultV1({
         catalog: capture.result.value, legacyV2: result.value,
         evaluationAsOf, expectedDatasetMode: dependencies.expectedDatasetMode,
-      })
+      }, institutionValidationOptions)
     } catch (_error) {
       return {
         ok: false,

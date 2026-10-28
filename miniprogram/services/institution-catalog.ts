@@ -1,5 +1,5 @@
 import { validateInstitutionRecord } from '../domain/institution/validate-institution'
-import { mockInstitutionCatalogProvider } from '../mock/institution-catalog.mock'
+import { legacyInstitutionCatalogProvider } from '../runtime/legacy-institution-data'
 import type { InstitutionRecord } from '../types/institution'
 import type {
   InstitutionCatalogError,
@@ -155,4 +155,4 @@ export const createInstitutionCatalogService = (
 
 /** Development-only catalog service. It never falls back to a production source. */
 export const institutionCatalogService: InstitutionCatalogService =
-  createInstitutionCatalogService(mockInstitutionCatalogProvider)
+  createInstitutionCatalogService(legacyInstitutionCatalogProvider)

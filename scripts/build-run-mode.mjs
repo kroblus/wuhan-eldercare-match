@@ -7,7 +7,8 @@ import { loadWechatTypeScript } from './support/load-wechat-ts-runtime.mjs'
 import { loadInstalledLess } from './support/installed-less.mjs'
 import { minify } from 'terser'
 import { checkRunModePackageSize } from './check-run-mode-package-size.mjs'
-import { composeDemoStory } from './support/demo-story-composition.mjs'
+import { selectModeSource } from './support/select-mode-source.mjs'
+import { verifySelectedSources } from './check-mode-source.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const mode = process.argv[2]
@@ -34,65 +35,9 @@ const walk = dir => fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
 })
 const writtenRuntime = new Set()
 const put = (base, file, data) => { const f = path.join(base, file); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, data); if (base === runtime) writtenRuntime.add(path.resolve(f)) }
-const source = new Map(walk(path.join(root, 'miniprogram')).map(f => [path.relative(path.join(root, 'miniprogram'), f).replaceAll('\\', '/'), fs.readFileSync(f)]))
-source.set('runtime/recommendation-mode.ts', Buffer.from(`export const EXPECTED_RECOMMENDATION_DATASET_MODE: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY' = '${mode === 'production' ? 'PRODUCTION' : 'MOCK_DEVELOPMENT_ONLY'}'\n`))
-if (mode === 'production') {
-  for (const file of walk(path.join(root, 'modes/production'))) source.set('production/' + path.relative(path.join(root, 'modes/production'), file).replaceAll('\\', '/'), fs.readFileSync(file))
-  source.set('runtime/institution-validation.ts', Buffer.from("import { administrativeDivisionResolver } from '../production/administrative-divisions'\nexport const institutionValidationOptions = {administrativeDivisionResolver}\n"))
-  source.set('runtime/institution-service-access.ts', Buffer.from("export { canRequestInstitutionService } from '../production/catalog'\n"))
-  source.set('runtime/directory-metadata.ts', Buffer.from("export { readDirectoryMetadata, directoryNatureOptions, directoryDistrictOptions } from '../production/directory-metadata'\n"))
-  source.set('runtime/institution-source-notes.ts', Buffer.from("export { readInstitutionSourceNotes, readInstitutionDirectoryInfo, readInstitutionCapabilityReview } from '../production/source-notes'\n"))
-  for (const [file, bytes] of source) if (/^pages\/(home|institution)\/.*\.(ts|wxml)$/.test(file)) {
-    source.set(file, Buffer.from(bytes.toString().replaceAll('合作机构', '养老机构').replaceAll('仅加载当前本地开发目录', '仅展示已核对的公开机构资料').replaceAll('当前本地开发目录未能读取', '机构公开资料暂时未能读取')))
-  }
-}
-// Build-time composition. Neither data selection nor API protection reads query/Storage flags.
-source.set('mock/institution-catalog.mock.ts', Buffer.from(`
-import type { InstitutionCatalogPayload } from '../types/institution-catalog'
-export { readModeCatalog } from '../${mode === 'demo' ? 'demo' : 'production'}/catalog'
-export const mockInstitutionCatalogProvider = { loadCatalog: async (): Promise<InstitutionCatalogPayload> => ({datasetVersion:'legacy-provider-not-configured',datasetMode:'PRODUCTION',records:[]}) }
-`))
-const catalogService = source.get('services/institution-catalog-v1-2-1.ts').toString()
-assert.match(catalogService, /import \{ MOCK_INSTITUTION_CATALOG_V121 \}/, 'Catalog provider import changed; review mode injection')
-source.set('services/institution-catalog-v1-2-1.ts', Buffer.from(catalogService.replace(/import \{ MOCK_INSTITUTION_CATALOG_V121 \}/, 'import { readModeCatalog }').replaceAll('MOCK_INSTITUTION_CATALOG_V121', 'readModeCatalog()')))
-source.set('mock/institution-public-content.mock.ts', Buffer.from("export const MOCK_INSTITUTION_PUBLIC_CONTENT_CATALOG = {records:[],currentHeads:[]}\n"))
-source.set('mock/institutions.mock.ts', Buffer.from("import type { Institution } from '../types/domain'\nexport const MOCK_INSTITUTIONS: Institution[] = []\n"))
-source.set('pages/showcase/development.ts', Buffer.from(`export function isDevelopmentBuild(): boolean { return ${mode === 'demo'} }\n`))
-const formalConfig = JSON.parse(fs.readFileSync(path.join(root, 'project.config.json')))
-let config = { ...formalConfig }
-if (mode === 'demo') {
-  // The public build configuration was preserved from V1.6; the old checkout
-  // is now a reference only and is not required to build or run either mode.
-  config = JSON.parse(fs.readFileSync(path.join(root, 'modes/demo-project.config.json')))
-  assert.ok(typeof config.appid === 'string' && config.appid.length > 0)
-  // Both existing checkouts currently share an AppID. Preserve it, require develop,
-  // and use the pre-App network/storage guard; do not claim platform identity isolation.
-  for (const file of walk(path.join(root, 'modes/demo'))) {
-    const name = path.basename(file)
-    if (file.includes(path.sep + 'pages' + path.sep)) {
-      source.set(path.relative(path.join(root, 'modes/demo'), file).replaceAll('\\', '/'), fs.readFileSync(file))
-      continue
-    }
-    const relative = ['draft-storage.ts','directory-metadata.ts','panorama-sample.ts','evaluation-session.ts'].includes(name) ? 'runtime/' + name : name.endsWith('.jpg') ? 'assets/' + name : /^tools\./.test(name) ? 'components/demo-tools/demo-tools' + path.extname(name) : /^story-preview\./.test(name) ? 'components/demo-story-preview/demo-story-preview' + path.extname(name) : 'demo/' + name
-    source.set(relative, fs.readFileSync(file))
-  }
-  source.set('app.ts', Buffer.from(`import { installDemoGuards } from './demo/guard'\ninstallDemoGuards(${JSON.stringify(config.appid)})\nApp({globalData:{runMode:'DEMO'}})\n`))
-  const homeConfig = JSON.parse(source.get('pages/home/index.json'))
-  homeConfig.usingComponents['demo-tools'] = '/components/demo-tools/demo-tools'
-  source.set('pages/home/index.json', Buffer.from(JSON.stringify(homeConfig)))
-  const homeMarkup = source.get('pages/home/index.wxml').toString()
-  assert.ok(homeMarkup.includes('<!-- demo-home-entry -->'), 'Missing auxiliary demo entry slot')
-  source.set('pages/home/index.wxml', Buffer.from(homeMarkup.replace('<!-- demo-home-entry -->', '<demo-tools id="demo-tools" compact-home="{{true}}" bind:changed="retryLoad"></demo-tools>')))
-  composeDemoStory(source)
-  source.set('app.ts', Buffer.from(source.get('app.ts').toString().replace('__APPID__', JSON.stringify(config.appid))))
-  for (const [file, data] of source) if (file.endsWith('.wxml')) {
-    const text = data.toString().replace(/<button\b[^>]*open-type="getPhoneNumber"[^>]*>[\s\S]*?<\/button>/g, '<view>演示环境不获取手机号，也不联系真人顾问。</view>')
-    assert.ok(!/open-type=/.test(text), 'Unhandled native authorization surface in demo: ' + file)
-    source.set(file, Buffer.from(text))
-  }
-} else {
-  source.set('app.ts', Buffer.from("App({globalData:{runMode:'PRODUCTION'}})\n"))
-}
+const { source, config, origins } = selectModeSource(root, mode)
+verifySelectedSources(root, mode, { source, config, origins })
+put(out, 'source-origins.json', JSON.stringify(Object.fromEntries(origins), null, 2) + '\n')
 // WeChat's module loader does not implement Node-style require(JSON). Compile
 // data into ordinary modules; JSON remains the authoring format outside the app.
 for (const [file, data] of [...source]) if (/^(demo|production)\//.test(file) && file.endsWith('.json')) {

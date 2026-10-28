@@ -1,3 +1,4 @@
+import { modeText } from '../../runtime/presentation-copy'
 import { readBrowseFontStyle } from '../../utils/browse-font'
 import type {
   PreferenceRegionAnswer,
@@ -210,7 +211,7 @@ Page({
     prioritiesError: '',
     priorityLimitMessage: '',
     formError: '',
-    saveStatus: '选择后会尝试保存到本机开发态草稿',
+    saveStatus: modeText('选择后会尝试保存到本机开发态草稿'),
     persistenceFailed: false,
     careTypeAnchorId,
     roomTypeAnchorId,
@@ -262,8 +263,8 @@ Page({
       formError: '',
       persistenceFailed: false,
       saveStatus: hasPreferenceAnswers(answers)
-        ? '已从本机草稿恢复（开发态）'
-        : '选择后会尝试保存到本机开发态草稿',
+        ? modeText('已从本机草稿恢复（开发态）')
+        : modeText('选择后会尝试保存到本机开发态草稿'),
     })
   },
 
@@ -318,8 +319,8 @@ Page({
     this.setData({
       persistenceFailed: !result.persistence.ok,
       saveStatus: result.persistence.ok
-        ? '已保存到本机（开发态），不会同步服务器'
-        : '本机保存失败，请重试；答案不会同步服务器',
+        ? modeText('已保存到本机（开发态），不会同步服务器')
+        : modeText('本机保存失败，请重试；答案不会同步服务器'),
     })
   },
 
@@ -449,8 +450,8 @@ Page({
 
     if (this.data.persistenceFailed) {
       this.setData({
-        formError: '本机保存失败，暂时无法进入下一步，请重新选择并保存后再试',
-        saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+        formError: modeText('本机保存失败，暂时无法进入下一步，请重新选择并保存后再试'),
+        saveStatus: modeText('本机保存失败，请重试；答案不会同步服务器'),
       })
       return
     }
@@ -464,8 +465,8 @@ Page({
         const result = assessmentDraftStore.setCurrentStep('budget')
         if (!result.persistence.ok) {
           this.setData({
-            formError: '本机保存失败，暂时无法进入下一步，请重试',
-            saveStatus: '本机保存失败，请重试；答案不会同步服务器',
+            formError: modeText('本机保存失败，暂时无法进入下一步，请重试'),
+            saveStatus: modeText('本机保存失败，请重试；答案不会同步服务器'),
             persistenceFailed: true,
           })
           return false

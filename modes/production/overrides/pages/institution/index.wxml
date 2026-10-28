@@ -1,0 +1,41 @@
+<import src="../../templates/institution-directory.wxml" />
+<page-meta page-style="{{browseFontStyle}}" />
+<navigation-bar warmSwiss="{{true}}" title="养老机构" back="{{true}}" fallbackUrl="/pages/home/index" fallbackIsTab="{{true}}" bind:navigationfail="onNavigationFailure"></navigation-bar>
+<page-container extraClass="institution-list-page">
+  <view class="page-shell institution-list-shell">
+    <view class="page-head institution-list-head">
+      <text class="page-title">{{sourceContextRef ? '推荐机构资料' : '养老机构'}}</text>
+      <text class="page-description">{{sourceContextRef && viewModel ? viewModel.description : '按名称、区域和机构性质查找。'}}</text>
+      <view wx:if="{{actionErrorKey === 'back'}}" class="action-error" role="alert">{{actionErrorMessage}}</view>
+    </view>
+    <view wx:if="{{pageState === 'loading'}}" class="directory-state" role="status">
+      <text class="directory-state__label">资料读取中</text>
+      <text class="directory-state__title">正在读取养老机构资料</text>
+      <text class="directory-state__message">正在通过当前资料目录整理可展示内容。</text>
+    </view>
+    <block wx:elif="{{viewModel}}">
+      <view wx:if="{{viewModel.hasDisclosure}}" class="mock-disclosure">
+        <text>演示资料，非真实机构信息。</text>
+      </view>
+      <view wx:if="{{viewModel.pageState === 'ready'}}" class="institution-directory">
+        <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters}}" />
+        <template is="directory-results" data="{{visibleItems: visibleItems, keyword: keyword, natureIndex: natureIndex, districtIndex: districtIndex, actionErrorKey: actionErrorKey, actionErrorMessage: actionErrorMessage}}" />
+      </view>
+      <view wx:if="{{viewModel.pageState === 'empty'}}" class="directory-state" role="status">
+        <text class="directory-state__label">暂无资料</text>
+        <text class="directory-state__title">{{viewModel.emptyTitle}}</text>
+        <text class="directory-state__message">{{viewModel.emptyMessage}}</text>
+        <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
+      </view>
+      <view wx:if="{{viewModel.pageState !== 'ready' && viewModel.pageState !== 'empty'}}" class="directory-state directory-state--error" role="alert">
+        <text class="directory-state__label">暂时无法读取</text>
+        <text class="directory-state__title">{{viewModel.errorTitle}}</text>
+        <text class="directory-state__message">{{viewModel.errorMessage}}</text>
+        <view class="error-actions">
+          <button wx:if="{{viewModel.canRetry}}" class="primary-action" bindtap="onRetry">重新加载</button>
+          <button class="secondary-action" bindtap="onBackToHome">返回上一页</button>
+        </view>
+      </view>
+    </block>
+  </view>
+</page-container>

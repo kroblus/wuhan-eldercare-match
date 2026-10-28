@@ -331,21 +331,13 @@ export const createInstitutionCurrentCatalogResolverV121 = (
 
     // Re-run the exact envelope validation at this application boundary so a
     // custom/injected service cannot bypass the V1.2.1 contract gate.
-    // Keep the V1.2.1 provider (and its development mock) out of the frozen
-    // A0 V1.1 runtime graph.  This module is loaded lazily only when a caller
-    // explicitly composes the V1.2.1 resolver.
-    const v121CatalogModule = require('./institution-catalog-v1-2-1') as {
-      validateInstitutionCatalogPayloadV121: (value: unknown) => InstitutionCatalogResultV121
-      projectInstitutionCatalogV121ToV11: (
-        value: InstitutionCatalogPayloadV121,
-      ) => {
-        ok: true
-        value: { datasetVersion: string; datasetMode: 'PRODUCTION' | 'MOCK_DEVELOPMENT_ONLY'; records: readonly InstitutionRecordV11[] }
-      } | { ok: false; error: { code: string; recordIndex?: number } }
-    }
-    const validated = v121CatalogModule.validateInstitutionCatalogPayloadV121(result.value)
+    // Load pure V1.2.1 rules only for this resolver, without initializing a
+    // default provider or adding it to the frozen A0 V1.1 runtime graph.
+    const v121CatalogModule = require('../domain/institution/v1-2-1/catalog') as typeof import('../domain/institution/v1-2-1/catalog')
+    const { institutionValidationOptions } = require('../runtime/institution-validation') as typeof import('../runtime/institution-validation')
+    const validated = v121CatalogModule.validateInstitutionCatalogPayloadV121(result.value, institutionValidationOptions)
     if (!validated.ok) return mapV121ResultError(validated)
-    const projected = v121CatalogModule.projectInstitutionCatalogV121ToV11(validated.value)
+    const projected = v121CatalogModule.projectInstitutionCatalogV121ToV11(validated.value, institutionValidationOptions)
     if (!projected.ok) {
       return {
         ok: false,

@@ -1,0 +1,45 @@
+<import src="../../templates/institution-directory.wxml" />
+<page-meta page-style="{{browseFontStyle}}" />
+<navigation-bar warmSwiss="{{true}}" title="" back="{{false}}"></navigation-bar>
+<page-container extraClass="home-page">
+  <view class="home-brand"><view><text class="home-brand__title">武汉养老</text><text class="home-source">机构资料与家庭养老信息</text></view><button class="home-notice" bindtap="openAnnouncements" aria-label="查看平台公告"><view class="home-bell" aria-hidden="true"></view></button></view>
+  <view wx:if="{{searchActionError}}" class="home-action-error" role="alert">{{searchActionError}}</view>
+  <view class="home-hero">
+    <view class="home-hero__copy"><text class="home-hero__title">了解养老需求<text class="home-hero__accent">查找机构资料</text></text><text class="home-hero__summary">为家人做好养老准备</text><button class="browse-button home-hero__find" bindtap="focusSearch">查找机构 ↓</button></view>
+    <view class="home-hero__art" aria-hidden="true"><view class="home-hero__arch"></view><view class="home-person home-person--elder"></view><view class="home-person home-person--family"></view></view>
+  </view>
+  <view class="home-news" aria-label="养老资讯与入住准备">
+    <button class="home-news__row home-news__row--policy" data-topic="policy" bindtap="openReading" aria-label="阅读养老补贴政策"><text class="home-news__icon" aria-hidden="true">▤</text><text class="home-news__title">补贴政策</text><text class="home-news__summary">适用范围 ›</text></button>
+    <button class="home-news__row home-news__row--education" data-topic="education" bindtap="openReading"><text class="home-news__icon" aria-hidden="true">▥</text><text class="home-news__title">养老科普</text><text class="home-news__summary">看院与收费 ›</text></button>
+    <button class="home-news__row home-news__row--admission" data-topic="admission" bindtap="openReading"><text class="home-news__icon" aria-hidden="true">↗</text><text class="home-news__title">入住指南</text><text class="home-news__summary">六步准备 ›</text></button>
+  </view>
+  <view wx:if="{{readingActionError}}" class="home-action-error" role="alert">{{readingActionError}}</view>
+  <view class="home-services" aria-label="查找机构与了解照护需求">
+    <button class="home-service" bindtap="focusSearch"><view class="home-service__top"><view class="home-search-icon" aria-hidden="true"></view><text class="home-service__action" aria-hidden="true">↓</text></view><text class="home-service__title">查找养老机构</text><view class="home-service__summary home-service__search"><text class="home-service__measure" aria-hidden="true">名称、区域、性质筛选</text><text class="home-service__copy">搜索与筛选机构</text></view></button>
+    <button class="home-service home-service--assessment" bindtap="startAssessment"><view class="home-service__top"><text class="home-service__icon" aria-hidden="true">▤</text><text class="home-service__action" aria-hidden="true">→</text></view><text class="home-service__title">了解照护需求</text><text class="home-service__summary">六步整理家庭需求</text></button>
+  </view>
+  <demo-tools id="demo-tools" compact-home="{{true}}" bind:changed="retryLoad"></demo-tools>
+  <view class="home-boundary"><text class="home-section-title">免费咨询与带看意向</text><text class="home-description">柠月颐养中心 · 医养结合 / 术后康养 / 短期托养（服务方向，具体接收条件待核实）</text><text class="home-description">2026 年公示价 · 双人间 · 参考总月费 3600—7200 元/月</text><button class="browse-button" bindtap="openP1Service">查看公示明细与平台咨询 →</button></view>
+  <view id="home-search" class="home-search" aria-label="查找武汉养老机构">
+    <template is="directory-controls" data="{{keyword: keyword, natureOptions: natureOptions, districtOptions: districtOptions, natureIndex: natureIndex, districtIndex: districtIndex, hasMetadataFilters: hasMetadataFilters, searchFocus: searchFocus}}" />
+  </view>
+  <view class="home-results">
+    <text class="home-directory-note">以下为虚构机构，用于体验搜索与筛选；列表顺序不代表适合程度。</text>
+    <text wx:if="{{showMockDisclosure}}" class="home-disclosure">{{mockDisclosure}}</text>
+    <state-panel wx:if="{{isLoading}}" state="loading" title="正在查找机构"></state-panel>
+    <state-panel wx:elif="{{loadError}}" state="error" title="暂时无法读取机构资料" message="请稍后再试，其他服务仍可使用。" actionText="重新加载" bind:action="retryLoad"></state-panel>
+    <state-panel wx:elif="{{empty}}" state="empty" title="当前还没有机构资料" message="资料补充后会在这里展示。"></state-panel>
+    <block wx:else>
+      <text class="home-result-summary" role="status">{{activeQuery ? '符合条件' : expanded ? '完整目录' : '先浏览'}} {{institutions.length}} 家{{!activeQuery ? ' · 共 ' + resultCount + ' 家' : ''}}</text>
+      <template is="directory-results" data="{{visibleItems: institutions, keyword: keyword, natureIndex: natureIndex, districtIndex: districtIndex, actionErrorKey: actionErrorKey, actionErrorMessage: institutionActionError}}" />
+      <button wx:if="{{!activeQuery && resultCount > 2}}" class="browse-button home-expand" bindtap="toggleDirectory">{{expanded ? '收起，预览 2 家' : '展开完整目录'}}</button>
+    </block>
+    <button class="browse-button browse-button--link home-directory-link" bindtap="openInstitutions">查看全部机构 →</button>
+    <view wx:if="{{institutionListActionError}}" class="home-action-error" role="alert">{{institutionListActionError}}</view>
+  </view>
+  <view class="home-boundary"><text class="home-section-title">使用说明</text><text class="home-description">机构资料、费用和护理能力均为演示示例，不可用于真实选院。咨询和预约仅供体验，不会联系真人。政策与科普请结合各页来源和适用范围阅读，不用于个人诊断或补贴资格判断。</text>
+    <text class="home-source">阅读资料核对记录：{{reviewedOn}} · 非实时资讯</text>
+    <view class="home-help"><button class="browse-button browse-button--link" bindtap="openConsultant">体验顾问咨询</button><button class="browse-button browse-button--link" bindtap="openAIConsultation">养老常见问题</button></view>
+    <view wx:if="{{consultantActionError || aiActionError}}" class="home-action-error" role="alert">{{consultantActionError || aiActionError}}</view>
+  </view>
+</page-container>
