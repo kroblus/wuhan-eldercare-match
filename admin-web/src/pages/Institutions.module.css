@@ -1,0 +1,91 @@
+.editorGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 24px;
+}
+.editorGrid > div,
+.editorGrid > aside {
+  min-width: 0;
+}
+.priceRow {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr) auto;
+  gap: 10px;
+  border: 1px solid #e9e5de;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 12px 0 20px;
+  background: #faf9f6;
+  align-items: end;
+}
+.priceRow label {
+  font-size: 0.85em;
+  color: #706b62;
+}
+.priceRow :global(.arco-input-number) {
+  width: 100%;
+  margin-top: 8px;
+}
+.priceRow :global(.arco-input-wrapper) {
+  margin-top: 8px;
+}
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0 24px;
+}
+.file input {
+  max-width: 100%;
+}
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.comparison section {
+  min-width: 0;
+}
+.comparison pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 45vh;
+  overflow: auto;
+  background: #f7f5f1;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+@media (max-width: 1280px) {
+  .editorGrid {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    gap: 18px;
+  }
+  .priceRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1024px) {
+  .editorGrid {
+    grid-template-columns: 1fr;
+  }
+  .editorGrid > aside {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .editorGrid > aside > :last-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 700px) {
+  .editorGrid > aside {
+    display: block;
+  }
+  .priceRow {
+    padding: 12px;
+  }
+  .comparison {
+    grid-template-columns: 1fr;
+  }
+}

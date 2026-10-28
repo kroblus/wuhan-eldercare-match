@@ -39,6 +39,16 @@ Targeted verification: `HistoryTrustedPreviewMySqlIntegrationTest`, existing His
 
 在 Java 21 与 Maven 环境中从本目录执行 `mvn test`。真实数据库 migration、replay/conflict、事务回滚和同 key 并发证据由显式设置 `C4_MYSQL_*` 的 disposable MySQL integration test 提供；未配置时该组测试会跳过，不会伪装成生产能力。
 
+## React 后台构建与 JAR 检查
+
+构建机同时需要 Java21、Maven、Node 和 npm；后台独立使用 `admin-web/package-lock.json`，不升级小程序的 TypeScript。主根执行 `mvn -f server/pom.xml -DskipTests package` 时，`generate-resources` 自动运行后台的 `npm ci` 和 `npm run build`，随后递归打入 `BOOT-INF/classes/static/p1-admin/`。每次先清除生成的后台 dist 和目标静态目录；依赖安装、类型检查或构建失败会直接终止，不能沿用旧产物。`-DskipTests` 只跳过 Java 测试，不跳过后台构建；业务验证单独按相关脚本执行。
+
+从主根运行 `./server/tools/check-admin-jar.ps1 -JavaExecutable "$env:JAVA_HOME/bin/java.exe"`，可核对全部静态文件与当前 dist 的内容、旧入口残留，以及实际生产型 JAR 的本机 HTTP 页面、深链接、资源和 API 边界。脚本使用随机 loopback 端口并强制关闭业务，结束自动停止，仅用于本机检查，不部署或初始化数据库。
+
+`node server/tools/check-admin-jar-auth-local.mjs` 可另外验证同一 JAR 的管理员登录、会话、CSRF 与退出。它只读取 `output/p1-1/mysql.private.json` 指向的既有 loopback disposable MySQL，管理员密码每次随机生成并只留本机私有文件；需要时可显式传 `--database-settings`、`--mysql-instance`、`--mysql`、`--java`、`--jar`、`--output`。现有登录门禁要求维护能力，因此仅此检查进程临时启用机构资料维护及 C4 持久化，P1接单、C5、C2写入仍关闭，不发送机构发布或业务写入。检查断言业务表计数不变，最后停止自身进程。Node在本机HTTP手工传递Secure Cookie，不代表浏览器HTTPS验收，也不提供生产登录后门。
+
+BrowserRouter 基路径为 `/p1-admin/`。无尾斜杠根路径先跳转到 `/p1-admin/`；此入口及 `dashboard`、`requests`、`visits`、`institutions`、`reports` 的页面请求回退到同一 index（入口不缓存）；缺失资源、未知路径与 API 不回退。管理员数据仍由原同源 Cookie、Session 与 CSRF 接口独立鉴权。线上仍须另行配置获批的 HTTPS、数据库和身份，不能因为 JAR 能打开而开启真实业务。
+
 C4 不包含具体微信登录/手机号 provider、Backend 部署、owner-read、Operations lifecycle、VisitEvaluation 或小程序 Page；这些能力仍需后续 phase。`requested` 是唯一初始状态，`SUBMITTED != CONFIRMED`。
 
 ## C5 微信可信身份边界

@@ -1,0 +1,103 @@
+.page {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+.eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-3);
+  font-weight: 600;
+}
+.description {
+  color: var(--color-text-3);
+  line-height: 1.7;
+  margin: 0.45rem 0;
+}
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.sectionHeading h2 {
+  margin: 0;
+}
+.feedback {
+  margin: 1rem 0 0;
+  line-height: 1.7;
+  color: var(--color-text-2);
+}
+.meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.meta dt {
+  font-size: 0.8rem;
+  color: var(--color-text-3);
+  margin-bottom: 0.35rem;
+}
+.meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+.batch {
+  grid-column: 1/-1;
+}
+.metric {
+  border-top: 2px solid rgb(var(--primary-6));
+  padding: 1rem 0;
+  min-width: 0;
+}
+.metric p {
+  color: var(--color-text-3);
+  margin: 0 0 0.75rem;
+  line-height: 1.5;
+}
+.metric strong {
+  font-size: 2rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-1);
+}
+.cohort {
+  line-height: 1.9;
+}
+.cohort strong {
+  font-variant-numeric: tabular-nums;
+}
+.rules {
+  margin-top: 1rem;
+}
+.rules p {
+  line-height: 1.8;
+}
+.emptyNote {
+  color: var(--color-text-3);
+  text-align: center;
+  line-height: 1.7;
+}
+.page :global(.arco-table-th),
+.page :global(.arco-table-td) {
+  font-size: inherit;
+}
+.page :global(.arco-table) {
+  max-width: 100%;
+}
+.page :global(.arco-form-label-item) {
+  font-size: inherit;
+}
+@media (max-width: 600px) {
+  .meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .metric strong {
+    font-size: 1.65rem;
+  }
+}

@@ -57,9 +57,9 @@
     <build>
         <resources>
             <resource>
-                <directory>../admin-web</directory>
+                <directory>../admin-web/dist</directory>
                 <targetPath>static/p1-admin</targetPath>
-                <includes><include>*.html</include><include>*.css</include><include>*.js</include></includes>
+                <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>../miniprogram/types</directory>
@@ -133,6 +133,39 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>build-react-admin</id>
+                        <phase>generate-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <!-- Always build from the committed lockfile. No stale fallback or opt-out. -->
+                                <delete dir="${project.build.outputDirectory}/static/p1-admin"/>
+                                <delete dir="${project.basedir}/../admin-web/dist"/>
+                                <exec executable="cmd" osfamily="windows" dir="${project.basedir}/../admin-web" failonerror="true">
+                                    <arg value="/c"/><arg value="npm"/><arg value="ci"/>
+                                </exec>
+                                <exec executable="npm" osfamily="unix" dir="${project.basedir}/../admin-web" failonerror="true">
+                                    <arg value="ci"/>
+                                </exec>
+                                <exec executable="cmd" osfamily="windows" dir="${project.basedir}/../admin-web" failonerror="true">
+                                    <arg value="/c"/><arg value="npm"/><arg value="run"/><arg value="build"/>
+                                </exec>
+                                <exec executable="npm" osfamily="unix" dir="${project.basedir}/../admin-web" failonerror="true">
+                                    <arg value="run"/><arg value="build"/>
+                                </exec>
+                                <available file="${project.basedir}/../admin-web/dist/index.html" property="admin.index.exists"/>
+                                <fail unless="admin.index.exists" message="React build did not produce admin-web/dist/index.html"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
