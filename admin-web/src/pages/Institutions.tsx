@@ -1,9 +1,5 @@
 import { useRenderMark } from '../useRenderMark';
-import '@arco-design/web-react/es/Checkbox/style/css.js';
-import '@arco-design/web-react/es/InputNumber/style/css.js';
-import '@arco-design/web-react/es/Collapse/style/css.js';
-import '@arco-design/web-react/es/Table/style/css.js';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Alert,
   Button,
@@ -16,8 +12,9 @@ import {
   Select,
   Table,
   Tag,
-} from '@arco-design/web-react';
-import { IconPlus, IconArrowLeft, IconRefresh, IconSearch } from '@arco-design/web-react/icon';
+  useMobile,
+} from '../ui';
+import { IconPlus, IconArrowLeft, IconRefresh, IconSearch } from '../ui/icons';
 import { ApiError, client, describe } from '../api/client';
 import {
   accessSchema,
@@ -35,6 +32,7 @@ import { useRead } from '../useRead';
 import { useDirty, useMutation, useWork } from '../state';
 import { Field, ErrorNotice, options, confirmAction } from '../components/shared';
 import styles from './Institutions.module.css';
+import InstitutionConflictReview, { type InstitutionDifference } from './InstitutionConflictReview';
 const statusLabels = {
   NONE: '尚无草稿',
   DRAFT: '资料草稿',
@@ -150,6 +148,17 @@ export function Editor({
   onListChanged: () => void;
   onBack: () => void;
 }) {
+  const mobile = useMobile();
+  const [step, setStep] = useState(0);
+  const editorScreen = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!mobile) return;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [mobile]);
   const [current, setCurrent] = useState(initial),
     [dirty, setDirty] = useState(initial.draftRevision === 0),
     [prices, setPrices] = useState<Price[]>(initial.publicProfile?.prices || []),
@@ -440,7 +449,7 @@ export function Editor({
       setReading(false);
     }
   }
-  const updatePrice = (index: number, field: keyof Price, value: string | number) => {
+  const updatePrice = (index: number, field: keyof Price, value: string | number | undefined) => {
     setPrices((rows) => rows.map((row, i) => (i === index ? { ...row, [field]: value } : row)));
     setDirty(true);
   };
@@ -482,8 +491,54 @@ export function Editor({
           )
           .join('\n')
       : '暂无公开价格';
+  const mobileDifferences: InstitutionDifference[] = comparisonRows.map((row) => ({
+    key: row.key,
+    label: row.label,
+    mine: displayValue(row.mine),
+    server: displayValue(row.server),
+  }));
+  if (latest && signature(prices) !== signature(latest.publicProfile?.prices || []))
+    mobileDifferences.push({
+      key: 'prices',
+      label: '公示价格',
+      mine: priceDescription(prices),
+      server: priceDescription(latest.publicProfile?.prices || []),
+    });
+  if (latestValues && localValues.recordJson !== latestValues.recordJson)
+    mobileDifferences.push({
+      key: 'recordJson',
+      label: '完整事实、核验与护理证据 JSON',
+      mine: localValues.recordJson,
+      server: latestValues.recordJson,
+    });
+  function applyMobileComparison(choices: Record<string, 'mine' | 'server'>) {
+    if (!latest || !latestValues || pending) return;
+    const merged = { ...localValues } as Values;
+    for (const row of comparisonRows)
+      if (choices[row.key] === 'server') Object.assign(merged, { [row.key]: row.server });
+    if (choices.recordJson === 'server') merged.recordJson = latestValues.recordJson;
+    writeDraft(merged);
+    if (choices.prices === 'server') setPrices(latest.publicProfile?.prices || []);
+    setHasProfile(merged.hasProfile);
+    changed({
+      name: merged.name,
+      regionCode: merged.regionCode,
+      regionDisplayName: merged.regionDisplayName,
+    });
+    setCurrent(latest);
+    setConflict(false);
+    setComparing(false);
+    setStep(0);
+    setFeedback(
+      '差异选择已写回本地编辑，尚未提交。已采用最新草稿为保存基准，请保存草稿并重新人工确认。',
+    );
+  }
+  function goStep(next: number) {
+    setStep(next);
+    editorScreen.current?.scrollTo?.({ top: 0 });
+  }
   return (
-    <>
+    <div ref={editorScreen} className={mobile ? styles.mobileEditor : undefined}>
       <div className="page-heading">
         <div>
           <Button type="text" icon={<IconArrowLeft />} onClick={onBack}>
@@ -532,10 +587,25 @@ export function Editor({
         草稿 <span>→</span> 已保存 <span>→</span> 已确认 <span>→</span> 已发布{' '}
         <b>{dirty ? '已修改，需保存并重新确认' : statusLabels[current.status]}</b>
       </div>
+      {mobile && (
+        <nav className={styles.steps} aria-label="机构编辑步骤">
+          {['基础', '介绍', '价格', '确认发布'].map((label, index) => (
+            <button
+              key={label}
+              aria-label={`第${index + 1}步 ${label}`}
+              aria-current={step === index ? 'step' : undefined}
+              onClick={() => goStep(index)}
+            >
+              <span>{index + 1}</span>
+              {label}
+            </button>
+          ))}
+        </nav>
+      )}
       <div className={styles.editorGrid}>
-        <div>
+        <div hidden={mobile && step === 3}>
           <section className="panel">
-            <h2>机构资料草稿</h2>
+            <h2>{mobile ? ['基础资料', '公开介绍', '公示价格'][step] : '机构资料草稿'}</h2>
             <Form
               id="institution-draft"
               form={form}
@@ -545,16 +615,21 @@ export function Editor({
               onValuesChange={changed}
               onSubmit={() => void saveDraft()}
               onSubmitFailed={() => {
-                if (basicSection.current) {
+                const reveal = () => {
+                  if (!basicSection.current) return;
                   basicSection.current.open = true;
                   basicSection.current.scrollIntoView({ block: 'center' });
                   basicSection.current
                     .querySelector<HTMLInputElement>('input[aria-invalid="true"], input')
                     ?.focus();
-                }
+                };
+                if (mobile) {
+                  setStep(0);
+                  requestAnimationFrame(reveal);
+                } else reveal();
               }}
             >
-              <div className="actions">
+              <div className="actions" hidden={mobile}>
                 <Button
                   type="primary"
                   loading={save.busy}
@@ -570,7 +645,12 @@ export function Editor({
                 </Button>
                 <span className="muted">保存修改后需重新人工确认</span>
               </div>
-              <details ref={basicSection} className="editor-section" open>
+              <details
+                ref={basicSection}
+                className="editor-section"
+                open
+                hidden={mobile && step !== 0}
+              >
                 <summary>基础资料</summary>
                 <Field name="name" label="机构公开名称" required />
                 <div className="form-two">
@@ -585,7 +665,11 @@ export function Editor({
                 </Form.Item>
               </details>
               <div hidden={!hasProfile}>
-                <details className="editor-section">
+                <details
+                  className="editor-section"
+                  open={mobile || undefined}
+                  hidden={mobile && step !== 1}
+                >
                   <summary>公开介绍</summary>
                   <Field name="source" label="公开资料来源">
                     <Input.TextArea maxLength={1000} autoSize={{ minRows: 2, maxRows: 4 }} />
@@ -606,7 +690,11 @@ export function Editor({
                     content="“医养结合”等展示标签不会改写医疗资格、护理能力或接收核实结论。"
                   />
                 </details>
-                <details className="editor-section">
+                <details
+                  className="editor-section"
+                  open={mobile || undefined}
+                  hidden={mobile && step !== 2}
+                >
                   <summary>公示价格</summary>
                   <div className="section-caption">
                     <h3>公示价格 / 元每月</h3>
@@ -681,31 +769,39 @@ export function Editor({
                   </Field>
                 </details>
               </div>
-              <Collapse>
-                <Collapse.Item
-                  destroyOnHide={false}
-                  name="advanced"
-                  header="高级资料 · 完整事实、核验与护理证据 JSON"
-                >
-                  <p className="muted">
-                    保留 unknown / unavailable / unverified / expired / false
-                    的区别；公开标签不代替能力证据。
-                  </p>
-                  <Field name="recordJson" label="Institution V1.2.1 完整资料">
-                    <Input.TextArea
-                      className="code-input"
-                      autoSize={{ minRows: 12, maxRows: 26 }}
-                      spellCheck={false}
-                    />
-                  </Field>
-                </Collapse.Item>
-              </Collapse>
+              {mobile && !hasProfile && (step === 1 || step === 2) && (
+                <p className={styles.stepNote}>
+                  未开启详细介绍与价目表。可返回基础步骤勾选后填写，或继续核对来源与发布状态。
+                </p>
+              )}
+              <div hidden={mobile && step !== 0}>
+                <Collapse>
+                  <Collapse.Item
+                    destroyOnHide={false}
+                    name="advanced"
+                    header="高级资料 · 完整事实、核验与护理证据 JSON"
+                  >
+                    <p className="muted">
+                      保留 unknown / unavailable / unverified / expired / false
+                      的区别；公开标签不代替能力证据。
+                    </p>
+                    <Field name="recordJson" label="Institution V1.2.1 完整资料">
+                      <Input.TextArea
+                        className="code-input"
+                        autoSize={{ minRows: 12, maxRows: 26 }}
+                        spellCheck={false}
+                      />
+                    </Field>
+                  </Collapse.Item>
+                </Collapse>
+              </div>
             </Form>
           </section>
         </div>
-        <aside>
+        <aside hidden={mobile && step !== 3}>
           <section className="panel">
-            <details className="editor-section">
+            {mobile && <h2>来源与确认</h2>}
+            <details className="editor-section" open={mobile || undefined}>
               <summary>来源与确认</summary>
               <p className="muted">只确认已保存的这一份草稿。来源、确认人和日期均按实际填写。</p>
               <Form
@@ -752,7 +848,8 @@ export function Editor({
             </details>
           </section>
           <section className="panel">
-            <details className="editor-section">
+            {mobile && <h2>版本发布</h2>}
+            <details className="editor-section" open={mobile || undefined}>
               <summary>版本发布</summary>
               <p className="muted">新版本供当前目录使用。旧推荐和历史资料继续引用原版本。</p>
               <Button
@@ -841,8 +938,41 @@ export function Editor({
           </section>
         </aside>
       </div>
+      {mobile && (
+        <footer className={styles.editorFooter}>
+          <Button disabled={step === 0} onClick={() => goStep(step - 1)}>
+            上一步
+          </Button>
+          <Button
+            type="primary"
+            loading={save.busy}
+            disabled={
+              busy ||
+              !!(confirm.pending || publish.pending || access.pending) ||
+              conflict ||
+              (!save.pending && !dirty)
+            }
+            onClick={() => (save.pending ? void saveDraft() : form.submit())}
+          >
+            {save.pending ? '重试保存' : '保存草稿'}
+          </Button>
+          <Button disabled={step === 3} onClick={() => goStep(step + 1)}>
+            下一步
+          </Button>
+        </footer>
+      )}
+      {mobile && comparing && latest && (
+        <InstitutionConflictReview
+          key={latest.draftRevision}
+          rows={mobileDifferences}
+          draftRevision={latest.draftRevision}
+          locked={!!pending}
+          onApply={applyMobileComparison}
+          onClose={() => setComparing(false)}
+        />
+      )}
       <Modal
-        visible={comparing}
+        visible={!mobile && comparing}
         title="核对服务器最新版本"
         style={{ width: 1000 }}
         footer={null}
@@ -973,7 +1103,7 @@ export function Editor({
           <Button onClick={() => setComparing(false)}>继续核对</Button>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }
 export function BaselineImport({ onSaved }: { onSaved: () => void }) {
@@ -1098,6 +1228,7 @@ export function BaselineImport({ onSaved }: { onSaved: () => void }) {
   );
 }
 export default function Institutions() {
+  const mobile = useMobile();
   const list = useRead('/institutions', institutionsSchema),
     [current, setCurrent] = useState<Draft>(),
     [search, setSearch] = useState(''),
@@ -1168,6 +1299,12 @@ export default function Institutions() {
     }
   }
   useRenderMark('admin-institutions-ready', !!list.data);
+  const visibleItems =
+    list.data?.items.filter(
+      (r) =>
+        (!status || r.status === status) &&
+        (!search || (r.name || '').includes(search) || r.institutionId.includes(search)),
+    ) || [];
   if (current)
     return (
       <>
@@ -1224,77 +1361,126 @@ export default function Institutions() {
         <p className="muted">
           搜索和状态筛选作用于服务器返回的完整机构列表。公开资料与平台服务接入独立。
         </p>
-        <Table
-          border={false}
-          rowKey="institutionId"
-          loading={busy || list.loading}
-          scroll={{ x: 900 }}
-          pagination={{ pageSize: 15 }}
-          data={
-            list.data?.items.filter(
-              (r) =>
-                (!status || r.status === status) &&
-                (!search || (r.name || '').includes(search) || r.institutionId.includes(search)),
-            ) || []
-          }
-          columns={[
-            {
-              title: '机构',
-              width: 250,
-              render: (_, r) => (
-                <>
-                  <b>{r.name || '尚未填写公开名称'}</b>
-                  <p className="muted">{r.institutionId}</p>
-                </>
-              ),
-            },
-            {
-              title: '资料状态',
-              width: 150,
-              render: (_, r) => (
-                <Tag
-                  color={
-                    r.status === 'PUBLISHED'
-                      ? 'green'
-                      : r.status === 'CONFIRMED'
-                        ? 'orange'
-                        : 'gray'
-                  }
-                >
-                  {statusLabels[r.status as keyof typeof statusLabels]}
-                </Tag>
-              ),
-            },
-            {
-              title: '当前发布',
-              width: 120,
-              render: (_, r) =>
-                r.currentRecordRevision ? '第 ' + r.currentRecordRevision + ' 版' : '暂无',
-            },
-            { title: '草稿', width: 90, dataIndex: 'draftRevision' },
-            {
-              title: '服务接入',
-              width: 140,
-              render: (_, r) => {
-                const access = r.serviceAccess as { enabled?: boolean } | undefined;
-                return (
-                  <Tag color={access?.enabled ? 'green' : 'gray'}>
-                    {access?.enabled ? '接收新申请' : '未接收新申请'}
+        {mobile ? (
+          <div
+            className={styles.institutionCards}
+            aria-label="机构列表"
+            aria-busy={busy || list.loading}
+          >
+            <p className="muted">
+              {list.loading ? '正在读取机构…' : `${visibleItems.length} 家机构`}
+            </p>
+            {visibleItems.map((item) => (
+              <button
+                className={styles.institutionCard}
+                key={item.institutionId}
+                disabled={busy}
+                onClick={() => void open(item.institutionId)}
+                aria-label={`维护${item.name || item.institutionId}资料`}
+              >
+                <span className={styles.cardTitle}>
+                  <strong>{item.name || '尚未填写公开名称'}</strong>
+                  <Tag
+                    color={
+                      item.status === 'PUBLISHED'
+                        ? 'green'
+                        : item.status === 'CONFIRMED'
+                          ? 'orange'
+                          : 'gray'
+                    }
+                  >
+                    {statusLabels[item.status]}
                   </Tag>
-                );
+                </span>
+                <span className={styles.cardId}>{item.institutionId}</span>
+                <span className={styles.cardFacts}>
+                  <span>草稿 {item.draftRevision}</span>
+                  <span>
+                    当前发布{' '}
+                    {item.currentRecordRevision ? `第 ${item.currentRecordRevision} 版` : '暂无'}
+                  </span>
+                </span>
+                <span className={styles.cardBottom}>
+                  <span>
+                    {(item.serviceAccess as { enabled?: boolean } | undefined)?.enabled
+                      ? '接收新服务申请'
+                      : '未接收新服务申请'}
+                  </span>
+                  <strong>维护资料 →</strong>
+                </span>
+              </button>
+            ))}
+            {!list.loading && !visibleItems.length && (
+              <p className={styles.stepNote}>没有符合筛选条件的机构，可调整名称或资料状态。</p>
+            )}
+          </div>
+        ) : (
+          <Table
+            border={false}
+            rowKey="institutionId"
+            loading={busy || list.loading}
+            scroll={{ x: 900 }}
+            pagination={{ pageSize: 15 }}
+            data={visibleItems}
+            columns={[
+              {
+                title: '机构',
+                width: 250,
+                render: (_, r) => (
+                  <>
+                    <b>{r.name || '尚未填写公开名称'}</b>
+                    <p className="muted">{r.institutionId}</p>
+                  </>
+                ),
               },
-            },
-            {
-              title: '操作',
-              width: 100,
-              render: (_, r) => (
-                <Button type="text" onClick={() => void open(r.institutionId)}>
-                  维护资料
-                </Button>
-              ),
-            },
-          ]}
-        />
+              {
+                title: '资料状态',
+                width: 150,
+                render: (_, r) => (
+                  <Tag
+                    color={
+                      r.status === 'PUBLISHED'
+                        ? 'green'
+                        : r.status === 'CONFIRMED'
+                          ? 'orange'
+                          : 'gray'
+                    }
+                  >
+                    {statusLabels[r.status as keyof typeof statusLabels]}
+                  </Tag>
+                ),
+              },
+              {
+                title: '当前发布',
+                width: 120,
+                render: (_, r) =>
+                  r.currentRecordRevision ? '第 ' + r.currentRecordRevision + ' 版' : '暂无',
+              },
+              { title: '草稿', width: 90, dataIndex: 'draftRevision' },
+              {
+                title: '服务接入',
+                width: 140,
+                render: (_, r) => {
+                  const access = r.serviceAccess as { enabled?: boolean } | undefined;
+                  return (
+                    <Tag color={access?.enabled ? 'green' : 'gray'}>
+                      {access?.enabled ? '接收新申请' : '未接收新申请'}
+                    </Tag>
+                  );
+                },
+              },
+              {
+                title: '操作',
+                width: 100,
+                render: (_, r) => (
+                  <Button type="text" onClick={() => void open(r.institutionId)}>
+                    维护资料
+                  </Button>
+                ),
+              },
+            ]}
+          />
+        )}
       </section>
       <section className="panel">
         <BaselineImport onSaved={list.reload} />

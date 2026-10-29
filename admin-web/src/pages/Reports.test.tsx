@@ -1,5 +1,6 @@
+import { render } from '../test/render';
 import '@testing-library/jest-dom/vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Reports from './Reports';
 import { ApiError, client } from '../api/client';
@@ -93,36 +94,45 @@ afterEach(() => {
 });
 
 describe('服务报告固定批次与失败恢复', () => {
-  it('展示完整服务器范围，按预览批次下载，筛选更改后立即禁用旧导出', async () => {
-    const request = vi
-      .spyOn(client, 'request')
-      .mockImplementation(
-        async (path) => (path === '/service-institutions' ? services : response) as never,
-      );
-    const download = vi.spyOn(client, 'download').mockResolvedValue(new Blob(['synthetic-xlsx']));
-    const createObjectURL = vi.fn().mockReturnValue('blob:synthetic');
-    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
-    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
-    const anchor = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-    render(<Reports />);
-    submit();
-    await screen.findByText(snapshotId);
-    expect(screen.getAllByText('155').length).toBeGreaterThan(0);
-    expect(screen.getByText('小样本不展示')).toBeVisible();
-    expect(screen.getByText('各机构行独立去重，平台总数不能由这些行相加。')).toBeVisible();
-    const reportRequest = request.mock.calls.find(([path]) => path === '/reports');
-    expect(reportRequest?.[2]).toMatchObject({
-      method: 'POST',
-      body: { institutionId: null, source: null },
-    });
-    fireEvent.click(screen.getByRole('button', { name: '下载本批次 Excel' }));
-    await waitFor(() => expect(anchor).toHaveBeenCalledOnce());
-    expect(download).toHaveBeenCalledWith(snapshotId);
-    expect(createObjectURL).toHaveBeenCalledOnce();
-    fireEvent.change(screen.getByLabelText('报告开始日期'), { target: { value: '2026-10-01' } });
-    expect(screen.getByRole('button', { name: '下载本批次 Excel' })).toBeDisabled();
-    expect(screen.queryByText(snapshotId)).not.toBeInTheDocument();
-  });
+  it.each([false, true])(
+    '展示完整服务器范围，按预览批次下载，筛选更改后立即禁用旧导出 (mobile=%s)',
+    async (mobile) => {
+      const request = vi
+        .spyOn(client, 'request')
+        .mockImplementation(
+          async (path) => (path === '/service-institutions' ? services : response) as never,
+        );
+      const download = vi.spyOn(client, 'download').mockResolvedValue(new Blob(['synthetic-xlsx']));
+      const createObjectURL = vi.fn().mockReturnValue('blob:synthetic');
+      Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: createObjectURL });
+      Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+      const anchor = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+      render(<Reports />, { mobile });
+      submit();
+      await screen.findByText(snapshotId);
+      if (mobile) {
+        fireEvent.click(screen.getByText('需求画像'));
+        fireEvent.click(screen.getByText('分机构成果'));
+      }
+      expect(screen.getAllByText('155').length).toBeGreaterThan(0);
+      expect(screen.getByText('小样本不展示')).toBeVisible();
+      expect(screen.getByText('各机构行独立去重，平台总数不能由这些行相加。')).toBeVisible();
+      const reportRequest = request.mock.calls.find(([path]) => path === '/reports');
+      expect(reportRequest?.[2]).toMatchObject({
+        method: 'POST',
+        body: { institutionId: null, source: null },
+      });
+      fireEvent.click(screen.getByRole('button', { name: '下载本批次 Excel' }));
+      await waitFor(() => expect(anchor).toHaveBeenCalledOnce());
+      expect(download).toHaveBeenCalledWith(snapshotId);
+      expect(createObjectURL).toHaveBeenCalledOnce();
+      fireEvent.change(screen.getByLabelText('报告开始日期', { selector: 'input' }), {
+        target: { value: '2026-10-01' },
+      });
+      expect(screen.getByRole('button', { name: '下载本批次 Excel' })).toBeDisabled();
+      expect(screen.queryByText(snapshotId)).not.toBeInTheDocument();
+    },
+  );
   it('筛选变化时忽略尚未返回的旧报告，不重新启用下载', async () => {
     const pending = deferred<typeof response>();
     vi.spyOn(client, 'request').mockImplementation(

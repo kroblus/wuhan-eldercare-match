@@ -60,15 +60,8 @@
 .resourceGrid :global(.filter-grid) {
   grid-template-columns: 1fr;
 }
-.resourceGrid :global(.arco-alert) {
+.resourceGrid :global([role='alert']) {
   margin-top: 1rem;
-}
-.page :global(.arco-table-th),
-.page :global(.arco-table-td) {
-  font-size: inherit;
-}
-.page :global(.arco-table) {
-  max-width: 100%;
 }
 @media (max-width: 1000px) {
   .resourceGrid {
@@ -95,4 +88,105 @@
 }
 .timeCell span {
   font-size: 0.93em;
+}
+
+.agenda {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+.dayGroup {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+}
+.dayHeading {
+  margin: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+.visitCard {
+  padding: 1rem;
+  border: 1px solid var(--line, #dce7df);
+  border-radius: 1rem;
+  background: var(--surface, white);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  box-shadow: 0 3px 14px #214d3010;
+}
+.visitCard h4 {
+  font-size: 1.15rem;
+  margin: 0.5rem 0 1rem;
+  line-height: 1.5;
+}
+.cardTime {
+  color: var(--brand, #187b58);
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.cardFacts {
+  margin: 0 0 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.cardFacts > div {
+  display: grid;
+  gap: 0.15rem;
+}
+.cardFacts dt {
+  color: var(--text-secondary, #68796e);
+  font-size: 0.85rem;
+}
+.cardFacts dd {
+  margin: 0;
+  line-height: 1.65;
+}
+.visitCard button {
+  width: 100%;
+  min-height: 2.75rem;
+}
+.blockList {
+  display: grid;
+  gap: 0.75rem;
+}
+.blockCard {
+  border-top: 1px solid var(--line, #dce7df);
+  padding: 1rem 0;
+  overflow-wrap: anywhere;
+}
+.blockCard h3 {
+  margin: 0 0 0.5rem;
+}
+.blockCard p {
+  line-height: 1.7;
+}
+.blockCard button {
+  min-height: 2.75rem;
+  white-space: normal;
+  height: auto;
+}
+.empty {
+  padding: 1rem;
+  background: var(--surface-subtle, #f4f8f5);
+  border-radius: 0.75rem;
+  line-height: 1.7;
+}
+@media (max-width: 767px) {
+  .page {
+    gap: 1rem;
+  }
+  .page :global(.filter-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .range {
+    margin-top: 1rem;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
 }

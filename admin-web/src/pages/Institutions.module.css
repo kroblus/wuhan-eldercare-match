@@ -3,6 +3,391 @@
   grid-template-columns: minmax(0, 1fr) 300px;
   gap: 24px;
 }
+.institutionCards {
+  display: grid;
+  gap: 0.85rem;
+}
+.institutionCard {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.institutionCard:active {
+  background: var(--mint);
+}
+.cardTitle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+.cardTitle strong {
+  min-width: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.cardId {
+  display: block;
+  margin: 0.35rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.cardFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+.cardBottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.cardBottom strong {
+  font-weight: 550;
+  color: var(--primary);
+}
+.mobileEditor {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: env(safe-area-inset-top) 1rem calc(7rem + env(safe-area-inset-bottom));
+  background: var(--canvas);
+  color: var(--ink);
+}
+.mobileEditor [hidden] {
+  display: none !important;
+}
+.mobileEditor > :global(.page-heading) {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--canvas);
+  margin: 0 -1rem 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+  display: block;
+}
+.mobileEditor > :global(.page-heading) h1 {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin: 0.4rem 0;
+  overflow-wrap: anywhere;
+}
+.mobileEditor > :global(.page-heading) :global(.institution-meta) {
+  font-size: 0.75rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.mobileEditor > :global(.page-heading) > :global(.actions) {
+  margin-top: 0.65rem;
+  gap: 0.5rem;
+}
+.mobileEditor > :global(.workflow-status) {
+  padding: 0.75rem 0;
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+.mobileEditor .editorGrid {
+  display: block;
+}
+.mobileEditor .editorGrid > aside {
+  display: block;
+  padding: 0;
+  background: transparent;
+}
+.mobileEditor .editorGrid > aside > :global(.panel) {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background: #fff;
+}
+.mobileEditor :global(.panel) {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  min-width: 0;
+}
+.mobileEditor :global(.panel) > h2 {
+  font-size: 1rem;
+}
+.mobileEditor :global(.editor-section) > summary {
+  display: none;
+}
+.mobileEditor :global(.editor-section) {
+  border: 0;
+  padding: 0;
+}
+.mobileEditor :global(.form-two) {
+  display: block;
+}
+.mobileEditor :global(.muted) {
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+.mobileEditor input,
+.mobileEditor textarea {
+  font-size: 1rem;
+  max-width: 100%;
+}
+.mobileEditor button {
+  min-height: 44px;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 1rem 0;
+}
+.steps button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #fff;
+  color: var(--muted);
+  padding: 0.6rem 0.3rem;
+  min-height: 44px;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.steps button[aria-current='step'] {
+  background: var(--mint);
+  border-color: #9cc6b0;
+  color: var(--primary);
+  font-weight: 650;
+}
+.steps button > span {
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 50%;
+  background: var(--canvas);
+  font-size: 0.75rem;
+}
+.stepNote {
+  padding: 1rem;
+  background: var(--mint);
+  color: var(--primary);
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+.editorFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+.editorFooter > button {
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  padding: 0.65rem 0.4rem;
+  font-size: 0.875rem;
+  white-space: normal;
+  line-height: 1.5;
+}
+.conflictScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  color: var(--ink);
+  outline: 0;
+  padding-top: env(safe-area-inset-top);
+}
+.conflictHeader {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.conflictHeader h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.conflictHeader button {
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+.conflictHeader p {
+  grid-column: 1/-1;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.conflictBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.85rem 1rem 1.5rem;
+}
+.conflictProgress {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+.conflictProgress strong {
+  color: var(--primary);
+  font-weight: 550;
+}
+.conflictFieldTitle {
+  font-size: 1.125rem;
+  margin: 0 0 0.8rem;
+  line-height: 1.6;
+}
+.conflictChoices {
+  display: grid;
+  gap: 0.85rem;
+}
+.conflictChoices > button {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 0;
+}
+.conflictChoices > .selectedVersion {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+  background: #edf7ef;
+}
+.versionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+.versionHeading > span {
+  flex: 0 0 auto;
+  color: var(--primary);
+}
+.versionValue,
+.jsonDifference {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  line-height: 1.9;
+  margin-top: 0.75rem;
+}
+.jsonDifference {
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 0.875rem;
+}
+.versionAction {
+  display: block;
+  margin-top: 0.9rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--line);
+  color: var(--primary);
+  font-size: 0.875rem;
+}
+.conflictHint {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.8;
+  margin: 0.85rem 0;
+}
+.conflictWarning {
+  background: #fbf2de;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+.conflictFooter {
+  flex: 0 0 auto;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 0.5rem;
+}
+.conflictFooter > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.65rem;
+}
+.conflictFooter button {
+  width: 100%;
+  min-height: 44px;
+  height: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 0.6rem 0.4rem;
+  white-space: normal;
+}
+@media (max-width: 767px) {
+  .mobileEditor .priceRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+  .mobileEditor .priceRow > label:first-child,
+  .mobileEditor .priceRow > button {
+    grid-column: 1/-1;
+  }
+  .mobileEditor .priceRow label {
+    font-size: 0.875rem;
+    min-width: 0;
+  }
+  .mobileEditor .priceRow input {
+    width: 100%;
+    min-width: 0;
+  }
+}
 .editorGrid > div,
 .editorGrid > aside {
   min-width: 0;
@@ -22,11 +407,11 @@
   font-size: 0.85em;
   color: var(--text-secondary);
 }
-.priceRow :global(.arco-input-number) {
+.priceRow :global(.ui-input-number) {
   width: 100%;
   margin-top: 8px;
 }
-.priceRow :global(.arco-input-wrapper) {
+.priceRow :global(.ui-input) {
   margin-top: 8px;
 }
 .file {
@@ -54,7 +439,7 @@
   background: var(--surface-subtle);
   padding: 14px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 0.875rem;
 }
 @media (max-width: 1280px) {
   .editorGrid {

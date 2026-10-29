@@ -1,11 +1,13 @@
 import ReactDOM from 'react-dom/client';
-import { ConfigProvider } from '@arco-design/web-react';
-import zhCN from '@arco-design/web-react/es/locale/zh-CN';
-import './arco.css';
+import { UIProvider, ConfirmationHost } from './ui';
+import { brand } from './evergreen/tokens';
 import './theme.css';
 import App from './App';
+for (const [name, value] of Object.entries(brand))
+  document.documentElement.style.setProperty('--' + name, value);
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <ConfigProvider locale={zhCN}>
+  <UIProvider>
+    <ConfirmationHost />
     <App />
-  </ConfigProvider>,
+  </UIProvider>,
 );

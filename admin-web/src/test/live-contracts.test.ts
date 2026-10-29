@@ -83,7 +83,19 @@ describe.skipIf(process.env.ADMIN_LOCAL_HTTP !== '1')(
         body: JSON.stringify({ from: today(), to: today(), institutionId: null, source: null }),
       });
       expect(report.status).toBe(200);
-      valid(reportSchema, await report.json(), 'report');
+      const snapshot = await report.json();
+      valid(reportSchema, snapshot, 'report');
+      const workbook = await fetch(
+        prefix + '/reports/' + encodeURIComponent(snapshot.report.snapshotId) + '/xlsx',
+        {
+          headers: { Cookie: cookie, 'X-P1-CSRF': session.csrfToken },
+        },
+      );
+      expect(workbook.status).toBe(200);
+      expect(workbook.headers.get('content-type')).toContain('spreadsheetml');
+      const bytes = new Uint8Array(await workbook.arrayBuffer());
+      expect([...bytes.slice(0, 2)]).toEqual([0x50, 0x4b]);
+      expect(bytes.length).toBeGreaterThan(1000);
       await fetch(prefix + '/logout', {
         method: 'POST',
         headers: { Cookie: cookie, 'X-P1-CSRF': session.csrfToken },

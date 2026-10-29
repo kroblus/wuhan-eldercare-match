@@ -1,10 +1,8 @@
 import { useRenderMark } from '../useRenderMark';
-import '@arco-design/web-react/es/InputNumber/style/css.js';
-import '@arco-design/web-react/es/Collapse/style/css.js';
-import '@arco-design/web-react/es/Table/style/css.js';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  useMobile,
   Button,
   Collapse,
   Form,
@@ -14,8 +12,8 @@ import {
   Space,
   Table,
   Tag,
-} from '@arco-design/web-react';
-import { IconRefresh, IconDelete, IconArrowRight } from '@arco-design/web-react/icon';
+} from '../ui';
+import { IconRefresh, IconDelete, IconArrowRight } from '../ui/icons';
 import { z } from 'zod';
 import { client, describe } from '../api/client';
 import {
@@ -232,6 +230,7 @@ function CapacityForm({
 }
 
 export default function Visits() {
+  const mobile = useMobile();
   const [form] = Form.useForm<DateRange>();
   const [calendar, setCalendar] = useState<Calendar | null>(null),
     [range, setRange] = useState<DateRange | null>(null),
@@ -329,6 +328,18 @@ export default function Visits() {
     }
   }
   const visible = calendar?.visits.filter((visit) => !status || visit.status === status) || [];
+  const visitGroups = Object.entries(
+    visible.reduce<Record<string, Calendar['visits']>>((groups, visit) => {
+      const key = beijingLocal(visit.start).slice(0, 10) + '/' + visit.status;
+      (groups[key] ||= []).push(visit);
+      return groups;
+    }, {}),
+  ).sort(([left], [right]) => left.localeCompare(right));
+  const emptyMessage = error
+    ? '读取失败，不能判断是否有安排。'
+    : range
+      ? '该日期与状态范围内没有带看安排。'
+      : '选择日期后查询日程。';
   return (
     <div className={styles.page}>
       <div className="page-heading">
@@ -384,79 +395,128 @@ export default function Visits() {
             {visible.length} 场
           </p>
         )}
-        <Table
-          border={false}
-          rowKey="id"
-          pagination={{ pageSize: 20, sizeCanChange: false, showTotal: true }}
-          data={visible}
-          loading={busy}
-          noDataElement={
-            error
-              ? '读取失败，不能判断是否有安排。'
-              : range
-                ? '该日期与状态范围内没有带看安排。'
-                : '选择日期后查询日程。'
-          }
-          scroll={{ x: 1040 }}
-          columns={[
-            {
-              title: '带看时间（北京时间）',
-              width: 220,
-              render: (_, row) => (
-                <div className={styles.timeCell}>
-                  <strong>{time(row.start)}</strong>
-                  <span>至 {time(row.end)}</span>
-                </div>
-              ),
-            },
-            {
-              title: '机构 / 负责人',
-              width: 230,
-              render: (_, row) => (
-                <div className={styles.timeCell}>
-                  <strong>{row.institutionName}</strong>
-                  <span>{row.staffId}</span>
-                </div>
-              ),
-            },
-            {
-              title: '状态',
-              width: 130,
-              render: (_, row) => (
-                <Tag
-                  color={
-                    row.status === 'CONFIRMED'
-                      ? 'orange'
-                      : row.status === 'ARRIVED'
+        {mobile ? (
+          <div
+            className={styles.agenda}
+            role="region"
+            aria-busy={busy}
+            aria-label="按日期和状态分组的带看日程"
+          >
+            {busy && <p role="status">正在读取日程…</p>}
+            {!visible.length && <p className={styles.empty}>{emptyMessage}</p>}
+            {visitGroups.map(([key, visits]) => (
+              <section className={styles.dayGroup} key={key}>
+                <h3 className={styles.dayHeading}>
+                  <span>{key.slice(0, 10)}</span>
+                  <Tag color={visits[0].status === 'CONFIRMED' ? 'green' : 'gray'}>
+                    {visitLabels[visits[0].status]} · {visits.length} 场
+                  </Tag>
+                </h3>
+                {visits.map((visit) => (
+                  <article className={styles.visitCard} key={visit.id}>
+                    <div className={styles.cardTime}>
+                      {beijingLocal(visit.start).slice(11)} — {beijingLocal(visit.end).slice(11)}
+                    </div>
+                    <h4>{visit.institutionName}</h4>
+                    <dl className={styles.cardFacts}>
+                      <div>
+                        <dt>负责人</dt>
+                        <dd>{visit.staffId}</dd>
+                      </div>
+                      <div>
+                        <dt>准备 / 交通缓冲</dt>
+                        <dd>
+                          {visit.bufferBefore} / {visit.bufferAfter} 分钟
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>集合说明</dt>
+                        <dd>{visit.meetingNote || '未填写'}</dd>
+                      </div>
+                      {visit.actualAt && (
+                        <div>
+                          <dt>实际记录</dt>
+                          <dd>{time(visit.actualAt)}</dd>
+                        </div>
+                      )}
+                    </dl>
+                    <Button icon={<IconArrowRight />} onClick={() => setRequestId(visit.requestId)}>
+                      查看及处理
+                    </Button>
+                  </article>
+                ))}
+              </section>
+            ))}
+          </div>
+        ) : (
+          <Table
+            border={false}
+            rowKey="id"
+            pagination={{ pageSize: 20, sizeCanChange: false, showTotal: true }}
+            data={visible}
+            loading={busy}
+            noDataElement={emptyMessage}
+            scroll={{ x: 1040 }}
+            columns={[
+              {
+                title: '带看时间（北京时间）',
+                width: 220,
+                render: (_, row) => (
+                  <div className={styles.timeCell}>
+                    <strong>{time(row.start)}</strong>
+                    <span>至 {time(row.end)}</span>
+                  </div>
+                ),
+              },
+              {
+                title: '机构 / 负责人',
+                width: 230,
+                render: (_, row) => (
+                  <div className={styles.timeCell}>
+                    <strong>{row.institutionName}</strong>
+                    <span>{row.staffId}</span>
+                  </div>
+                ),
+              },
+              {
+                title: '状态',
+                width: 130,
+                render: (_, row) => (
+                  <Tag
+                    color={
+                      row.status === 'CONFIRMED'
                         ? 'green'
-                        : 'gray'
-                  }
-                >
-                  {visitLabels[row.status]}
-                </Tag>
-              ),
-            },
-            {
-              title: '准备 / 交通缓冲',
-              width: 160,
-              render: (_, row) => `${row.bufferBefore} / ${row.bufferAfter} 分钟`,
-            },
-            { title: '集合说明', dataIndex: 'meetingNote', width: 200 },
-            {
-              title: '操作',
-              width: 160,
-              render: (_, row) => (
-                <Button
-                  type="text"
-                  icon={<IconArrowRight />}
-                  onClick={() => setRequestId(row.requestId)}
-                >
-                  查看及处理
-                </Button>
-              ),
-            },
-          ]}
-        />
+                        : row.status === 'ARRIVED'
+                          ? 'green'
+                          : 'gray'
+                    }
+                  >
+                    {visitLabels[row.status]}
+                  </Tag>
+                ),
+              },
+              {
+                title: '准备 / 交通缓冲',
+                width: 160,
+                render: (_, row) => `${row.bufferBefore} / ${row.bufferAfter} 分钟`,
+              },
+              { title: '集合说明', dataIndex: 'meetingNote', width: 200 },
+              {
+                title: '操作',
+                width: 160,
+                render: (_, row) => (
+                  <Button
+                    type="text"
+                    icon={<IconArrowRight />}
+                    onClick={() => setRequestId(row.requestId)}
+                  >
+                    查看及处理
+                  </Button>
+                ),
+              },
+            ]}
+          />
+        )}
       </section>
       <details className="panel resource-disclosure">
         <summary>查看当前资源配置</summary>
@@ -484,37 +544,59 @@ export default function Visits() {
                   </p>
                 )}
               </div>
-              <Table
-                border={false}
-                rowKey="id"
-                pagination={false}
-                data={calendar.blocks}
-                noDataElement="该日期范围未登记负责人不可用时段"
-                scroll={{ x: 720 }}
-                columns={[
-                  { title: '负责人', dataIndex: 'staffId', width: 160 },
-                  {
-                    title: '不可用时间（北京时间）',
-                    width: 360,
-                    render: (_, row) => `${time(row.start)} 至 ${time(row.end)}`,
-                  },
-                  {
-                    title: '操作',
-                    width: 160,
-                    render: (_, row) => (
+              {mobile ? (
+                <div className={styles.blockList}>
+                  {!calendar.blocks.length && <p>该日期范围未登记负责人不可用时段</p>}
+                  {calendar.blocks.map((block) => (
+                    <article key={block.id} className={styles.blockCard}>
+                      <h3>{block.staffId}</h3>
+                      <p>
+                        {time(block.start)} 至 {time(block.end)}（北京时间）
+                      </p>
                       <Button
                         status="danger"
-                        type="text"
                         icon={<IconDelete />}
                         disabled={removeMutation.busy || !!removeMutation.pending}
-                        onClick={() => void removeBlock(row.id)}
+                        onClick={() => void removeBlock(block.id)}
                       >
                         移除不可用时段
                       </Button>
-                    ),
-                  },
-                ]}
-              />
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <Table
+                  border={false}
+                  rowKey="id"
+                  pagination={false}
+                  data={calendar.blocks}
+                  noDataElement="该日期范围未登记负责人不可用时段"
+                  scroll={{ x: 720 }}
+                  columns={[
+                    { title: '负责人', dataIndex: 'staffId', width: 160 },
+                    {
+                      title: '不可用时间（北京时间）',
+                      width: 360,
+                      render: (_, row) => `${time(row.start)} 至 ${time(row.end)}`,
+                    },
+                    {
+                      title: '操作',
+                      width: 160,
+                      render: (_, row) => (
+                        <Button
+                          status="danger"
+                          type="text"
+                          icon={<IconDelete />}
+                          disabled={removeMutation.busy || !!removeMutation.pending}
+                          onClick={() => void removeBlock(row.id)}
+                        >
+                          移除不可用时段
+                        </Button>
+                      ),
+                    },
+                  ]}
+                />
+              )}
             </>
           ) : (
             <p className={styles.description}>查询成功后显示实际配置。</p>

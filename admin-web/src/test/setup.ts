@@ -21,3 +21,11 @@ globalThis.ResizeObserver = class {
   disconnect() {}
 };
 HTMLElement.prototype.scrollIntoView = vi.fn();
+HTMLDialogElement.prototype.showModal = function () {
+  this.setAttribute('open', '');
+};
+HTMLDialogElement.prototype.close = function () {
+  this.removeAttribute('open');
+};
+const originalComputedStyle = window.getComputedStyle;
+window.getComputedStyle = (element) => originalComputedStyle(element);

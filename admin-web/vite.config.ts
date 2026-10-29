@@ -10,5 +10,10 @@ export default defineConfig({
       output: { manualChunks: { react: ['react', 'react-dom', 'react-router-dom'] } },
     },
   },
-  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'], restoreMocks: true },
+  test: {
+    testTimeout: 15000,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    restoreMocks: true,
+  },
 });

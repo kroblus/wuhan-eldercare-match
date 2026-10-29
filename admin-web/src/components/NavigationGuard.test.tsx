@@ -1,6 +1,7 @@
+import { render } from '../test/render';
 import { useState } from 'react';
 import { createMemoryRouter, RouterProvider, Outlet, Link } from 'react-router-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { WorkState, useDirty, useMutation } from '../state';
 import { client } from '../api/client';

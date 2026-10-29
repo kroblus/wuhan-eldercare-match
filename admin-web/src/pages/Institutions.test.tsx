@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act, within } from '@testing-library/react';
+import { render } from '../test/render';
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { WorkState } from '../state';
 import { client, ApiError } from '../api/client';
@@ -66,11 +67,12 @@ const wrap = (item: Draft) => ({
   dataEnvironment: 'SYNTHETIC_TEST_ONLY' as const,
   item,
 });
-function editor(initial = fixture()) {
+function editor(initial = fixture(), mobile = false) {
   render(
     <WorkState>
       <Editor initial={initial} onBack={() => {}} onListChanged={() => {}} />
     </WorkState>,
+    { mobile },
   );
 }
 const change = (label: string, value: string) =>
@@ -263,6 +265,211 @@ describe('institution facts and publication state', () => {
     );
   });
 });
+describe('mobile institution editing', () => {
+  it('keeps hidden step fields mounted and saves the complete form and prices', async () => {
+    const initial = fixture();
+    editor(initial, true);
+    const call = vi.spyOn(client, 'request').mockImplementation(
+      async (_path, _schema, options) =>
+        wrap({
+          ...initial,
+          ...(options?.body as object),
+          status: 'DRAFT',
+          confirmation: null,
+          draftRevision: 3,
+        }) as never,
+    );
+    change('机构公开名称', '手机编辑的合成名称');
+    fireEvent.click(screen.getByRole('button', { name: '第2步 介绍' }));
+    expect(screen.getByLabelText('机构公开名称')).not.toBeVisible();
+    change(
+      '实际地址（未知保持空白）',
+      '武汉市合成大道一号，非常长的合成入口地址，用于检查分步保留。',
+    );
+    change('公开资料来源', '手机填写的可追溯合成来源');
+    fireEvent.click(screen.getByRole('button', { name: '第3步 价格' }));
+    fireEvent.change(screen.getByRole('spinbutton', { name: '第1行床位费' }), {
+      target: { value: '200' },
+    });
+    fireEvent.change(screen.getByRole('spinbutton', { name: '第1行总月费' }), {
+      target: { value: '700' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '第1步 基础' }));
+    expect(screen.getByLabelText('机构公开名称')).toHaveValue('手机编辑的合成名称');
+    fireEvent.click(screen.getByRole('button', { name: '第2步 介绍' }));
+    expect(screen.getByLabelText('公开资料来源')).toHaveValue('手机填写的可追溯合成来源');
+    expect(call).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: '保存草稿' }));
+    await waitFor(() => expect(call).toHaveBeenCalledTimes(1));
+    const body = call.mock.calls[0][2]?.body as {
+      publicProfile: typeof profile;
+      record: typeof record;
+    };
+    expect(body.publicProfile.name).toBe('手机编辑的合成名称');
+    expect(body.publicProfile.source).toBe('手机填写的可追溯合成来源');
+    expect(body.publicProfile.address).toContain('非常长的合成入口地址');
+    expect(body.publicProfile.prices[0]).toEqual({
+      level: '合成档位',
+      bed: 200,
+      care: 200,
+      food: 300,
+      total: 700,
+    });
+    expect(body.record.capabilities.specialCare.status).toBe('unknown');
+  });
+
+  it('keeps source confirmation input when moving between steps and exposes independent service access', () => {
+    editor({ ...fixture(), currentRecordRevision: 1, publishedRecordRevision: 1 }, true);
+    fireEvent.click(screen.getByRole('button', { name: '第4步 确认发布' }));
+    change('本次确认来源引用', '尚未提交的手机确认来源');
+    expect(screen.getByRole('button', { name: '保存接入设置' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '第1步 基础' }));
+    expect(screen.getByLabelText('本次确认来源引用')).not.toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '第4步 确认发布' }));
+    expect(screen.getByLabelText('本次确认来源引用')).toHaveValue('尚未提交的手机确认来源');
+    expect(screen.getByRole('button', { name: '发布已确认版本' })).toBeVisible();
+  });
+
+  it('requires every explicit mobile conflict choice, retains previous selections, includes prices and advanced facts, and saves against the latest revision', async () => {
+    const initial = fixture();
+    editor(initial, true);
+    const serverRecord = {
+      ...structuredClone(record),
+      capabilities: { specialCare: { status: 'unavailable' } },
+    };
+    const newer = {
+      ...initial,
+      draftRevision: 5,
+      status: 'DRAFT' as const,
+      confirmation: null,
+      record: serverRecord,
+      publicProfile: {
+        ...profile,
+        address: '服务器合成地址：另一入口及接待地点，长文本继续保留。',
+        prices: [{ level: '服务器合成档位', bed: 300, care: 300, food: 300, total: 900 }],
+      },
+    };
+    const call = vi
+      .spyOn(client, 'request')
+      .mockRejectedValueOnce(new ApiError('草稿冲突', 409, 'STALE_DRAFT_REVISION'))
+      .mockResolvedValueOnce(wrap(newer) as never)
+      .mockImplementationOnce(
+        async (_path, _schema, options) =>
+          wrap({ ...newer, ...(options?.body as object), draftRevision: 6 }) as never,
+      );
+    change('机构公开名称', '手机本地名称');
+    fireEvent.click(screen.getByRole('button', { name: '保存草稿' }));
+    await screen.findByText('草稿冲突');
+    fireEvent.click(screen.getByRole('button', { name: '查询服务器版本' }));
+    const dialog = await screen.findByRole('dialog', { name: '核对机构资料' });
+    const review = within(dialog);
+    expect(review.getByRole('button', { name: '确认选择并继续编辑' })).toBeDisabled();
+    expect(review.getByRole('radio', { name: /服务器最新内容/ })).toHaveAttribute(
+      'aria-checked',
+      'false',
+    );
+    fireEvent.click(review.getByRole('radio', { name: /我的本地输入/ }));
+    fireEvent.click(review.getByRole('button', { name: '下个差异' }));
+    fireEvent.click(review.getByRole('radio', { name: /服务器最新内容/ }));
+    fireEvent.click(review.getByRole('button', { name: '上个差异' }));
+    expect(review.getByRole('radio', { name: /我的本地输入/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    fireEvent.click(review.getByRole('button', { name: '下个差异' }));
+    expect(review.getByRole('radio', { name: /服务器最新内容/ })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    fireEvent.click(review.getByRole('button', { name: '下个差异' }));
+    expect(review.getByRole('heading', { name: '公示价格' })).toBeInTheDocument();
+    fireEvent.click(review.getByRole('radio', { name: /服务器最新内容/ }));
+    expect(review.getByRole('button', { name: '确认选择并继续编辑' })).toBeDisabled();
+    fireEvent.click(review.getByRole('button', { name: '下个差异' }));
+    expect(
+      review.getByRole('heading', { name: '完整事实、核验与护理证据 JSON' }),
+    ).toBeInTheDocument();
+    fireEvent.click(review.getByRole('radio', { name: /服务器最新内容/ }));
+    fireEvent.click(review.getByRole('button', { name: '确认选择并继续编辑' }));
+    expect(screen.getByLabelText('机构公开名称')).toHaveValue('手机本地名称');
+    expect(call).toHaveBeenCalledTimes(2);
+    fireEvent.click(screen.getByRole('button', { name: '第4步 确认发布' }));
+    expect(screen.getByRole('button', { name: '发布已确认版本' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: '保存草稿' }));
+    await waitFor(() => expect(call).toHaveBeenCalledTimes(3));
+    const body = call.mock.calls[2][2]?.body as {
+      expectedDraftRevision: number;
+      publicProfile: typeof profile;
+      record: typeof record;
+    };
+    expect(body.expectedDraftRevision).toBe(5);
+    expect(body.publicProfile.address).toBe(newer.publicProfile.address);
+    expect(body.publicProfile.prices).toEqual(newer.publicProfile.prices);
+    expect(body.publicProfile.name).toBe('手机本地名称');
+    expect(body.record.identity.name.value).toBe('手机本地名称');
+    expect(body.record.capabilities.specialCare.status).toBe('unavailable');
+    expect(body.record.identity.name.verification.status).toBe('unverified');
+  });
+
+  it.each([
+    { label: 'empty unknown prices', prices: [] },
+    { label: 'existing original prices', prices: profile.prices },
+  ])(
+    'keeps local unknown facts and $label when all differences explicitly retain local',
+    async ({ prices }) => {
+      const initial = {
+        ...fixture(),
+        publicProfile: { ...profile, address: '', room: '', nature: '', prices },
+      };
+      editor(initial, true);
+      change('机构公开名称', '保留本地合成名称');
+      const newer = {
+        ...initial,
+        draftRevision: 5,
+        status: 'DRAFT' as const,
+        confirmation: null,
+        publicProfile: {
+          ...initial.publicProfile,
+          address: '服务器有来源的新合成地址',
+          prices: [{ level: '服务器新档位', bed: 300, care: 300, food: 300, total: 900 }],
+        },
+        record: {
+          ...structuredClone(record),
+          capabilities: { specialCare: { status: 'unavailable' } },
+        },
+      };
+      const call = vi
+        .spyOn(client, 'request')
+        .mockResolvedValueOnce(wrap(newer) as never)
+        .mockImplementationOnce(
+          async (_path, _schema, options) =>
+            wrap({ ...newer, ...(options?.body as object), draftRevision: 6 }) as never,
+        );
+      fireEvent.click(screen.getByRole('button', { name: '查询服务器版本' }));
+      const review = within(await screen.findByRole('dialog', { name: '核对机构资料' }));
+      expect(review.getByText('差异 1 / 4')).toBeInTheDocument();
+      for (let index = 0; index < 4; index += 1) {
+        fireEvent.click(review.getByRole('radio', { name: /我的本地输入/ }));
+        if (index < 3) fireEvent.click(review.getByRole('button', { name: '下个差异' }));
+      }
+      fireEvent.click(review.getByRole('button', { name: '确认选择并继续编辑' }));
+      expect(call).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: '保存草稿' }));
+      await waitFor(() => expect(call).toHaveBeenCalledTimes(2));
+      const body = call.mock.calls[1][2]?.body as {
+        publicProfile: typeof profile;
+        record: typeof record;
+      };
+      expect(body.publicProfile.prices).toEqual(prices);
+      expect(body.publicProfile.address).toBe('');
+      expect(body.publicProfile.room).toBe('');
+      expect(body.publicProfile.nature).toBe('');
+      expect(body.record.capabilities.specialCare.status).toBe('unknown');
+      expect(body.record.identity.name.value).toBe('保留本地合成名称');
+    },
+  );
+});
+
 describe('baseline import', () => {
   it('requires explicit preservation, keeps historical records separate, retries exact original package', async () => {
     render(

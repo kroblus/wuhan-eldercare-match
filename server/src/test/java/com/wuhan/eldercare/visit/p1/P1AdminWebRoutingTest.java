@@ -10,7 +10,7 @@ class P1AdminWebRoutingTest {
         var mvc = MockMvcBuilders.standaloneSetup(new P1AdminWebController()).build();
         mvc.perform(get("/p1-admin")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/p1-admin/"))
                 .andExpect(header().string("Cache-Control", "no-store"));
-        for (String page : new String[]{"", "dashboard", "requests", "visits", "institutions", "reports"}) {
+        for (String page : new String[]{"", "dashboard", "requests", "visits", "institutions", "reports", "more"}) {
             for (String suffix : new String[]{"", "/"}) {
                 if (page.isEmpty() && suffix.isEmpty()) continue;
                 String path = "/p1-admin" + (page.isEmpty() ? suffix : "/" + page + suffix);

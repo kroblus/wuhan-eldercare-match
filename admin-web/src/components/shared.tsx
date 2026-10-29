@@ -1,4 +1,5 @@
-import { Alert, Button, Form, Input, Select, Tag, Modal } from '@arco-design/web-react';
+import { Alert, Button, Form, Input, Select, Tag } from '../ui';
+export { confirmAction } from '../ui';
 import type { ReactNode } from 'react';
 export const options = (labels: Record<string, string>) =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
@@ -46,14 +47,3 @@ export function ErrorNotice({ message, retry }: { message: string; retry?: () =>
 export function StateTag({ children, tone = 'gray' }: { children: ReactNode; tone?: string }) {
   return <Tag color={tone}>{children}</Tag>;
 }
-export const confirmAction = (title: string, content: string) =>
-  new Promise<boolean>((resolve) =>
-    Modal.confirm({
-      title,
-      content,
-      okText: '确认继续',
-      cancelText: '返回核对',
-      onOk: () => resolve(true),
-      onCancel: () => resolve(false),
-    }),
-  );

@@ -1,9 +1,8 @@
 import { useRenderMark } from '../useRenderMark';
-import '@arco-design/web-react/es/Table/style/css.js';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Table, Tag, Spin, Alert } from '@arco-design/web-react';
-import { IconArrowRight, IconRefresh } from '@arco-design/web-react/icon';
+import { Button, Table, Tag, Spin, Alert, useMobile } from '../ui';
+import { IconArrowRight, IconRefresh } from '../ui/icons';
 import { client, describe } from '../api/client';
 import { listSchema, statusLabels, kindLabels } from '../api/schema';
 import { time, today } from '../time';
@@ -15,6 +14,7 @@ const counts = [
   ['CONFIRMED', '有确认带看的需求', '按实际排期准备服务'],
 ] as const;
 export default function Dashboard() {
+  const mobile = useMobile();
   const [data, setData] = useState<z.infer<typeof listSchema>[]>(),
     [error, setError] = useState(''),
     [refresh, setRefresh] = useState(0);
@@ -40,9 +40,9 @@ export default function Dashboard() {
   useRenderMark('admin-dashboard-ready', !!data);
   return (
     <>
-      <div className="page-heading">
+      <div className="dashboard-welcome">
         <div>
-          <h1>工作台</h1>
+          <h1>把每一次托付，照顾得更好。</h1>
           <p>{today()} · 北京时间 · 免费信息对接与带看服务</p>
         </div>
         <Button icon={<IconRefresh />} onClick={() => setRefresh((v) => v + 1)}>
@@ -78,33 +78,57 @@ export default function Dashboard() {
             </Link>
           </div>
           <p className="muted">最近 5 条待联系需求 · 按创建时间倒序</p>
-          <Table
-            border={false}
-            rowKey="id"
-            loading={!data && !error}
-            data={data?.[0].items || []}
-            pagination={false}
-            scroll={{ x: 520 }}
-            columns={[
-              {
-                title: '需求',
-                dataIndex: 'kind',
-                render: (v) => kindLabels[v as keyof typeof kindLabels],
-              },
-              { title: '意向机构', render: (_, r) => r.institutionName || '请顾问协助推荐' },
-              {
-                title: '创建时间',
-                width: 190,
-                render: (_, r) => <span className="datetime">{time(r.createdAt)}</span>,
-              },
-              {
-                title: '状态',
-                render: (_, r) => (
-                  <Tag color="gray">{statusLabels[r.status as keyof typeof statusLabels]}</Tag>
-                ),
-              },
-            ]}
-          />
+          {mobile ? (
+            <div className="request-cards">
+              {data?.[0].items.map((r) => (
+                <Link
+                  key={r.id}
+                  className="request-card"
+                  to={'/requests?status=PENDING_CONTACT'}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <header>
+                    <h2>{kindLabels[r.kind]}</h2>
+                    <Tag color="green">待联系</Tag>
+                  </header>
+                  <p>{r.institutionName || '请顾问协助推荐'}</p>
+                  <footer>
+                    <span>{time(r.createdAt)}</span>
+                    <IconArrowRight />
+                  </footer>
+                </Link>
+              ))}
+              {data && !data[0].items.length && <p className="muted">暂时没有待联系需求</p>}
+            </div>
+          ) : (
+            <Table
+              border={false}
+              rowKey="id"
+              loading={!data && !error}
+              data={data?.[0].items || []}
+              pagination={false}
+              scroll={{ x: 520 }}
+              columns={[
+                {
+                  title: '需求',
+                  dataIndex: 'kind',
+                  render: (v) => kindLabels[v as keyof typeof kindLabels],
+                },
+                { title: '意向机构', render: (_, r) => r.institutionName || '请顾问协助推荐' },
+                {
+                  title: '创建时间',
+                  width: 190,
+                  render: (_, r) => <span className="datetime">{time(r.createdAt)}</span>,
+                },
+                {
+                  title: '状态',
+                  render: (_, r) => (
+                    <Tag color="gray">{statusLabels[r.status as keyof typeof statusLabels]}</Tag>
+                  ),
+                },
+              ]}
+            />
+          )}
         </section>
         <section className="panel">
           <h2>快捷办理</h2>

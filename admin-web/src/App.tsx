@@ -4,22 +4,11 @@ import {
   Outlet,
   NavLink,
   useLocation,
-  useBlocker,
   createBrowserRouter,
   RouterProvider,
   Navigate,
 } from 'react-router-dom';
-import {
-  Button,
-  Form,
-  Input,
-  Alert,
-  Select,
-  Drawer,
-  Spin,
-  Modal,
-  Tag,
-} from '@arco-design/web-react';
+import { Button, Form, Input, Alert, Select, Drawer, Spin, Modal, Tag, useMobile } from './ui';
 import {
   IconDashboard,
   IconList,
@@ -29,7 +18,7 @@ import {
   IconMenu,
   IconExport,
   IconArrowRight,
-} from '@arco-design/web-react/icon';
+} from './ui/icons';
 import { z } from 'zod';
 import { client, describe } from './api/client';
 import { sessionSchema, p1, environment } from './api/schema';
@@ -107,6 +96,7 @@ function Login({ onLogin }: { onLogin: (session: z.infer<typeof sessionSchema>) 
   );
 }
 function Shell({ username, onLogout }: { username: string; onLogout: () => Promise<void> }) {
+  const mobile = useMobile();
   const { pending, dirty } = useWork(),
     location = useLocation();
   const [drawer, setDrawer] = useState(false),
@@ -115,24 +105,12 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
     [logoutError, setLogoutError] = useState('');
   useEffect(() => {
     document.documentElement.style.setProperty('--reading', font === '150' ? '1.5' : '1');
+    document.documentElement.style.fontSize = font === '150' ? '24px' : '16px';
     return () => {
       document.documentElement.style.removeProperty('--reading');
+      document.documentElement.style.fontSize = '16px';
     };
   }, [font]);
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      (dirty.size > 0 || pending.size > 0) && currentLocation.pathname !== nextLocation.pathname,
-  );
-  useEffect(() => {
-    const prevent = (e: BeforeUnloadEvent) => {
-      if (dirty.size || pending.size) {
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-    window.addEventListener('beforeunload', prevent);
-    return () => window.removeEventListener('beforeunload', prevent);
-  }, [dirty.size, pending.size]);
   useEffect(() => {
     let active = true;
     fetch('/api/v1/p1-service/config', {
@@ -155,7 +133,9 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
       active = false;
     };
   }, []);
-  const title = nav.find(([path]) => location.pathname.endsWith('/' + path))?.[1] || '工作台';
+  const title =
+    nav.find(([path]) => location.pathname.endsWith('/' + path))?.[1] ||
+    (location.pathname.endsWith('/more') ? '更多' : '工作台');
   const navigation = (
     <>
       <div className={styles.brand}>
@@ -180,9 +160,51 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
       </nav>
     </>
   );
+  const accountControls = (
+    <div className={styles.tools}>
+      <Tag color={env === '正式服务环境' ? 'green' : 'gray'}>{env}</Tag>
+      <Select
+        aria-label="阅读字号"
+        value={font}
+        onChange={setFont}
+        options={[
+          { value: '100', label: '字号 100%' },
+          { value: '150', label: '字号 150%' },
+        ]}
+      />
+      <span className={styles.identity}>{username}</span>
+      <Button
+        aria-label="退出登录"
+        icon={<IconExport />}
+        onClick={async () => {
+          if (pending.size) {
+            setLogoutError('有写入结果尚未确认，请先查询或重试原操作。');
+            return;
+          }
+          if (
+            dirty.size &&
+            !(await confirmAction('退出并放弃未保存修改？', '尚未保存的输入会被清除。'))
+          )
+            return;
+          try {
+            await onLogout();
+          } catch (e) {
+            setLogoutError(describe(e));
+          }
+        }}
+      >
+        退出
+      </Button>
+    </div>
+  );
   return (
-    <div className={styles.shell} data-reading-size={font}>
-      <aside className={styles.sidebar}>{navigation}</aside>
+    <div className={styles.shell} data-reading-size={font} data-mobile={mobile}>
+      {!mobile && (
+        <aside className={styles.sidebar}>
+          {navigation}
+          <p className={styles.sidebarNote}>免费对接 · 用心陪伴</p>
+        </aside>
+      )}
       <Drawer
         title="工作区域"
         visible={drawer}
@@ -191,7 +213,10 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
         placement="left"
         width="min(86vw,300px)"
       >
-        <div className={styles.drawerNav}>{navigation}</div>
+        <div className={styles.drawerNav}>
+          {navigation}
+          {mobile && accountControls}
+        </div>
       </Drawer>
       <div className={styles.main}>
         <header className={styles.toolbar}>
@@ -206,41 +231,7 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
               工作区 <span>/</span> <b>{title}</b>
             </span>
           </div>
-          <div className={styles.tools}>
-            <Tag color={env === '正式服务环境' ? 'green' : 'gray'}>{env}</Tag>
-            <Select
-              aria-label="阅读字号"
-              value={font}
-              onChange={setFont}
-              options={[
-                { value: '100', label: '字号 100%' },
-                { value: '150', label: '字号 150%' },
-              ]}
-            />
-            <span className={styles.identity}>{username}</span>
-            <Button
-              aria-label="退出登录"
-              icon={<IconExport />}
-              onClick={async () => {
-                if (pending.size) {
-                  setLogoutError('有写入结果尚未确认，请先查询或重试原操作。');
-                  return;
-                }
-                if (
-                  dirty.size &&
-                  !(await confirmAction('退出并放弃未保存修改？', '尚未保存的输入会被清除。'))
-                )
-                  return;
-                try {
-                  await onLogout();
-                } catch (e) {
-                  setLogoutError(describe(e));
-                }
-              }}
-            >
-              退出
-            </Button>
-          </div>
+          {!mobile && accountControls}
         </header>
         <main className={styles.content}>
           {logoutError && (
@@ -260,8 +251,60 @@ function Shell({ username, onLogout }: { username: string; onLogout: () => Promi
           快康养 · 内部服务工作区 <span>联系资料仅供本次对接使用</span>
         </footer>
       </div>
+      {mobile && (
+        <nav className={styles.bottomNav} aria-label="手机工作导航">
+          {[
+            ['dashboard', '工作台', IconDashboard],
+            ['requests', '需求', IconList],
+            ['visits', '日程', IconCalendar],
+            ['more', '更多', IconMenu],
+          ].map(([path, label, Component]) => {
+            const Icon = Component as typeof IconDashboard;
+            return (
+              <NavLink
+                key={String(path)}
+                to={'/' + path}
+                className={({ isActive }) => (isActive ? styles.active : undefined)}
+              >
+                <Icon />
+                <span>{String(label)}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      )}
       <NavigationGuard />
     </div>
+  );
+}
+function More() {
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <h1>更多服务</h1>
+          <p>让每一份资料和进展都有据可查。</p>
+        </div>
+      </div>
+      <div className="more-links">
+        <NavLink to="/institutions">
+          <IconHome />
+          <div>
+            <strong>机构资料</strong>
+            <p>草稿、来源确认与版本发布</p>
+          </div>
+          <IconArrowRight />
+        </NavLink>
+        <NavLink to="/reports">
+          <IconFile />
+          <div>
+            <strong>服务报告</strong>
+            <p>完整范围统计与同批 Excel</p>
+          </div>
+          <IconArrowRight />
+        </NavLink>
+      </div>
+    </>
   );
 }
 function Root() {
@@ -336,6 +379,7 @@ const router = createBrowserRouter(
         { path: 'visits', element: <Visits /> },
         { path: 'institutions', element: <Institutions /> },
         { path: 'reports', element: <Reports /> },
+        { path: 'more', element: <More /> },
       ],
     },
   ],

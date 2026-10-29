@@ -1,4 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render } from '../test/render';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import RequestDetail, { Followup, VisitEditor } from './RequestDetail';
 import { WorkState, useWork } from '../state';
@@ -27,6 +28,31 @@ function Dirty() {
   return <output>{work.dirty.size ? 'dirty' : 'clean'}</output>;
 }
 describe('contact and visit operations', () => {
+  it('mobile detail keeps unsaved contact input after a refused close and section navigation', async () => {
+    vi.spyOn(client, 'request').mockImplementation(
+      async (path) =>
+        (path === '/service-institutions'
+          ? { contractVersion: 'p1-service-request-v1', serviceInstitutions: [] }
+          : fixture()) as never,
+    );
+    const close = vi.fn();
+    render(
+      <WorkState>
+        <RequestDetail id={fixture().item.id} onClose={close} />
+      </WorkState>,
+      { mobile: true },
+    );
+    fireEvent.change(await screen.findByLabelText('内部备注'), {
+      target: { value: '保留的联系草稿' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '查看带看行程' }));
+    fireEvent.click(screen.getByRole('button', { name: '联系与反馈' }));
+    fireEvent.click(screen.getByRole('button', { name: '关闭窗口' }));
+    await screen.findByRole('dialog', { name: '关闭详情并放弃输入？' });
+    fireEvent.click(screen.getByRole('button', { name: '返回核对' }));
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('内部备注')).toHaveValue('保留的联系草稿');
+  });
   it('read-back acknowledges a lost contact response and clears only its saved form, preventing a fresh duplicate', async () => {
     let submitted: Record<string, unknown> | undefined;
     vi.spyOn(client, 'request').mockImplementation(async (path, _schema, options) => {
@@ -84,26 +110,30 @@ describe('contact and visit operations', () => {
     expect(body.operationId).toMatch(/^[0-9a-f-]{36}$/);
     expect(body.nextContactAt).toBeNull();
   });
-  it('unknown contact result locks fields and retry preserves exact original content and ID', async () => {
-    const call = vi
-      .spyOn(client, 'request')
-      .mockRejectedValueOnce(new TypeError('lost response'))
-      .mockResolvedValueOnce(fixture() as never);
-    render(
-      <WorkState>
-        <Followup detail={fixture()} onSaved={() => {}} />
-      </WorkState>,
-    );
-    fireEvent.change(screen.getByLabelText('内部备注'), {
-      target: { value: '必须保留的合成记录' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: '保存联系记录' }));
-    await screen.findByText('lost response');
-    expect(screen.getByLabelText('内部备注')).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: '使用原操作重试联系' }));
-    await waitFor(() => expect(call).toHaveBeenCalledTimes(2));
-    expect(call.mock.calls[1][2]).toEqual(call.mock.calls[0][2]);
-  });
+  it.each([false, true])(
+    'unknown contact result locks fields and retry preserves exact original content and ID (mobile=%s)',
+    async (mobile) => {
+      const call = vi
+        .spyOn(client, 'request')
+        .mockRejectedValueOnce(new TypeError('lost response'))
+        .mockResolvedValueOnce(fixture() as never);
+      render(
+        <WorkState>
+          <Followup detail={fixture()} onSaved={() => {}} />
+        </WorkState>,
+        { mobile },
+      );
+      fireEvent.change(screen.getByLabelText('内部备注'), {
+        target: { value: '必须保留的合成记录' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: '保存联系记录' }));
+      await screen.findByText('lost response');
+      expect(screen.getByLabelText('内部备注')).toBeDisabled();
+      fireEvent.click(screen.getByRole('button', { name: '使用原操作重试联系' }));
+      await waitFor(() => expect(call).toHaveBeenCalledTimes(2));
+      expect(call.mock.calls[1][2]).toEqual(call.mock.calls[0][2]);
+    },
+  );
   it('visit draft uses Beijing time and retains the same visitId after a lost response', async () => {
     const call = vi
       .spyOn(client, 'request')

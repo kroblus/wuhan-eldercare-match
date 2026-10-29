@@ -1,18 +1,15 @@
 .shell {
-  min-height: 100vh;
-  --reading: 1;
-  font-size: calc(14px * var(--reading));
-}
-.shell[data-reading-size='150'] {
-  --reading: 1.5;
+  min-height: 100dvh;
+  color: var(--ink);
+  background: var(--canvas);
 }
 .sidebar {
-  width: 212px;
   position: fixed;
   inset: 0 auto 0 0;
-  background: #fff;
+  width: 224px;
+  padding: 32px 18px;
+  background: #edf6f0;
   border-right: 1px solid var(--line);
-  padding: 24px 16px;
   display: flex;
   flex-direction: column;
   z-index: 20;
@@ -21,302 +18,310 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 20px;
-  font-weight: 750;
-  letter-spacing: -0.6px;
-  color: #202020;
+  color: var(--brand);
+  font-size: 1.5rem;
+  font-weight: 650;
+  line-height: 1.5;
 }
 .brand > span {
-  width: 32px;
-  height: 32px;
-  border-radius: 12px;
-  background: #ff6a00;
-  color: #202020;
   display: grid;
   place-items: center;
-  font-size: 18px;
+  width: 44px;
+  height: 48px;
+  background: #d6ebde;
+  border-radius: 18px 18px 18px 5px;
+  font-size: 1.25rem;
 }
 .brand small {
   display: block;
-  font-size: 12px;
-  letter-spacing: 0;
-  color: #707070;
-  font-weight: 500;
-  margin-top: 3px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 1px;
 }
 .navLabel {
-  color: #8b8881;
-  font-size: 12px;
-  letter-spacing: 1.5px;
-  margin: 28px 12px 12px;
+  margin: 42px 14px 16px;
+  color: var(--muted);
+  font-size: 0.75rem;
 }
 .sidebar nav,
 .drawerNav nav {
   display: grid;
-  gap: 4px;
+  gap: 8px;
 }
 .sidebar nav a,
 .drawerNav nav a {
-  color: var(--text-secondary);
-  text-decoration: none;
+  min-height: 52px;
   display: flex;
-  gap: 14px;
   align-items: center;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: calc(14px * var(--reading, 1));
-  min-height: 40px;
-}
-.sidebar nav svg,
-.drawerNav nav svg {
-  font-size: 18px;
-  flex-shrink: 0;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9375rem;
 }
 .sidebar nav a:hover,
 .drawerNav nav a:hover {
-  background: var(--surface-subtle);
+  background: #dceee3;
+  color: var(--brand);
 }
 .sidebar nav a.active,
 .drawerNav nav a.active {
-  background: var(--brand-light);
-  color: #a33e00;
-  font-weight: 600;
-  box-shadow: none;
+  background: var(--primary);
+  color: #fff;
+}
+.sidebar nav svg,
+.drawerNav nav svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.sidebarNote {
+  margin: auto 14px 0;
+  padding-top: 40px;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 .main {
-  margin-left: 212px;
+  margin-left: 224px;
   min-width: 0;
 }
 .toolbar {
-  min-height: 64px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
+  padding: 16px 32px;
   background: #fff;
   border-bottom: 1px solid var(--line);
-  padding: 12px 28px;
-  position: sticky;
-  top: 0;
-  z-index: 15;
+  min-height: 76px;
 }
 .toolbar > div {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   min-width: 0;
 }
 .breadcrumb {
-  white-space: nowrap;
-  font-size: 13px;
-  color: #7d7972;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 .breadcrumb span {
   margin: 0 12px;
-  color: #c9c4bc;
+  color: #b3c5b9;
 }
 .breadcrumb b {
-  color: #33312e;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--ink);
 }
 .tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  font-size: 0.8125rem;
 }
-.tools :global(.arco-select) {
-  width: 120px;
+.tools :global(.ant-select) {
+  min-width: 120px;
 }
 .identity {
   max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 12px;
+  overflow-wrap: anywhere;
+  color: var(--muted);
 }
 .menu {
   display: none !important;
 }
 .content {
-  padding: 28px;
-  max-width: none;
+  padding: 30px 36px;
+  max-width: 1640px;
   margin: auto;
-  min-height: calc(100vh - 142px);
+  min-height: calc(100dvh - 140px);
 }
 .footer {
-  padding: 20px 36px;
-  color: #8b8881;
-  font-size: 12px;
-  border-top: 1px solid var(--line);
+  padding: 12px 36px 24px;
+  color: var(--muted);
+  font-size: 0.75rem;
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
+}
+.bottomNav {
+  display: none;
+}
+.drawerNav .tools {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 24px;
+  display: grid;
+  gap: 16px;
 }
 .login {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
-  grid-template-columns: 1.12fr 1fr;
-  background: #fff;
+  grid-template-columns: 1fr 1fr;
+  background: var(--canvas);
+  padding: 5vw;
+  gap: 5vw;
 }
 .loginStory {
-  background: var(--surface-subtle);
-  padding: 54px 64px;
+  padding: 20px 35px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: relative;
-  overflow: hidden;
+  gap: 60px;
 }
 .loginStory h1 {
-  font-size: clamp(28px, 3vw, 42px);
-  line-height: 1.35;
-  font-weight: 650;
-  letter-spacing: -0.8px;
-  margin: 20px 0;
+  color: var(--brand);
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: 1px;
 }
-.loginStory p {
-  color: #6a665f;
-  font-size: 16px;
-}
+.loginStory p,
 .loginFooter {
-  font-size: 12px;
-  color: #736f68;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.8;
 }
 .loginCard {
+  align-self: center;
+  max-width: 460px;
   width: 100%;
-  max-width: 480px;
   margin: auto;
-  padding: 50px;
+  background: white;
+  border: 1px solid var(--line);
+  padding: 40px;
+  border-radius: 24px;
 }
 .loginCard h2 {
-  font-size: 26px;
-  margin: 18px 0 12px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--brand);
+  margin: 0 0 10px;
 }
 .loginCard > p {
-  color: #79756d;
+  font-size: 0.875rem;
+  color: var(--muted);
   line-height: 1.8;
 }
 .loginCard form {
-  margin-top: 32px;
-}
-.loginCard :global(.arco-btn-primary) {
-  margin: 12px 0 20px;
-}
-.loginCard :global(.arco-input-wrapper) {
-  background: #fff;
-  border-color: var(--line);
-}
-.loginCard :global(.arco-input) {
-  height: 40px;
-}
-.drawerNav {
-  --reading: 1;
-}
-.drawerNav .navLabel {
   margin-top: 30px;
 }
-@media (max-width: 1100px) {
+.loginCard form > button {
+  margin-top: 12px;
+}
+@media (max-width: 1100px) and (min-width: 768px) {
   .sidebar {
-    width: 196px;
-    padding: 26px 12px;
+    width: 190px;
   }
   .main {
-    margin-left: 196px;
-  }
-  .toolbar {
-    padding: 14px 22px;
+    margin-left: 190px;
   }
   .content {
-    padding: 26px 24px;
+    padding: 24px;
+  }
+  .toolbar {
+    padding: 16px 24px;
+    flex-wrap: wrap;
   }
   .identity {
     display: none;
   }
-  .breadcrumb {
-    font-size: 12px;
-  }
-  .brand {
-    font-size: 21px;
-  }
 }
-@media (max-width: 800px) {
-  .sidebar {
-    display: none;
-  }
+@media (max-width: 767px) {
   .main {
     margin-left: 0;
+  }
+  .toolbar {
+    padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+    min-height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
   .menu {
     display: inline-flex !important;
   }
-  .toolbar {
-    position: static;
-    padding: 12px 16px;
-    align-items: flex-start;
-  }
   .toolbar > div {
-    gap: 6px;
-  }
-  .tools {
-    max-width: 80%;
-    gap: 6px !important;
-  }
-  .tools :global(.arco-select) {
-    width: 110px;
+    gap: 10px;
   }
   .breadcrumb {
-    display: none;
+    font-size: 1rem;
+  }
+  .breadcrumb > span {
+    margin: 0 6px;
   }
   .content {
-    padding: 22px 16px;
+    padding: 22px 16px calc(100px + env(safe-area-inset-bottom));
+    min-height: calc(100dvh - 64px);
   }
   .footer {
-    padding: 18px 16px;
-    flex-wrap: wrap;
+    display: none;
+  }
+  .bottomNav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    z-index: 35;
+  }
+  .bottomNav a {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  .bottomNav svg {
+    width: 22px;
+    height: 22px;
+  }
+  .bottomNav a.active {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .bottomNav a.active > span:first-child {
+    background: var(--mint);
+    border-radius: 10px;
+    padding: 2px 13px;
   }
   .login {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 20px;
+    gap: 24px;
   }
   .loginStory {
-    padding: 28px 26px;
-    min-height: 280px;
+    padding: 12px 4px;
+    gap: 0;
   }
-  .loginStory h1 {
-    font-size: 32px;
-    margin: 26px 0 16px;
-  }
+  .loginStory > div:nth-child(2),
   .loginFooter {
     display: none;
   }
   .loginCard {
-    padding: 32px 26px;
+    padding: 26px 22px;
+    border-radius: 18px;
+    max-width: 480px;
   }
-  .tools :global(.arco-tag) {
-    max-width: 160px;
+  .loginCard form {
+    margin-top: 22px;
   }
-  .shell[data-reading-size='150'] .toolbar {
-    flex-wrap: wrap;
+  .loginCard h2 {
+    font-size: 1.4rem;
   }
-  .shell[data-reading-size='150'] .tools {
-    max-width: 100%;
+  .drawerNav nav a {
+    font-size: 1rem;
+    min-height: 52px;
   }
-}
-
-@media (max-width: 800px) {
-  .loginStory {
-    min-height: 0;
-    padding: 24px;
-    background: #fff;
-  }
-  .loginStory > div:not(:first-child) {
-    display: none;
-  }
-  .loginCard {
-    margin: 0 auto;
-    padding: 24px;
-  }
-  .login {
-    align-content: center;
-  }
-}
-.shell[data-reading-size='150'] .tools :global(.arco-select) {
-  width: 160px;
 }

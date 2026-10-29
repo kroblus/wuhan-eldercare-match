@@ -19,7 +19,8 @@ public final class P1AdminWebController {
             "/p1-admin/requests", "/p1-admin/requests/",
             "/p1-admin/visits", "/p1-admin/visits/",
             "/p1-admin/institutions", "/p1-admin/institutions/",
-            "/p1-admin/reports", "/p1-admin/reports/"})
+            "/p1-admin/reports", "/p1-admin/reports/",
+            "/p1-admin/more", "/p1-admin/more/"})
     public String index(HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store");
         return "forward:/p1-admin/index.html";

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useBlocker } from 'react-router-dom';
-import { Modal } from '@arco-design/web-react';
+import { Modal } from '../ui';
 import { useWork } from '../state';
 export default function NavigationGuard() {
   const { dirty, pending } = useWork();

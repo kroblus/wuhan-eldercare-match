@@ -1,9 +1,8 @@
 import { useRenderMark } from '../useRenderMark';
-import '@arco-design/web-react/es/Collapse/style/css.js';
-import '@arco-design/web-react/es/Table/style/css.js';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  useMobile,
   Button,
   Collapse,
   Empty,
@@ -13,8 +12,8 @@ import {
   Space,
   Table,
   Tag,
-} from '@arco-design/web-react';
-import { IconDownload, IconRefresh } from '@arco-design/web-react/icon';
+} from '../ui';
+import { IconDownload, IconRefresh } from '../ui/icons';
 import type { z } from 'zod';
 import { client, describe } from '../api/client';
 import { reportSchema, serviceSchema, type ServiceInstitution } from '../api/schema';
@@ -52,6 +51,7 @@ const count = (value: number | null | undefined) =>
   value === null || value === undefined ? '未提供' : String(value);
 
 export default function Reports() {
+  const mobile = useMobile();
   const [form] = Form.useForm<Filters>();
   const [institutions, setInstitutions] = useState<ServiceInstitution[]>([]);
   const [serviceError, setServiceError] = useState('');
@@ -232,7 +232,7 @@ export default function Reports() {
               />
             </Form.Item>
           </div>
-          <Space wrap>
+          <Space wrap className={styles.reportActions}>
             <Button type="primary" htmlType="submit" loading={busy}>
               生成报告预览
             </Button>
@@ -264,6 +264,16 @@ export default function Reports() {
               </div>
               <Tag color="gray">本批次已固定</Tag>
             </div>
+            <div className={styles.metricGrid}>
+              {['newRequests', 'contactEvents', 'confirmedSessions', 'arrivedSessions'].map(
+                (key) => (
+                  <article className={styles.metric} key={key}>
+                    <p>{metricLabels[key]}</p>
+                    <strong>{count(report.metrics[key])}</strong>
+                  </article>
+                ),
+              )}
+            </div>
             <Alert type="info" content={report.warning} />
             <details className="report-provenance">
               <summary>查看批次与统计口径</summary>
@@ -282,34 +292,39 @@ export default function Reports() {
                 </div>
               </dl>
             </details>
-            <div className="metric-grid">
-              {['newRequests', 'contactEvents', 'confirmedSessions', 'arrivedSessions'].map(
-                (key) => (
-                  <article className={styles.metric} key={key}>
-                    <p>{metricLabels[key]}</p>
-                    <strong>{count(report.metrics[key])}</strong>
-                  </article>
-                ),
-              )}
-            </div>
           </section>
           <section className="panel" aria-labelledby="report-activity-title">
-            <h2 id="report-activity-title">期间活动</h2>
-            <Table
-              border={false}
-              rowKey="key"
-              pagination={false}
-              data={Object.entries(metricLabels).map(([key, label]) => ({
-                key,
-                label,
-                value: count(report.metrics[key]),
-              }))}
-              columns={[
-                { title: '指标', dataIndex: 'label' },
-                { title: '实际数量', dataIndex: 'value', width: 150 },
-              ]}
-              scroll={{ x: 480 }}
-            />
+            <details className={styles.detailSection} open={!mobile || undefined}>
+              <summary>
+                <h2 id="report-activity-title">期间活动</h2>
+              </summary>
+              {mobile ? (
+                <dl className={styles.metricList}>
+                  {Object.entries(metricLabels).map(([key, label]) => (
+                    <div key={key}>
+                      <dt>{label}</dt>
+                      <dd>{count(report.metrics[key])}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <Table
+                  border={false}
+                  rowKey="key"
+                  pagination={false}
+                  data={Object.entries(metricLabels).map(([key, label]) => ({
+                    key,
+                    label,
+                    value: count(report.metrics[key]),
+                  }))}
+                  columns={[
+                    { title: '指标', dataIndex: 'label' },
+                    { title: '实际数量', dataIndex: 'value', width: 150 },
+                  ]}
+                  scroll={{ x: 480 }}
+                />
+              )}
+            </details>
           </section>
           <section className="panel" aria-labelledby="report-cohort-title">
             <h2 id="report-cohort-title">同批需求转化</h2>
@@ -330,72 +345,135 @@ export default function Reports() {
             </p>
           </section>
           <section className="panel" aria-labelledby="report-profiles-title">
-            <h2 id="report-profiles-title">需求画像</h2>
-            <Table
-              border={false}
-              rowKey={(row) => row.dimension + '/' + row.category}
-              pagination={false}
-              data={report.profiles}
-              columns={[
-                { title: '维度', dataIndex: 'dimension' },
-                { title: '分类', dataIndex: 'category' },
-                {
-                  title: '需求数（条）',
-                  render: (_, row) => (row.count === null ? '不展示' : row.count),
-                },
-                { title: '说明', dataIndex: 'note' },
-              ]}
-              scroll={{ x: 760 }}
-            />
+            <details className={styles.detailSection} open={!mobile || undefined}>
+              <summary>
+                <h2 id="report-profiles-title">需求画像</h2>
+              </summary>
+              {mobile ? (
+                <div className={styles.detailCards}>
+                  {report.profiles.map((row) => (
+                    <article key={row.dimension + '/' + row.category}>
+                      <h3>
+                        {row.dimension} · {row.category}
+                      </h3>
+                      <p>需求数：{row.count === null ? '不展示' : `${row.count} 条`}</p>
+                      <p className={styles.description}>{row.note}</p>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <Table
+                  border={false}
+                  rowKey={(row) => row.dimension + '/' + row.category}
+                  pagination={false}
+                  data={report.profiles}
+                  columns={[
+                    { title: '维度', dataIndex: 'dimension' },
+                    { title: '分类', dataIndex: 'category' },
+                    {
+                      title: '需求数（条）',
+                      render: (_, row) => (row.count === null ? '不展示' : row.count),
+                    },
+                    { title: '说明', dataIndex: 'note' },
+                  ]}
+                  scroll={{ x: 760 }}
+                />
+              )}
+            </details>
           </section>
           <section className="panel" aria-labelledby="report-institutions-title">
-            <h2 id="report-institutions-title">分机构成果</h2>
-            <p className={styles.description}>各机构行独立去重，平台总数不能由这些行相加。</p>
-            <Table
-              border={false}
-              rowKey="institutionName"
-              pagination={false}
-              data={report.institutions}
-              columns={[
-                { title: '机构', dataIndex: 'institutionName', width: 200 },
-                ...(
-                  [
-                    'newRequests',
-                    'confirmedSessions',
-                    'arrivedSessions',
-                    'arrivedRequests',
-                    'movedInFeedbackEvents',
-                  ] as const
-                ).map((key) => ({
-                  title: metricLabels[key],
-                  width: 150,
-                  render: (_: unknown, row: Report['institutions'][number]) =>
-                    count(row.metrics[key]),
-                })),
-              ]}
-              scroll={{ x: 960 }}
-            />
+            <details className={styles.detailSection} open={!mobile || undefined}>
+              <summary>
+                <h2 id="report-institutions-title">分机构成果</h2>
+              </summary>
+              <p className={styles.description}>各机构行独立去重，平台总数不能由这些行相加。</p>
+              {mobile ? (
+                <div className={styles.detailCards}>
+                  {report.institutions.map((row) => (
+                    <article key={row.institutionName}>
+                      <h3>{row.institutionName}</h3>
+                      <dl className={styles.metricList}>
+                        {(
+                          [
+                            'newRequests',
+                            'confirmedSessions',
+                            'arrivedSessions',
+                            'arrivedRequests',
+                            'movedInFeedbackEvents',
+                          ] as const
+                        ).map((key) => (
+                          <div key={key}>
+                            <dt>{metricLabels[key]}</dt>
+                            <dd>{count(row.metrics[key])}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <Table
+                  border={false}
+                  rowKey="institutionName"
+                  pagination={false}
+                  data={report.institutions}
+                  columns={[
+                    { title: '机构', dataIndex: 'institutionName', width: 200 },
+                    ...(
+                      [
+                        'newRequests',
+                        'confirmedSessions',
+                        'arrivedSessions',
+                        'arrivedRequests',
+                        'movedInFeedbackEvents',
+                      ] as const
+                    ).map((key) => ({
+                      title: metricLabels[key],
+                      width: 150,
+                      render: (_: unknown, row: Report['institutions'][number]) =>
+                        count(row.metrics[key]),
+                    })),
+                  ]}
+                  scroll={{ x: 960 }}
+                />
+              )}
+            </details>
           </section>
           <section className="panel" aria-labelledby="report-sources-title">
-            <h2 id="report-sources-title">数据来源</h2>
-            <Table
-              border={false}
-              rowKey="source"
-              pagination={false}
-              data={report.sources}
-              columns={[
-                { title: '来源', render: (_, row) => sourceLabels[row.source] || row.source },
-                { title: '同批需求（条）', dataIndex: 'count' },
-              ]}
-              scroll={{ x: 440 }}
-            />
-            <Collapse bordered={false} className={styles.rules}>
-              <Collapse.Item header="统计口径与小样本规则" name="rules">
-                {report.rules.map((rule, index) => (
-                  <p key={index}>{rule}</p>
-                ))}
-              </Collapse.Item>
-            </Collapse>
+            <details className={styles.detailSection} open={!mobile || undefined}>
+              <summary>
+                <h2 id="report-sources-title">数据来源</h2>
+              </summary>
+              {mobile ? (
+                <dl className={styles.metricList}>
+                  {report.sources.map((row) => (
+                    <div key={row.source}>
+                      <dt>{sourceLabels[row.source] || row.source}</dt>
+                      <dd>{row.count} 条</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <Table
+                  border={false}
+                  rowKey="source"
+                  pagination={false}
+                  data={report.sources}
+                  columns={[
+                    { title: '来源', render: (_, row) => sourceLabels[row.source] || row.source },
+                    { title: '同批需求（条）', dataIndex: 'count' },
+                  ]}
+                  scroll={{ x: 440 }}
+                />
+              )}
+              <Collapse bordered={false} className={styles.rules}>
+                <Collapse.Item header="统计口径与小样本规则" name="rules">
+                  {report.rules.map((rule, index) => (
+                    <p key={index}>{rule}</p>
+                  ))}
+                </Collapse.Item>
+              </Collapse>
+            </details>
           </section>
         </>
       ) : (

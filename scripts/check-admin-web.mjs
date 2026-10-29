@@ -18,5 +18,23 @@ assert.equal(JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')).
 const files=[...initial].map(file=>{const buffer=fs.readFileSync(path.join(dist,file));return {file,bytes:buffer.length,gzipBytes:gzipSync(buffer).length};});
 const total=extension=>files.filter(f=>f.file.endsWith(extension)).reduce((sum,f)=>({bytes:sum.bytes+f.bytes,gzipBytes:sum.gzipBytes+f.gzipBytes}),{bytes:0,gzipBytes:0});
 const result={schemaVersion:'admin-web-assets-v1',base:'/p1-admin/',initialJavaScript:total('.js'),initialCss:total('.css'),initialFiles:files,lazyRoutes:Object.keys(manifest).filter(k=>/\/pages\//.test(k)),note:'Build artifact bytes; gzip calculated locally, not a claim that the server enables compression.'};
+// Viewport adapters are dynamic: count the actual boot route as well as the shell.
+const desktop=manifest['src/ui/desktop.tsx'], mobile=manifest['src/ui/mobile.tsx'];
+assert.ok(desktop?.isDynamicEntry && mobile?.isDynamicEntry,'both UI adapters must stay lazy');
+assert.ok(!initial.has(desktop.file) && !initial.has(mobile.file),'shell must not eagerly load both libraries');
+result.viewportLoads={};
+for(const [mode,adapter,other] of [['desktop',desktop,mobile],['mobile',mobile,desktop]]) {
+  const assets=new Set(),visited=new Set();
+  function collect(chunk){if(visited.has(chunk.file))return;visited.add(chunk.file);assets.add(chunk.file);for(const css of chunk.css||[])assets.add(css);for(const key of chunk.imports||[])collect(manifest[key]);}
+  collect(entry); collect(adapter); collect(manifest['src/pages/Dashboard.tsx']);
+  assert.ok(!assets.has(other.file),mode+' must not load the other viewport adapter');
+  const measure=extension=>[...assets].filter(file=>file.endsWith(extension)).reduce((sum,file)=>{const buffer=fs.readFileSync(path.join(dist,file));return {bytes:sum.bytes+buffer.length,gzipBytes:sum.gzipBytes+gzipSync(buffer).length};},{bytes:0,gzipBytes:0});
+  result.viewportLoads[mode]={javaScript:measure('.js'),css:measure('.css'),files:[...assets]};
+}
+const dependencies=JSON.parse(fs.readFileSync(path.join(root,'admin-web/package.json'),'utf8')).dependencies;
+result.legacyUiDependencyRetained=!!dependencies['@arco-design/web-react'];
+// Full GUI acceptance gates the final dependency deletion; the dormant stylesheet
+// is not an application import and cannot appear in the production chunks.
+for(const chunk of Object.values(manifest))if(chunk.file.endsWith('.js'))assert.doesNotMatch(fs.readFileSync(path.join(dist,chunk.file),'utf8'),/arco-(?:btn|table|modal|select)/,'Arco must not be in the new runtime');
 const output=process.argv.indexOf('--output');if(output>=0){const target=path.resolve(process.argv[output+1]);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,JSON.stringify(result,null,2)+'\n');}
 console.log(JSON.stringify({status:'PASS',initialJavaScript:result.initialJavaScript,initialCss:result.initialCss,lazyRoutes:result.lazyRoutes.length}));

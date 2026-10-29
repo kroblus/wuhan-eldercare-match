@@ -72,7 +72,7 @@ try {
             return [pscustomobject]@{StatusCode=[int]$_.Exception.Response.StatusCode;Content='';Headers=@{}}
         }
     }
-    foreach ($adminPage in @('/p1-admin','/p1-admin/','/p1-admin/index.html','/p1-admin/dashboard','/p1-admin/requests','/p1-admin/visits','/p1-admin/institutions','/p1-admin/reports/')) {
+    foreach ($adminPage in @('/p1-admin','/p1-admin/','/p1-admin/index.html','/p1-admin/dashboard','/p1-admin/requests','/p1-admin/visits','/p1-admin/institutions','/p1-admin/reports/','/p1-admin/more','/p1-admin/more/')) {
         $adminResponse = Read-AdminSmoke $adminPage
         if ($adminResponse.StatusCode -ne 200 -or $adminResponse.Content -ne $adminHtml) { throw "React page or deep-link refresh failed: $adminPage" }
         $adminChecks += [pscustomobject]@{path=$adminPage;status=200;kind='React page'}

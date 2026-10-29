@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render } from '../test/render';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 import { client, ApiError } from '../api/client';
@@ -124,6 +125,31 @@ beforeEach(() => {
 });
 
 describe('带看日程范围、资源写入与恢复', () => {
+  it('手机按北京时间日期及状态分组，同一需求入口与日期失效行为保持一致', async () => {
+    const request = vi
+      .spyOn(client, 'request')
+      .mockImplementation(
+        async (path) => (path === '/service-institutions' ? services : calendar) as never,
+      );
+    render(
+      <WorkState>
+        <Visits />
+      </WorkState>,
+      { mobile: true },
+    );
+    await screen.findByText('前台集合');
+    expect(screen.getByRole('region', { name: '按日期和状态分组的带看日程' })).toBeVisible();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByText('10:00 — 11:00')).toBeVisible();
+    fireEvent.click(screen.getAllByRole('button', { name: '查看及处理' })[0]);
+    expect(screen.getByRole('dialog', { name: '合用需求详情' })).toHaveTextContent(requestId);
+    fireEvent.click(screen.getByRole('button', { name: '关闭需求详情' }));
+    fireEvent.change(screen.getByLabelText('日程起始日', { selector: 'input' }), {
+      target: { value: '2026-10-01' },
+    });
+    expect(screen.queryByText('前台集合')).not.toBeInTheDocument();
+    expect(request.mock.calls.filter(([path]) => path.startsWith('/calendar?'))).toHaveLength(1);
+  });
   it('按服务器日期范围读取，状态仅筛选当前范围，并使用共用需求详情处理行程', async () => {
     const request = vi
       .spyOn(client, 'request')
@@ -137,10 +163,12 @@ describe('带看日程范围、资源写入与恢复', () => {
     fireEvent.click(screen.getAllByRole('button', { name: '查看及处理' })[0]);
     expect(screen.getByRole('dialog', { name: '合用需求详情' })).toHaveTextContent(requestId);
     fireEvent.click(screen.getByRole('button', { name: '关闭需求详情' }));
-    fireEvent.click(screen.getByLabelText('日程状态筛选'));
-    fireEvent.click(await screen.findByRole('option', { name: '待双方确认' }));
+    fireEvent.mouseDown(screen.getByLabelText('日程状态筛选'));
+    fireEvent.click(
+      await screen.findByText('待双方确认', { selector: '.ant-select-item-option-content' }),
+    );
     expect(screen.getByText('待协商')).toBeVisible();
-    expect(screen.queryByText('前台集合')).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText('前台集合')).not.toBeInTheDocument());
     expect(screen.getByText(/当前范围共 2 场，状态筛选后 1 场/)).toBeVisible();
     const calendarCalls = request.mock.calls.filter(([path]) => path.startsWith('/calendar?'));
     expect(calendarCalls).toHaveLength(1);
@@ -245,9 +273,11 @@ describe('带看日程范围、资源写入与恢复', () => {
     renderVisits();
     await screen.findByText('前台集合');
     openResources();
-    fireEvent.click(screen.getByLabelText('容量配置机构'));
+    fireEvent.mouseDown(screen.getByLabelText('容量配置机构'));
     expect(screen.queryByRole('option', { name: '合成停用机构' })).not.toBeInTheDocument();
-    fireEvent.click(await screen.findByRole('option', { name: '合成启用机构' }));
+    fireEvent.click(
+      await screen.findByText('合成启用机构', { selector: '.ant-select-item-option-content' }),
+    );
     fireEvent.change(screen.getByLabelText('同时接待组数'), { target: { value: '3' } });
     fireEvent.click(screen.getByRole('button', { name: '保存容量设置' }));
     await screen.findByText('仍有未来确认行程，请先处理再调整容量。');
