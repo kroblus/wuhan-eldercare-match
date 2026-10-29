@@ -22,6 +22,19 @@ const result={schemaVersion:'admin-web-assets-v1',base:'/p1-admin/',initialJavaS
 const desktop=manifest['src/ui/desktop.tsx'], mobile=manifest['src/ui/mobile.tsx'];
 assert.ok(desktop?.isDynamicEntry && mobile?.isDynamicEntry,'both UI adapters must stay lazy');
 assert.ok(!initial.has(desktop.file) && !initial.has(mobile.file),'shell must not eagerly load both libraries');
+// Manifest CSS alone is insufficient: Vite can collapse conditional import
+// preloads onto the desktop branch and omit mobile styles in the browser.
+const entrySource=fs.readFileSync(path.join(dist,entry.file),'utf8');
+const mapped=entrySource.match(/m\.f=\[([^\]]*)\]/);
+assert.ok(mapped,'Vite preload dependency map required');
+const preloadFiles=JSON.parse('['+mapped[1]+']');
+const mobileImport='import("./'+path.basename(mobile.file)+'")';
+const importIndex=entrySource.indexOf(mobileImport);
+assert.ok(importIndex>=0,'mobile dynamic import required');
+const preload=entrySource.slice(importIndex+mobileImport.length).match(/^,__vite__mapDeps\(\[([\d,]+)\]\)/);
+assert.ok(preload,'mobile must own its preload call, not share a conditional desktop preload');
+const mobilePreloads=preload[1].split(',').map(index=>preloadFiles[Number(index)]);
+for(const css of mobile.css||[])assert.ok(mobilePreloads.includes(css),'mobile CSS must actually be preloaded: '+css);
 result.viewportLoads={};
 for(const [mode,adapter,other] of [['desktop',desktop,mobile],['mobile',mobile,desktop]]) {
   const assets=new Set(),visited=new Set();
@@ -33,8 +46,8 @@ for(const [mode,adapter,other] of [['desktop',desktop,mobile],['mobile',mobile,d
 }
 const dependencies=JSON.parse(fs.readFileSync(path.join(root,'admin-web/package.json'),'utf8')).dependencies;
 result.legacyUiDependencyRetained=!!dependencies['@arco-design/web-react'];
-// Full GUI acceptance gates the final dependency deletion; the dormant stylesheet
-// is not an application import and cannot appear in the production chunks.
+assert.equal(result.legacyUiDependencyRetained,false,'Arco dependency must be removed after GUI acceptance');
+assert.ok(!fs.existsSync(path.join(sourceRoot,'arco.css.ts')),'unused Arco stylesheet must be removed');
 for(const chunk of Object.values(manifest))if(chunk.file.endsWith('.js'))assert.doesNotMatch(fs.readFileSync(path.join(dist,chunk.file),'utf8'),/arco-(?:btn|table|modal|select)/,'Arco must not be in the new runtime');
 const output=process.argv.indexOf('--output');if(output>=0){const target=path.resolve(process.argv[output+1]);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,JSON.stringify(result,null,2)+'\n');}
 console.log(JSON.stringify({status:'PASS',initialJavaScript:result.initialJavaScript,initialCss:result.initialCss,lazyRoutes:result.lazyRoutes.length}));

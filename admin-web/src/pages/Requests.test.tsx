@@ -58,6 +58,10 @@ it('手机筛选的查看结果提交所选状态和机构，关闭筛选页并�
   await screen.findByText('当前筛选共 0 条');
   fireEvent.click(screen.getByRole('button', { name: '筛选需求' }));
   const filter = screen.getByRole('dialog', { name: '筛选需求' });
+  const submit = within(filter).getByRole('button', { name: '查看结果' });
+  expect(submit).toHaveAttribute('type', 'submit');
+  expect(submit.closest('form')).not.toBeNull();
+  expect(within(filter).queryByRole('button', { name: '查询需求' })).not.toBeInTheDocument();
   fireEvent.click(within(filter).getByLabelText('需求状态'));
   fireEvent.click(await screen.findByRole('button', { name: '跟进中' }));
   fireEvent.click(within(filter).getByLabelText('意向机构'));

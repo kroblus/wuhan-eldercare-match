@@ -69,8 +69,8 @@ export default function Requests() {
         </div>
       </details>
       <Form.Item>
-        <Button htmlType="submit" type="primary" icon={<IconSearch />}>
-          查询需求
+        <Button htmlType="submit" type="primary" long={mobile} icon={<IconSearch />}>
+          {mobile ? '查看结果' : '查询需求'}
         </Button>
         <Button
           onClick={() => {
@@ -112,9 +112,6 @@ export default function Requests() {
             onCancel={() => setFiltersOpen(false)}
           >
             {filterForm}
-            <Button long type="primary" onClick={() => form.submit()}>
-              查看结果
-            </Button>
           </Modal>
         </>
       ) : (

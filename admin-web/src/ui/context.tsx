@@ -8,6 +8,10 @@ import {
 } from 'react';
 import type { UIAdapter } from './types';
 export const UIContext = createContext<{ adapter: UIAdapter; mobile: boolean } | null>(null);
+// Keep each import in its own loader so Vite associates its CSS preloads with
+// that branch, including on first mobile load and later viewport changes.
+const loadMobile = () => import('./mobile');
+const loadDesktop = () => import('./desktop');
 const media = () => window.matchMedia('(max-width: 767px)');
 function subscribe(callback: () => void) {
   const m = media();
@@ -37,7 +41,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState<{ adapter: UIAdapter; mobile: boolean } | null>(null);
   useEffect(() => {
     let active = true;
-    (mobile ? import('./mobile') : import('./desktop')).then((module) => {
+    const load = mobile ? loadMobile : loadDesktop;
+    load().then((module) => {
       if (active) setLoaded({ adapter: module.default, mobile });
     });
     return () => {
