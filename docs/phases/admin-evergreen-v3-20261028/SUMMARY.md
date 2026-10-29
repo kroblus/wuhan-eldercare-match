@@ -47,7 +47,7 @@ Arco删除后的最终构建再次经浏览器轻量复核：新开1440桌面入
 
 包体统计采用manifest静态依赖闭包，含工作台路由和当前视口组件；最终数值见JSON。gzip为本机计算，不等于服务器开启压缩，Ant桌面运行时注入样式不计入静态CSS。桌面chunk仍有大于500KB警告，未宣称性能全面优于旧版。
 
-清理Arco后npm audit仍8项（2低、3中、1高、2严重），涉及Mobile/deepmerge、Router/Zod与Vitest/tinypool开发依赖；未强制跨主版本升级。既有使用路径限制不等于漏洞已修复或生产安全验收。[前序审计](../../../output/admin-evergreen-v3-20261028/audit-stage2.json)。
+清理Arco时npm audit仍8项（2低、3中、1高、2严重），涉及Mobile/deepmerge、Router/Zod与Vitest/tinypool开发依赖。[当时审计](../../../output/admin-evergreen-v3-20261028/audit-stage2.json)。随后Owner授权兼容升级，已在后续任务处理，见[依赖升级结果与本地补丁边界](../admin-dependency-upgrade-20261029/SUMMARY.md)；本页以上测试与包体仍描述A版迁移当时结果。
 
 ## 视觉确认与未覆盖范围
 
@@ -55,4 +55,4 @@ Owner已选A，不再请求第二次审美批准。第一阶段原型提交d7623
 
 应用150%字号不是浏览器150%缩放：快捷键未观测到真实zoom改变。Android/iOS真机、Safari/WebView、虚拟键盘、真实触摸、浏览器同源HTTPS，以及实际网络丢响应后的GUI重试仍未覆盖；后者仅有组件/接口回归证据。不会把这些边界写成全平台通过。
 
-下一步是设备与正式HTTPS环境验收，以及依赖漏洞兼容升级。当前完成本机浏览器与构建交付；真实业务仍关闭，未合并main、部署云服务器或上传微信。
+下一步是设备与正式HTTPS环境验收。依赖兼容升级已在后续任务完成；真实业务仍关闭，未合并main、部署云服务器或上传微信。

@@ -49,7 +49,7 @@ describe.skipIf(process.env.ADMIN_LOCAL_HTTP !== '1')(
         schema: {
           safeParse: (v: unknown) => {
             success: boolean;
-            error?: { issues: { path: (string | number)[]; code: string }[] };
+            error?: { issues: { path: PropertyKey[]; code: string }[] };
           };
         },
         body: unknown,
@@ -60,7 +60,7 @@ describe.skipIf(process.env.ADMIN_LOCAL_HTTP !== '1')(
           throw Error(
             label +
               ': ' +
-              result.error?.issues.map((i) => i.path.join('.') + ' ' + i.code).join('; '),
+              result.error?.issues.map((i) => i.path.map(String).join('.') + ' ' + i.code).join('; '),
           );
       };
       const requests = await read('/requests?limit=25&offset=0');

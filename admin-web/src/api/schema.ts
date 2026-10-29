@@ -11,6 +11,8 @@ export const sessionSchema = p1.extend({
   csrfToken: z.string().min(1),
 });
 const date = z.string().refine((v) => Number.isFinite(Date.parse(v)));
+// Preserve Zod 3's UUID-shaped wire IDs; v4 uuid() additionally restricts version/variant bits.
+const wireId = z.guid();
 export const statusLabels = {
   PENDING_CONTACT: '待联系',
   FOLLOWING_UP: '跟进中',
@@ -38,7 +40,7 @@ export const followupLabels = {
   UNKNOWN_FEEDBACK: '入住情况未知',
 };
 export const visitSchema = z.object({
-  id: z.string().uuid(),
+  id: wireId,
   revision: z.number().int(),
   institutionId: z.string(),
   institutionName: z.string(),
@@ -55,7 +57,7 @@ export const visitSchema = z.object({
   requestId: z.string().optional(),
 });
 export const requestSchema = z.object({
-  id: z.string().uuid(),
+  id: wireId,
   kind: z.enum(['CONSULTATION', 'VISIT_INTENT']),
   status: z.enum([
     'PENDING_CONTACT',
@@ -124,7 +126,7 @@ export const serviceSchema = p1.extend({
   ),
 });
 export const calendarSchema = p1.extend({
-  visits: z.array(visitSchema.extend({ requestId: z.string().uuid() })),
+  visits: z.array(visitSchema.extend({ requestId: wireId })),
   blocks: z.array(z.object({ id: z.string(), staffId: z.string(), start: date, end: date })),
   capacities: z.array(z.object({ institutionName: z.string(), capacity: z.number() })),
 });
@@ -157,7 +159,8 @@ export const recordSchema = z
     institutionId: z.string(),
     recordRevision: z.number().int(),
     recordStatus: z.string(),
-    identity: z.record(z.object({ value: z.unknown() }).passthrough()),
+    // Zod 3 allowed absent unknown values; preserve that existing wire contract.
+    identity: z.record(z.string(), z.object({ value: z.unknown().optional() }).passthrough()),
     evidence: z
       .array(
         z
@@ -246,7 +249,7 @@ const metricCounts = [
   'cohortArrivedRequests',
   'cohortMovedInRequests',
 ];
-const metrics = z.record(z.number().finite().nullable()).superRefine((value, ctx) => {
+const metrics = z.record(z.string(), z.number().finite().nullable()).superRefine((value, ctx) => {
   for (const key of metricCounts)
     if (!Number.isSafeInteger(value[key]) || Number(value[key]) < 0 || value[key] === null)
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message: '统计数量缺失或不合法' });
@@ -266,7 +269,7 @@ const metrics = z.record(z.number().finite().nullable()).superRefine((value, ctx
 });
 export const reportSchema = p1.extend({
   report: z.object({
-    snapshotId: z.string().uuid(),
+    snapshotId: wireId,
     datasetMode: environment,
     timeZone: z.literal('Asia/Shanghai'),
     institutionId: z.string().nullish(),
