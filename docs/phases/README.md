@@ -10,7 +10,8 @@
 
 | 阶段／模块 | 现在应怎样理解 | 什么时候需要读 | 摘要 | 后继或当前依据 |
 |---|---|---|---|---|
-| 后台依赖安全升级（2026-10-29） | Router/Zod/Vitest兼容升级、deepmerge本地补丁；npm审计0，69前端及GUI/JAR通过 | 查看升级版本、攻击回归和补丁维护时 | [升级与验证](admin-dependency-upgrade-20261029/SUMMARY.md) | 本地补丁不由npm audit审查；真机/HTTPS浏览器待验，未上线 |
+| Android与本机HTTPS验收（2026-10-29） | 一台Android实际交互、PC可信HTTPS会话通过；修复只读错误提示，71前端及完整构建通过 | 核对真机、TLS、缩放限制及临时证书清理时 | [验收与限制](admin-device-https-20261029/SUMMARY.md) | 真实zoom仅人工确认；手机HTTPS/下载与正式域名待验，未上线 |
+| 后台依赖安全升级（2026-10-29） | Router/Zod/Vitest兼容升级、deepmerge本地补丁；npm审计0，69前端及GUI/JAR通过 | 查看升级版本、攻击回归和补丁维护时 | [升级与验证](admin-dependency-upgrade-20261029/SUMMARY.md) | 本地补丁不由npm audit审查；真机/本机HTTPS见后续记录，未上线 |
 | 绿色后台 V3：Young Evergreen A版迁移（2026-10-29） | 本机GUI矩阵、手机筛选、机构409/发布与下载闭环完成；Arco已删除 | 查看迁移能力、最终截图及验证边界时 | [成果与验证](admin-evergreen-v3-20261028/SUMMARY.md) | 430/1024相邻夹测；真机、真实zoom及HTTPS浏览器待验，未上线 |
 | 后台视觉 V2：Light Swiss SaaS（2026-10-28） | Shell、五模块与登录统一重构；两轮GUI修正含窄屏比较和大字号继承 | 看前后对照、试用新界面或核对视觉回归时 | [视觉成果与验证](admin-visual-refinement-v2-20261028/SUMMARY.md) | 本机合成验证；正式HTTPS、下载落盘及Owner最终视觉验收仍待确认 |
 | 主目录空间清理（2026-10-28） | 旧合成测试库、生成测试工程和已校验重复备份清理；保留源码、当前JAR、试用库与独有证据 | 了解目录占用降低、剩余恢复包和临时核验目录限制时 | [清理与保留范围](space-cleanup-20261028/SUMMARY.md) | 约5.11→2.95GiB；临时Git核验目录删除被自动安全检查拒绝 |

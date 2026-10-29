@@ -86,7 +86,9 @@ export class AdminClient {
           (response.status === 403
             ? '操作未获授权，请重新登录。'
             : response.status >= 500
-              ? '服务暂不可用；写入结果尚未确认。'
+              ? options.method && !['GET', 'HEAD'].includes(options.method.toUpperCase())
+                ? '服务暂不可用；写入结果尚未确认。'
+                : '服务暂不可用，请稍后刷新。'
               : '请求未完成，请检查输入。'),
         response.status,
         code,

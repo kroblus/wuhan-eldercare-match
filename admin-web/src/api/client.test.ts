@@ -12,6 +12,16 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 describe('same-origin API boundary', () => {
+  it('does not imply an uncertain write when a read-only service is disabled', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ code: 'SERVICE_UNAVAILABLE' }, 503)));
+    await expect(api.request('/requests', p1)).rejects.toThrow('服务暂不可用，请稍后刷新。');
+  });
+  it('keeps the uncertain-write warning for a failed mutation', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ code: 'SERVICE_UNAVAILABLE' }, 503)));
+    await expect(api.request('/resources', p1, { method: 'POST', body: {} })).rejects.toThrow(
+      '服务暂不可用；写入结果尚未确认。',
+    );
+  });
   it('uses JSON, same-origin cookies, no-store and CSRF for mutations; no automatic retry', async () => {
     const fetcher = vi.fn().mockResolvedValue(json(envelope));
     vi.stubGlobal('fetch', fetcher);
