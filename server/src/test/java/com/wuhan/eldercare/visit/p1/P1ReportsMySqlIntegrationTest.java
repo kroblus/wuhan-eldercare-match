@@ -91,7 +91,16 @@ class P1ReportsMySqlIntegrationTest {
             assertFalse(entry.getValue().contains("13800000000"));assertFalse(entry.getValue().contains("13900000000"));assertFalse(entry.getValue().contains("合成联系人"));assertFalse(entry.getValue().contains("External"));assertFalse(entry.getKey().contains("externalLink"));
             var factory=DocumentBuilderFactory.newInstance();factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);factory.newDocumentBuilder().parse(new ByteArrayInputStream(entry.getValue().getBytes(StandardCharsets.UTF_8)));
         }
-        assertTrue(zip.get("xl/worksheets/sheet1.xml").contains("state=\"frozen\""));assertTrue(zip.get("xl/worksheets/sheet1.xml").contains("orientation=\"landscape\""));
+        assertFalse(zip.get("xl/worksheets/sheet1.xml").contains("<pane"),"Overview chart must not be split by a frozen pane");
+        for(int i=2;i<=4;i++){
+            String sheet=zip.get("xl/worksheets/sheet"+i+".xml");
+            assertTrue(sheet.contains("ySplit=\"8\""));assertFalse(sheet.contains("xSplit="),"Frozen columns cut merged metadata");
+        }
+        var styles=DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(zip.get("xl/styles.xml").getBytes(StandardCharsets.UTF_8)));
+        var cellStyles=(org.w3c.dom.Element)styles.getElementsByTagName("cellXfs").item(0);
+        var normal=(org.w3c.dom.Element)cellStyles.getElementsByTagName("xf").item(0);
+        assertEquals("0",normal.getAttribute("borderId"),"Default blank cells must have no borders");
+        assertTrue(zip.get("xl/worksheets/sheet1.xml").contains("orientation=\"landscape\""));
         assertTrue(zip.get("xl/worksheets/sheet1.xml").contains("IF(C23=0"));
         for(String danger:List.of("=1+1","+SUM(1,2)","-2+3","@SUM(1,2)","=HYPERLINK(\"https://example.invalid\",\"click\")")){
             var injected=unzip(P1Workbook.create(report.deepCopy().put("warning",danger))).get("xl/worksheets/sheet1.xml");

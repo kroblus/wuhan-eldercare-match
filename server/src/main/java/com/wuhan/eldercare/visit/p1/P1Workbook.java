@@ -31,7 +31,12 @@ public final class P1Workbook {
         void height(int row,int points){heights.put(row,points);last=Math.max(last,row);}
         String sheetXml(boolean chart){
             var out=new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?><worksheet xmlns=\"").append(NS).append("\" xmlns:r=\"").append(REL).append("\">");
-            out.append("<sheetPr><tabColor rgb=\"FF0F514F\"/><pageSetUpPr fitToPage=\"1\"/></sheetPr><dimension ref=\"A1:H").append(last).append("\"/><sheetViews><sheetView workbookViewId=\"0\" showGridLines=\"0\"><pane xSplit=\"2\" ySplit=\"8\" topLeftCell=\"C9\" activePane=\"bottomRight\" state=\"frozen\"/><selection pane=\"bottomRight\" activeCell=\"C9\" sqref=\"C9\"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight=\"26\"/><cols>");
+            out.append("<sheetPr><tabColor rgb=\"FF0F514F\"/><pageSetUpPr fitToPage=\"1\"/></sheetPr><dimension ref=\"A1:H").append(last).append("\"/><sheetViews><sheetView workbookViewId=\"0\" showGridLines=\"0\">");
+            // A frozen pane cuts through the overview chart and merged report metadata.
+            // Only scrolling detail sheets need a fixed header, never frozen columns.
+            if(chart)out.append("<selection activeCell=\"A1\" sqref=\"A1\"/>");
+            else out.append("<pane ySplit=\"8\" topLeftCell=\"A9\" activePane=\"bottomLeft\" state=\"frozen\"/><selection pane=\"bottomLeft\" activeCell=\"A9\" sqref=\"A9\"/>");
+            out.append("</sheetView></sheetViews><sheetFormatPr defaultRowHeight=\"26\"/><cols>");
             for(int i=0;i<widths.length;i++)out.append("<col min=\"").append(i+1).append("\" max=\"").append(i+1).append("\" width=\"").append(widths[i]).append("\" customWidth=\"1\"/>");
             out.append("</cols><sheetData>");
             for(int row=1;row<=last;row++){
@@ -40,6 +45,7 @@ public final class P1Workbook {
                     var cell=entry.getValue();int style=cell.style();
                     // Light banding belongs only to data rows; title/section styles stay continuous.
                     if(row>8&&row%2==0)style=switch(style){case 0->8;case 2->9;case 5->10;default->style;};
+                    if(style==0)style=11; // Bordered body cells must not be the workbook's default style.
                     out.append("<c r=\"").append(ref(row,entry.getKey())).append("\" s=\"").append(style).append("\" t=\"").append(cell.type()).append("\">");
                     if(cell.formula()!=null)out.append("<f>").append(xml(cell.formula())).append("</f>");
                     if(cell.type().equals("inlineStr"))out.append("<is><t xml:space=\"preserve\">").append(xml(cell.value())).append("</t></is>");else out.append("<v>").append(xml(cell.value())).append("</v>");out.append("</c>");
@@ -137,8 +143,8 @@ public final class P1Workbook {
       <fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0F514F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE7F5EE"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF7FBF8"/><bgColor indexed="64"/></patternFill></fill></fills>
       <borders count="4"><border/><border><bottom style="thin"><color rgb="FFE4EEE8"/></bottom></border><border><bottom style="thin"><color rgb="FF34A48A"/></bottom></border><border><right style="thin"><color rgb="FFFFFFFF"/></right></border></borders>
       <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-      <cellXfs count="11">
-      <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1" indent="1"/></xf>
+      <cellXfs count="12">
+      <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
       <xf numFmtId="0" fontId="1" fillId="0" borderId="2" xfId="0" applyAlignment="1"><alignment vertical="center"/></xf>
       <xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1" indent="1"/></xf>
       <xf numFmtId="0" fontId="3" fillId="2" borderId="3" xfId="0" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
@@ -149,6 +155,7 @@ public final class P1Workbook {
       <xf numFmtId="0" fontId="0" fillId="4" borderId="1" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1" indent="1"/></xf>
       <xf numFmtId="0" fontId="2" fillId="4" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1" indent="1"/></xf>
       <xf numFmtId="164" fontId="0" fillId="4" borderId="1" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="right" indent="1" vertical="center"/></xf>
+      <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1" indent="1"/></xf>
       </cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>
       """;}
     private static String drawing(){return """
