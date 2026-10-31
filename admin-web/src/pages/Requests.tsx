@@ -1,5 +1,5 @@
 import { useRenderMark } from '../useRenderMark';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button, Form, Input, Select, Table, Tag, Modal, useMobile } from '../ui';
 import { IconSearch } from '../ui/icons';
@@ -11,12 +11,36 @@ import { time } from '../time';
 export default function Requests() {
   const mobile = useMobile();
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const [form] = Form.useForm();
-  const initial = params.get('status') || '';
-  const [filter, setFilter] = useState<Record<string, string>>(initial ? { status: initial } : {}),
-    [page, setPage] = useState(1),
-    [selected, setSelected] = useState<string | null>(null);
+  const filter = Object.fromEntries(
+    ['status', 'kind', 'institutionId', 'from', 'to'].flatMap((key) =>
+      params.get(key) ? [[key, params.get(key)!]] : [],
+    ),
+  );
+  const page = Math.max(1, Number(params.get('page')) || 1);
+  const selected = params.get('requestId');
+  const setSelected = (id: string | null) => {
+    const next = new URLSearchParams(params);
+    if (id) next.set('requestId', id);
+    else next.delete('requestId');
+    setParams(next);
+  };
+  const setPage = (value: number | ((page: number) => number)) => {
+    const next = new URLSearchParams(params);
+    next.set('page', String(typeof value === 'function' ? value(page) : value));
+    setParams(next);
+  };
+  useEffect(() => {
+    form.setFieldsValue({
+      status: undefined,
+      kind: undefined,
+      institutionId: undefined,
+      from: undefined,
+      to: undefined,
+      ...filter,
+    });
+  }, [params.toString(), form]);
   const query = new URLSearchParams({ limit: '25', offset: String((page - 1) * 25), ...filter });
   const result = useRead('/requests?' + query, listSchema),
     services = useRead('/service-institutions', serviceSchema);
@@ -26,11 +50,10 @@ export default function Requests() {
       form={form}
       layout="vertical"
       className="filter-grid"
-      initialValues={{ status: initial }}
+      initialValues={filter}
       onSubmit={(values) => {
         setFiltersOpen(false);
-        setPage(1);
-        setFilter(
+        setParams(
           Object.fromEntries(
             Object.entries(values)
               .filter(([, v]) => v)
@@ -76,8 +99,7 @@ export default function Requests() {
           onClick={() => {
             form.resetFields();
             form.setFieldsValue({ status: undefined });
-            setFilter({});
-            setPage(1);
+            setParams({});
           }}
         >
           重置

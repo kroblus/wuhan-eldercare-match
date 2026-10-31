@@ -1,3 +1,4 @@
+import { versionHref, isDemo } from '../experience';
 import { useRenderMark } from '../useRenderMark';
 import { useState, useRef, useEffect } from 'react';
 import {
@@ -865,19 +866,18 @@ export function Editor({
                 }
                 onClick={() => void publishDraft()}
               >
-                {publish.pending ? '使用原操作重试发布' : '发布已确认版本'}
+                {publish.pending
+                  ? '使用原操作重试发布'
+                  : isDemo
+                    ? '模拟发布已确认版本'
+                    : '发布已确认版本'}
               </Button>
               {current.publishedRecordRevision && (
                 <p>
                   <a
                     target="_blank"
                     rel="noopener noreferrer"
-                    href={
-                      '/api/v1/institution-publications/' +
-                      encodeURIComponent(id) +
-                      '/revisions/' +
-                      current.publishedRecordRevision
-                    }
+                    href={versionHref(id, current.publishedRecordRevision)}
                   >
                     读取已发布第 {current.publishedRecordRevision} 版公开资料 ↗
                   </a>
@@ -1132,6 +1132,13 @@ export function BaselineImport({ onSaved }: { onSaved: () => void }) {
         if (!imported || typeof imported !== 'object') throw Error('目录 JSON 格式不正确。');
         body = {
           operationId: crypto.randomUUID(),
+          ...(isDemo
+            ? {
+                syntheticMarker:
+                  'syntheticMarker' in imported ? imported.syntheticMarker : undefined,
+                schemaVersion: 'schemaVersion' in imported ? imported.schemaVersion : undefined,
+              }
+            : {}),
           sourceReference: v.sourceReference.trim(),
           preserveExistingFacts: true,
           ...('catalog' in imported
@@ -1157,7 +1164,9 @@ export function BaselineImport({ onSaved }: { onSaved: () => void }) {
     <Collapse>
       <Collapse.Item name="import" header="已有目录迁移 · 文件导入或粘贴 JSON">
         <p className="muted">
-          只迁移已有版本。同一版本内容不同会被拒绝；历史记录与当前目录分别处理，不视为本次重新核验。
+          {isDemo
+            ? '仅接受演示工具导出的合成机构格式，最多 2 MiB；禁止真实目录、网址、远程图片及真实个人资料。'
+            : '只迁移已有版本。同一版本内容不同会被拒绝；历史记录与当前目录分别处理，不视为本次重新核验。'}
         </p>
         <Form
           id="institution-import"
@@ -1176,8 +1185,8 @@ export function BaselineImport({ onSaved }: { onSaved: () => void }) {
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
-                if (file.size > 12 * 1024 * 1024) {
-                  mutation.setError('文件超过 12 MiB，请核对导出内容。');
+                if (file.size > (isDemo ? 2 : 12) * 1024 * 1024) {
+                  mutation.setError('文件超过 ' + (isDemo ? 2 : 12) + ' MiB，请核对导出内容。');
                   return;
                 }
                 const epoch = client.epoch;
@@ -1265,6 +1274,10 @@ export default function Institutions() {
     }
   }
   async function create() {
+    if (isDemo && !/^demo-[a-z0-9-]{1,94}$/.test(newId)) {
+      setError('演示稳定 ID 请以 demo- 开头，例如 demo-qinghe；仅填写合成资料。');
+      return;
+    }
     if (!/^[a-z][a-z0-9-]{1,99}$/.test(newId)) {
       setError('稳定 ID 需小写字母开头，使用字母、数字、短横线，长度 2–100。');
       return;
@@ -1493,14 +1506,18 @@ export default function Institutions() {
         confirmLoading={busy}
         okText="准备新草稿"
       >
-        <p>一个院区沿用同一个稳定 ID，改名也不更换。模板中的事实保持未知，直到有可追溯来源。</p>
+        <p>
+          {isDemo
+            ? '仅限合成演示。稳定 ID 以 demo- 开头，机构名称以“合成演示”开头；请勿输入真实机构、联系人、电话号码或网址。'
+            : '一个院区沿用同一个稳定 ID，改名也不更换。模板中的事实保持未知，直到有可追溯来源。'}
+        </p>
         <label>
           机构稳定 ID
           <Input
             value={newId}
             onChange={setNewId}
             maxLength={100}
-            placeholder="例如 wh-campus-east"
+            placeholder={isDemo ? '例如 demo-qinghe' : '例如 wh-campus-east'}
           />
         </label>
       </Modal>

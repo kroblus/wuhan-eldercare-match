@@ -69,7 +69,11 @@ export function useMutation<T>(key: string, schema: z.ZodType<T>, matches?: (val
     setBusy(true);
     setError('');
     const epoch = client.epoch;
-    const operation = state.pending.get(key) || { path, body: structuredClone(body), method };
+    const operation = state.pending.get(key) || {
+      path,
+      body: structuredClone(client.prepareMutationBody(body)),
+      method,
+    };
     state.setPending(key, operation);
     try {
       const response = await client.request(operation.path, schema, operation);

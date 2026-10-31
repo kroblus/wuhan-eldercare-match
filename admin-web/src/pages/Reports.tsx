@@ -19,6 +19,7 @@ import { client, describe } from '../api/client';
 import { reportSchema, serviceSchema, type ServiceInstitution } from '../api/schema';
 import { time, today } from '../time';
 import styles from './Reports.module.css';
+import { isDemo } from '../experience';
 
 type Report = z.infer<typeof reportSchema>['report'];
 type Filters = { from: string; to: string; institutionId?: string; source?: string };
@@ -66,6 +67,7 @@ export default function Reports() {
   const serviceGeneration = useRef(0);
   const inFlight = useRef(false);
   const downloadInFlight = useRef(false);
+  const demoOperation = useRef<string>();
 
   async function loadInstitutions() {
     const current = ++serviceGeneration.current;
@@ -90,6 +92,7 @@ export default function Reports() {
   }, []);
 
   function invalidate() {
+    demoOperation.current = undefined;
     generation.current++;
     setReport(null);
     setFeedback('筛选已更改，请重新生成报告。');
@@ -111,6 +114,7 @@ export default function Reports() {
       const response = await client.request('/reports', reportSchema, {
         method: 'POST',
         body: {
+          ...(isDemo ? { operationId: (demoOperation.current ||= crypto.randomUUID()) } : {}),
           from: values.from,
           to: values.to,
           institutionId: values.institutionId || null,
@@ -119,6 +123,7 @@ export default function Reports() {
       });
       if (!mounted.current || current !== generation.current) return;
       setReport(response.report);
+      demoOperation.current = undefined;
       setFeedback('报告已生成。预览和 Excel 使用下方同一批次。');
     } catch (cause) {
       if (mounted.current && current === generation.current) {

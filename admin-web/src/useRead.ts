@@ -6,6 +6,7 @@ export function useRead<T>(path: string | null, schema: z.ZodType<T>) {
     [error, setError] = useState(''),
     [loading, setLoading] = useState(false),
     [revision, setRevision] = useState(0);
+  useEffect(() => client.subscribe(() => setRevision((v) => v + 1)), []);
   useEffect(() => {
     if (!path) {
       setData(undefined);

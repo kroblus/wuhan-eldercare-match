@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [data, setData] = useState<z.infer<typeof listSchema>[]>(),
     [error, setError] = useState(''),
     [refresh, setRefresh] = useState(0);
+  useEffect(() => client.subscribe(() => setRefresh((v) => v + 1)), []);
   useEffect(() => {
     let active = true;
     setError('');

@@ -557,10 +557,52 @@ export default function RequestDetail({
         data && (
           <div key={data.item.id} className={styles.content}>
             <nav className={styles.sectionNav} aria-label="需求详情分区">
-              <a href="#request-info">需求信息</a>
-              {data.item.status !== 'CANCELLED' && <a href="#request-contact">联系跟进</a>}
-              <a href="#request-visits">带看行程</a>
-              <a href="#request-events">事件记录</a>
+              <a
+                href="#request-info"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById('request-info')
+                    ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                }}
+              >
+                需求信息
+              </a>
+              {data.item.status !== 'CANCELLED' && (
+                <a
+                  href="#request-contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document
+                      .getElementById('request-contact')
+                      ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                  }}
+                >
+                  联系跟进
+                </a>
+              )}
+              <a
+                href="#request-visits"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById('request-visits')
+                    ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                }}
+              >
+                带看行程
+              </a>
+              <a
+                href="#request-events"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById('request-events')
+                    ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                }}
+              >
+                事件记录
+              </a>
             </nav>
             <section className={styles.section} id="request-info" aria-label="需求信息">
               {data.item.datasetMode === 'SYNTHETIC_TEST_ONLY' && (
