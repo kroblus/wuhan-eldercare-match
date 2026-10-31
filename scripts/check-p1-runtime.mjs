@@ -75,8 +75,14 @@ assert.equal(p.data.feedback,'unloaded')
 let resolveList
 pageClient.p1Client.list=()=>new Promise(resolve=>{resolveList=resolve})
 const restored=page(); await tick(); const listing=restored.loadMine(); restored.onUnload(); resolveList([item]); await listing; assert.equal(restored.data.items.length,0)
-const script=fs.readdirSync(path.join(root,'admin-web/src'),{recursive:true}).filter(name=>/\.(tsx?|css)$/.test(name)&&!name.includes('.test.')&&!name.startsWith('test')).map(name=>fs.readFileSync(path.join(root,'admin-web/src',name),'utf8')).join('\n')
-assert.ok(!script.includes('innerHTML')); assert.ok(!script.includes('dangerouslySetInnerHTML')); assert.ok(!script.includes('localStorage')); assert.ok(!script.includes('sessionStorage')); assert.ok(!script.includes('setInterval'))
+const adminSources=fs.readdirSync(path.join(root,'admin-web/src'),{recursive:true}).filter(name=>/\.(tsx?|css)$/.test(name)&&!name.includes('.test.')&&!name.startsWith('test'))
+for(const name of adminSources){
+  const script=fs.readFileSync(path.join(root,'admin-web/src',name),'utf8')
+  assert.ok(!script.includes('innerHTML'),name); assert.ok(!script.includes('dangerouslySetInnerHTML'),name); assert.ok(!script.includes('sessionStorage'),name); assert.ok(!script.includes('setInterval'),name)
+  // Only the compile-time demo's non-sensitive preference and cross-tab notification use localStorage.
+  if(!/^public-demo[\\/](?:store\.ts|experience\.tsx)$/.test(name))assert.ok(!script.includes('localStorage'),name)
+  else assert.doesNotMatch(script,/localStorage\.clear\s*\(/,name)
+}
 console.log('P1: five-grade sums, mode isolation, response identity, C5 recovery, permissions failures, consent, same-ID retry, double submit, unload guard and safe admin rendering PASS')
 const visit={id:'18552c03-fdb2-4db4-a8b2-937079f890c8',status:'CONFIRMED',institutionId:prices.id,institutionName:prices.name,start:'2026-10-27T16:00:00Z',end:'2026-10-27T17:00:00Z',meetingNote:'合成集合说明',actualAt:null}
 assert.equal(clientModule.readP1Item({...item,status:'CONFIRMED',visits:[visit],canCancel:true},mode).visits.length,1)

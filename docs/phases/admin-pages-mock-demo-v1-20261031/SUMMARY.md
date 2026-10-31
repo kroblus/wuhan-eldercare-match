@@ -4,7 +4,7 @@
 
 ## 使用入口与边界
 
-预期 Pages 地址：<https://kroblus.github.io/wuhan-eldercare-match/>。发布及公网验收结果将在本次实际部署完成后补入下文；启用 Pages 设置不等于已发布。
+已实际发布并从公网打开：<https://kroblus.github.io/wuhan-eldercare-match/>。电脑和手机使用同一地址，无需安装 Node 或启动后端；可直接分享 `https://kroblus.github.io/wuhan-eldercare-match/#/dashboard` 等 hash 深链。
 
 点击“进入演示工作台”，无需账号、密码、手机号。身份为“演示运营员”。全站使用合成记录，既不联系真人，也不发布真实机构资料。公开前端不是认证或多人权限服务。
 
@@ -82,7 +82,13 @@ npm --prefix admin-web run test:public-demo:e2e
 
 已通过现有 gh 登录设置 Actions 来源，并在原 github-pages 环境策略中新增当前工作分支，未撤销已有规则或审批。官方动作按查询到的 commit SHA 固定，参见 [GitHub 官方自定义 Pages 工作流说明](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)。
 
-实际部署 run、page_url、公网新浏览器复验及 build-info SHA：待本次首次推送执行后补齐。
+首次实际发布：[Pages run 41173026768](https://github.com/kroblus/wuhan-eldercare-match/actions/runs/41173026768)，verify 与 deploy 均成功，部署输出 page_url 为上方地址。2026-10-31 13:36（北京时间）部署提交 `74903725e3e7d93c1ac860d400590b409ac53f59`，公网 `build-info.json` 的 PUBLIC_DEMO 与 SHA 一致；证据为 `public-build-info-first.json`。后续交付提交的最终 SHA、源码 CI 与 Pages run 保存在本地交付回执及最终回复，站点当前 SHA 可直接查看 [build-info.json](https://kroblus.github.io/wuhan-eldercare-match/build-info.json)。
+
+首次源码 CI 的旧全局 localStorage 禁令误包含编译隔离的演示偏好和跨标签通知，已限定仅这两个演示文件允许；其余生产限制及禁止清空整个域名存储的检查保留。修复后本地 `check:p1` 通过；源码 CI 与 Pages 分开核对，不以首次 Pages 成功掩盖该检查失败。
+
+公网全新 Chromium 上完整重跑相同 16 个 E2E，全部通过（2.7 分钟）。桌面 1440、手机 390、压力宽度 320 的核心故事、机构 V1/V2 与双标签冲突、刷新持久化、hash 深链、进度导入与重置、7 个尺寸的 100%／150% 应用字号均从真实 Pages 地址执行。三条核心故事记录的请求均限本项目静态路径，外域／真实业务请求为 0；下载事件成功落盘，解析四个工作表，snapshotId 与新需求合计同预览一致。公网下载另经四页渲染及公式错误搜索（0 命中）。
+
+公网证据仍只保存在本机 `output/admin-pages-mock-demo-v1-20261031/`：`public-e2e.log`、`public-e2e-artifacts/`、`public-playwright-report/`（含网络附件）、`public-desktop-report.png`、`public-mobile-report.png`、`public-synthetic-report.xlsx` 和 `public-workbook-报告总览.png` 等四页渲染。它们是公网成果，区别于前述 localhost 与中途原生 Chrome 证据。
 
 ## 尚未验证的范围
 
